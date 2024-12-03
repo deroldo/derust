@@ -1,0 +1,39 @@
+[package]
+name = "rustboot"
+version = "0.1.0"
+edition = "2021"
+authors = ["Deroldo <diogoderoldo@gmail.com>"]
+
+[features]
+default = ["env"]
+env = ["dep:thiserror", "dep:serde"]
+http = ["dep:axum", "dep:tower-http", "dep:bytes", "dep:lazy_static", "dep:async-trait", "dep:serde", "dep:tracing", "dep:uuid", "dep:tokio"]
+
+[dependencies]
+# Async runtime
+tokio = { version = "1.41.1", features = ["full"], optional = true }
+
+# Http
+axum = { version = "0.7.7", features = ["macros", "tokio"], optional = true }
+tower-http = { version = "0.6.1", features = ["catch-panic", "timeout", "trace", "request-id", "util", "sensitive-headers", "compression-gzip"], optional = true }
+
+# Json
+serde = { version = "1.0.214", features = ["derive"], optional = true }
+serde_json = { version = "1.0.132", optional = true }
+
+# Error
+thiserror = { version = "2.0.0", optional = true }
+
+# Observability
+tracing = { version = "0.1.40", features = ["attributes", "tracing-attributes"], optional = true }
+cadence = { version = "1.5.0", optional = true }
+metrics-exporter-statsd = { version = "0.9.0", optional = true }
+metrics = { version = "0.24.0", optional = true }
+datadog-tracing = { version = "0.2.1", features = ["axum"], optional = true }
+tracing-appender = { version = "0.2.3", optional = true }
+
+# Utils
+lazy_static = { version = "1.5.0", optional = true }
+async-trait = { version = "0.1.83", optional = true }
+bytes = { version = "1.8.0", optional = true }
+uuid = { version = "1.10.0", features = ["v7", "fast-rng", "serde"], optional = true }
