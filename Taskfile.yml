@@ -1,0 +1,55 @@
+version: '3'
+
+tasks:
+  setup:
+    silent: true
+    cmds:
+      - cargo install cargo-nextest
+      - cargo install cargo-watch
+
+  build:
+    silent: true
+    cmds:
+      - task: build:default
+
+  build:default:
+    silent: true
+    cmds:
+      - cargo build
+
+  build:release:
+    silent: true
+    cmds:
+      - cargo build --release
+
+  test:
+    silent: true
+    cmds:
+      - task: test:default
+
+  test:default:
+    silent: true
+    cmds:
+      - cargo nextest run
+
+  test:watch:
+    silent: true
+    cmds:
+      - cargo watch -x "nextest run"
+
+  lint:
+    silent: true
+    cmds:
+      - task: lint:default
+
+  lint:default:
+    silent: true
+    cmds:
+      - cargo fmt --all -- --check
+      - cargo clippy -- -D warnings
+
+  lint:fix:
+    silent: true
+    cmds:
+      - cargo fmt --all
+      - cargo clippy

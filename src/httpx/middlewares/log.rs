@@ -55,31 +55,25 @@ async fn buffer_and_print(
     let request_body_string =
         std::str::from_utf8(&req_bytes).unwrap_or("Could not convert request bytes into string");
 
-    if status.is_server_error() {
+    if log_enabled!(Level::Debug) {
         let res_body_str = std::str::from_utf8(&response_bytes)
             .unwrap_or("Could not convert response bytes into string");
-        error!(
-            request = request_body_string,
-            "{method} {uri} -> {} :: response :: {res_body_str}",
-            status.as_u16(),
-        );
-    } else if log_enabled!(Level::Debug) {
-        let res_body_str = std::str::from_utf8(&response_bytes)
-            .unwrap_or("Could not convert response bytes into string");
-        debug!(
-            request = request_body_string,
-            "{} {} -> {} :: {}",
-            method,
-            uri,
-            status.as_u16(),
-            res_body_str,
-        );
+
+        if status.is_server_error() {
+            error!(
+                request = request_body_string,
+                "{method} {uri} -> {} :: response :: {res_body_str}",
+                status.as_u16(),
+            );
+        } else {
+            debug!(
+                request = request_body_string,
+                "{method} {uri} -> {} :: response :: {res_body_str}",
+                status.as_u16(),
+            );
+        }
     } else {
-        info!(
-            request = request_body_string,
-            "{method} {uri} -> {}",
-            status.as_u16(),
-        );
+        info!("{method} {uri} -> {}", status.as_u16(),);
     }
 
     Ok(response_bytes)

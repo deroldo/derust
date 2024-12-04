@@ -1,4 +1,3 @@
-use crate::envx::Environment;
 use crate::httpx::health;
 use crate::httpx::middlewares::log::log_request;
 use crate::httpx::middlewares::{
@@ -17,34 +16,29 @@ lazy_static! {
 }
 
 pub trait MiddlewaresGenericExtension<S> {
-    fn using_httpx(self, env: Environment, state: S, routes: Vec<(&str, Router<S>)>) -> Router;
+    fn using_httpx(self, state: S, routes: Vec<(&str, Router<S>)>) -> Router;
 }
 
 pub trait MiddlewaresExtension {
-    fn using_httpx(self, env: Environment, routes: Vec<(&str, Router)>) -> Router; // 1
+    fn using_httpx(self, routes: Vec<(&str, Router)>) -> Router;
 }
 
 impl<S> MiddlewaresGenericExtension<S> for Router<S>
 where
     S: Clone + Send + Sync + 'static,
 {
-    fn using_httpx(self, env: Environment, state: S, routes: Vec<(&str, Router<S>)>) -> Router {
-        apply_middlewares(self, env, state, routes)
+    fn using_httpx(self, state: S, routes: Vec<(&str, Router<S>)>) -> Router {
+        apply_middlewares(self, state, routes)
     }
 }
 
 impl MiddlewaresExtension for Router {
-    fn using_httpx(self, env: Environment, routes: Vec<(&str, Router)>) -> Router {
-        apply_middlewares(self, env, (), routes)
+    fn using_httpx(self, routes: Vec<(&str, Router)>) -> Router {
+        apply_middlewares(self, (), routes)
     }
 }
 
-fn apply_middlewares<S>(
-    router: Router<S>,
-    env: Environment,
-    state: S,
-    routes: Vec<(&str, Router<S>)>,
-) -> Router<()>
+fn apply_middlewares<S>(router: Router<S>, state: S, routes: Vec<(&str, Router<S>)>) -> Router<()>
 where
     S: Clone + Send + Sync + 'static,
 {
@@ -52,7 +46,7 @@ where
         .into_iter()
         .fold(router, |router, (path, r)| router.nest(path, r));
 
-    let mut router = router
+    router
         .route(health::HEALTH_PATH, get(health::route()))
         .layer(sensitive_headers::request_headers())
         .layer(error_handler::panic_catcher())
@@ -62,11 +56,7 @@ where
         .layer(request_id::propagate_request_id())
         .layer(tracer::otel_in_response())
         .layer(timeout::timeouts())
-        .layer(compression::compression());
-
-    if env.is_local() {
-        router = router.layer(middleware::from_fn(log_request));
-    }
-
-    router.with_state(state)
+        .layer(compression::compression())
+        .layer(middleware::from_fn(log_request))
+        .with_state(state)
 }
