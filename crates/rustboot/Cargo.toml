@@ -1,0 +1,59 @@
+[package]
+name = "rustboot"
+version = "0.1.0"
+edition = "2021"
+authors = ["Deroldo <diogoderoldo@gmail.com>"]
+
+[features]
+default = ["env"]
+env = ["dep:thiserror", "dep:serde"]
+http = [
+    "dep:axum",
+    "dep:tower-http",
+    "dep:bytes",
+    "dep:lazy_static",
+    "dep:async-trait",
+    "dep:serde",
+    "dep:serde_json",
+    "dep:tracing",
+    "dep:uuid",
+    "dep:tokio",
+    "dep:axum-tracing-opentelemetry",
+    "dep:opentelemetry-otlp",
+    "dep:init-tracing-opentelemetry",
+    "dep:tracing-subscriber"
+]
+http_client = ["dep:reqwest", "dep:reqwest-middleware", "dep:reqwest-tracing"]
+
+[dependencies]
+# Async runtime
+tokio = { workspace = true, features = ["full"], optional = true }
+
+# Http
+axum = { workspace = true, default-features = true, features = ["macros", "tokio"], optional = true }
+tower-http = { workspace = true, features = ["catch-panic", "timeout", "trace", "request-id", "util", "sensitive-headers", "compression-gzip"], optional = true }
+
+# Http client
+reqwest = { workspace = true, features = ["http2", "default-tls", "default", "json", "gzip"], optional = true }
+reqwest-middleware = { workspace = true, features = ["json", "http2", "rustls-tls"], optional = true }
+reqwest-tracing = { workspace = true, features = ["opentelemetry_0_26"], optional = true }
+
+# Json
+serde = { workspace = true, features = ["derive"], optional = true }
+serde_json = { workspace = true, optional = true }
+
+# Error
+thiserror = { workspace = true, optional = true }
+
+# Observability
+tracing = { workspace = true, features = ["attributes", "tracing-attributes"], optional = true }
+axum-tracing-opentelemetry = { workspace = true, optional = true }
+opentelemetry-otlp = { workspace = true, features = ["populate-logs-event-name", "logs", "reqwest-client", "tracing", "serde", "integration-testing", "reqwest", "metrics"], optional = true}
+init-tracing-opentelemetry = { workspace = true, features = ["otlp", "opentelemetry-otlp", "tracer", "tracing_subscriber_ext"], optional = true }
+tracing-subscriber = { workspace = true, optional = true }
+
+# Utils
+lazy_static = { workspace = true, optional = true }
+async-trait = { workspace = true, optional = true }
+bytes = { workspace = true, optional = true }
+uuid = { workspace = true, features = ["v7", "fast-rng", "serde"], optional = true }

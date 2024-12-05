@@ -1,0 +1,15 @@
+[package]
+name = "rustboot-example"
+version = "0.1.0"
+edition = "2021"
+authors = ["Deroldo <diogoderoldo@gmail.com>"]
+
+[dependencies]
+rustboot = { path = "../rustboot", features = ["http", "http_client"] }
+
+tokio.workspace = true
+axum.workspace = true
+serde_json.workspace = true
+tracing.workspace = true
+axum-tracing-opentelemetry.workspace = true
+tracing-opentelemetry-instrumentation-sdk.workspace = true

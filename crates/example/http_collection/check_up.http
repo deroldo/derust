@@ -1,0 +1,11 @@
+GET http://localhost:9095/health
+###
+
+GET http://localhost:9095/foo
+###
+
+GET http://localhost:9095/bar
+###
+
+GET http://localhost:9095/bar/xpto
+###

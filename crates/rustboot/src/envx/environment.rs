@@ -1,4 +1,4 @@
-use crate::envx::Error;
+use crate::envx::EnvironmentError;
 use serde::{Deserialize, Serialize};
 use std::env;
 
@@ -15,10 +15,10 @@ pub enum Environment {
 }
 
 impl Environment {
-    pub fn detect() -> Result<Environment, Error> {
+    pub fn detect() -> Result<Environment, EnvironmentError> {
         match env::var(ENV_VAR).ok() {
             Some(env) => Environment::try_from(env),
-            None => Err(Error::EnvNotFound(ENV_VAR.to_string())),
+            None => Err(EnvironmentError::EnvNotFound(ENV_VAR.to_string())),
         }
     }
 
@@ -40,7 +40,7 @@ impl Environment {
 }
 
 impl<'a> TryFrom<&'a str> for Environment {
-    type Error = Error;
+    type Error = EnvironmentError;
 
     fn try_from(env: &'a str) -> Result<Self, Self::Error> {
         from_string(env)
@@ -48,19 +48,19 @@ impl<'a> TryFrom<&'a str> for Environment {
 }
 
 impl TryFrom<String> for Environment {
-    type Error = Error;
+    type Error = EnvironmentError;
 
     fn try_from(env: String) -> Result<Self, Self::Error> {
         from_string(env)
     }
 }
 
-fn from_string(env: impl AsRef<str>) -> Result<Environment, Error> {
+fn from_string(env: impl AsRef<str>) -> Result<Environment, EnvironmentError> {
     match env.as_ref().to_lowercase().as_str() {
         LOCAL => Ok(Environment::Local),
         STAGING => Ok(Environment::Staging),
         PRODUCTION => Ok(Environment::Production),
-        _ => Err(Error::UnknownEnvironment(env.as_ref().to_string())),
+        _ => Err(EnvironmentError::UnknownEnvironment(env.as_ref().to_string())),
     }
 }
 
@@ -86,7 +86,7 @@ mod test {
         let unknown = String::from("unknown");
 
         assert!(
-            matches!(Environment::try_from(unknown.clone()), Err(Error::UnknownEnvironment(value)) if value == unknown)
+            matches!(Environment::try_from(unknown.clone()), Err(EnvironmentError::UnknownEnvironment(value)) if value == unknown)
         );
     }
 
