@@ -43,7 +43,7 @@ async fn foo_handler(State(_app_state): State<AppState>) -> Box<dyn HttpResponse
 }
 
 async fn bar_handler(State(_app_state): State<AppState>) -> Result<String, HttpError> {
-    let client = http_clientx::new(1000, 200).await.unwrap();
+    let client = http_clientx::new("my-example", 1000, 200).await.unwrap();
 
     http_clientx::get::<Value, ()>(
         &client,

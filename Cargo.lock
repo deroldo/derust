@@ -1499,6 +1499,8 @@ dependencies = [
  "bytes",
  "init-tracing-opentelemetry",
  "lazy_static",
+ "opentelemetry 0.27.1",
+ "opentelemetry-http",
  "opentelemetry-otlp",
  "reqwest",
  "reqwest-middleware",
@@ -1509,6 +1511,7 @@ dependencies = [
  "tokio",
  "tower-http",
  "tracing",
+ "tracing-opentelemetry 0.28.0",
  "tracing-subscriber",
  "uuid",
 ]

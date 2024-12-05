@@ -21,9 +21,16 @@ http = [
     "dep:axum-tracing-opentelemetry",
     "dep:opentelemetry-otlp",
     "dep:init-tracing-opentelemetry",
-    "dep:tracing-subscriber"
+    "dep:tracing-subscriber",
 ]
-http_client = ["dep:reqwest", "dep:reqwest-middleware", "dep:reqwest-tracing"]
+http_client = [
+    "dep:reqwest",
+    "dep:reqwest-middleware",
+    "dep:reqwest-tracing",
+    "dep:opentelemetry",
+    "dep:tracing-opentelemetry",
+    "dep:opentelemetry-http",
+]
 
 [dependencies]
 # Async runtime
@@ -46,11 +53,14 @@ serde_json = { workspace = true, optional = true }
 thiserror = { workspace = true, optional = true }
 
 # Observability
+opentelemetry = { workspace = true, optional = true }
 tracing = { workspace = true, features = ["attributes", "tracing-attributes"], optional = true }
 axum-tracing-opentelemetry = { workspace = true, optional = true }
-opentelemetry-otlp = { workspace = true, features = ["populate-logs-event-name", "logs", "reqwest-client", "tracing", "serde", "integration-testing", "reqwest", "metrics"], optional = true}
+opentelemetry-otlp = { workspace = true, features = ["http", "populate-logs-event-name", "logs", "reqwest-client", "tracing", "serde", "integration-testing", "reqwest", "metrics"], optional = true}
 init-tracing-opentelemetry = { workspace = true, features = ["otlp", "opentelemetry-otlp", "tracer", "tracing_subscriber_ext"], optional = true }
 tracing-subscriber = { workspace = true, optional = true }
+tracing-opentelemetry = { workspace = true, optional = true }
+opentelemetry-http = { workspace = true, features = ["reqwest"], optional = true }
 
 # Utils
 lazy_static = { workspace = true, optional = true }

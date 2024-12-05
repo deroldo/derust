@@ -1,15 +1,19 @@
-use std::time::Duration;
-use axum_tracing_opentelemetry::tracing_opentelemetry_instrumentation_sdk::{find_current_context, find_current_trace_id};
-use reqwest::{Client, StatusCode};
-use reqwest_middleware::{ClientBuilder, RequestBuilder, ClientWithMiddleware};
-use reqwest_tracing::TracingMiddleware;
 use crate::httpx::{HttpError, Tags};
+use opentelemetry::trace::TraceContextExt;
+use reqwest::{Client, StatusCode};
+use reqwest_middleware::{ClientBuilder, ClientWithMiddleware, RequestBuilder};
+use reqwest_tracing::TracingMiddleware;
+use std::time::Duration;
+use tracing::Span;
+use tracing_opentelemetry::OpenTelemetrySpanExt;
 
 pub async fn new(
+    user_agent: &str,
     timeout: u64,
     connection_timeout: u64,
 ) -> Result<ClientWithMiddleware, Box<dyn std::error::Error>> {
     let reqwest_client = Client::builder()
+        .user_agent(user_agent)
         .timeout(Duration::from_millis(timeout))
         .connect_timeout(Duration::from_millis(connection_timeout))
         .build()?;
@@ -126,10 +130,8 @@ where
         request_builder = request_builder.header(key, value);
     }
 
-    if let Some(trace_id) = find_current_trace_id() {
-        request_builder = request_builder.header("traceId", &trace_id);
-        request_builder = request_builder.header("x-trace-id", &trace_id);
-        request_builder = request_builder.header("x-b3-trace-id", &trace_id);
+    if let Some(trace_parent) = get_traceparent() {
+        request_builder = request_builder.header("traceparent", &trace_parent);
     }
 
     let res = request_builder.send().await.map_err(|error| HttpError::without_body(
@@ -152,5 +154,23 @@ where
             format!("Http response error: {response_message}"),
             tags.clone(),
         ))
+    }
+}
+
+fn get_traceparent() -> Option<String> {
+    let ctx = Span::current().context();
+    let binding = ctx.span();
+    let span_context = binding.span_context();
+
+    if span_context.is_valid() {
+        Some(format!(
+            "{:02x}-{:032x}-{:016x}-{:02x}",
+            span_context.trace_flags().to_u8(),
+            span_context.trace_id(),
+            span_context.span_id(),
+            span_context.trace_flags().to_u8()
+        ))
+    } else {
+        None
     }
 }
