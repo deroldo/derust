@@ -60,7 +60,9 @@ fn from_string(env: impl AsRef<str>) -> Result<Environment, EnvironmentError> {
         LOCAL => Ok(Environment::Local),
         STAGING => Ok(Environment::Staging),
         PRODUCTION => Ok(Environment::Production),
-        _ => Err(EnvironmentError::UnknownEnvironment(env.as_ref().to_string())),
+        _ => Err(EnvironmentError::UnknownEnvironment(
+            env.as_ref().to_string(),
+        )),
     }
 }
 

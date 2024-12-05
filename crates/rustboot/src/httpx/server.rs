@@ -2,8 +2,8 @@ use axum::Router;
 use std::net::{Ipv4Addr, SocketAddr};
 use tokio::net::TcpListener;
 
-use tracing::info;
 use crate::shutdown_signal;
+use tracing::info;
 
 pub async fn start(port: u16, router: Router<()>) -> Result<(), Box<dyn std::error::Error>> {
     info!("Starting http server on port {}", port);

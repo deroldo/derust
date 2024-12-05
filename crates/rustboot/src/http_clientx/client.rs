@@ -103,7 +103,11 @@ where
 
 fn full_url(url: &str, query_params: Option<Vec<(&str, &str)>>) -> String {
     let params = if let Some(params) = query_params {
-        let query = params.iter().map(|(k, v)| format!("{}={}", k, v)).collect::<Vec<String>>().join("&");
+        let query = params
+            .iter()
+            .map(|(k, v)| format!("{}={}", k, v))
+            .collect::<Vec<String>>()
+            .join("&");
         format!("?{}", query)
     } else {
         "".to_string()
@@ -134,21 +138,28 @@ where
         request_builder = request_builder.header("traceparent", &trace_parent);
     }
 
-    let res = request_builder.send().await.map_err(|error| HttpError::without_body(
-        error.status().unwrap_or(StatusCode::BAD_GATEWAY),
-        format!("Failed to send http request: {error}"),
-        tags.clone(),
-    ))?;
+    let res = request_builder.send().await.map_err(|error| {
+        HttpError::without_body(
+            error.status().unwrap_or(StatusCode::BAD_GATEWAY),
+            format!("Failed to send http request: {error}"),
+            tags.clone(),
+        )
+    })?;
 
     if res.status().is_success() {
-        res.json().await.map_err(|error| HttpError::without_body(
-            error.status().unwrap_or(StatusCode::BAD_GATEWAY),
-            format!("Failed to deserialize response: {error}"),
-            tags.clone(),
-        ))
+        res.json().await.map_err(|error| {
+            HttpError::without_body(
+                error.status().unwrap_or(StatusCode::BAD_GATEWAY),
+                format!("Failed to deserialize response: {error}"),
+                tags.clone(),
+            )
+        })
     } else {
         let status_code = res.status();
-        let response_message = res.text().await.unwrap_or("Failed to get response body as text".to_string());
+        let response_message = res
+            .text()
+            .await
+            .unwrap_or("Failed to get response body as text".to_string());
         Err(HttpError::without_body(
             status_code,
             format!("Http response error: {response_message}"),

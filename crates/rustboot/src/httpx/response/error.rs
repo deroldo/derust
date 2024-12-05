@@ -1,8 +1,8 @@
 use crate::httpx::tags::Tags;
+use crate::httpx::HttpResponse;
 use axum::http::StatusCode;
 use axum_tracing_opentelemetry::tracing_opentelemetry_instrumentation_sdk::find_current_trace_id;
 use serde_json::Value;
-use crate::httpx::HttpResponse;
 
 pub struct HttpError {
     status_code: StatusCode,
@@ -86,7 +86,11 @@ impl HttpResponse for HttpError {
         let mut tags = self.tags.clone();
         tags.insert("error_message", &self.error_message);
 
-        if !tags.values().iter().any(|(key, _)| key.to_uppercase() == "X-TRACE-ID".to_uppercase()) {
+        if !tags
+            .values()
+            .iter()
+            .any(|(key, _)| key.to_uppercase() == "X-TRACE-ID".to_uppercase())
+        {
             if let Some(trace_id) = find_current_trace_id() {
                 tags.insert("x-trace-id", &trace_id);
             }

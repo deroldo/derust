@@ -42,7 +42,10 @@ impl HttpResponse for JsonResponse {
     fn response_headers(&self) -> Option<Vec<(String, String)>> {
         let mut headers: Vec<(String, String)> = self.response_headers.clone().unwrap_or_default();
 
-        if !headers.iter().any(|(name, _)| name.to_uppercase() == "Content-Type".to_uppercase()) {
+        if !headers
+            .iter()
+            .any(|(name, _)| name.to_uppercase() == "Content-Type".to_uppercase())
+        {
             headers.push(("Content-Type".to_string(), "application/json".to_string()));
         }
 
@@ -52,7 +55,11 @@ impl HttpResponse for JsonResponse {
     fn tags(&self) -> Tags {
         let mut tags = self.tags.clone();
 
-        if !tags.values().iter().any(|(key, _)| key.to_uppercase() == "X-TRACE-ID".to_uppercase()) {
+        if !tags
+            .values()
+            .iter()
+            .any(|(key, _)| key.to_uppercase() == "X-TRACE-ID".to_uppercase())
+        {
             if let Some(trace_id) = find_current_trace_id() {
                 tags.insert("x-trace-id", &trace_id);
             }

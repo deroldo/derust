@@ -1,17 +1,19 @@
+use crate::httpx::json::JsonResponse;
 use crate::httpx::{HttpError, HttpResponse};
 use axum::http::{HeaderMap, HeaderName, HeaderValue};
 use axum::response::{IntoResponse, Response};
 use std::str::FromStr;
-use crate::httpx::json::JsonResponse;
 
 impl IntoResponse for Box<dyn HttpResponse> {
-    // TODO: remover os unwraps
     fn into_response(self) -> Response {
         let headers_vec = self.response_headers().unwrap_or_default();
 
         let mut headers = HeaderMap::new();
         for (name, value) in headers_vec {
-            headers.insert(HeaderName::from_str(&name).unwrap(), HeaderValue::from_str(&value).unwrap());
+            headers.insert(
+                HeaderName::from_str(&name).unwrap(),
+                HeaderValue::from_str(&value).unwrap(),
+            );
         }
 
         let mut response = Response::builder()
@@ -27,13 +29,15 @@ impl IntoResponse for Box<dyn HttpResponse> {
 }
 
 impl IntoResponse for JsonResponse {
-    // TODO: remover os unwraps
     fn into_response(self) -> Response {
         let headers_vec = self.response_headers().unwrap_or_default();
 
         let mut headers = HeaderMap::new();
         for (name, value) in headers_vec {
-            headers.insert(HeaderName::from_str(&name).unwrap(), HeaderValue::from_str(&value).unwrap());
+            headers.insert(
+                HeaderName::from_str(&name).unwrap(),
+                HeaderValue::from_str(&value).unwrap(),
+            );
         }
 
         let mut response = Response::builder()
@@ -49,13 +53,15 @@ impl IntoResponse for JsonResponse {
 }
 
 impl IntoResponse for HttpError {
-    // TODO: remover os unwraps
     fn into_response(self) -> Response {
         let headers_vec = self.response_headers().unwrap_or_default();
 
         let mut headers = HeaderMap::new();
         for (name, value) in headers_vec {
-            headers.insert(HeaderName::from_str(&name).unwrap(), HeaderValue::from_str(&value).unwrap());
+            headers.insert(
+                HeaderName::from_str(&name).unwrap(),
+                HeaderValue::from_str(&value).unwrap(),
+            );
         }
 
         let mut response = Response::builder()

@@ -2,7 +2,6 @@ use axum::extract::State;
 use axum::http::StatusCode;
 use axum::routing::get;
 use axum::Router;
-use axum_tracing_opentelemetry::tracing_opentelemetry_instrumentation_sdk::find_current_trace_id;
 use rustboot::envx::Environment;
 use rustboot::httpx::json::JsonResponse;
 use rustboot::httpx::{start, HttpError, HttpResponse, MiddlewaresGenericExtension, Tags};
@@ -19,7 +18,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let router = Router::new()
         .nest("/foo", Router::new().route("/", get(foo_handler)))
-        .nest("/bar", Router::new().route("/", get(bar_handler)).route("/xpto", get(xpto_handler)))
+        .nest(
+            "/bar",
+            Router::new()
+                .route("/", get(bar_handler))
+                .route("/xpto", get(xpto_handler)),
+        )
         .using_httpx(app_state, env);
 
     start(9095, router).await
@@ -51,16 +55,20 @@ async fn bar_handler(State(_app_state): State<AppState>) -> Result<String, HttpE
         Some(vec![("p1", "batata")]),
         Some(vec![("h1", "frita")]),
         Tags::from([("t1", "chips")]),
-    ).await?;
+    )
+    .await?;
 
     Ok("Hello World".to_string())
 }
 
-
 async fn xpto_handler(State(_app_state): State<AppState>) -> Result<JsonResponse, HttpError> {
-    let batata = find_current_trace_id().unwrap_or("none".to_string());
-    let tags = Tags::from([("customer_id", "987654323456"), ("batata", &batata)]);
-    Ok(JsonResponse::new(StatusCode::OK, json!({
-        "code": 456,
-    }),None, tags))
+    let tags = Tags::from([("customer_id", "987654323456")]);
+    Ok(JsonResponse::new(
+        StatusCode::OK,
+        json!({
+            "code": 456,
+        }),
+        None,
+        tags,
+    ))
 }

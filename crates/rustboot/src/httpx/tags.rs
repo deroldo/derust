@@ -13,7 +13,10 @@ impl Tags {
     }
 
     pub fn error_message(message: &str) -> Self {
-        Self(HashMap::from([("message".to_string(), message.to_string())]))
+        Self(HashMap::from([(
+            "message".to_string(),
+            message.to_string(),
+        )]))
     }
 
     pub fn insert(&mut self, k: &str, v: &str) {

@@ -1521,12 +1521,9 @@ name = "rustboot-example"
 version = "0.1.0"
 dependencies = [
  "axum",
- "axum-tracing-opentelemetry",
  "rustboot",
  "serde_json",
  "tokio",
- "tracing",
- "tracing-opentelemetry-instrumentation-sdk",
 ]
 
 [[package]]

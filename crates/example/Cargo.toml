@@ -5,11 +5,8 @@ edition = "2021"
 authors = ["Deroldo <diogoderoldo@gmail.com>"]
 
 [dependencies]
-rustboot = { path = "../rustboot", features = ["http", "http_client"] }
+rustboot = { path = "../rustboot", default-features = true, features = ["http_client"] }
 
 tokio.workspace = true
 axum.workspace = true
 serde_json.workspace = true
-tracing.workspace = true
-axum-tracing-opentelemetry.workspace = true
-tracing-opentelemetry-instrumentation-sdk.workspace = true

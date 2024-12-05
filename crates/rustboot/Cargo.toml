@@ -5,8 +5,14 @@ edition = "2021"
 authors = ["Deroldo <diogoderoldo@gmail.com>"]
 
 [features]
-default = ["env"]
-env = ["dep:thiserror", "dep:serde"]
+default = [
+    "env",
+    "http",
+]
+env = [
+    "dep:thiserror",
+    "dep:serde",
+]
 http = [
     "dep:axum",
     "dep:tower-http",

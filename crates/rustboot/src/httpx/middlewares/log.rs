@@ -21,7 +21,6 @@ where
     log(state, req, next, true).await
 }
 
-
 pub async fn log_request<S>(
     State(state): State<S>,
     req: Request<Body>,

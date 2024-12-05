@@ -49,7 +49,7 @@ where
         .layer(error_handler::panic_catcher())
         .layer(sensitive_headers::response_headers())
         .layer(TraceLayer::new_for_http())
-        .layer(OtelInResponseLayer::default())
+        .layer(OtelInResponseLayer)
         .layer(OtelAxumLayer::default())
         .layer(timeout::timeouts())
         .layer(compression::compression());

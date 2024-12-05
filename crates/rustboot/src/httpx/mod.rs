@@ -13,8 +13,8 @@ mod tags;
 
 pub use config::*;
 pub use context::*;
-pub use extension::*;
 pub use error::*;
+pub use extension::*;
 pub use response::*;
 pub use server::*;
 pub use tags::*;

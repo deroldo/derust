@@ -1,6 +1,6 @@
 use init_tracing_opentelemetry::tracing_subscriber_ext::{build_otel_layer, TracingGuard};
-use tracing_subscriber::{fmt, EnvFilter};
 use tracing_subscriber::layer::SubscriberExt;
+use tracing_subscriber::{fmt, EnvFilter};
 
 pub fn init() -> Result<TracingGuard, Box<dyn std::error::Error>> {
     let subscriber = tracing_subscriber::registry()

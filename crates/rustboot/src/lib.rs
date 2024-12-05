@@ -1,5 +1,6 @@
 use tokio::signal;
 
+#[cfg(feature = "env")]
 pub mod envx;
 
 #[cfg(feature = "http")]

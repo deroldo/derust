@@ -1,8 +1,8 @@
-use axum::http::StatusCode;
 use crate::httpx::Tags;
+use axum::http::StatusCode;
 
-pub mod json;
 pub mod error;
+pub mod json;
 
 pub trait HttpResponse: Send + Sync {
     fn status_code(&self) -> StatusCode;

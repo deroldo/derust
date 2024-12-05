@@ -33,7 +33,6 @@ tracing-subscriber = { version = "0.3.19", features = ["env-filter", "fmt", "std
 axum-tracing-opentelemetry = { version = "0.24.1", features = ["tracing_level_info"]}
 opentelemetry-otlp = { version = "0.27.0", default-features = false, features = ["http", "populate-logs-event-name", "logs", "reqwest-client", "tracing", "serde", "integration-testing", "reqwest", "metrics", "reqwest-rustls", "http-proto", "tls"] }
 init-tracing-opentelemetry = { version = "0.24.1", features = ["otlp", "opentelemetry-otlp", "tracer", "tracing_subscriber_ext"] }
-tracing-opentelemetry-instrumentation-sdk = { version = "0.24.0" }
 opentelemetry = { version = "0.27.1" }
 tracing-opentelemetry = { version = "0.28.0" }
 opentelemetry-http = { version = "0.27.0", features = ["reqwest"] }
@@ -43,4 +42,3 @@ lazy_static = { version = "1.5.0" }
 async-trait = { version = "0.1.83" }
 bytes = { version = "1.9.0" }
 uuid = { version = "1.11.0", features = ["v7", "fast-rng", "serde"] }
-
