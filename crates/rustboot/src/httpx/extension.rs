@@ -16,26 +16,16 @@ lazy_static! {
         vec![header::AUTHORIZATION, header::COOKIE].into();
 }
 
-pub trait MiddlewaresGenericExtension<S> {
+pub trait HttpMiddlewares<S> {
     fn using_httpx(self, state: S, env: Environment) -> Router;
 }
 
-pub trait MiddlewaresExtension {
-    fn using_httpx(self, env: Environment) -> Router;
-}
-
-impl<S> MiddlewaresGenericExtension<S> for Router<S>
+impl<S> HttpMiddlewares<S> for Router<S>
 where
     S: Clone + Send + Sync + 'static,
 {
     fn using_httpx(self, state: S, env: Environment) -> Router {
         apply_middlewares(self, state, env)
-    }
-}
-
-impl MiddlewaresExtension for Router {
-    fn using_httpx(self, env: Environment) -> Router {
-        apply_middlewares(self, (), env)
     }
 }
 

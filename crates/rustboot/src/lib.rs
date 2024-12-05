@@ -1,4 +1,5 @@
 use tokio::signal;
+use tracing::info;
 
 #[cfg(feature = "env")]
 pub mod envx;
@@ -12,16 +13,25 @@ pub mod tracex;
 #[cfg(feature = "http_client")]
 pub mod http_clientx;
 
+#[cfg(feature = "outbox")]
+pub mod outboxx;
+
+#[cfg(feature = "aws")]
+pub mod awsx;
+
+#[cfg(feature = "postgres")]
+pub mod postgresx;
+
 pub async fn shutdown_signal() {
     let ctrl_c = async {
         signal::ctrl_c()
             .await
-            .expect("failed to install Ctrl+C handler");
+            .expect("Failed to install Ctrl+C handler");
     };
 
     let terminate = async {
         signal::unix::signal(signal::unix::SignalKind::terminate())
-            .expect("failed to install signal handler")
+            .expect("Failed to install signal handler")
             .recv()
             .await;
     };
@@ -31,5 +41,5 @@ pub async fn shutdown_signal() {
         _ = terminate => {},
     }
 
-    println!("signal received, starting graceful shutdown");
+    info!("Starting graceful shutdown");
 }

@@ -28,6 +28,7 @@ http = [
     "dep:opentelemetry-otlp",
     "dep:init-tracing-opentelemetry",
     "dep:tracing-subscriber",
+    "dep:wg",
 ]
 http_client = [
     "dep:reqwest",
@@ -36,6 +37,19 @@ http_client = [
     "dep:opentelemetry",
     "dep:tracing-opentelemetry",
     "dep:opentelemetry-http",
+]
+aws = [
+    "dep:aws-sdk-sqs",
+    "dep:aws-sdk-sns",
+    "dep:aws-config",
+]
+postgres = [
+    "dep:sqlx",
+]
+outbox = [
+    "dep:outbox-pattern-processor",
+    "dep:sqlx",
+    "dep:wg",
 ]
 
 [dependencies]
@@ -58,6 +72,17 @@ serde_json = { workspace = true, optional = true }
 # Error
 thiserror = { workspace = true, optional = true }
 
+# Outbox
+outbox-pattern-processor = { workspace = true, optional = true }
+
+# SQL
+sqlx = { workspace = true, features = ["json", "chrono", "postgres", "uuid"], optional = true }
+
+# AWS
+aws-sdk-sqs = { workspace = true, optional = true }
+aws-sdk-sns = { workspace = true, optional = true }
+aws-config = { workspace = true, features = ["behavior-version-latest"], optional = true }
+
 # Observability
 opentelemetry = { workspace = true, optional = true }
 tracing = { workspace = true, features = ["attributes", "tracing-attributes"], optional = true }
@@ -73,3 +98,4 @@ lazy_static = { workspace = true, optional = true }
 async-trait = { workspace = true, optional = true }
 bytes = { workspace = true, optional = true }
 uuid = { workspace = true, features = ["v7", "fast-rng", "serde"], optional = true }
+wg = { workspace = true, optional = true }
