@@ -49,12 +49,14 @@ async fn create_database(database: &DatabaseAttr) -> Result<Database, Error> {
         .await?;
 
     let read_only = if database.host_ro.is_some() {
-        Some(PgPoolOptions::new()
-            .min_connections(database.min_pool_size)
-            .max_connections(database.max_pool_size)
-            .test_before_acquire(true)
-            .connect_with(database.db_connection_options(true))
-            .await?)
+        Some(
+            PgPoolOptions::new()
+                .min_connections(database.min_pool_size)
+                .max_connections(database.max_pool_size)
+                .test_before_acquire(true)
+                .connect_with(database.db_connection_options(true))
+                .await?,
+        )
     } else {
         None
     };
@@ -84,10 +86,19 @@ impl DatabaseAttr {
         let name = env::var("DB_NAME").expect("DB_NAME not found");
         let user = env::var("DB_USER").expect("DB_USER not found");
         let pass = env::var("DB_PASS").expect("DB_PASS not found");
-        let port = env::var("DB_PORT").expect("DB_PORT not found").parse().expect("DB_PORT is not a number");
+        let port = env::var("DB_PORT")
+            .expect("DB_PORT not found")
+            .parse()
+            .expect("DB_PORT is not a number");
         let app_name = env::var("DB_APP_NAME").expect("DB_APP_NAME not found");
-        let min_pool_size = env::var("DB_MIN_POOL_SIZE").expect("DB_MIN_POOL_SIZE not found").parse().expect("DB_MIN_POOL_SIZE is not a number");
-        let max_pool_size = env::var("DB_MAX_POOL_SIZE").expect("DB_MAX_POOL_SIZE not found").parse().expect("DB_MAX_POOL_SIZE is not a number");
+        let min_pool_size = env::var("DB_MIN_POOL_SIZE")
+            .expect("DB_MIN_POOL_SIZE not found")
+            .parse()
+            .expect("DB_MIN_POOL_SIZE is not a number");
+        let max_pool_size = env::var("DB_MAX_POOL_SIZE")
+            .expect("DB_MAX_POOL_SIZE not found")
+            .parse()
+            .expect("DB_MAX_POOL_SIZE is not a number");
 
         Self {
             host_rw,
@@ -104,7 +115,9 @@ impl DatabaseAttr {
 
     fn db_connection_options(&self, read_only: bool) -> PgConnectOptions {
         let host = if read_only {
-            self.host_ro.clone().expect("Read-only database host not found")
+            self.host_ro
+                .clone()
+                .expect("Read-only database host not found")
         } else {
             self.host_rw.clone()
         };
