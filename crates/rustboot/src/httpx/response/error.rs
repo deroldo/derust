@@ -17,14 +17,13 @@ impl HttpError {
         status_code: StatusCode,
         error_message: String,
         response_body: String,
-        response_headers: Option<Vec<(String, String)>>,
         tags: Tags,
     ) -> Self {
         Self {
             status_code,
             error_message,
             response_body: Some(response_body),
-            response_headers,
+            response_headers: None,
             tags,
         }
     }
@@ -33,17 +32,9 @@ impl HttpError {
         status_code: StatusCode,
         error_message: String,
         response_body: Value,
-        response_headers: Option<Vec<(String, String)>>,
         tags: Tags,
     ) -> Self {
-        let mut headers: Vec<(String, String)> = response_headers.unwrap_or_default();
-
-        if !headers
-            .iter()
-            .any(|(name, _)| name.to_uppercase() == "Content-Type".to_uppercase())
-        {
-            headers.push(("Content-Type".to_string(), "application/json".to_string()));
-        }
+        let headers = vec![("Content-Type".to_string(), "application/json".to_string())];
 
         Self {
             status_code,
@@ -62,6 +53,18 @@ impl HttpError {
             response_headers: None,
             tags,
         }
+    }
+
+    pub fn with_headers(mut self, response_headers: Vec<(String, String)>) -> Self {
+        let mut headers: Vec<(String, String)> = self.response_headers.unwrap_or_default();
+
+        for (key, value) in response_headers {
+            headers.push((key, value));
+        }
+
+        self.response_headers = Some(headers);
+
+        self
     }
 }
 
@@ -84,7 +87,7 @@ impl HttpResponse for HttpError {
 
     fn tags(&self) -> Tags {
         let mut tags = self.tags.clone();
-        tags.insert("error_message", &self.error_message);
+        tags.add("error_message", &self.error_message);
 
         if !tags
             .values()
@@ -92,7 +95,7 @@ impl HttpResponse for HttpError {
             .any(|(key, _)| key.to_uppercase() == "X-TRACE-ID".to_uppercase())
         {
             if let Some(trace_id) = find_current_trace_id() {
-                tags.insert("x-trace-id", &trace_id);
+                tags.add("x-trace-id", &trace_id);
             }
         }
 

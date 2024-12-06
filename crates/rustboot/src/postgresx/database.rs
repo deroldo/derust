@@ -1,7 +1,11 @@
+use crate::httpx::{HttpError, Tags};
+use axum::http::StatusCode;
+use sqlx::pool::PoolConnection;
 use sqlx::postgres::{PgConnectOptions, PgPoolOptions};
-use sqlx::{Error, Pool, Postgres};
+use sqlx::{Error, Pool, Postgres, Transaction};
 use std::env;
 
+#[derive(Clone)]
 pub struct Database {
     pub read_write: Pool<Postgres>,
     pub read_only: Option<Pool<Postgres>>,
@@ -37,6 +41,63 @@ impl Database {
         };
 
         create_database(&database).await
+    }
+
+    pub async fn get_connection(&self, read_only: bool, tags: Tags) -> Result<PoolConnection<Postgres>, HttpError> {
+        let pool = if read_only {
+            if let Some(ro) = self.read_only.clone() {
+                ro
+            } else {
+                return Err(HttpError::without_body(
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    "Read-only database not found".to_string(),
+                    tags,
+                ));
+            }
+        } else {
+            self.read_write.clone()
+        };
+
+        pool.acquire().await.map_err(|error| {
+            HttpError::without_body(
+                StatusCode::INTERNAL_SERVER_ERROR,
+                format!("Failed to acquire connection: {error}"),
+                tags,
+            )
+        })
+    }
+
+    pub async fn begin_transaction(
+        &self,
+        tags: Tags,
+    ) -> Result<Transaction<'_, Postgres>, HttpError> {
+        self.read_write.begin().await.map_err(|error| {
+            HttpError::without_body(
+                StatusCode::INTERNAL_SERVER_ERROR,
+                format!("Failed to begin transaction: {error}"),
+                tags,
+            )
+        })
+    }
+}
+
+#[async_trait::async_trait]
+pub trait CommitTransaction {
+    async fn commit_transaction(self, tags: Tags) -> Result<(), HttpError>;
+}
+
+#[async_trait::async_trait]
+impl CommitTransaction for Transaction<'_, Postgres> {
+    async fn commit_transaction(self, tags: Tags) -> Result<(), HttpError> {
+        self.commit().await.map_err(|error| {
+            HttpError::without_body(
+                StatusCode::INTERNAL_SERVER_ERROR,
+                format!("Failed to commit transaction: {error}"),
+                tags,
+            )
+        })?;
+
+        Ok(())
     }
 }
 

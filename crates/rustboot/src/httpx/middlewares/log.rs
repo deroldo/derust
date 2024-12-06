@@ -60,12 +60,12 @@ where
         .extensions()
         .get::<Tags>()
         .cloned()
-        .unwrap_or(Tags::ok());
+        .unwrap_or(Tags::default());
 
     if local || log_enabled!(Level::Debug) {
         let request_body_string = std::str::from_utf8(&req_bytes)
             .unwrap_or("Could not convert request bytes into string");
-        tags.insert("request-body", request_body_string);
+        tags.add("request-body", request_body_string);
     }
 
     let (parts, res_body) = res.into_parts();
