@@ -154,21 +154,6 @@ fn start_stopwatch<S>(context: &AppContext<S>, req: &Request<Body>) -> Stopwatch
 where
     S: Clone,
 {
-    let metric_tags =
-        if let Ok(regex) = Regex::new("(/[a-fA-F0-9-]{36})|(/\\d+/)|(/\\d+$|/\\d+\\?)") {
-            let normalized_path = regex
-                .replace_all(req.uri().path(), "/{path_param}")
-                .to_string();
-
-            let path = normalized_path
-                .split("?")
-                .next()
-                .unwrap_or("failed_to_clean_up_path");
-
-            MetricTags::from([("method", req.method().as_str()), ("path", &path)])
-        } else {
-            MetricTags::default()
-        };
-
-    timer::start_stopwatch(&context, "http_server_income", metric_tags)
+    let metric_tags = MetricTags::htt_server(req.uri(), req.method());
+    timer::start_stopwatch(&context, "http_server_seconds", metric_tags)
 }
