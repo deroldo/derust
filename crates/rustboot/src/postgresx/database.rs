@@ -1,4 +1,4 @@
-use crate::httpx::{HttpError, Tags};
+use crate::httpx::{HttpError, HttpTags};
 use axum::http::StatusCode;
 use sqlx::pool::PoolConnection;
 use sqlx::postgres::{PgConnectOptions, PgPoolOptions};
@@ -43,7 +43,11 @@ impl Database {
         create_database(&database).await
     }
 
-    pub async fn get_connection(&self, read_only: bool, tags: Tags) -> Result<PoolConnection<Postgres>, HttpError> {
+    pub async fn get_connection(
+        &self,
+        read_only: bool,
+        tags: HttpTags,
+    ) -> Result<PoolConnection<Postgres>, HttpError> {
         let pool = if read_only {
             if let Some(ro) = self.read_only.clone() {
                 ro
@@ -69,7 +73,7 @@ impl Database {
 
     pub async fn begin_transaction(
         &self,
-        tags: Tags,
+        tags: HttpTags,
     ) -> Result<Transaction<'_, Postgres>, HttpError> {
         self.read_write.begin().await.map_err(|error| {
             HttpError::without_body(
@@ -83,12 +87,12 @@ impl Database {
 
 #[async_trait::async_trait]
 pub trait CommitTransaction {
-    async fn commit_transaction(self, tags: Tags) -> Result<(), HttpError>;
+    async fn commit_transaction(self, tags: HttpTags) -> Result<(), HttpError>;
 }
 
 #[async_trait::async_trait]
 impl CommitTransaction for Transaction<'_, Postgres> {
-    async fn commit_transaction(self, tags: Tags) -> Result<(), HttpError> {
+    async fn commit_transaction(self, tags: HttpTags) -> Result<(), HttpError> {
         self.commit().await.map_err(|error| {
             HttpError::without_body(
                 StatusCode::INTERNAL_SERVER_ERROR,

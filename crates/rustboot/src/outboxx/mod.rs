@@ -4,8 +4,8 @@ mod sns;
 mod sqs;
 
 pub use http::*;
-pub use runner::*;
 pub use outbox_pattern_processor::outbox_resources::OutboxProcessorResources;
+pub use runner::*;
 
 #[cfg(feature = "aws")]
 pub use sqs::*;
@@ -13,16 +13,16 @@ pub use sqs::*;
 #[cfg(feature = "aws")]
 pub use sns::*;
 
+use crate::httpx::{HttpError, HttpTags};
 use axum::http::StatusCode;
 use outbox_pattern_processor::outbox::Outbox;
 use outbox_pattern_processor::outbox_repository::OutboxRepository;
 use sqlx::PgConnection;
-use crate::httpx::{HttpError, Tags};
 
 pub async fn insert_outbox(
     db_conn: &mut PgConnection,
     outbox: Outbox,
-    tags: Tags,
+    tags: HttpTags,
 ) -> Result<Outbox, HttpError> {
     OutboxRepository::insert(db_conn, outbox)
         .await

@@ -1,9 +1,9 @@
 use std::collections::HashMap;
 
 #[derive(Clone, Debug, Default)]
-pub struct Tags(HashMap<String, String>);
+pub struct HttpTags(HashMap<String, String>);
 
-impl Tags {
+impl HttpTags {
     pub fn error(error: Box<dyn std::error::Error>) -> Self {
         Self(HashMap::from([("error".to_string(), error.to_string())]))
     }
@@ -21,7 +21,7 @@ impl Tags {
     }
 }
 
-impl<const N: usize> From<[(String, String); N]> for Tags {
+impl<const N: usize> From<[(String, String); N]> for HttpTags {
     fn from(arr: [(String, String); N]) -> Self {
         let mut map = HashMap::with_capacity(N);
         for (k, v) in arr {
@@ -31,7 +31,7 @@ impl<const N: usize> From<[(String, String); N]> for Tags {
     }
 }
 
-impl<const N: usize> From<[(&str, String); N]> for Tags {
+impl<const N: usize> From<[(&str, String); N]> for HttpTags {
     fn from(arr: [(&str, String); N]) -> Self {
         let mut map = HashMap::with_capacity(N);
         for (k, v) in arr {
@@ -41,7 +41,7 @@ impl<const N: usize> From<[(&str, String); N]> for Tags {
     }
 }
 
-impl<const N: usize> From<[(&str, &str); N]> for Tags {
+impl<const N: usize> From<[(&str, &str); N]> for HttpTags {
     fn from(arr: [(&str, &str); N]) -> Self {
         let mut map = HashMap::with_capacity(N);
         for (k, v) in arr {

@@ -1,4 +1,4 @@
-use crate::httpx::tags::Tags;
+use crate::httpx::tags::HttpTags;
 use crate::httpx::HttpResponse;
 use axum::http::StatusCode;
 use axum_tracing_opentelemetry::tracing_opentelemetry_instrumentation_sdk::find_current_trace_id;
@@ -9,7 +9,7 @@ pub struct HttpError {
     error_message: String,
     response_body: Option<String>,
     response_headers: Option<Vec<(String, String)>>,
-    tags: Tags,
+    tags: HttpTags,
 }
 
 impl HttpError {
@@ -17,7 +17,7 @@ impl HttpError {
         status_code: StatusCode,
         error_message: String,
         response_body: String,
-        tags: Tags,
+        tags: HttpTags,
     ) -> Self {
         Self {
             status_code,
@@ -32,7 +32,7 @@ impl HttpError {
         status_code: StatusCode,
         error_message: String,
         response_body: Value,
-        tags: Tags,
+        tags: HttpTags,
     ) -> Self {
         let headers = vec![("Content-Type".to_string(), "application/json".to_string())];
 
@@ -45,7 +45,7 @@ impl HttpError {
         }
     }
 
-    pub fn without_body(status_code: StatusCode, error_message: String, tags: Tags) -> Self {
+    pub fn without_body(status_code: StatusCode, error_message: String, tags: HttpTags) -> Self {
         Self {
             status_code,
             error_message,
@@ -85,7 +85,7 @@ impl HttpResponse for HttpError {
         self.response_headers.clone()
     }
 
-    fn tags(&self) -> Tags {
+    fn tags(&self) -> HttpTags {
         let mut tags = self.tags.clone();
         tags.add("error_message", &self.error_message);
 

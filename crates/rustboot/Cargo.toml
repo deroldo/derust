@@ -14,6 +14,7 @@ env = [
     "dep:serde",
 ]
 http = [
+    "dep:regex",
     "dep:axum",
     "dep:tower-http",
     "dep:bytes",
@@ -29,6 +30,7 @@ http = [
     "dep:init-tracing-opentelemetry",
     "dep:tracing-subscriber",
     "dep:wg",
+    "dep:chrono",
 ]
 http_client = [
     "dep:reqwest",
@@ -51,6 +53,28 @@ outbox = [
     "dep:sqlx",
     "dep:wg",
 ]
+statsd = [
+    "dep:regex",
+    "dep:tracing",
+    "dep:lazy_static",
+    "dep:async-trait",
+    "dep:tokio",
+    "dep:cadence",
+    "dep:metrics-exporter-statsd",
+    "dep:metrics",
+]
+prometheus = [
+    "dep:regex",
+    "dep:tracing",
+    "dep:lazy_static",
+    "dep:async-trait",
+    "dep:tokio",
+    "dep:cadence",
+    "dep:metrics-exporter-prometheus",
+    "dep:metrics",
+    "dep:http-body-util",
+    "dep:hyper",
+]
 
 [dependencies]
 # Async runtime
@@ -59,6 +83,7 @@ tokio = { workspace = true, features = ["full"], optional = true }
 # Http
 axum = { workspace = true, default-features = true, features = ["macros", "tokio"], optional = true }
 tower-http = { workspace = true, features = ["catch-panic", "timeout", "trace", "request-id", "util", "sensitive-headers", "compression-gzip"], optional = true }
+hyper = { workspace = true, optional = true }
 
 # Http client
 reqwest = { workspace = true, features = ["http2", "default-tls", "default", "json", "gzip"], optional = true }
@@ -92,6 +117,10 @@ init-tracing-opentelemetry = { workspace = true, features = ["otlp", "openteleme
 tracing-subscriber = { workspace = true, optional = true }
 tracing-opentelemetry = { workspace = true, optional = true }
 opentelemetry-http = { workspace = true, features = ["reqwest"], optional = true }
+cadence = { workspace = true, optional = true }
+metrics-exporter-statsd = { workspace = true, optional = true }
+metrics-exporter-prometheus = { workspace = true, optional = true }
+metrics = { workspace = true, optional = true }
 
 # Utils
 lazy_static = { workspace = true, optional = true }
@@ -99,3 +128,6 @@ async-trait = { workspace = true, optional = true }
 bytes = { workspace = true, optional = true }
 uuid = { workspace = true, features = ["v7", "fast-rng", "serde"], optional = true }
 wg = { workspace = true, optional = true }
+chrono = { workspace = true, features = ["serde"], optional = true }
+http-body-util = { workspace = true, optional = true }
+regex = { workspace = true, optional = true }

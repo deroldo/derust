@@ -1,18 +1,17 @@
 use crate::httpx::{HttpResponse, HttpTags};
 use axum::http::StatusCode;
 use axum_tracing_opentelemetry::tracing_opentelemetry_instrumentation_sdk::find_current_trace_id;
-use serde_json::Value;
 
 #[derive(Clone)]
-pub struct JsonResponse {
+pub struct TextResponse {
     status_code: StatusCode,
-    response_body: Value,
+    response_body: String,
     response_headers: Option<Vec<(String, String)>>,
     tags: HttpTags,
 }
 
-impl JsonResponse {
-    pub fn new(status_code: StatusCode, response_body: Value, tags: HttpTags) -> Self {
+impl TextResponse {
+    pub fn new(status_code: StatusCode, response_body: String, tags: HttpTags) -> Self {
         Self {
             status_code,
             response_body,
@@ -27,7 +26,7 @@ impl JsonResponse {
     }
 }
 
-impl HttpResponse for JsonResponse {
+impl HttpResponse for TextResponse {
     fn status_code(&self) -> StatusCode {
         self.status_code
     }
@@ -47,7 +46,7 @@ impl HttpResponse for JsonResponse {
             .iter()
             .any(|(name, _)| name.to_uppercase() == "Content-Type".to_uppercase())
         {
-            headers.push(("Content-Type".to_string(), "application/json".to_string()));
+            headers.push(("Content-Type".to_string(), "text/plain".to_string()));
         }
 
         Some(headers)

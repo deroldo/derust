@@ -1,4 +1,4 @@
-use crate::httpx::{HttpError, Tags};
+use crate::httpx::{HttpError, HttpTags};
 use opentelemetry::trace::TraceContextExt;
 use reqwest::{Client, StatusCode};
 use reqwest_middleware::{ClientBuilder, ClientWithMiddleware, RequestBuilder};
@@ -28,7 +28,7 @@ pub async fn get<'a, T, B>(
     url: &str,
     query_params: Option<Vec<(&str, &str)>>,
     headers: Option<Vec<(&str, &str)>>,
-    tags: Tags,
+    tags: HttpTags,
 ) -> Result<T, HttpError>
 where
     T: serde::de::DeserializeOwned,
@@ -44,7 +44,7 @@ pub async fn post<'a, T, B>(
     body: &B,
     query_params: Option<Vec<(&str, &str)>>,
     headers: Option<Vec<(&str, &str)>>,
-    tags: Tags,
+    tags: HttpTags,
 ) -> Result<T, HttpError>
 where
     T: serde::de::DeserializeOwned,
@@ -60,7 +60,7 @@ pub async fn put<'a, T, B>(
     body: &B,
     query_params: Option<Vec<(&str, &str)>>,
     headers: Option<Vec<(&str, &str)>>,
-    tags: Tags,
+    tags: HttpTags,
 ) -> Result<T, HttpError>
 where
     T: serde::de::DeserializeOwned,
@@ -76,7 +76,7 @@ pub async fn patch<'a, T, B>(
     body: &B,
     query_params: Option<Vec<(&str, &str)>>,
     headers: Option<Vec<(&str, &str)>>,
-    tags: Tags,
+    tags: HttpTags,
 ) -> Result<T, HttpError>
 where
     T: serde::de::DeserializeOwned,
@@ -91,7 +91,7 @@ pub async fn delete<'a, T, B>(
     url: &str,
     query_params: Option<Vec<(&str, &str)>>,
     headers: Option<Vec<(&str, &str)>>,
-    tags: Tags,
+    tags: HttpTags,
 ) -> Result<T, HttpError>
 where
     T: serde::de::DeserializeOwned,
@@ -120,7 +120,7 @@ async fn send<'a, T, B>(
     mut request_builder: RequestBuilder,
     body: Option<&B>,
     headers: Option<Vec<(&str, &str)>>,
-    tags: Tags,
+    tags: HttpTags,
 ) -> Result<T, HttpError>
 where
     T: serde::de::DeserializeOwned,

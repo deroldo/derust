@@ -1,4 +1,4 @@
-use crate::httpx::{HttpError, Tags};
+use crate::httpx::{HttpError, HttpTags};
 use crate::outboxx::insert_outbox;
 use outbox_pattern_processor::outbox::Outbox;
 use serde_json::Value;
@@ -12,7 +12,7 @@ pub async fn send_to_sqs(
     queue_url: &str,
     headers: Option<HashMap<String, String>>,
     payload: &Value,
-    tags: Tags,
+    tags: HttpTags,
 ) -> Result<Outbox, HttpError> {
     let outbox = Outbox::sqs(partition_key, queue_url, headers, &payload.to_string());
     insert_outbox(db_conn, outbox, tags).await

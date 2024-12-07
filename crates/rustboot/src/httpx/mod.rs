@@ -11,6 +11,9 @@ mod response;
 mod server;
 mod tags;
 
+#[cfg(feature = "prometheus")]
+mod prometheus;
+
 pub use config::*;
 pub use context::*;
 pub use error::*;
