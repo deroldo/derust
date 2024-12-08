@@ -52,7 +52,7 @@ impl RequestContext {
 }
 
 pub async fn get<'a, T, B, S>(
-    context: AppContext<S>,
+    context: &AppContext<S>,
     client: &ClientWithMiddleware,
     url: &str,
     query_params: Option<Vec<(&str, &str)>>,
@@ -70,7 +70,7 @@ where
 }
 
 pub async fn post<'a, T, B, S>(
-    context: AppContext<S>,
+    context: &AppContext<S>,
     client: &ClientWithMiddleware,
     url: &str,
     body: &B,
@@ -89,7 +89,7 @@ where
 }
 
 pub async fn put<'a, T, B, S>(
-    context: AppContext<S>,
+    context: &AppContext<S>,
     client: &ClientWithMiddleware,
     url: &str,
     body: &B,
@@ -108,7 +108,7 @@ where
 }
 
 pub async fn patch<'a, T, B, S>(
-    context: AppContext<S>,
+    context: &AppContext<S>,
     client: &ClientWithMiddleware,
     url: &str,
     body: &B,
@@ -127,7 +127,7 @@ where
 }
 
 pub async fn delete<'a, T, B, S>(
-    context: AppContext<S>,
+    context: &AppContext<S>,
     client: &ClientWithMiddleware,
     url: &str,
     query_params: Option<Vec<(&str, &str)>>,
@@ -160,7 +160,7 @@ fn full_url(url: &str, query_params: Option<Vec<(&str, &str)>>) -> String {
 }
 
 async fn send<'a, T, B, S>(
-    context: AppContext<S>,
+    context: &AppContext<S>,
     request_context: RequestContext,
     mut request_builder: RequestBuilder,
     body: Option<&B>,

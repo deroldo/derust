@@ -1,4 +1,4 @@
-use crate::httpx::AppContext;
+use crate::httpx::{AppContext, HttpTags};
 use axum::http::{Method, Uri};
 use lazy_static::lazy_static;
 use metrics::Label;
@@ -26,7 +26,7 @@ impl MetricTags {
         self.0.clone()
     }
 
-    pub fn to_labels<S>(&self, context: AppContext<S>) -> Vec<Label>
+    pub fn to_labels<S>(&self, context: &AppContext<S>) -> Vec<Label>
     where
         S: Clone,
     {
@@ -82,6 +82,16 @@ impl MetricTag {
 
     pub fn value(&self) -> String {
         self.1.clone()
+    }
+}
+
+impl From<HttpTags> for MetricTags {
+    fn from(value: HttpTags) -> Self {
+        let mut tags = MetricTags::default();
+        for (key, value) in value.values() {
+            tags = tags.push(key, value);
+        }
+        tags
     }
 }
 

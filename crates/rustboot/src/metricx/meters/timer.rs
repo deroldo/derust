@@ -23,8 +23,8 @@ where
         }
 
         record(
-            self.context,
-            self.metric_name,
+            &self.context,
+            &self.metric_name,
             MetricTags(tags),
             self.start.elapsed().as_secs_f64(),
         )
@@ -47,9 +47,9 @@ where
     }
 }
 
-pub fn record<S>(context: AppContext<S>, metric_name: String, metric_tags: MetricTags, value: f64)
+pub fn record<S>(context: &AppContext<S>, metric_name: &str, metric_tags: MetricTags, value: f64)
 where
     S: Clone,
 {
-    metrics::histogram!(metric_name, metric_tags.to_labels(context)).record(value);
+    metrics::histogram!(metric_name.to_string(), metric_tags.to_labels(context)).record(value);
 }

@@ -1,18 +1,14 @@
 use crate::httpx::AppContext;
 use crate::metricx::meters::MetricTags;
 
-pub fn increment<S>(
-    context: AppContext<S>,
-    metric_name: String,
-    metric_tags: MetricTags,
-    count: u64,
-) where
+pub fn increment<S>(context: &AppContext<S>, metric_name: &str, metric_tags: MetricTags, count: u64)
+where
     S: Clone,
 {
-    metrics::counter!(metric_name, metric_tags.to_labels(context)).increment(count);
+    metrics::counter!(metric_name.to_string(), metric_tags.to_labels(context)).increment(count);
 }
 
-pub fn increment_one<S>(context: AppContext<S>, metric_name: String, metric_tags: MetricTags)
+pub fn increment_one<S>(context: &AppContext<S>, metric_name: &str, metric_tags: MetricTags)
 where
     S: Clone,
 {

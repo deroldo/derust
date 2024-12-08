@@ -1,9 +1,12 @@
-use crate::httpx::{HttpError, HttpTags};
+use crate::httpx::{AppContext, HttpError, HttpTags};
 use axum::http::StatusCode;
 use sqlx::pool::PoolConnection;
 use sqlx::postgres::{PgConnectOptions, PgPoolOptions};
 use sqlx::{Error, Pool, Postgres, Transaction};
 use std::env;
+
+#[cfg(any(feature = "statsd", feature = "prometheus"))]
+use crate::metricx::{timer, MetricTags, Stopwatch};
 
 #[derive(Clone)]
 pub struct Database {
@@ -71,37 +74,119 @@ impl Database {
         })
     }
 
-    pub async fn begin_transaction(
+    #[cfg(any(feature = "statsd", feature = "prometheus"))]
+    pub async fn begin_transaction<S>(
         &self,
+        context: &AppContext<S>,
         tags: HttpTags,
-    ) -> Result<Transaction<'_, Postgres>, HttpError> {
-        self.read_write.begin().await.map_err(|error| {
+    ) -> Result<PostgresTransaction<S>, HttpError>
+    where
+        S: Clone,
+    {
+        let transaction = self.read_write.begin().await.map_err(|error| {
             HttpError::without_body(
                 StatusCode::INTERNAL_SERVER_ERROR,
                 format!("Failed to begin transaction: {error}"),
-                tags,
+                tags.clone(),
             )
+        })?;
+
+        Ok(PostgresTransaction {
+            transaction,
+            #[cfg(any(feature = "statsd", feature = "prometheus"))]
+            stopwatch: timer::start_stopwatch(
+                context,
+                "repository_transaction_seconds",
+                MetricTags::from(tags),
+            ),
+        })
+    }
+
+    #[cfg(not(any(feature = "statsd", feature = "prometheus")))]
+    pub async fn begin_transaction<S>(
+        &self,
+        context: &AppContext<S>,
+        tags: HttpTags,
+    ) -> Result<PostgresTransaction, HttpError>
+    where
+        S: Clone,
+    {
+        let transaction = self.read_write.begin().await.map_err(|error| {
+            HttpError::without_body(
+                StatusCode::INTERNAL_SERVER_ERROR,
+                format!("Failed to begin transaction: {error}"),
+                tags.clone(),
+            )
+        })?;
+
+        Ok(PostgresTransaction {
+            transaction,
+            #[cfg(any(feature = "statsd", feature = "prometheus"))]
+            stopwatch: timer::start_stopwatch(
+                context,
+                "repository_transaction_seconds",
+                MetricTags::from(tags),
+            ),
         })
     }
 }
 
-#[async_trait::async_trait]
-pub trait CommitTransaction {
-    async fn commit_transaction(self, tags: HttpTags) -> Result<(), HttpError>;
+#[cfg(any(feature = "statsd", feature = "prometheus"))]
+pub struct PostgresTransaction<'a, S>
+where
+    S: Clone,
+{
+    pub transaction: Transaction<'a, Postgres>,
+    #[cfg(any(feature = "statsd", feature = "prometheus"))]
+    stopwatch: Stopwatch<S>,
 }
 
-#[async_trait::async_trait]
-impl CommitTransaction for Transaction<'_, Postgres> {
-    async fn commit_transaction(self, tags: HttpTags) -> Result<(), HttpError> {
-        self.commit().await.map_err(|error| {
+#[cfg(not(any(feature = "statsd", feature = "prometheus")))]
+pub struct PostgresTransaction<'a> {
+    pub transaction: Transaction<'a, Postgres>,
+}
+
+#[cfg(any(feature = "statsd", feature = "prometheus"))]
+impl<'a, S> PostgresTransaction<'a, S>
+where
+    S: Clone,
+{
+    pub async fn commit_transaction(self, tags: HttpTags) -> Result<(), HttpError> {
+        let result = self.transaction.commit().await.map_err(|error| {
             HttpError::without_body(
                 StatusCode::INTERNAL_SERVER_ERROR,
                 format!("Failed to commit transaction: {error}"),
-                tags,
+                tags.clone(),
             )
-        })?;
+        });
 
-        Ok(())
+        #[cfg(any(feature = "statsd", feature = "prometheus"))]
+        {
+            let success = match result {
+                Ok(_) => "true",
+                Err(_) => "false",
+            };
+
+            let mut result_metric_tags = MetricTags::from(tags);
+            result_metric_tags =
+                result_metric_tags.push("success".to_string(), success.to_string());
+            self.stopwatch.record(result_metric_tags);
+        }
+
+        result
+    }
+}
+
+#[cfg(not(any(feature = "statsd", feature = "prometheus")))]
+impl<'a> PostgresTransaction<'a> {
+    pub async fn commit_transaction(self, tags: HttpTags) -> Result<(), HttpError> {
+        self.transaction.commit().await.map_err(|error| {
+            HttpError::without_body(
+                StatusCode::INTERNAL_SERVER_ERROR,
+                format!("Failed to commit transaction: {error}"),
+                tags.clone(),
+            )
+        })
     }
 }
 

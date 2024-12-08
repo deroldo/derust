@@ -24,7 +24,7 @@ pub async fn local_log_request<S>(
 where
     S: Clone + Send + Sync + 'static,
 {
-    log(context, req, next, true).await
+    log(&context, req, next, true).await
 }
 
 pub async fn log_request<S>(
@@ -35,11 +35,11 @@ pub async fn log_request<S>(
 where
     S: Clone + Send + Sync + 'static,
 {
-    log(context, req, next, false).await
+    log(&context, req, next, false).await
 }
 
 async fn log<S>(
-    context: AppContext<S>,
+    context: &AppContext<S>,
     req: Request<Body>,
     next: Next,
     local: bool,
@@ -78,8 +78,7 @@ where
     }
 
     let (parts, res_body) = res.into_parts();
-    let bytes =
-        buffer_and_print(&context, method, uri, parts.status, res_body, tags, local).await?;
+    let bytes = buffer_and_print(context, method, uri, parts.status, res_body, tags, local).await?;
     let res = Response::from_parts(parts, Body::from(bytes));
 
     #[cfg(any(feature = "statsd", feature = "prometheus"))]
