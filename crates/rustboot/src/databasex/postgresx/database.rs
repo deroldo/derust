@@ -9,13 +9,13 @@ use std::env;
 use crate::metricx::{timer, MetricTags, Stopwatch};
 
 #[derive(Clone)]
-pub struct Database {
+pub struct PostgresDatabase {
     pub read_write: Pool<Postgres>,
     pub read_only: Option<Pool<Postgres>>,
 }
 
-impl Database {
-    pub async fn create_from_envs() -> Result<Database, Error> {
+impl PostgresDatabase {
+    pub async fn create_from_envs() -> Result<PostgresDatabase, Error> {
         let database = DatabaseAttr::from_env();
         create_database(&database).await
     }
@@ -30,7 +30,7 @@ impl Database {
         port: u16,
         min_pool_size: u32,
         max_pool_size: u32,
-    ) -> Result<Database, Error> {
+    ) -> Result<PostgresDatabase, Error> {
         let database = DatabaseAttr {
             host_rw: host_rw.to_string(),
             host_ro: host_ro.map(|it| it.to_string()),
@@ -190,7 +190,7 @@ impl<'a> PostgresTransaction<'a> {
     }
 }
 
-async fn create_database(database: &DatabaseAttr) -> Result<Database, Error> {
+async fn create_database(database: &DatabaseAttr) -> Result<PostgresDatabase, Error> {
     let read_write = PgPoolOptions::new()
         .min_connections(database.min_pool_size)
         .max_connections(database.max_pool_size)
@@ -211,7 +211,7 @@ async fn create_database(database: &DatabaseAttr) -> Result<Database, Error> {
         None
     };
 
-    Ok(Database {
+    Ok(PostgresDatabase {
         read_write,
         read_only,
     })

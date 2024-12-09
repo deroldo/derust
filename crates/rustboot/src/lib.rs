@@ -19,11 +19,11 @@ pub mod outboxx;
 #[cfg(feature = "aws")]
 pub mod awsx;
 
-#[cfg(any(feature = "postgres", feature = "outbox"))]
-pub mod postgresx;
-
 #[cfg(any(feature = "statsd", feature = "prometheus"))]
 pub mod metricx;
+
+#[cfg(any(feature = "postgres", feature = "outbox"))]
+pub mod databasex;
 
 pub async fn shutdown_signal() {
     let ctrl_c = async {

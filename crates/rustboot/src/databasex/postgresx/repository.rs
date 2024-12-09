@@ -1,69 +1,13 @@
+use crate::databasex::repository::Repository;
 use crate::httpx::{AppContext, HttpError, HttpTags};
+#[cfg(any(feature = "statsd", feature = "prometheus"))]
+use crate::metricx::{timer, MetricTags, Stopwatch};
 use axum::http::StatusCode;
 use sqlx::query::{QueryAs, QueryScalar};
 use sqlx::{Database, FromRow, PgConnection, Postgres, Row};
 
-#[cfg(any(feature = "statsd", feature = "prometheus"))]
-use crate::metricx::{timer, MetricTags, Stopwatch};
-
 #[async_trait::async_trait]
-pub trait Repository {
-    async fn fetch_one<'a, S, T>(
-        &mut self,
-        context: &'a AppContext<S>,
-        query_name: &'a str,
-        query: QueryAs<'a, Postgres, T, <Postgres as Database>::Arguments<'a>>,
-        tags: HttpTags,
-    ) -> Result<T, HttpError>
-    where
-        T: for<'r> FromRow<'r, <Postgres as Database>::Row> + Send + Unpin,
-        S: Clone + Send + Sync;
-
-    async fn fetch_optional<'a, S, T>(
-        &mut self,
-        context: &'a AppContext<S>,
-        query_name: &'a str,
-        query: QueryAs<'a, Postgres, T, <Postgres as Database>::Arguments<'a>>,
-        tags: HttpTags,
-    ) -> Result<Option<T>, HttpError>
-    where
-        T: for<'r> FromRow<'r, <Postgres as Database>::Row> + Send + Unpin,
-        S: Clone + Send + Sync;
-
-    async fn fetch_all<'a, S, T>(
-        &mut self,
-        context: &'a AppContext<S>,
-        query_name: &'a str,
-        query: QueryAs<'a, Postgres, T, <Postgres as Database>::Arguments<'a>>,
-        tags: HttpTags,
-    ) -> Result<Vec<T>, HttpError>
-    where
-        T: for<'r> FromRow<'r, <Postgres as Database>::Row> + Send + Unpin,
-        S: Clone + Send + Sync;
-
-    async fn count<'a, S>(
-        &mut self,
-        context: &'a AppContext<S>,
-        query_name: &'a str,
-        query: QueryScalar<'a, Postgres, i64, <Postgres as Database>::Arguments<'a>>,
-        tags: HttpTags,
-    ) -> Result<u64, HttpError>
-    where
-        S: Clone + Send + Sync;
-
-    async fn exists<'a, S>(
-        &mut self,
-        context: &'a AppContext<S>,
-        query_name: &'a str,
-        query: QueryScalar<'a, Postgres, bool, <Postgres as Database>::Arguments<'a>>,
-        tags: HttpTags,
-    ) -> Result<bool, HttpError>
-    where
-        S: Clone + Send + Sync;
-}
-
-#[async_trait::async_trait]
-impl Repository for PgConnection {
+impl Repository<Postgres> for PgConnection {
     async fn fetch_one<'a, S, T>(
         &mut self,
         context: &'a AppContext<S>,

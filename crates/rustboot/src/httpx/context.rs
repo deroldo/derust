@@ -1,10 +1,11 @@
 use crate::envx::Environment;
+
+#[cfg(any(feature = "postgres", feature = "outbox"))]
+use crate::databasex::PostgresDatabase;
 #[cfg(feature = "prometheus")]
 use crate::metricx::{prometheus_registry, PrometheusConfig};
 #[cfg(feature = "statsd")]
 use crate::metricx::{statsd_registry, StatsdConfig};
-#[cfg(any(feature = "postgres", feature = "outbox"))]
-use crate::postgresx::Database;
 #[cfg(feature = "prometheus")]
 use metrics_exporter_prometheus::PrometheusHandle;
 
@@ -16,7 +17,7 @@ where
     app_name: String,
     env: Environment,
     #[cfg(any(feature = "postgres", feature = "outbox"))]
-    database: Database,
+    database: PostgresDatabase,
     #[cfg(any(feature = "statsd", feature = "prometheus"))]
     denied_metric_tags: Vec<String>,
     #[cfg(feature = "prometheus")]
@@ -32,7 +33,7 @@ where
     pub fn new(
         app_name: &str,
         env: Environment,
-        #[cfg(any(feature = "postgres", feature = "outbox"))] database: Database,
+        #[cfg(any(feature = "postgres", feature = "outbox"))] database: PostgresDatabase,
         #[cfg(feature = "statsd")] statsd_config: StatsdConfig,
         #[cfg(feature = "prometheus")] prometheus_config: PrometheusConfig,
         state: S,
@@ -83,7 +84,7 @@ where
     }
 
     #[cfg(any(feature = "postgres", feature = "outbox"))]
-    pub fn database(&self) -> &Database {
+    pub fn database(&self) -> &PostgresDatabase {
         &self.database
     }
 
