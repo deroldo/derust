@@ -8,6 +8,8 @@ use crate::metricx::{prometheus_registry, PrometheusConfig};
 use crate::metricx::{statsd_registry, StatsdConfig};
 #[cfg(feature = "prometheus")]
 use metrics_exporter_prometheus::PrometheusHandle;
+#[cfg(feature = "growthbook")]
+use growthbook_rust_sdk::client::GrowthBookClient;
 
 #[derive(Clone)]
 pub struct AppContext<S>
@@ -23,6 +25,8 @@ where
     #[cfg(feature = "prometheus")]
     prometheus_handle: PrometheusHandle,
     ignore_log_for_paths: Vec<String>,
+    #[cfg(feature = "growthbook")]
+    growth_book: GrowthBookClient,
     state: S,
 }
 
@@ -36,6 +40,7 @@ where
         #[cfg(any(feature = "postgres", feature = "outbox"))] database: PostgresDatabase,
         #[cfg(feature = "statsd")] statsd_config: StatsdConfig,
         #[cfg(feature = "prometheus")] prometheus_config: PrometheusConfig,
+        #[cfg(feature = "growthbook")] growth_book: GrowthBookClient,
         state: S,
     ) -> Result<Self, Box<dyn std::error::Error>> {
         #[cfg(feature = "statsd")]
@@ -58,6 +63,8 @@ where
             #[cfg(feature = "prometheus")]
             prometheus_handle,
             ignore_log_for_paths: vec!["/metrics".to_string()],
+            #[cfg(feature = "growthbook")]
+            growth_book,
             state,
         })
     }
@@ -96,5 +103,10 @@ where
     #[cfg(feature = "prometheus")]
     pub fn prometheus_handle(&self) -> &PrometheusHandle {
         &self.prometheus_handle
+    }
+
+    #[cfg(feature = "growthbook")]
+    pub fn growth_book(&self) -> &GrowthBookClient {
+        &self.growth_book
     }
 }

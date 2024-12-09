@@ -31,6 +31,10 @@ thiserror = { version = "2.0.4" }
 # Outbox
 outbox-pattern-processor = { version = "0.3.6" }
 
+# Feture toggle / feature flag
+#growthbook-rust-sdk = { version = "0.1.0" }
+growthbook-rust-sdk = { path = "../growthbook-rust-sdk" }
+
 # SQL
 sqlx = { version = "0.8.2", features = ["json", "chrono", "bigdecimal", "postgres", "uuid", "rust_decimal", "migrate", "runtime-tokio"] }
 

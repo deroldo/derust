@@ -14,6 +14,9 @@ mod tags;
 #[cfg(feature = "prometheus")]
 mod prometheus;
 
+#[cfg(feature = "growthbook")]
+pub use growthbook_rust_sdk::client::*;
+
 pub use config::*;
 pub use context::*;
 pub use error::*;
