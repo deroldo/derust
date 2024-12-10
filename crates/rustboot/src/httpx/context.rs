@@ -6,10 +6,10 @@ use crate::databasex::PostgresDatabase;
 use crate::metricx::{prometheus_registry, PrometheusConfig};
 #[cfg(feature = "statsd")]
 use crate::metricx::{statsd_registry, StatsdConfig};
-#[cfg(feature = "prometheus")]
-use metrics_exporter_prometheus::PrometheusHandle;
 #[cfg(feature = "growthbook")]
 use growthbook_rust_sdk::client::GrowthBookClient;
+#[cfg(feature = "prometheus")]
+use metrics_exporter_prometheus::PrometheusHandle;
 
 #[derive(Clone)]
 pub struct AppContext<S>

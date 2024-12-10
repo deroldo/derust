@@ -1,5 +1,5 @@
 use crate::metricx::meters::MetricTags;
-use metrics::{histogram, Level, LocalRecorderGuard, Recorder};
+use metrics::{Level, Recorder};
 use metrics_exporter_statsd::StatsdBuilder;
 use tracing::info;
 

@@ -4,10 +4,10 @@ use tracing::info;
 #[cfg(feature = "env")]
 pub mod envx;
 
-#[cfg(feature = "http")]
+#[cfg(feature = "http_server")]
 pub mod httpx;
 
-#[cfg(feature = "http")]
+#[cfg(feature = "http_server")]
 pub mod tracex;
 
 #[cfg(feature = "http_client")]
@@ -16,7 +16,7 @@ pub mod http_clientx;
 #[cfg(feature = "outbox")]
 pub mod outboxx;
 
-#[cfg(feature = "aws")]
+#[cfg(any(feature = "aws", feature = "env_from_secrets_manager"))]
 pub mod awsx;
 
 #[cfg(any(feature = "statsd", feature = "prometheus"))]

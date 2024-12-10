@@ -4,7 +4,7 @@ use crate::httpx::{AppContext, HttpError, HttpTags};
 use crate::metricx::{timer, MetricTags, Stopwatch};
 use axum::http::StatusCode;
 use sqlx::query::{QueryAs, QueryScalar};
-use sqlx::{Database, FromRow, PgConnection, Postgres, Row};
+use sqlx::{Database, FromRow, PgConnection, Postgres};
 
 #[async_trait::async_trait]
 impl Repository<Postgres> for PgConnection {

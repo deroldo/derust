@@ -6,14 +6,16 @@ authors = ["Deroldo <diogoderoldo@gmail.com>"]
 
 [features]
 default = [
-    "env",
-    "http",
+    "http_server",
 ]
 env = [
     "dep:thiserror",
     "dep:serde",
+    "dep:dotenv",
+    "dep:config",
 ]
-http = [
+http_server = [
+    "env",
     "dep:axum",
     "dep:tower-http",
     "dep:bytes",
@@ -42,10 +44,15 @@ http_client = [
 aws = [
     "dep:aws-sdk-sqs",
     "dep:aws-sdk-sns",
+    "dep:aws-sdk-secretsmanager",
     "dep:aws-config",
+]
+env_from_secrets_manager = [
+    "aws"
 ]
 postgres = [
     "dep:sqlx",
+    "dep:serde",
 ]
 outbox = [
     "dep:outbox-pattern-processor",
@@ -111,6 +118,7 @@ sqlx = { workspace = true, features = ["json", "chrono", "postgres", "uuid", "ru
 # AWS
 aws-sdk-sqs = { workspace = true, optional = true }
 aws-sdk-sns = { workspace = true, optional = true }
+aws-sdk-secretsmanager = { workspace = true, optional = true }
 aws-config = { workspace = true, features = ["behavior-version-latest"], optional = true }
 
 # Observability
@@ -136,3 +144,5 @@ wg = { workspace = true, optional = true }
 chrono = { workspace = true, features = ["serde"], optional = true }
 http-body-util = { workspace = true, optional = true }
 regex = { workspace = true, optional = true }
+dotenv = { workspace = true, optional = true }
+config = { workspace = true, optional = true }

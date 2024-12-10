@@ -4,12 +4,14 @@ use std::env;
 
 const ENV_VAR: &str = "ENVIRONMENT";
 const LOCAL: &str = "local";
+const TEST: &str = "test";
 const STAGING: &str = "staging";
 const PRODUCTION: &str = "production";
 
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
 pub enum Environment {
     Local,
+    Test,
     Staging,
     Production,
 }
@@ -26,6 +28,10 @@ impl Environment {
         matches!(self, Environment::Local)
     }
 
+    pub fn is_test(&self) -> bool {
+        matches!(self, Environment::Test)
+    }
+
     pub fn is_staging(&self) -> bool {
         matches!(self, Environment::Staging)
     }
@@ -36,6 +42,10 @@ impl Environment {
 
     pub fn is_deployed(&self) -> bool {
         matches!(self, Environment::Staging | Environment::Production)
+    }
+
+    pub fn get_name(&self) -> String {
+        format!("{self:?}").to_lowercase()
     }
 }
 
@@ -58,6 +68,7 @@ impl TryFrom<String> for Environment {
 fn from_string(env: impl AsRef<str>) -> Result<Environment, EnvironmentError> {
     match env.as_ref().to_lowercase().as_str() {
         LOCAL => Ok(Environment::Local),
+        TEST => Ok(Environment::Test),
         STAGING => Ok(Environment::Staging),
         PRODUCTION => Ok(Environment::Production),
         _ => Err(EnvironmentError::UnknownEnvironment(
@@ -75,6 +86,10 @@ mod test {
         assert!(matches!(
             Environment::try_from("local"),
             Ok(Environment::Local)
+        ));
+        assert!(matches!(
+            Environment::try_from("test"),
+            Ok(Environment::Test)
         ));
         assert!(matches!(
             Environment::try_from("staging"),
@@ -95,13 +110,15 @@ mod test {
     #[test]
     fn get_true_for_specific_environments() {
         let test_data = [
-            (Environment::Local, true, false, false, false),
-            (Environment::Staging, false, true, false, true),
-            (Environment::Production, false, false, true, true),
+            (Environment::Local, true, false, false, false, false),
+            (Environment::Test, false, true, false, false, false),
+            (Environment::Staging, false, false, true, false, true),
+            (Environment::Production, false, false, false, true, true),
         ];
 
-        for (env, local, staging, production, deployed) in test_data.iter() {
+        for (env, local, test, staging, production, deployed) in test_data.iter() {
             assert_eq!(env.is_local(), *local);
+            assert_eq!(env.is_test(), *test);
             assert_eq!(env.is_staging(), *staging);
             assert_eq!(env.is_production(), *production);
             assert_eq!(env.is_deployed(), *deployed);
@@ -112,6 +129,7 @@ mod test {
     fn detect_environment_from_env_var() {
         let test_data = [
             (LOCAL, Environment::Local),
+            (TEST, Environment::Test),
             (STAGING, Environment::Staging),
             (PRODUCTION, Environment::Production),
         ];

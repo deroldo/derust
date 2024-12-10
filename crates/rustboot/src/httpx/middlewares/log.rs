@@ -15,7 +15,6 @@ use regex::Regex;
 
 #[cfg(any(feature = "statsd", feature = "prometheus"))]
 use crate::metricx::{timer, MetricTags, Stopwatch};
-use crate::tracex::log::info;
 
 pub async fn local_log_request<S>(
     State(context): State<AppContext<S>>,

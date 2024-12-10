@@ -1,12 +1,12 @@
 use crate::httpx::{AppContext, HttpError, HttpTags};
+#[cfg(any(feature = "statsd", feature = "prometheus"))]
+use crate::metricx::{timer, MetricTags, Stopwatch};
 use axum::http::StatusCode;
+use serde::Deserialize;
 use sqlx::pool::PoolConnection;
 use sqlx::postgres::{PgConnectOptions, PgPoolOptions};
 use sqlx::{Error, Pool, Postgres, Transaction};
-use std::env;
-
-#[cfg(any(feature = "statsd", feature = "prometheus"))]
-use crate::metricx::{timer, MetricTags, Stopwatch};
+use std::fmt::{Debug, Formatter};
 
 #[derive(Clone)]
 pub struct PostgresDatabase {
@@ -15,9 +15,8 @@ pub struct PostgresDatabase {
 }
 
 impl PostgresDatabase {
-    pub async fn create_from_envs() -> Result<PostgresDatabase, Error> {
-        let database = DatabaseAttr::from_env();
-        create_database(&database).await
+    pub async fn create_from_config(config: &DatabaseConfig) -> Result<PostgresDatabase, Error> {
+        create_database(config).await
     }
 
     pub async fn create(
@@ -31,7 +30,7 @@ impl PostgresDatabase {
         min_pool_size: u32,
         max_pool_size: u32,
     ) -> Result<PostgresDatabase, Error> {
-        let database = DatabaseAttr {
+        let database = DatabaseConfig {
             host_rw: host_rw.to_string(),
             host_ro: host_ro.map(|it| it.to_string()),
             name: name.to_string(),
@@ -190,7 +189,7 @@ impl<'a> PostgresTransaction<'a> {
     }
 }
 
-async fn create_database(database: &DatabaseAttr) -> Result<PostgresDatabase, Error> {
+async fn create_database(database: &DatabaseConfig) -> Result<PostgresDatabase, Error> {
     let read_write = PgPoolOptions::new()
         .min_connections(database.min_pool_size)
         .max_connections(database.max_pool_size)
@@ -217,7 +216,8 @@ async fn create_database(database: &DatabaseAttr) -> Result<PostgresDatabase, Er
     })
 }
 
-struct DatabaseAttr {
+#[derive(Deserialize, Clone)]
+pub struct DatabaseConfig {
     host_rw: String,
     host_ro: Option<String>,
     name: String,
@@ -229,40 +229,18 @@ struct DatabaseAttr {
     max_pool_size: u32,
 }
 
-impl DatabaseAttr {
-    fn from_env() -> Self {
-        let host_rw = env::var("DB_HOST_RW").expect("DB_HOST_RW not found");
-        let host_ro = env::var("DB_HOST_RO").ok();
-        let name = env::var("DB_NAME").expect("DB_NAME not found");
-        let user = env::var("DB_USER").expect("DB_USER not found");
-        let pass = env::var("DB_PASS").expect("DB_PASS not found");
-        let port = env::var("DB_PORT")
-            .expect("DB_PORT not found")
-            .parse()
-            .expect("DB_PORT is not a number");
-        let app_name = env::var("DB_APP_NAME").expect("DB_APP_NAME not found");
-        let min_pool_size = env::var("DB_MIN_POOL_SIZE")
-            .expect("DB_MIN_POOL_SIZE not found")
-            .parse()
-            .expect("DB_MIN_POOL_SIZE is not a number");
-        let max_pool_size = env::var("DB_MAX_POOL_SIZE")
-            .expect("DB_MAX_POOL_SIZE not found")
-            .parse()
-            .expect("DB_MAX_POOL_SIZE is not a number");
-
-        Self {
-            host_rw,
-            host_ro,
-            name,
-            user,
-            pass,
-            app_name,
-            port,
-            min_pool_size,
-            max_pool_size,
-        }
+impl Debug for DatabaseConfig {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("DatabaseConfig")
+            .field("host_rw", &self.host_rw)
+            .field("host_ro", &self.host_ro)
+            .field("port", &self.port)
+            .field("user", &self.user)
+            .finish()
     }
+}
 
+impl DatabaseConfig {
     fn db_connection_options(&self, read_only: bool) -> PgConnectOptions {
         let host = if read_only {
             self.host_ro

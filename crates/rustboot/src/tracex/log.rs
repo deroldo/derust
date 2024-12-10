@@ -1,5 +1,5 @@
-use tracing::{debug, error, info, trace, warn};
 use crate::httpx::HttpTags;
+use tracing::{debug, error, info, trace, warn};
 
 pub fn trace(message: &str, tags: &HttpTags) {
     trace!(tags = ?tags.values(), message);

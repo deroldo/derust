@@ -32,7 +32,7 @@ impl MetricTags {
     {
         let mut tags = self.clone();
         tags = tags.push("app_name".to_string(), context.app_name().to_string());
-        tags = tags.push("env".to_string(), format!("{:?}", context.env()));
+        tags = tags.push("env".to_string(), format!("{}", context.env().get_name()));
 
         tags.vec()
             .iter()
