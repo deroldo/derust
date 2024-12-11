@@ -2,6 +2,8 @@ use axum::Router;
 use std::net::{Ipv4Addr, SocketAddr};
 use tokio::net::TcpListener;
 
+use crate::httpx::extension::apply_middlewares;
+use crate::httpx::AppContext;
 use crate::shutdown_signal;
 use tracing::info;
 use wg::WaitGroup;
@@ -11,14 +13,18 @@ use crate::outboxx;
 #[cfg(feature = "outbox")]
 use outbox_pattern_processor::outbox_resources::OutboxProcessorResources;
 
-pub async fn start(
+pub async fn start<T>(
     port: u16,
-    router: Router<()>,
+    context: AppContext<T>,
+    router: Router<AppContext<T>>,
     #[cfg(feature = "outbox")] outbox_processor_resources: OutboxProcessorResources,
-) -> Result<(), Box<dyn std::error::Error>> {
+) -> Result<(), Box<dyn std::error::Error>>
+where
+    T: Clone + Send + Sync + 'static,
+{
     let wg = WaitGroup::new();
-
-    tokio::spawn(start_http_server(wg.add(1), port, router));
+    let http_router = apply_middlewares(router, context);
+    tokio::spawn(start_http_server(wg.add(1), port, http_router));
 
     #[cfg(feature = "outbox")]
     tokio::spawn(outboxx::run(wg.add(1), outbox_processor_resources));

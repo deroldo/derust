@@ -1,4 +1,3 @@
-use crate::envx::Environment;
 use crate::httpx::middlewares::log::{local_log_request, log_request};
 use crate::httpx::middlewares::{compression, error_handler, sensitive_headers, timeout};
 use crate::httpx::{health, AppContext};
@@ -19,26 +18,9 @@ lazy_static! {
         vec![header::AUTHORIZATION, header::COOKIE].into();
 }
 
-pub trait HttpMiddlewares<S>
-where
-    S: Clone + Send + Sync + 'static,
-{
-    fn using_httpx(self, context: AppContext<S>, env: Environment) -> Router;
-}
-
-impl<S> HttpMiddlewares<S> for Router<AppContext<S>>
-where
-    S: Clone + Send + Sync + 'static,
-{
-    fn using_httpx(self, context: AppContext<S>, env: Environment) -> Router {
-        apply_middlewares(self, context, env)
-    }
-}
-
-fn apply_middlewares<S>(
+pub(crate) fn apply_middlewares<S>(
     router: Router<AppContext<S>>,
     context: AppContext<S>,
-    env: Environment,
 ) -> Router<()>
 where
     S: Clone + Send + Sync + 'static,
@@ -63,7 +45,7 @@ where
         .layer(timeout::timeouts())
         .layer(compression::compression());
 
-    if env.is_local() {
+    if context.env().is_local() {
         builder = builder.layer(middleware::from_fn_with_state(
             context.clone(),
             local_log_request::<S>,

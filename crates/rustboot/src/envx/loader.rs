@@ -1,6 +1,5 @@
 use crate::envx::Environment;
 use dotenv::{dotenv, from_filename};
-use serde::de::DeserializeOwned;
 use serde_json::Value;
 use std::collections::HashMap;
 
@@ -8,13 +7,14 @@ use std::collections::HashMap;
 use config::{AsyncSource, Config, ConfigError, Map, ValueKind};
 
 #[cfg(feature = "env_from_secrets_manager")]
-use crate::awsx::{load_config, secrets_manager};
+use crate::awsx::{load_aws_config, secrets_manager};
 #[cfg(feature = "env_from_secrets_manager")]
 use aws_sdk_secretsmanager::Client;
+use serde::Deserialize;
 
-pub async fn load<T: DeserializeOwned>(
+pub async fn load_app_config<T: for<'a> Deserialize<'a>>(
     environment: Environment,
-    prefix: Option<String>,
+    prefix: Option<&str>,
     #[cfg(feature = "env_from_secrets_manager")] secrets_manager_ids: Vec<&str>,
 ) -> Result<T, Box<dyn std::error::Error>> {
     if environment.is_local() || environment.is_test() {
@@ -23,7 +23,7 @@ pub async fn load<T: DeserializeOwned>(
     }
 
     let env_source = if let Some(prefix) = prefix {
-        config::Environment::with_prefix(&prefix).prefix_separator("__")
+        config::Environment::with_prefix(prefix).prefix_separator("__")
     } else {
         config::Environment::default()
     }
@@ -33,15 +33,16 @@ pub async fn load<T: DeserializeOwned>(
 
     #[cfg(feature = "env_from_secrets_manager")]
     let result = {
-        let aws_config = load_config(environment).await;
+        let aws_config = load_aws_config(environment).await;
         let sm_client = secrets_manager(&aws_config);
 
         let async_source = SecretsManagerSource {
-            client: sm_client.clone(),
+            client: sm_client.client.clone(),
             ids: secrets_manager_ids
                 .iter()
                 .map(|id| id.to_string())
                 .collect(),
+            prefix: prefix.map(|prefix| prefix.to_string()),
         };
 
         builder
@@ -66,6 +67,7 @@ pub async fn load<T: DeserializeOwned>(
 struct SecretsManagerSource {
     client: Client,
     ids: Vec<String>,
+    prefix: Option<String>,
 }
 
 #[async_trait::async_trait]
@@ -91,7 +93,7 @@ impl AsyncSource for SecretsManagerSource {
                     "Secret string not found for id={id}"
                 )))?;
 
-            let serde_value = restructure_json(&json).unwrap();
+            let serde_value = restructure_json(&json, &self.prefix).unwrap();
 
             for (key, value) in convert_serde_value_to_config_map(&serde_value) {
                 map.insert(key, value);
@@ -103,14 +105,23 @@ impl AsyncSource for SecretsManagerSource {
 }
 
 #[allow(dead_code)]
-fn restructure_json(input: &str) -> Result<Value, serde_json::Error> {
+fn restructure_json(input: &str, prefix: &Option<String>) -> Result<Value, serde_json::Error> {
     let parsed: Value = serde_json::from_str(input)?;
 
     let mut result = serde_json::Map::new();
 
     if let Some(object) = parsed.as_object() {
         for (key, value) in object {
-            let parts: Vec<&str> = key.split("__").collect();
+            let normalized_key = if let Some(prefix) = prefix {
+                if !key.starts_with(format!("{}__", prefix).as_str()) {
+                    continue;
+                }
+                key.replace(&format!("{}__", prefix), "")
+            } else {
+                key.clone()
+            };
+
+            let parts: Vec<&str> = normalized_key.split("__").collect();
 
             let mut current_map = &mut result;
             for (i, part) in parts.iter().enumerate() {

@@ -13,7 +13,7 @@ pub async fn send_to_sqs<S>(
     queue_url: &str,
     headers: Option<HashMap<String, String>>,
     payload: &Value,
-    tags: HttpTags,
+    tags: &HttpTags,
 ) -> Result<Outbox, HttpError>
 where
     S: Clone,

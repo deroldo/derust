@@ -1,6 +1,9 @@
+use crate::awsx::SqsClient;
 use aws_config::SdkConfig;
-use outbox_pattern_processor::aws::SqsClient;
+use aws_sdk_sqs::Client;
 
 pub async fn sqs_client(aws_sdk_config: &SdkConfig) -> SqsClient {
-    SqsClient::new(aws_sdk_config).await
+    SqsClient {
+        client: Client::new(aws_sdk_config),
+    }
 }

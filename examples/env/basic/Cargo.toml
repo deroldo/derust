@@ -1,0 +1,13 @@
+[workspace]
+
+[package]
+name = "rustboot-env-basic"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+rustboot = { path = "../../../crates/rustboot" }
+
+tokio = { version = "1.42.0", features = ["full"] }
+axum = { version = "0.7.9", default-features = true, features = ["macros", "tokio"] }
+serde = { version = "1.0.215", features = ["derive"]}

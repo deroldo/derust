@@ -29,7 +29,10 @@ impl IntoResponse for Box<dyn HttpResponse> {
     }
 }
 
-impl IntoResponse for JsonResponse {
+impl<T> IntoResponse for JsonResponse<T>
+where
+    T: serde::Serialize + Send + Sync,
+{
     fn into_response(self) -> Response {
         let headers_vec = self.response_headers().unwrap_or_default();
 

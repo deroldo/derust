@@ -19,7 +19,22 @@ lazy_static! {
         Credentials::new("test", "test", None, None, "test");
 }
 
-pub async fn load_config(env: Environment) -> SdkConfig {
+#[derive(Clone)]
+pub struct SnsClient {
+    pub client: aws_sdk_sns::Client,
+}
+
+#[derive(Clone)]
+pub struct SqsClient {
+    pub client: aws_sdk_sqs::Client,
+}
+
+#[derive(Clone)]
+pub struct SecretsManagerClient {
+    pub client: aws_sdk_secretsmanager::Client,
+}
+
+pub async fn load_aws_config(env: Environment) -> SdkConfig {
     if env.is_local() || env.is_test() {
         aws_config::from_env()
             .region(LOCALSTACK_REGION.clone())

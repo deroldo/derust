@@ -9,7 +9,7 @@ pub trait Repository<DB: Database> {
         context: &'a AppContext<S>,
         query_name: &'a str,
         query: QueryAs<'a, DB, T, <DB as Database>::Arguments<'a>>,
-        tags: HttpTags,
+        tags: &HttpTags,
     ) -> Result<T, HttpError>
     where
         T: for<'r> FromRow<'r, <DB as Database>::Row> + Send + Unpin,
@@ -20,7 +20,7 @@ pub trait Repository<DB: Database> {
         context: &'a AppContext<S>,
         query_name: &'a str,
         query: QueryAs<'a, DB, T, <DB as Database>::Arguments<'a>>,
-        tags: HttpTags,
+        tags: &HttpTags,
     ) -> Result<Option<T>, HttpError>
     where
         T: for<'r> FromRow<'r, <DB as Database>::Row> + Send + Unpin,
@@ -31,7 +31,7 @@ pub trait Repository<DB: Database> {
         context: &'a AppContext<S>,
         query_name: &'a str,
         query: QueryAs<'a, DB, T, <DB as Database>::Arguments<'a>>,
-        tags: HttpTags,
+        tags: &HttpTags,
     ) -> Result<Vec<T>, HttpError>
     where
         T: for<'r> FromRow<'r, <DB as Database>::Row> + Send + Unpin,
@@ -42,7 +42,7 @@ pub trait Repository<DB: Database> {
         context: &'a AppContext<S>,
         query_name: &'a str,
         query: QueryScalar<'a, DB, i64, <DB as Database>::Arguments<'a>>,
-        tags: HttpTags,
+        tags: &HttpTags,
     ) -> Result<u64, HttpError>
     where
         S: Clone + Send + Sync;
@@ -52,7 +52,7 @@ pub trait Repository<DB: Database> {
         context: &'a AppContext<S>,
         query_name: &'a str,
         query: QueryScalar<'a, DB, bool, <DB as Database>::Arguments<'a>>,
-        tags: HttpTags,
+        tags: &HttpTags,
     ) -> Result<bool, HttpError>
     where
         S: Clone + Send + Sync;

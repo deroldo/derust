@@ -1,34 +1,40 @@
 use crate::databasex::repository::Repository;
+use crate::databasex::PostgresTransaction;
 use crate::httpx::{AppContext, HttpError, HttpTags};
-#[cfg(any(feature = "statsd", feature = "prometheus"))]
-use crate::metricx::{timer, MetricTags, Stopwatch};
 use axum::http::StatusCode;
 use sqlx::query::{QueryAs, QueryScalar};
-use sqlx::{Database, FromRow, PgConnection, Postgres};
+use sqlx::{Database, FromRow, Postgres};
+
+#[cfg(any(feature = "statsd", feature = "prometheus"))]
+use crate::metricx::{timer, MetricTags, Stopwatch};
 
 #[async_trait::async_trait]
-impl Repository<Postgres> for PgConnection {
+#[cfg(any(feature = "statsd", feature = "prometheus"))]
+impl<SS> Repository<Postgres> for PostgresTransaction<'_, SS> {
     async fn fetch_one<'a, S, T>(
         &mut self,
         context: &'a AppContext<S>,
         query_name: &'a str,
         query: QueryAs<'a, Postgres, T, <Postgres as Database>::Arguments<'a>>,
-        tags: HttpTags,
+        tags: &HttpTags,
     ) -> Result<T, HttpError>
     where
         T: for<'r> FromRow<'r, <Postgres as Database>::Row> + Send + Unpin,
         S: Clone + Send + Sync,
     {
         #[cfg(any(feature = "statsd", feature = "prometheus"))]
-        let stopwatch = stopwatch_start(context, query_name, &tags);
+        let stopwatch = stopwatch_start(context, query_name, tags);
 
-        let result = query.fetch_one(&mut *self).await.map_err(|error| {
-            HttpError::without_body(
-                StatusCode::INTERNAL_SERVER_ERROR,
-                format!("Failed to execute fetch one for {query_name} with error: {error}"),
-                tags.clone(),
-            )
-        });
+        let result = query
+            .fetch_one(&mut *self.transaction)
+            .await
+            .map_err(|error| {
+                HttpError::without_body(
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    format!("Failed to execute fetch one for {query_name} with error: {error}"),
+                    tags.clone(),
+                )
+            });
 
         #[cfg(any(feature = "statsd", feature = "prometheus"))]
         stopwatch_record(tags, stopwatch, result.is_ok());
@@ -41,22 +47,27 @@ impl Repository<Postgres> for PgConnection {
         context: &'a AppContext<S>,
         query_name: &'a str,
         query: QueryAs<'a, Postgres, T, <Postgres as Database>::Arguments<'a>>,
-        tags: HttpTags,
+        tags: &HttpTags,
     ) -> Result<Option<T>, HttpError>
     where
         T: for<'r> FromRow<'r, <Postgres as Database>::Row> + Send + Unpin,
         S: Clone + Send + Sync,
     {
         #[cfg(any(feature = "statsd", feature = "prometheus"))]
-        let stopwatch = stopwatch_start(context, query_name, &tags);
+        let stopwatch = stopwatch_start(context, query_name, tags);
 
-        let result = query.fetch_optional(self).await.map_err(|error| {
-            HttpError::without_body(
-                StatusCode::INTERNAL_SERVER_ERROR,
-                format!("Failed to execute fetch optional for {query_name} with error: {error}"),
-                tags.clone(),
-            )
-        });
+        let result = query
+            .fetch_optional(&mut *self.transaction)
+            .await
+            .map_err(|error| {
+                HttpError::without_body(
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    format!(
+                        "Failed to execute fetch optional for {query_name} with error: {error}"
+                    ),
+                    tags.clone(),
+                )
+            });
 
         #[cfg(any(feature = "statsd", feature = "prometheus"))]
         stopwatch_record(tags, stopwatch, result.is_ok());
@@ -69,22 +80,25 @@ impl Repository<Postgres> for PgConnection {
         context: &'a AppContext<S>,
         query_name: &'a str,
         query: QueryAs<'a, Postgres, T, <Postgres as Database>::Arguments<'a>>,
-        tags: HttpTags,
+        tags: &HttpTags,
     ) -> Result<Vec<T>, HttpError>
     where
         T: for<'r> FromRow<'r, <Postgres as Database>::Row> + Send + Unpin,
         S: Clone + Send + Sync,
     {
         #[cfg(any(feature = "statsd", feature = "prometheus"))]
-        let stopwatch = stopwatch_start(context, query_name, &tags);
+        let stopwatch = stopwatch_start(context, query_name, tags);
 
-        let result = query.fetch_all(self).await.map_err(|error| {
-            HttpError::without_body(
-                StatusCode::INTERNAL_SERVER_ERROR,
-                format!("Failed to execute fetch all for {query_name} with error: {error}"),
-                tags.clone(),
-            )
-        });
+        let result = query
+            .fetch_all(&mut *self.transaction)
+            .await
+            .map_err(|error| {
+                HttpError::without_body(
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    format!("Failed to execute fetch all for {query_name} with error: {error}"),
+                    tags.clone(),
+                )
+            });
 
         #[cfg(any(feature = "statsd", feature = "prometheus"))]
         stopwatch_record(tags, stopwatch, result.is_ok());
@@ -97,21 +111,24 @@ impl Repository<Postgres> for PgConnection {
         context: &'a AppContext<S>,
         query_name: &'a str,
         query: QueryScalar<'a, Postgres, i64, <Postgres as Database>::Arguments<'a>>,
-        tags: HttpTags,
+        tags: &HttpTags,
     ) -> Result<u64, HttpError>
     where
         S: Clone + Send + Sync,
     {
         #[cfg(any(feature = "statsd", feature = "prometheus"))]
-        let stopwatch = stopwatch_start(context, query_name, &tags);
+        let stopwatch = stopwatch_start(context, query_name, tags);
 
-        let result = query.fetch_one(self).await.map_err(|error| {
-            HttpError::without_body(
-                StatusCode::INTERNAL_SERVER_ERROR,
-                format!("Failed to execute count for {query_name} with error: {error}"),
-                tags.clone(),
-            )
-        });
+        let result = query
+            .fetch_one(&mut *self.transaction)
+            .await
+            .map_err(|error| {
+                HttpError::without_body(
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    format!("Failed to execute count for {query_name} with error: {error}"),
+                    tags.clone(),
+                )
+            });
 
         #[cfg(any(feature = "statsd", feature = "prometheus"))]
         stopwatch_record(tags, stopwatch, result.is_ok());
@@ -124,21 +141,24 @@ impl Repository<Postgres> for PgConnection {
         context: &'a AppContext<S>,
         query_name: &'a str,
         query: QueryScalar<'a, Postgres, bool, <Postgres as Database>::Arguments<'a>>,
-        tags: HttpTags,
+        tags: &HttpTags,
     ) -> Result<bool, HttpError>
     where
         S: Clone + Send + Sync,
     {
         #[cfg(any(feature = "statsd", feature = "prometheus"))]
-        let stopwatch = stopwatch_start(context, query_name, &tags);
+        let stopwatch = stopwatch_start(context, query_name, tags);
 
-        let result = query.fetch_one(self).await.map_err(|error| {
-            HttpError::without_body(
-                StatusCode::INTERNAL_SERVER_ERROR,
-                format!("Failed to execute exists for {query_name} with error: {error}"),
-                tags.clone(),
-            )
-        });
+        let result = query
+            .fetch_one(&mut *self.transaction)
+            .await
+            .map_err(|error| {
+                HttpError::without_body(
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    format!("Failed to execute exists for {query_name} with error: {error}"),
+                    tags.clone(),
+                )
+            });
 
         #[cfg(any(feature = "statsd", feature = "prometheus"))]
         stopwatch_record(tags, stopwatch, result.is_ok());
@@ -158,11 +178,11 @@ where
 }
 
 #[cfg(any(feature = "statsd", feature = "prometheus"))]
-fn stopwatch_record<S>(tags: HttpTags, stopwatch: Stopwatch<S>, success: bool)
+fn stopwatch_record<S>(tags: &HttpTags, stopwatch: Stopwatch<S>, success: bool)
 where
     S: Clone,
 {
-    let mut result_metric_tags = MetricTags::from(tags);
+    let mut result_metric_tags = MetricTags::from(tags.clocne());
     result_metric_tags = result_metric_tags.push("success".to_string(), success.to_string());
     stopwatch.record(result_metric_tags);
 }

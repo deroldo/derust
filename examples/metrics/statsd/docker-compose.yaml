@@ -1,0 +1,11 @@
+services:
+  statsd:
+    image: prom/statsd-exporter
+    container_name: statsd
+    ports:
+      - "9125:9125/udp" # Porta para receber métricas StatsD
+      - "9102:9102"     # Porta para expor métricas no formato Prometheus
+    command:
+      - "--statsd.mapping-config=/tmp/mapping.yml"
+    volumes:
+      - ./docker/statsd_mapping.yml:/tmp/mapping.yml

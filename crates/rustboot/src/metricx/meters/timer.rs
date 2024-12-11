@@ -22,7 +22,7 @@ where
             tags.push(metrics_tag)
         }
 
-        record(
+        record_duration(
             &self.context,
             &self.metric_name,
             MetricTags(tags),
@@ -47,8 +47,12 @@ where
     }
 }
 
-pub fn record<S>(context: &AppContext<S>, metric_name: &str, metric_tags: MetricTags, value: f64)
-where
+pub fn record_duration<S>(
+    context: &AppContext<S>,
+    metric_name: &str,
+    metric_tags: MetricTags,
+    value: f64,
+) where
     S: Clone,
 {
     metrics::histogram!(metric_name.to_string(), metric_tags.to_labels(context)).record(value);

@@ -26,7 +26,7 @@ pub async fn insert_outbox<S>(
     context: &AppContext<S>,
     db_conn: &mut PgConnection,
     outbox: Outbox,
-    tags: HttpTags,
+    tags: &HttpTags,
 ) -> Result<Outbox, HttpError>
 where
     S: Clone,

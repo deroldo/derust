@@ -3,6 +3,7 @@ use opentelemetry::trace::TraceContextExt;
 use reqwest::{Client, Method, StatusCode};
 use reqwest_middleware::{ClientBuilder, ClientWithMiddleware, RequestBuilder};
 use reqwest_tracing::TracingMiddleware;
+use serde::Deserialize;
 use std::time::Duration;
 use tracing::Span;
 use tracing_opentelemetry::OpenTelemetrySpanExt;
@@ -10,141 +11,139 @@ use tracing_opentelemetry::OpenTelemetrySpanExt;
 #[cfg(any(feature = "statsd", feature = "prometheus"))]
 use crate::metricx::{timer, MetricTags, Stopwatch};
 
-pub async fn new(
-    user_agent: &str,
-    timeout: u64,
-    connection_timeout: u64,
-) -> Result<ClientWithMiddleware, Box<dyn std::error::Error>> {
-    let reqwest_client = Client::builder()
-        .user_agent(user_agent)
-        .timeout(Duration::from_millis(timeout))
-        .connect_timeout(Duration::from_millis(connection_timeout))
-        .build()?;
-
-    Ok(ClientBuilder::new(reqwest_client)
-        .with(TracingMiddleware::default())
-        .build())
+#[derive(Clone)]
+pub struct HttpClient {
+    client: ClientWithMiddleware,
+    base_url: String,
 }
 
-struct RequestContext {
-    method: Method,
-    url: String,
-    path: String,
-}
+impl HttpClient {
+    pub async fn new(
+        user_agent: &str,
+        base_url: &str,
+        timeout: u64,
+        connection_timeout: u64,
+    ) -> Result<HttpClient, Box<dyn std::error::Error>> {
+        let reqwest_client = Client::builder()
+            .user_agent(user_agent)
+            .timeout(Duration::from_millis(timeout))
+            .connect_timeout(Duration::from_millis(connection_timeout))
+            .build()?;
 
-impl RequestContext {
-    fn new(method: Method, full_url: &str) -> Self {
-        let full_url_without_protocol = full_url.replace("https://", "").replace("http://", "");
-        let url = full_url_without_protocol
-            .split('/')
-            .next()
-            .unwrap()
-            .to_string();
-        let full_path = full_url_without_protocol.replace(&url, "");
-        let path = full_path
-            .split("?")
-            .next()
-            .filter(|it| !it.is_empty() && it.to_string() != "/")
-            .unwrap_or("<no_path>")
-            .to_string();
-        Self { method, url, path }
+        let client = ClientBuilder::new(reqwest_client)
+            .with(TracingMiddleware::default())
+            .build();
+
+        Ok(HttpClient {
+            client: client,
+            base_url: base_url.to_string(),
+        })
+    }
+
+    pub async fn get<'a, T, S>(
+        &self,
+        context: &AppContext<S>,
+        path: &str,
+        query_params: Option<Vec<(&str, &str)>>,
+        headers: Option<Vec<(&str, &str)>>,
+        tags: &HttpTags,
+    ) -> Result<T, HttpError>
+    where
+        T: for<'de> Deserialize<'de>,
+        S: Clone,
+    {
+        let req = self
+            .client
+            .get(full_url(&self.base_url, path, query_params));
+        let request_context = RequestContext::new(Method::GET, &self.base_url, path);
+        send(context, request_context, req, None::<&()>, headers, tags).await
+    }
+
+    pub async fn post<'a, T, B, S>(
+        &self,
+        context: &AppContext<S>,
+        path: &str,
+        body: &B,
+        query_params: Option<Vec<(&str, &str)>>,
+        headers: Option<Vec<(&str, &str)>>,
+        tags: &HttpTags,
+    ) -> Result<T, HttpError>
+    where
+        T: for<'de> Deserialize<'de>,
+        B: serde::Serialize,
+        S: Clone,
+    {
+        let req = self
+            .client
+            .post(full_url(&self.base_url, path, query_params));
+        let request_context = RequestContext::new(Method::POST, &self.base_url, path);
+        send(context, request_context, req, Some(body), headers, tags).await
+    }
+
+    pub async fn put<'a, T, B, S>(
+        &self,
+        context: &AppContext<S>,
+        path: &str,
+        body: &B,
+        query_params: Option<Vec<(&str, &str)>>,
+        headers: Option<Vec<(&str, &str)>>,
+        tags: &HttpTags,
+    ) -> Result<T, HttpError>
+    where
+        T: for<'de> Deserialize<'de>,
+        B: serde::Serialize,
+        S: Clone,
+    {
+        let req = self
+            .client
+            .post(full_url(&self.base_url, path, query_params));
+        let request_context = RequestContext::new(Method::PUT, &self.base_url, path);
+        send(context, request_context, req, Some(body), headers, tags).await
+    }
+
+    pub async fn patch<'a, T, B, S>(
+        context: &AppContext<S>,
+        client: &HttpClient,
+        path: &str,
+        body: &B,
+        query_params: Option<Vec<(&str, &str)>>,
+        headers: Option<Vec<(&str, &str)>>,
+        tags: &HttpTags,
+    ) -> Result<T, HttpError>
+    where
+        T: for<'de> Deserialize<'de>,
+        B: serde::Serialize,
+        S: Clone,
+    {
+        let req = client
+            .client
+            .post(full_url(&client.base_url, path, query_params));
+        let request_context = RequestContext::new(Method::PATCH, &client.base_url, path);
+        send(context, request_context, req, Some(body), headers, tags).await
+    }
+
+    pub async fn delete<'a, T, B, S>(
+        &self,
+        context: &AppContext<S>,
+        path: &str,
+        query_params: Option<Vec<(&str, &str)>>,
+        headers: Option<Vec<(&str, &str)>>,
+        tags: &HttpTags,
+    ) -> Result<T, HttpError>
+    where
+        T: for<'de> Deserialize<'de>,
+        B: serde::Serialize,
+        S: Clone,
+    {
+        let req = self
+            .client
+            .post(full_url(&self.base_url, path, query_params));
+        let request_context = RequestContext::new(Method::DELETE, &self.base_url, path);
+        send(context, request_context, req, None::<&B>, headers, tags).await
     }
 }
 
-pub async fn get<'a, T, B, S>(
-    context: &AppContext<S>,
-    client: &ClientWithMiddleware,
-    url: &str,
-    query_params: Option<Vec<(&str, &str)>>,
-    headers: Option<Vec<(&str, &str)>>,
-    tags: HttpTags,
-) -> Result<T, HttpError>
-where
-    T: serde::de::DeserializeOwned,
-    B: serde::Serialize,
-    S: Clone,
-{
-    let req = client.get(full_url(url, query_params));
-    let request_context = RequestContext::new(Method::GET, url);
-    send(context, request_context, req, None::<&B>, headers, tags).await
-}
-
-pub async fn post<'a, T, B, S>(
-    context: &AppContext<S>,
-    client: &ClientWithMiddleware,
-    url: &str,
-    body: &B,
-    query_params: Option<Vec<(&str, &str)>>,
-    headers: Option<Vec<(&str, &str)>>,
-    tags: HttpTags,
-) -> Result<T, HttpError>
-where
-    T: serde::de::DeserializeOwned,
-    B: serde::Serialize,
-    S: Clone,
-{
-    let req = client.post(full_url(url, query_params));
-    let request_context = RequestContext::new(Method::POST, url);
-    send(context, request_context, req, Some(body), headers, tags).await
-}
-
-pub async fn put<'a, T, B, S>(
-    context: &AppContext<S>,
-    client: &ClientWithMiddleware,
-    url: &str,
-    body: &B,
-    query_params: Option<Vec<(&str, &str)>>,
-    headers: Option<Vec<(&str, &str)>>,
-    tags: HttpTags,
-) -> Result<T, HttpError>
-where
-    T: serde::de::DeserializeOwned,
-    B: serde::Serialize,
-    S: Clone,
-{
-    let req = client.put(full_url(url, query_params));
-    let request_context = RequestContext::new(Method::PUT, url);
-    send(context, request_context, req, Some(body), headers, tags).await
-}
-
-pub async fn patch<'a, T, B, S>(
-    context: &AppContext<S>,
-    client: &ClientWithMiddleware,
-    url: &str,
-    body: &B,
-    query_params: Option<Vec<(&str, &str)>>,
-    headers: Option<Vec<(&str, &str)>>,
-    tags: HttpTags,
-) -> Result<T, HttpError>
-where
-    T: serde::de::DeserializeOwned,
-    B: serde::Serialize,
-    S: Clone,
-{
-    let req = client.patch(full_url(url, query_params));
-    let request_context = RequestContext::new(Method::PATCH, url);
-    send(context, request_context, req, Some(body), headers, tags).await
-}
-
-pub async fn delete<'a, T, B, S>(
-    context: &AppContext<S>,
-    client: &ClientWithMiddleware,
-    url: &str,
-    query_params: Option<Vec<(&str, &str)>>,
-    headers: Option<Vec<(&str, &str)>>,
-    tags: HttpTags,
-) -> Result<T, HttpError>
-where
-    T: serde::de::DeserializeOwned,
-    B: serde::Serialize,
-    S: Clone,
-{
-    let req = client.delete(full_url(url, query_params));
-    let request_context = RequestContext::new(Method::DELETE, url);
-    send(context, request_context, req, None::<&B>, headers, tags).await
-}
-
-fn full_url(url: &str, query_params: Option<Vec<(&str, &str)>>) -> String {
+fn full_url(base_url: &str, url: &str, query_params: Option<Vec<(&str, &str)>>) -> String {
     let params = if let Some(params) = query_params {
         let query = params
             .iter()
@@ -156,7 +155,7 @@ fn full_url(url: &str, query_params: Option<Vec<(&str, &str)>>) -> String {
         "".to_string()
     };
 
-    format!("{}{}", url, params)
+    format!("{}{}{}", base_url, url, params)
 }
 
 async fn send<'a, T, B, S>(
@@ -165,10 +164,10 @@ async fn send<'a, T, B, S>(
     mut request_builder: RequestBuilder,
     body: Option<&B>,
     headers: Option<Vec<(&str, &str)>>,
-    tags: HttpTags,
+    tags: &HttpTags,
 ) -> Result<T, HttpError>
 where
-    T: serde::de::DeserializeOwned,
+    T: for<'de> Deserialize<'de>,
     B: serde::Serialize,
     S: Clone,
 {
@@ -223,6 +222,30 @@ where
     }
 }
 
+struct RequestContext {
+    method: Method,
+    url: String,
+    path: String,
+}
+
+impl RequestContext {
+    fn new(method: Method, url: &str, path: &str) -> Self {
+        let url_without_protocol = url.replace("https://", "").replace("http://", "");
+
+        let normalized_path = if path.is_empty() || path == "/" {
+            "<no_path>"
+        } else {
+            path.split('?').next().unwrap_or("<no_path>")
+        };
+
+        Self {
+            method,
+            url: url_without_protocol,
+            path: normalized_path.to_string(),
+        }
+    }
+}
+
 fn get_traceparent() -> Option<String> {
     let ctx = Span::current().context();
     let binding = ctx.span();
@@ -258,15 +281,24 @@ mod test {
     #[test]
     #[cfg(any(feature = "statsd", feature = "prometheus"))]
     fn should_remove_params_and_split_path_from_url() {
-        let urls = vec![
-            "https://www.rust-lang.org",
-            "https://www.rust-lang.org/",
-            "https://www.rust-lang.org/anything",
-            "https://www.rust-lang.org/anything/",
-            "https://www.rust-lang.org/anything/123",
-            "https://www.rust-lang.org/anything/123/0193a2ce-e912-762e-a66b-5b45d44a3a6e",
-            "https://www.rust-lang.org/anything/123/0193a2ce-e912-762e-a66b-5b45d44a3a6e?foo=bar",
-            "http://www.rust-lang.org/anything/123/0193a2ce-e912-762e-a66b-5b45d44a3a6e?foo=bar",
+        let urls_and_paths = vec![
+            ("https://www.rust-lang.org", ""),
+            ("https://www.rust-lang.org", "/"),
+            ("https://www.rust-lang.org", "/anything"),
+            ("https://www.rust-lang.org", "/anything/"),
+            ("https://www.rust-lang.org", "/anything/123"),
+            (
+                "https://www.rust-lang.org",
+                "/anything/123/0193a2ce-e912-762e-a66b-5b45d44a3a6e",
+            ),
+            (
+                "https://www.rust-lang.org",
+                "/anything/123/0193a2ce-e912-762e-a66b-5b45d44a3a6e?foo=bar",
+            ),
+            (
+                "https://www.rust-lang.org",
+                "/anything/123/0193a2ce-e912-762e-a66b-5b45d44a3a6e?foo=bar",
+            ),
         ];
 
         let expected_urls_and_paths = vec![
@@ -289,8 +321,8 @@ mod test {
             ),
         ];
 
-        for (i, url) in urls.iter().enumerate() {
-            let rc = RequestContext::new(Method::GET, url);
+        for (i, (url, path)) in urls_and_paths.iter().enumerate() {
+            let rc = RequestContext::new(Method::GET, url, path);
             let (expected_url, expected_path) = expected_urls_and_paths[i];
             assert_eq!(expected_url, rc.url);
             assert_eq!(expected_path, rc.path);

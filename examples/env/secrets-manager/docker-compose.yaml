@@ -1,0 +1,11 @@
+services:
+  localstack:
+    image: localstack/localstack:3.0.2
+    ports:
+      - "127.0.0.1:4510-4559:4510-4559"
+      - "127.0.0.1:4566:4566"
+    environment:
+      - SERVICES=secretsmanager
+    volumes:
+      - "./docker/localstack.sh:/etc/localstack/init/ready.d/aws-init.sh"
+      - "./docker/localstack/secrets-manager.json:/etc/secrets-manager.json"

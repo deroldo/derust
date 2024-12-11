@@ -85,8 +85,8 @@ impl MetricTag {
     }
 }
 
-impl From<HttpTags> for MetricTags {
-    fn from(value: HttpTags) -> Self {
+impl From<&HttpTags> for MetricTags {
+    fn from(value: &HttpTags) -> Self {
         let mut tags = MetricTags::default();
         for (key, value) in value.values() {
             tags = tags.push(key, value);

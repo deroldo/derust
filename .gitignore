@@ -1,5 +1,9 @@
-/target
-
-.idea/
-
 .DS_Store
+
+/target
+/.idea
+
+/examples/**/target
+/examples/**/*.lock
+/examples/**/docker/**/volume
+/examples/**/docker/**/volumes

@@ -13,7 +13,6 @@ const CLIENT_UDP_HOST: &str = "0.0.0.0";
 pub struct StatsdConfig {
     pub agent_host: String,
     pub agent_port: Option<u16>,
-    pub prefix: String,
     pub queue_size: Option<usize>,
     pub buffer_size: Option<usize>,
     pub default_tags: MetricTags,

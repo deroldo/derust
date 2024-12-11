@@ -1,0 +1,15 @@
+[workspace]
+
+[package]
+name = "rustboot-growthbook"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+rustboot = { path = "../../crates/rustboot", features = ["growthbook"] }
+
+tokio = { version = "1.42.0", features = ["full"] }
+axum = { version = "0.7.9", default-features = true, features = ["macros", "tokio"] }
+serde = { version = "1.0.215", features = ["derive"]}
+serde_json = { version = "1.0.133" }
+rand = { version = "0.8.5" }

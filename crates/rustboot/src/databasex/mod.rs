@@ -1,6 +1,6 @@
 mod repository;
 
-#[cfg(feature = "postgres")]
+#[cfg(any(feature = "postgres", feature = "outbox"))]
 mod postgresx;
 
 pub use postgresx::database::*;

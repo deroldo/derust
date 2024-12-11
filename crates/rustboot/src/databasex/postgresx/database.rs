@@ -48,7 +48,7 @@ impl PostgresDatabase {
     pub async fn get_connection(
         &self,
         read_only: bool,
-        tags: HttpTags,
+        tags: &HttpTags,
     ) -> Result<PoolConnection<Postgres>, HttpError> {
         let pool = if read_only {
             if let Some(ro) = self.read_only.clone() {
@@ -57,7 +57,7 @@ impl PostgresDatabase {
                 return Err(HttpError::without_body(
                     StatusCode::INTERNAL_SERVER_ERROR,
                     "Read-only database not found".to_string(),
-                    tags,
+                    tags.clone(),
                 ));
             }
         } else {
@@ -68,7 +68,7 @@ impl PostgresDatabase {
             HttpError::without_body(
                 StatusCode::INTERNAL_SERVER_ERROR,
                 format!("Failed to acquire connection: {error}"),
-                tags,
+                tags.clone(),
             )
         })
     }
@@ -77,7 +77,7 @@ impl PostgresDatabase {
     pub async fn begin_transaction<S>(
         &self,
         context: &AppContext<S>,
-        tags: HttpTags,
+        tags: &HttpTags,
     ) -> Result<PostgresTransaction<S>, HttpError>
     where
         S: Clone,
@@ -96,7 +96,7 @@ impl PostgresDatabase {
             stopwatch: timer::start_stopwatch(
                 context,
                 "repository_transaction_seconds",
-                MetricTags::from(tags),
+                MetricTags::from(tags.clone()),
             ),
         })
     }
@@ -105,7 +105,7 @@ impl PostgresDatabase {
     pub async fn begin_transaction<S>(
         &self,
         context: &AppContext<S>,
-        tags: HttpTags,
+        tags: &HttpTags,
     ) -> Result<PostgresTransaction, HttpError>
     where
         S: Clone,
@@ -124,7 +124,7 @@ impl PostgresDatabase {
             stopwatch: timer::start_stopwatch(
                 context,
                 "repository_transaction_seconds",
-                MetricTags::from(tags),
+                MetricTags::from(tags.clone()),
             ),
         })
     }
@@ -150,7 +150,7 @@ impl<'a, S> PostgresTransaction<'a, S>
 where
     S: Clone,
 {
-    pub async fn commit_transaction(self, tags: HttpTags) -> Result<(), HttpError> {
+    pub async fn commit_transaction(self, tags: &HttpTags) -> Result<(), HttpError> {
         let result = self.transaction.commit().await.map_err(|error| {
             HttpError::without_body(
                 StatusCode::INTERNAL_SERVER_ERROR,
@@ -166,7 +166,7 @@ where
                 Err(_) => "false",
             };
 
-            let mut result_metric_tags = MetricTags::from(tags);
+            let mut result_metric_tags = MetricTags::from(tags.clone());
             result_metric_tags =
                 result_metric_tags.push("success".to_string(), success.to_string());
             self.stopwatch.record(result_metric_tags);
@@ -178,7 +178,7 @@ where
 
 #[cfg(not(any(feature = "statsd", feature = "prometheus")))]
 impl<'a> PostgresTransaction<'a> {
-    pub async fn commit_transaction(self, tags: HttpTags) -> Result<(), HttpError> {
+    pub async fn commit_transaction(self, tags: &HttpTags) -> Result<(), HttpError> {
         self.transaction.commit().await.map_err(|error| {
             HttpError::without_body(
                 StatusCode::INTERNAL_SERVER_ERROR,
@@ -218,15 +218,15 @@ async fn create_database(database: &DatabaseConfig) -> Result<PostgresDatabase, 
 
 #[derive(Deserialize, Clone)]
 pub struct DatabaseConfig {
-    host_rw: String,
-    host_ro: Option<String>,
-    name: String,
-    user: String,
-    pass: String,
-    app_name: String,
-    port: u16,
-    min_pool_size: u32,
-    max_pool_size: u32,
+    pub host_rw: String,
+    pub host_ro: Option<String>,
+    pub name: String,
+    pub user: String,
+    pub pass: String,
+    pub app_name: String,
+    pub port: u16,
+    pub min_pool_size: u32,
+    pub max_pool_size: u32,
 }
 
 impl Debug for DatabaseConfig {
