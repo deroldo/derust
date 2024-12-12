@@ -1,6 +1,6 @@
 # rustboot - http_client
 
-[Example](../../../../examples/http_client)
+[Example](https://github.com/deroldo/rustboot/tree/main/examples/http_client)
 
 ```toml
 # Cargo.toml

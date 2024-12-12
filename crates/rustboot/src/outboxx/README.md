@@ -1,6 +1,6 @@
 # rustboot - outbox
 
-## [Example](../../../../examples/outbox)
+## [Example](https://github.com/deroldo/rustboot/tree/main/examples/outbox)
 
 ```toml
 # Cargo.toml

@@ -1,6 +1,6 @@
 # rustboot - growthbook
 
-## [Example](../../../../examples/growthbook)
+## [Example](https://github.com/deroldo/rustboot/tree/main/examples/growthbook)
 
 ```toml
 # Cargo.toml

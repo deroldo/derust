@@ -92,17 +92,17 @@ async fn handler(
 
 ## Features
 
-- [aws](src/awsx/README.md)
+- [aws](https://github.com/deroldo/rustboot/tree/main/crates/rustboot/src/awsx)
 - database
   - [postgres](src/databasex/postgresx/README.md)
-- [env](src/envx/README.md) (default)
-- [growthbook](src/growthbookx/README.md)
-- [http_client](src/http_clientx/README.md)
+- [env](https://github.com/deroldo/rustboot/tree/main/crates/rustboot/src/envx) (default)
+- [growthbook](https://github.com/deroldo/rustboot/tree/main/crates/rustboot/src/growthbookx)
+- [http_client](https://github.com/deroldo/rustboot/tree/main/crates/rustboot/src/http_clientx)
 - metrics
-  - [prometheus](src/metricx/registries/prometheus/README.md)
-  - [statsd](src/metricx/registries/statsd/README.md)
-- [outbox](src/outboxx/README.md)
-- [trace](src/tracex/README.md) (default)
+  - [prometheus](https://github.com/deroldo/rustboot/tree/main/crates/rustboot/src/metricx/registries/prometheus)
+  - [statsd](https://github.com/deroldo/rustboot/tree/main/crates/rustboot/src/metricx/registries/statsd)
+- [outbox](https://github.com/deroldo/rustboot/tree/main/crates/rustboot/src/outboxx)
+- [trace](https://github.com/deroldo/rustboot/tree/main/crates/rustboot/src/tracex) (default)
 
 ## License
 This project is licensed under the MIT license.

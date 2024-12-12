@@ -1,6 +1,6 @@
 # rustboot - env
 
-## [Basic](../../../../examples/env/basic) 
+## [Basic](https://github.com/deroldo/rustboot/tree/main/examples/env/basic) 
 
 ```toml
 # Cargo.toml
@@ -59,7 +59,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 ```
 
-## [AWS SecretsManager](../../../../examples/env/secrets-manager)
+## [AWS SecretsManager](https://github.com/deroldo/rustboot/tree/main/examples/env/secrets-manager)
 
 ```toml
 # Cargo.toml

@@ -1,6 +1,6 @@
 # rustboot - trace
 
-[Example](../../../../examples/trace)
+[Example](https://github.com/deroldo/rustboot/tree/main/examples/trace)
 
 ```toml
 # Cargo.toml

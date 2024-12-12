@@ -8,7 +8,7 @@ Automatic duration metrics for features:
     - `repository_transaction_seconds`
     - `repository_query_seconds`
 
-## [Example](../../../../../../examples/metrics/prometheus)
+## [Example](https://github.com/deroldo/rustboot/tree/main/examples/metrics/prometheus)
 
 ```toml
 # Cargo.toml

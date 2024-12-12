@@ -1,6 +1,6 @@
 # rustboot - postgres
 
-## [Example](../../../../../examples/database/postgres)
+## [Example](https://github.com/deroldo/rustboot/tree/main/examples/database/postgres)
 
 ```toml
 # Cargo.toml
