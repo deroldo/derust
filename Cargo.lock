@@ -1417,7 +1417,8 @@ checksum = "d2fabcfbdc87f4758337ca535fb41a6d701b65693ce38287d856d1674551ec9b"
 
 [[package]]
 name = "growthbook-rust-sdk"
-version = "0.1.1"
+version = "0.1.0"
+source = "git+https://github.com/deroldo/growthbook-rust-sdk?tag=0.1.1#611365035792c358f7f15c8620c153975c7726b4"
 dependencies = [
  "chrono",
  "hashers",
@@ -1425,7 +1426,7 @@ dependencies = [
  "lazy_static",
  "regex",
  "reqwest",
- "reqwest-middleware 0.4.0",
+ "reqwest-middleware 0.3.3",
  "reqwest-tracing",
  "serde",
  "serde_json",
