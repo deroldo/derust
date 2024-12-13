@@ -34,7 +34,7 @@ outbox-pattern-processor = { version = "0.3.6" }
 
 # Feture toggle / feature flag
 #growthbook-rust-sdk = { version = "0.1.0" } # wating for https://github.com/will-bank/growthbook-rust-sdk/pull/5
-growthbook-rust-sdk = { git = "https://github.com/deroldo/growthbook-rust-sdk", tag = "0.1.1" }
+growthbook-sdk-rust = { version = "0.1.1" } # fork
 
 # SQL
 sqlx = { version = "0.8.2", features = ["json", "chrono", "bigdecimal", "postgres", "uuid", "rust_decimal", "migrate", "runtime-tokio"] }

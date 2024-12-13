@@ -1120,7 +1120,7 @@ dependencies = [
  "chrono",
  "config",
  "dotenv",
- "growthbook-rust-sdk",
+ "growthbook-sdk-rust",
  "http-body-util",
  "hyper 1.5.1",
  "init-tracing-opentelemetry",
@@ -1461,9 +1461,10 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d2fabcfbdc87f4758337ca535fb41a6d701b65693ce38287d856d1674551ec9b"
 
 [[package]]
-name = "growthbook-rust-sdk"
-version = "0.1.0"
-source = "git+https://github.com/deroldo/growthbook-rust-sdk?tag=0.1.1#611365035792c358f7f15c8620c153975c7726b4"
+name = "growthbook-sdk-rust"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1b476e4a3b66b7e4ba946ca1cde38aca55e5f47b7692f49f00d6741520f43fba"
 dependencies = [
  "chrono",
  "hashers",
@@ -1471,7 +1472,7 @@ dependencies = [
  "lazy_static",
  "regex",
  "reqwest",
- "reqwest-middleware 0.3.3",
+ "reqwest-middleware 0.4.0",
  "reqwest-tracing",
  "serde",
  "serde_json",

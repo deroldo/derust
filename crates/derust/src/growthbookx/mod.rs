@@ -1,9 +1,9 @@
 use crate::httpx::{HttpError, HttpTags};
 use axum::http::StatusCode;
-use growthbook_rust_sdk::client::GrowthBookClient;
-use growthbook_rust_sdk::model_public::GrowthBookAttribute;
 use serde_json::Value;
 use std::time::Duration;
+use growthbook_sdk_rust::client::GrowthBookClient;
+use growthbook_sdk_rust::model_public::GrowthBookAttribute;
 
 pub struct GrowthBookConfig {
     pub growth_book_url: String,

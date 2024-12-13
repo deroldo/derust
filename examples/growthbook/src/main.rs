@@ -29,7 +29,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // required to access growthbook admin dashboard to create the sdk-key: http://localhost:3000
     let gb_config = GrowthBookConfig {
         growth_book_url: "http://localhost:3100".to_string(),
-        sdk_key: "sdk-tfyX4trM9iA5DpX".to_string(),
+        sdk_key: "sdk-key".to_string(),
         update_interval: None,
         http_timeout: None,
     };
