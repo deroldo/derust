@@ -2,10 +2,10 @@ use axum::extract::State;
 use axum::http::StatusCode;
 use axum::routing::get;
 use axum::Router;
-use rustboot::envx::Environment;
-use rustboot::httpx::json::JsonResponse;
-use rustboot::httpx::{start, AppContext, HttpError, HttpTags};
-use rustboot::tracex;
+use derust::envx::Environment;
+use derust::httpx::json::JsonResponse;
+use derust::httpx::{start, AppContext, HttpError, HttpTags};
+use derust::tracex;
 use serde_json::json;
 
 #[derive(Clone)]
@@ -56,11 +56,11 @@ async fn handler(
     let bar = context.state().bar.clone();
 
     // automatic add tags into log (you can simplify this import)
-    rustboot::tracex::log::info("Request handler", &tags);
+    derust::tracex::log::info("Request handler", &tags);
 
     // you can also log with tracing::{info, warn, error, etc}
     // tracing::info!("Request handler for customer_id={customer_id}");
-    // but we recommend using rustboot logging to ensure a standard way to add tags
+    // but we recommend using derust logging to ensure a standard way to add tags
 
     Ok(JsonResponse::new(
         StatusCode::OK,

@@ -1,6 +1,6 @@
-# rustboot - http_client
+# derust - http_client
 
-[Example](https://github.com/deroldo/rustboot/tree/main/examples/http_client)
+[Example](https://github.com/deroldo/derust/tree/main/examples/http_client)
 
 ```toml
 # Cargo.toml
@@ -9,7 +9,7 @@
 # ...
 
 [dependencies]
-rustboot = { version = "0.1.0", features = ["http_client"] } 
+derust = { version = "0.1.0", features = ["http_client"] } 
 
 # ...
 ```
@@ -18,7 +18,7 @@ rustboot = { version = "0.1.0", features = ["http_client"] }
 // main.rs
 
 // ...
-use rustboot::http_clientx::HttpClient;
+use derust::http_clientx::HttpClient;
 // ...
 
 #[derive(Clone)]
@@ -32,7 +32,7 @@ pub struct AppState {
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // ...
 
-    let gateway = HttpClient::new("rustboot-http-client", "https://any-base-path.com", 1000, 100).await?;
+    let gateway = HttpClient::new("derust-http-client", "https://any-base-path.com", 1000, 100).await?;
 
     // any cloneable struct
     let app_state = AppState {

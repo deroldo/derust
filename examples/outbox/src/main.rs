@@ -5,12 +5,12 @@ use axum::Router;
 use serde::Deserialize;
 use serde_json::json;
 use uuid::Uuid;
-use rustboot::databasex::{DatabaseConfig, PostgresDatabase};
-use rustboot::envx::{load_app_config, Environment};
-use rustboot::httpx::json::JsonResponse;
-use rustboot::httpx::{start, AppContext, HttpError, HttpTags};
-use rustboot::outboxx;
-use rustboot::outboxx::OutboxProcessorResources;
+use derust::databasex::{DatabaseConfig, PostgresDatabase};
+use derust::envx::{load_app_config, Environment};
+use derust::httpx::json::JsonResponse;
+use derust::httpx::{start, AppContext, HttpError, HttpTags};
+use derust::outboxx;
+use derust::outboxx::OutboxProcessorResources;
 
 #[derive(Clone)]
 pub struct AppState {

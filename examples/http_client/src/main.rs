@@ -3,10 +3,10 @@ use axum::http::StatusCode;
 use axum::routing::get;
 use axum::Router;
 use serde::{Deserialize, Serialize};
-use rustboot::envx::Environment;
-use rustboot::httpx::json::JsonResponse;
-use rustboot::httpx::{start, AppContext, HttpError, HttpTags};
-use rustboot::http_clientx::HttpClient;
+use derust::envx::Environment;
+use derust::httpx::json::JsonResponse;
+use derust::httpx::{start, AppContext, HttpError, HttpTags};
+use derust::http_clientx::HttpClient;
 
 #[derive(Clone)]
 pub struct AppState {
@@ -17,7 +17,7 @@ pub struct AppState {
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let env = Environment::detect().ok().unwrap_or(Environment::Local);
 
-    let gateway = HttpClient::new("rustboot-http-client", "https://any-base-path.com", 1000, 100).await?;
+    let gateway = HttpClient::new("derust-http-client", "https://any-base-path.com", 1000, 100).await?;
 
     // any cloneable struct
     let app_state = AppState {

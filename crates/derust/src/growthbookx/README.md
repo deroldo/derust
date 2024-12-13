@@ -1,6 +1,6 @@
-# rustboot - growthbook
+# derust - growthbook
 
-## [Example](https://github.com/deroldo/rustboot/tree/main/examples/growthbook)
+## [Example](https://github.com/deroldo/derust/tree/main/examples/growthbook)
 
 ```toml
 # Cargo.toml
@@ -9,7 +9,7 @@
 # ...
 
 [dependencies]
-rustboot = { version = "0.1.0", feature = ["growthbook"] }
+derust = { version = "0.1.0", feature = ["growthbook"] }
 
 # ...
 ```
@@ -18,8 +18,8 @@ rustboot = { version = "0.1.0", feature = ["growthbook"] }
 // main.rs
 
 // ...
-use rustboot::growthbookx;
-use rustboot::growthbookx::{growth_book_attributes, GrowthBookConfig};
+use derust::growthbookx;
+use derust::growthbookx::{growth_book_attributes, GrowthBookConfig};
 // ...
 
 #[derive(Clone)]

@@ -3,9 +3,9 @@ use axum::http::StatusCode;
 use axum::routing::get;
 use axum::Router;
 use serde::Deserialize;
-use rustboot::envx::{load_app_config, Environment};
-use rustboot::httpx::json::JsonResponse;
-use rustboot::httpx::{start, AppContext, HttpError, HttpTags};
+use derust::envx::{load_app_config, Environment};
+use derust::httpx::json::JsonResponse;
+use derust::httpx::{start, AppContext, HttpError, HttpTags};
 
 #[derive(Clone)]
 pub struct AppState {

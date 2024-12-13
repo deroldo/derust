@@ -1,4 +1,4 @@
-# rustboot - statsd
+# derust - statsd
 
 Automatic HTTP requests duration metrics as `http_server_seconds`
 
@@ -8,7 +8,7 @@ Automatic duration metrics for features:
   - `repository_transaction_seconds`
   - `repository_query_seconds`
 
-## [Example](https://github.com/deroldo/rustboot/tree/main/examples/metrics/statsd)
+## [Example](https://github.com/deroldo/derust/tree/main/examples/metrics/statsd)
 
 ```toml
 # Cargo.toml
@@ -17,7 +17,7 @@ Automatic duration metrics for features:
 # ...
 
 [dependencies]
-rustboot = { version = "0.1.0", features = ["statsd"] }
+derust = { version = "0.1.0", features = ["statsd"] }
 
 # ...
 ```
@@ -26,7 +26,7 @@ rustboot = { version = "0.1.0", features = ["statsd"] }
 // main.rs
 
 // ...
-use rustboot::metricx::{current_gauge, increment, increment_one, record_duration, record_money, start_stopwatch, MetricTags, StatsdConfig};
+use derust::metricx::{current_gauge, increment, increment_one, record_duration, record_money, start_stopwatch, MetricTags, StatsdConfig};
 // ...
 
 #[derive(Clone)]

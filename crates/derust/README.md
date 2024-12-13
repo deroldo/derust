@@ -1,4 +1,4 @@
-# rustboot
+# derust
 
 Easy way to start your Rust asynchronous application server using [Tokio](https://tokio.rs/)
 and [Axum](https://github.com/tokio-rs/axum) frameworks.
@@ -7,7 +7,7 @@ and [Axum](https://github.com/tokio-rs/axum) frameworks.
 
 [mit-badge]: https://img.shields.io/badge/license-MIT-blue.svg
 
-[mit-url]: https://github.com/deroldo/rustboot/blob/main/LICENSE
+[mit-url]: https://github.com/deroldo/derust/blob/main/LICENSE
 
 ## [Basic usage example](../../examples/basic)
 
@@ -20,7 +20,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-rustboot = { version = "0.1.0" }
+derust = { version = "0.1.0" }
 
 tokio = { version = "1.42.0", features = ["full"] }
 axum = { version = "0.7.9", default-features = true, features = ["macros", "tokio"] }
@@ -34,10 +34,10 @@ use axum::extract::State;
 use axum::http::StatusCode;
 use axum::routing::get;
 use axum::Router;
-use rustboot::envx::Environment;
-use rustboot::httpx::json::JsonResponse;
-use rustboot::httpx::{start, AppContext, HttpError, HttpTags};
-use rustboot::tracex;
+use derust::envx::Environment;
+use derust::httpx::json::JsonResponse;
+use derust::httpx::{start, AppContext, HttpError, HttpTags};
+use derust::tracex;
 use serde_json::json;
 
 #[derive(Clone)]
@@ -92,17 +92,17 @@ async fn handler(
 
 ## Features
 
-- [aws](https://github.com/deroldo/rustboot/tree/main/crates/rustboot/src/awsx)
+- [aws](https://github.com/deroldo/derust/tree/main/crates/derust/src/awsx)
 - database
   - [postgres](src/databasex/postgresx/README.md)
-- [env](https://github.com/deroldo/rustboot/tree/main/crates/rustboot/src/envx) (default)
-- [growthbook](https://github.com/deroldo/rustboot/tree/main/crates/rustboot/src/growthbookx)
-- [http_client](https://github.com/deroldo/rustboot/tree/main/crates/rustboot/src/http_clientx)
+- [env](https://github.com/deroldo/derust/tree/main/crates/derust/src/envx) (default)
+- [growthbook](https://github.com/deroldo/derust/tree/main/crates/derust/src/growthbookx)
+- [http_client](https://github.com/deroldo/derust/tree/main/crates/derust/src/http_clientx)
 - metrics
-  - [prometheus](https://github.com/deroldo/rustboot/tree/main/crates/rustboot/src/metricx/registries/prometheus)
-  - [statsd](https://github.com/deroldo/rustboot/tree/main/crates/rustboot/src/metricx/registries/statsd)
-- [outbox](https://github.com/deroldo/rustboot/tree/main/crates/rustboot/src/outboxx)
-- [trace](https://github.com/deroldo/rustboot/tree/main/crates/rustboot/src/tracex) (default)
+  - [prometheus](https://github.com/deroldo/derust/tree/main/crates/derust/src/metricx/registries/prometheus)
+  - [statsd](https://github.com/deroldo/derust/tree/main/crates/derust/src/metricx/registries/statsd)
+- [outbox](https://github.com/deroldo/derust/tree/main/crates/derust/src/outboxx)
+- [trace](https://github.com/deroldo/derust/tree/main/crates/derust/src/tracex) (default)
 
 ## License
 This project is licensed under the MIT license.

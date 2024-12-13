@@ -1,12 +1,12 @@
 [workspace]
 
 [package]
-name = "rustboot-env-basic"
+name = "derust-env-basic"
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-rustboot = { path = "../../../crates/rustboot" }
+derust = { path = "../../../crates/derust" }
 
 tokio = { version = "1.42.0", features = ["full"] }
 axum = { version = "0.7.9", default-features = true, features = ["macros", "tokio"] }

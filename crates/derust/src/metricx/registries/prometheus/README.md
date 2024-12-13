@@ -1,4 +1,4 @@
-# rustboot - prometheus
+# derust - prometheus
 
 Automatic HTTP requests duration metrics as `http_server_seconds`
 
@@ -8,7 +8,7 @@ Automatic duration metrics for features:
     - `repository_transaction_seconds`
     - `repository_query_seconds`
 
-## [Example](https://github.com/deroldo/rustboot/tree/main/examples/metrics/prometheus)
+## [Example](https://github.com/deroldo/derust/tree/main/examples/metrics/prometheus)
 
 ```toml
 # Cargo.toml
@@ -17,7 +17,7 @@ Automatic duration metrics for features:
 # ...
 
 [dependencies]
-rustboot = { version = "0.1.0", features = ["prometheus"] }
+derust = { version = "0.1.0", features = ["prometheus"] }
 
 # ...
 ```
@@ -26,7 +26,7 @@ rustboot = { version = "0.1.0", features = ["prometheus"] }
 // main.rs
 
 // ...
-use rustboot::metricx::{current_gauge, increment, increment_one, record_duration, record_money, start_stopwatch, MetricTags, PrometheusConfig};
+use derust::metricx::{current_gauge, increment, increment_one, record_duration, record_money, start_stopwatch, MetricTags, PrometheusConfig};
 // ...
 
 #[derive(Clone)]

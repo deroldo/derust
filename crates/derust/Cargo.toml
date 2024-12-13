@@ -1,5 +1,5 @@
 [package]
-name = "rustboot"
+name = "derust"
 version = "0.1.0"
 edition = "2021"
 authors = ["Deroldo <diogoderoldo@gmail.com>"]

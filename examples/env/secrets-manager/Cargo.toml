@@ -1,12 +1,12 @@
 [workspace]
 
 [package]
-name = "rustboot-env-secrets-manager"
+name = "derust-env-secrets-manager"
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-rustboot = { path = "../../../crates/rustboot", features = ["env_from_secrets_manager"] }
+derust = { path = "../../../crates/derust", features = ["env_from_secrets_manager"] }
 
 tokio = { version = "1.42.0", features = ["full"] }
 axum = { version = "0.7.9", default-features = true, features = ["macros", "tokio"] }

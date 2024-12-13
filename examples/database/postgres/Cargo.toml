@@ -1,12 +1,12 @@
 [workspace]
 
 [package]
-name = "rustboot-database-postgres"
+name = "derust-database-postgres"
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-rustboot = { path = "../../../crates/rustboot", features = ["postgres"] }
+derust = { path = "../../../crates/derust", features = ["postgres"] }
 
 tokio = { version = "1.42.0", features = ["full"] }
 axum = { version = "0.7.9", default-features = true, features = ["macros", "tokio"] }

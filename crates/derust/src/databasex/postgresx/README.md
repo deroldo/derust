@@ -1,6 +1,6 @@
-# rustboot - postgres
+# derust - postgres
 
-## [Example](https://github.com/deroldo/rustboot/tree/main/examples/database/postgres)
+## [Example](https://github.com/deroldo/derust/tree/main/examples/database/postgres)
 
 ```toml
 # Cargo.toml
@@ -9,7 +9,7 @@
 # ...
 
 [dependencies]
-rustboot = { version = "0.1.0", features = ["postgres"] }
+derust = { version = "0.1.0", features = ["postgres"] }
 
 # ...
 ```
@@ -18,7 +18,7 @@ rustboot = { version = "0.1.0", features = ["postgres"] }
 // main.rs
 
 // ...
-use rustboot::databasex::{DatabaseConfig, PostgresDatabase, Repository};
+use derust::databasex::{DatabaseConfig, PostgresDatabase, Repository};
 // ...
 
 #[derive(Clone)]

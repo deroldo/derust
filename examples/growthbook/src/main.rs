@@ -4,11 +4,11 @@ use axum::routing::get;
 use axum::Router;
 use rand::Rng;
 use serde_json::json;
-use rustboot::envx::Environment;
-use rustboot::growthbookx;
-use rustboot::growthbookx::{growth_book_attributes, GrowthBookConfig};
-use rustboot::httpx::json::JsonResponse;
-use rustboot::httpx::{start, AppContext, HttpError, HttpTags};
+use derust::envx::Environment;
+use derust::growthbookx;
+use derust::growthbookx::{growth_book_attributes, GrowthBookConfig};
+use derust::httpx::json::JsonResponse;
+use derust::httpx::{start, AppContext, HttpError, HttpTags};
 
 #[derive(Clone)]
 pub struct AppState {

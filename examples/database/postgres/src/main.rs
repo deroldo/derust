@@ -3,10 +3,10 @@ use axum::http::StatusCode;
 use axum::routing::get;
 use axum::Router;
 use sqlx::query_scalar;
-use rustboot::databasex::{DatabaseConfig, PostgresDatabase, Repository};
-use rustboot::envx::Environment;
-use rustboot::httpx::json::JsonResponse;
-use rustboot::httpx::{start, AppContext, HttpError, HttpTags};
+use derust::databasex::{DatabaseConfig, PostgresDatabase, Repository};
+use derust::envx::Environment;
+use derust::httpx::json::JsonResponse;
+use derust::httpx::{start, AppContext, HttpError, HttpTags};
 
 #[derive(Clone)]
 pub struct AppState {

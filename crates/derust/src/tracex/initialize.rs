@@ -25,7 +25,7 @@ fn build_loglevel_filter_layer() -> EnvFilter {
     std::env::set_var(
         "RUST_LOG",
         format!(
-            "{},rustboot=info,tower_http::trace=off,otel::tracing=trace,otel=debug",
+            "{},derust=info,tower_http::trace=off,otel::tracing=trace,otel=debug",
             std::env::var("RUST_LOG")
                 .or_else(|_| std::env::var("OTEL_LOG_LEVEL"))
                 .unwrap_or_else(|_| "info".to_string())

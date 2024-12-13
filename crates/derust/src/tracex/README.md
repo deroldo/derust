@@ -1,6 +1,6 @@
-# rustboot - trace
+# derust - trace
 
-[Example](https://github.com/deroldo/rustboot/tree/main/examples/trace)
+[Example](https://github.com/deroldo/derust/tree/main/examples/trace)
 
 ```toml
 # Cargo.toml
@@ -9,7 +9,7 @@
 # ...
 
 [dependencies]
-rustboot = { version = "0.1.0" }
+derust = { version = "0.1.0" }
 
 # ...
 ```
@@ -18,8 +18,8 @@ rustboot = { version = "0.1.0" }
 // main.rs
 
 // ...
-use rustboot::tracex;
-use rustboot::tracex::log::info;
+use derust::tracex;
+use derust::tracex::log::info;
 // ...
 
 #[tokio::main]

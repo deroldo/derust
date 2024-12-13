@@ -1,6 +1,6 @@
-# rustboot - env
+# derust - env
 
-## [Basic](https://github.com/deroldo/rustboot/tree/main/examples/env/basic) 
+## [Basic](https://github.com/deroldo/derust/tree/main/examples/env/basic) 
 
 ```toml
 # Cargo.toml
@@ -9,7 +9,7 @@
 # ...
 
 [dependencies]
-rustboot = { version = "0.1.0" }
+derust = { version = "0.1.0" }
 
 # ...
 ```
@@ -18,8 +18,8 @@ rustboot = { version = "0.1.0" }
 // main.rs
 
 // ...
-use rustboot::tracex;
-use rustboot::tracex::log::info;
+use derust::tracex;
+use derust::tracex::log::info;
 // ...
 
 #[derive(Clone)]
@@ -59,7 +59,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 ```
 
-## [AWS SecretsManager](https://github.com/deroldo/rustboot/tree/main/examples/env/secrets-manager)
+## [AWS SecretsManager](https://github.com/deroldo/derust/tree/main/examples/env/secrets-manager)
 
 ```toml
 # Cargo.toml
@@ -68,7 +68,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 # ...
 
 [dependencies]
-rustboot = { version = "0.1.0", features = ["env_from_secrets_manager"] }
+derust = { version = "0.1.0", features = ["env_from_secrets_manager"] }
 
 # ...
 ```
@@ -77,8 +77,8 @@ rustboot = { version = "0.1.0", features = ["env_from_secrets_manager"] }
 // main.rs
 
 // ...
-use rustboot::tracex;
-use rustboot::tracex::log::info;
+use derust::tracex;
+use derust::tracex::log::info;
 // ...
 
 #[derive(Clone, Deserialize)]

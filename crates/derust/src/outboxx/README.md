@@ -1,6 +1,6 @@
-# rustboot - outbox
+# derust - outbox
 
-## [Example](https://github.com/deroldo/rustboot/tree/main/examples/outbox)
+## [Example](https://github.com/deroldo/derust/tree/main/examples/outbox)
 
 ```toml
 # Cargo.toml
@@ -9,7 +9,7 @@
 # ...
 
 [dependencies]
-rustboot = { version = "0.1.0", features = ["outbox"] }
+derust = { version = "0.1.0", features = ["outbox"] }
 
 # ...
 ```
@@ -18,9 +18,9 @@ rustboot = { version = "0.1.0", features = ["outbox"] }
 // main.rs
 
 // ...
-use rustboot::databasex::{DatabaseConfig, PostgresDatabase, Repository};
-use rustboot::outboxx;
-use rustboot::outboxx::OutboxProcessorResources;
+use derust::databasex::{DatabaseConfig, PostgresDatabase, Repository};
+use derust::outboxx;
+use derust::outboxx::OutboxProcessorResources;
 // ...
 
 #[derive(Clone)]

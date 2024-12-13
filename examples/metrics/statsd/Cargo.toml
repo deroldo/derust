@@ -1,12 +1,12 @@
 [workspace]
 
 [package]
-name = "rustboot-metrics-statsd"
+name = "derust-metrics-statsd"
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-rustboot = { path = "../../../crates/rustboot", features = ["statsd"] }
+derust = { path = "../../../crates/derust", features = ["statsd"] }
 
 tokio = { version = "1.42.0", features = ["full"] }
 axum = { version = "0.7.9", default-features = true, features = ["macros", "tokio"] }

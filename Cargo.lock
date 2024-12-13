@@ -1105,6 +1105,51 @@ dependencies = [
 ]
 
 [[package]]
+name = "derust"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "aws-config",
+ "aws-sdk-secretsmanager",
+ "aws-sdk-sns",
+ "aws-sdk-sqs",
+ "axum",
+ "axum-tracing-opentelemetry",
+ "bytes",
+ "cadence",
+ "chrono",
+ "config",
+ "dotenv",
+ "growthbook-rust-sdk",
+ "http-body-util",
+ "hyper 1.5.1",
+ "init-tracing-opentelemetry",
+ "lazy_static",
+ "metrics",
+ "metrics-exporter-prometheus",
+ "metrics-exporter-statsd",
+ "opentelemetry 0.27.1",
+ "opentelemetry-http",
+ "opentelemetry-otlp",
+ "outbox-pattern-processor",
+ "regex",
+ "reqwest",
+ "reqwest-middleware 0.4.0",
+ "reqwest-tracing",
+ "serde",
+ "serde_json",
+ "sqlx",
+ "thiserror 2.0.4",
+ "tokio",
+ "tower-http",
+ "tracing",
+ "tracing-opentelemetry 0.28.0",
+ "tracing-subscriber",
+ "uuid",
+ "wg",
+]
+
+[[package]]
 name = "digest"
 version = "0.10.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3241,51 +3286,6 @@ dependencies = [
  "rkyv",
  "serde",
  "serde_json",
-]
-
-[[package]]
-name = "rustboot"
-version = "0.1.0"
-dependencies = [
- "async-trait",
- "aws-config",
- "aws-sdk-secretsmanager",
- "aws-sdk-sns",
- "aws-sdk-sqs",
- "axum",
- "axum-tracing-opentelemetry",
- "bytes",
- "cadence",
- "chrono",
- "config",
- "dotenv",
- "growthbook-rust-sdk",
- "http-body-util",
- "hyper 1.5.1",
- "init-tracing-opentelemetry",
- "lazy_static",
- "metrics",
- "metrics-exporter-prometheus",
- "metrics-exporter-statsd",
- "opentelemetry 0.27.1",
- "opentelemetry-http",
- "opentelemetry-otlp",
- "outbox-pattern-processor",
- "regex",
- "reqwest",
- "reqwest-middleware 0.4.0",
- "reqwest-tracing",
- "serde",
- "serde_json",
- "sqlx",
- "thiserror 2.0.4",
- "tokio",
- "tower-http",
- "tracing",
- "tracing-opentelemetry 0.28.0",
- "tracing-subscriber",
- "uuid",
- "wg",
 ]
 
 [[package]]
