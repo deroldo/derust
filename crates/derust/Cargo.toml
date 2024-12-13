@@ -3,6 +3,13 @@ name = "derust"
 version = "0.1.0"
 edition = "2021"
 authors = ["Deroldo <diogoderoldo@gmail.com>"]
+license = "MIT"
+description = "Easy way to start your Rust asynchronous application server using Tokio and Axum frameworks."
+readme = "README.md"
+homepage = "https://github.com/deroldo/derust"
+repository = "https://github.com/deroldo/derust"
+keywords = ["rust-boot", "tokio-boot", "axum-boot", "spring-boot", "config"]
+categories = ["web-programming"]
 
 [features]
 default = [
