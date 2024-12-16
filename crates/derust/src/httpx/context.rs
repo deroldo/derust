@@ -50,12 +50,14 @@ where
         statsd_registry(&statsd_config)?;
         #[cfg(feature = "statsd")]
         let denied_metric_tags = statsd_config.denied_metric_tags;
+        #[cfg(feature = "statsd")]
         let denied_metric_tags_by_regex = statsd_config.denied_metric_tags_by_regex;
 
         #[cfg(feature = "prometheus")]
         let prometheus_handle = prometheus_registry()?;
         #[cfg(feature = "prometheus")]
         let denied_metric_tags = prometheus_config.denied_metric_tags;
+        #[cfg(feature = "prometheus")]
         let denied_metric_tags_by_regex = prometheus_config.denied_metric_tags_by_regex;
 
         Ok(Self {

@@ -39,6 +39,7 @@ http_server = [
     "dep:tracing-subscriber",
     "dep:wg",
     "dep:chrono",
+    "dep:regex",
 ]
 http_client = [
     "dep:reqwest",
