@@ -9,7 +9,7 @@
 # ...
 
 [dependencies]
-derust = { version = "0.1.0", features = ["postgres"] }
+derust = { version = "0.1.1", features = ["postgres"] }
 
 # ...
 ```

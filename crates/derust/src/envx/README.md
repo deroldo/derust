@@ -9,7 +9,7 @@
 # ...
 
 [dependencies]
-derust = { version = "0.1.0" }
+derust = { version = "0.1.1" }
 
 # ...
 ```
@@ -68,7 +68,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 # ...
 
 [dependencies]
-derust = { version = "0.1.0", features = ["env_from_secrets_manager"] }
+derust = { version = "0.1.1", features = ["env_from_secrets_manager"] }
 
 # ...
 ```

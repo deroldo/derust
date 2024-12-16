@@ -17,7 +17,7 @@ Automatic duration metrics for features:
 # ...
 
 [dependencies]
-derust = { version = "0.1.0", features = ["statsd"] }
+derust = { version = "0.1.1", features = ["statsd"] }
 regex = { version = "1.11.1" }
 
 # ...
