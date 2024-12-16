@@ -6,6 +6,7 @@ use derust::envx::Environment;
 use derust::httpx::json::JsonResponse;
 use derust::httpx::{start, AppContext, HttpError, HttpTags};
 use derust::metricx::{current_gauge, increment, increment_one, record_duration, record_money, start_stopwatch, MetricTags, PrometheusConfig};
+use regex::Regex;
 
 #[derive(Clone)]
 pub struct AppState {}
@@ -20,7 +21,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let application_name = "sample";
 
     let prometheus_config = PrometheusConfig {
-        denied_metric_tags: vec!["customer_id".to_string()], // any high cardinality http tags (log tags)
+        denied_metric_tags: vec!["customer".to_string()], // any high cardinality http tags (log tags)
+        denied_metric_tags_by_regex: vec![Regex::new(".+_id$").unwrap()], // any high cardinality http tags regex (log tags)
     };
 
     // easy way to get application context things, like your application state struct

@@ -55,5 +55,10 @@ pub fn record_duration<S>(
 ) where
     S: Clone,
 {
-    metrics::histogram!(metric_name.to_string(), metric_tags.to_labels(context)).record(value);
+    metrics::histogram!(metric_name.to_string(), metric_tags.to_labels(
+        context.app_name(),
+        context.env(),
+        context.denied_metric_tags(),
+        context.denied_metric_tags_by_regex(),
+    )).record(value);
 }

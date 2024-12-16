@@ -11,3 +11,4 @@ derust = { path = "../../../crates/derust", features = ["prometheus"] }
 tokio = { version = "1.42.0", features = ["full"] }
 axum = { version = "0.7.9", default-features = true, features = ["macros", "tokio"] }
 serde = { version = "1.0.215", features = ["derive"]}
+regex = { workspace = true }

@@ -10,6 +10,7 @@ use crate::metricx::{statsd_registry, StatsdConfig};
 use growthbook_sdk_rust::client::GrowthBookClient;
 #[cfg(feature = "prometheus")]
 use metrics_exporter_prometheus::PrometheusHandle;
+use regex::Regex;
 
 #[derive(Clone)]
 pub struct AppContext<S>
@@ -22,6 +23,8 @@ where
     database: PostgresDatabase,
     #[cfg(any(feature = "statsd", feature = "prometheus"))]
     denied_metric_tags: Vec<String>,
+    #[cfg(any(feature = "statsd", feature = "prometheus"))]
+    denied_metric_tags_by_regex: Vec<Regex>,
     #[cfg(feature = "prometheus")]
     prometheus_handle: PrometheusHandle,
     ignore_log_for_paths: Vec<String>,
@@ -47,11 +50,13 @@ where
         statsd_registry(&statsd_config)?;
         #[cfg(feature = "statsd")]
         let denied_metric_tags = statsd_config.denied_metric_tags;
+        let denied_metric_tags_by_regex = statsd_config.denied_metric_tags_by_regex;
 
         #[cfg(feature = "prometheus")]
         let prometheus_handle = prometheus_registry()?;
         #[cfg(feature = "prometheus")]
         let denied_metric_tags = prometheus_config.denied_metric_tags;
+        let denied_metric_tags_by_regex = prometheus_config.denied_metric_tags_by_regex;
 
         Ok(Self {
             app_name: app_name.to_string(),
@@ -60,6 +65,8 @@ where
             database,
             #[cfg(any(feature = "statsd", feature = "prometheus"))]
             denied_metric_tags,
+            #[cfg(any(feature = "statsd", feature = "prometheus"))]
+            denied_metric_tags_by_regex,
             #[cfg(feature = "prometheus")]
             prometheus_handle,
             ignore_log_for_paths: vec!["/metrics".to_string()],
@@ -98,6 +105,11 @@ where
     #[cfg(any(feature = "statsd", feature = "prometheus"))]
     pub fn denied_metric_tags(&self) -> &[String] {
         &self.denied_metric_tags
+    }
+
+    #[cfg(any(feature = "statsd", feature = "prometheus"))]
+    pub fn denied_metric_tags_by_regex(&self) -> &[Regex] {
+        &self.denied_metric_tags_by_regex
     }
 
     #[cfg(feature = "prometheus")]

@@ -18,6 +18,7 @@ Automatic duration metrics for features:
 
 [dependencies]
 derust = { version = "0.1.0", features = ["prometheus"] }
+regex = { version = "1.11.1" }
 
 # ...
 ```
@@ -44,7 +45,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // prometheus
     let prometheus_config = PrometheusConfig {
-      denied_metric_tags: vec!["customer_id".to_string()], // any high cardinality http tags (log tags)
+      denied_metric_tags: vec!["customer".to_string()], // any high cardinality http tags (log tags)
+      denied_metric_tags_by_regex: vec![Regex::new(".+_id$").unwrap()], // any high cardinality http tags regex (log tags)
     };
 
     // easy way to get application context things, like your application state struct

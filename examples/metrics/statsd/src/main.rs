@@ -26,7 +26,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         queue_size: None,
         buffer_size: None,
         default_tags: MetricTags::default(), // any low cardinality key value - app_name and env already are default
-        denied_metric_tags: vec!["customer_id".to_string()], // any high cardinality http tags (log tags)
+        denied_metric_tags: vec!["customer".to_string()], // any high cardinality http tags (log tags)
+        denied_metric_tags_by_regex: vec![Regex::new(".+_id$").unwrap()], // any high cardinality http tags regex (log tags)
     };
 
     // easy way to get application context things, like your application state struct

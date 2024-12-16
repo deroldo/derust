@@ -1,6 +1,7 @@
 use crate::metricx::meters::MetricTags;
 use metrics::{Level, Recorder};
 use metrics_exporter_statsd::StatsdBuilder;
+use regex::Regex;
 use tracing::info;
 
 const DEFAULT_HOST: &str = "127.0.0.1";
@@ -17,6 +18,7 @@ pub struct StatsdConfig {
     pub buffer_size: Option<usize>,
     pub default_tags: MetricTags,
     pub denied_metric_tags: Vec<String>,
+    pub denied_metric_tags_by_regex: Vec<Regex>,
 }
 
 pub fn statsd_registry(config: &StatsdConfig) -> Result<(), Box<dyn std::error::Error>> {
@@ -28,7 +30,7 @@ pub fn statsd_registry(config: &StatsdConfig) -> Result<(), Box<dyn std::error::
 
     let port = config.agent_port.unwrap_or(DEFAULT_PORT);
 
-    let mut recorder = StatsdBuilder::from(host.clone(), port)
+    let mut recorder = StatsdBuilder::from(host, port)
         .with_queue_size(config.queue_size.unwrap_or(DEFAULT_QUEUE_SIZE))
         .with_buffer_size(config.buffer_size.unwrap_or(DEFAULT_BUFFER_SIZE));
 

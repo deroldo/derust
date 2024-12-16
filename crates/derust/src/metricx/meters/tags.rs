@@ -1,4 +1,5 @@
-use crate::httpx::{AppContext, HttpTags};
+use crate::envx::Environment;
+use crate::httpx::HttpTags;
 use axum::http::{Method, Uri};
 use lazy_static::lazy_static;
 use metrics::Label;
@@ -26,17 +27,21 @@ impl MetricTags {
         self.0.clone()
     }
 
-    pub fn to_labels<S>(&self, context: &AppContext<S>) -> Vec<Label>
-    where
-        S: Clone,
-    {
+    pub fn to_labels(
+        &self,
+        app_name: &str,
+        env: &Environment,
+        denied_metric_tags: &[String],
+        denied_metric_tags_by_regex: &[Regex],
+    ) -> Vec<Label> {
         let mut tags = self.clone();
-        tags = tags.push("app_name".to_string(), context.app_name().to_string());
-        tags = tags.push("env".to_string(), format!("{}", context.env().get_name()));
+        tags = tags.push("app_name".to_string(), app_name.to_string());
+        tags = tags.push("env".to_string(), env.get_name());
 
         tags.vec()
             .iter()
-            .filter(|mt| !context.denied_metric_tags().contains(&mt.key()))
+            .filter(|mt| !denied_metric_tags.contains(&mt.key()))
+            .filter(|mt| !denied_metric_tags_by_regex.iter().any(|regex| regex.is_match(&mt.key())))
             .map(|mt| Label::new(mt.key(), mt.value()))
             .collect::<Vec<_>>()
     }
@@ -95,6 +100,16 @@ impl From<&HttpTags> for MetricTags {
     }
 }
 
+impl From<HttpTags> for MetricTags {
+    fn from(value: HttpTags) -> Self {
+        let mut tags = MetricTags::default();
+        for (key, value) in value.values() {
+            tags = tags.push(key, value);
+        }
+        tags
+    }
+}
+
 impl<const N: usize> From<[(String, String); N]> for MetricTags {
     fn from(arr: [(String, String); N]) -> Self {
         let mut vec = Vec::with_capacity(N);
@@ -127,7 +142,10 @@ impl<const N: usize> From<[(&str, &str); N]> for MetricTags {
 
 #[cfg(any(feature = "statsd", feature = "prometheus"))]
 mod test {
+    use crate::envx::Environment;
     use crate::metricx::tags::{normalize_path, REGEXES_REPLACE};
+    use crate::metricx::MetricTags;
+    use regex::Regex;
 
     #[test]
     fn should_normalize_path() {
@@ -157,4 +175,41 @@ mod test {
             assert_eq!(expected_path, normalized_path);
         }
     }
+
+    #[tokio::test]
+    async fn should_filter_metric_tags() -> Result<(), Box<dyn std::error::Error>> {
+        let tags = MetricTags::from([
+            ("foo", "bar"),
+            ("customer", "1"),
+            ("any_id", "2"),
+        ]);
+
+        let app_name = "test";
+        let env = Environment::Test;
+        let denied_tag = "customer".to_string();
+        let regex = Regex::new(".+_id$").unwrap();
+
+        let labels = tags.to_labels(
+            app_name,
+            &env,
+            &vec![denied_tag],
+            &vec![regex],
+        );
+
+        assert_eq!(labels.len(), 3);
+
+        assert_eq!(labels[0].key(), "foo");
+        assert_eq!(labels[0].value(), "bar");
+
+        assert_eq!(labels[1].key(), "app_name");
+        assert_eq!(labels[1].value(), app_name);
+
+        assert_eq!(labels[2].key(), "env");
+        assert_eq!(labels[2].value(), env.get_name());
+
+        Ok(())
+    }
+
+    #[derive(Clone)]
+    struct AppState;
 }

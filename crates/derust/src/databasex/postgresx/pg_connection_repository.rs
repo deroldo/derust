@@ -162,7 +162,7 @@ fn stopwatch_record<S>(tags: &HttpTags, stopwatch: Stopwatch<S>, success: bool)
 where
     S: Clone,
 {
-    let mut result_metric_tags = MetricTags::from(tags.clocne());
+    let mut result_metric_tags = MetricTags::from(tags.clone());
     result_metric_tags = result_metric_tags.push("success".to_string(), success.to_string());
     stopwatch.record(result_metric_tags);
 }

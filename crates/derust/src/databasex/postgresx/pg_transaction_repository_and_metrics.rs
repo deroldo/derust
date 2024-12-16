@@ -10,7 +10,7 @@ use crate::metricx::{timer, MetricTags, Stopwatch};
 
 #[async_trait::async_trait]
 #[cfg(any(feature = "statsd", feature = "prometheus"))]
-impl<SS> Repository<Postgres> for PostgresTransaction<'_, SS> {
+impl<SS: Clone + Send + Sync> Repository<Postgres> for PostgresTransaction<'_, SS> {
     async fn fetch_one<'a, S, T>(
         &mut self,
         context: &'a AppContext<S>,
@@ -182,7 +182,7 @@ fn stopwatch_record<S>(tags: &HttpTags, stopwatch: Stopwatch<S>, success: bool)
 where
     S: Clone,
 {
-    let mut result_metric_tags = MetricTags::from(tags.clocne());
+    let mut result_metric_tags = MetricTags::from(tags.clone());
     result_metric_tags = result_metric_tags.push("success".to_string(), success.to_string());
     stopwatch.record(result_metric_tags);
 }
