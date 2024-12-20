@@ -1,6 +1,6 @@
 [package]
 name = "derust"
-version = "0.1.1"
+version = "0.2.0"
 edition = "2021"
 authors = ["Deroldo <diogoderoldo@gmail.com>"]
 license = "MIT"
@@ -8,7 +8,7 @@ description = "Easy way to start your Rust asynchronous application server using
 readme = "README.md"
 homepage = "https://github.com/deroldo/derust"
 repository = "https://github.com/deroldo/derust"
-keywords = ["rust-boot", "tokio-boot", "axum-boot", "spring-boot", "config"]
+keywords = ["rust-boot", "tokio-boot", "axum-boot", "spring-boot", "sdui"]
 categories = ["web-programming"]
 
 [features]
@@ -92,6 +92,7 @@ prometheus = [
 growthbook = [
     "dep:growthbook-sdk-rust"
 ]
+mirai = []
 
 [dependencies]
 # Async runtime

@@ -28,6 +28,9 @@ pub mod databasex;
 #[cfg(feature = "growthbook")]
 pub mod growthbookx;
 
+#[cfg(any(feature = "mirai"))]
+pub mod sduix;
+
 pub async fn shutdown_signal() {
     let ctrl_c = async {
         signal::ctrl_c()

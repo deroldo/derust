@@ -103,6 +103,9 @@ async fn handler(
   - [statsd](https://github.com/deroldo/derust/tree/main/crates/derust/src/metricx/registries/statsd)
 - [outbox](https://github.com/deroldo/derust/tree/main/crates/derust/src/outboxx)
 - [trace](https://github.com/deroldo/derust/tree/main/crates/derust/src/tracex) (default)
+- SDUI - Server-Driven UI
+  - flutter
+    - [mirai](https://github.com/deroldo/derust/tree/main/crates/derust/src/sduix/flutter/mirai)
 
 ## License
 This project is licensed under the MIT license.

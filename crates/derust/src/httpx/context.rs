@@ -1,5 +1,7 @@
 use crate::envx::Environment;
 
+use regex::Regex;
+
 #[cfg(any(feature = "postgres", feature = "outbox"))]
 use crate::databasex::PostgresDatabase;
 #[cfg(feature = "prometheus")]
@@ -10,7 +12,8 @@ use crate::metricx::{statsd_registry, StatsdConfig};
 use growthbook_sdk_rust::client::GrowthBookClient;
 #[cfg(feature = "prometheus")]
 use metrics_exporter_prometheus::PrometheusHandle;
-use regex::Regex;
+#[cfg(any(feature = "mirai"))]
+use crate::sduix::Theme;
 
 #[derive(Clone)]
 pub struct AppContext<S>
@@ -30,6 +33,8 @@ where
     ignore_log_for_paths: Vec<String>,
     #[cfg(feature = "growthbook")]
     growth_book: GrowthBookClient,
+    #[cfg(feature = "mirai")]
+    theme: Theme,
     state: S,
 }
 
@@ -44,6 +49,7 @@ where
         #[cfg(feature = "statsd")] statsd_config: StatsdConfig,
         #[cfg(feature = "prometheus")] prometheus_config: PrometheusConfig,
         #[cfg(feature = "growthbook")] growth_book: GrowthBookClient,
+        #[cfg(any(feature = "mirai"))] theme: Theme,
         state: S,
     ) -> Result<Self, Box<dyn std::error::Error>> {
         #[cfg(feature = "statsd")]
@@ -74,6 +80,8 @@ where
             ignore_log_for_paths: vec!["/metrics".to_string()],
             #[cfg(feature = "growthbook")]
             growth_book,
+            #[cfg(any(feature = "mirai"))]
+            theme,
             state,
         })
     }
@@ -122,5 +130,10 @@ where
     #[cfg(feature = "growthbook")]
     pub fn growth_book(&self) -> &GrowthBookClient {
         &self.growth_book
+    }
+
+    #[cfg(any(feature = "mirai"))]
+    pub fn theme(&self) -> &Theme {
+        &self.theme
     }
 }
