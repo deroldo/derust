@@ -267,3 +267,156 @@ pub enum TextBaseline {
     Alphabetic,
     Ideographic,
 }
+
+#[derive(Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub enum Alignment {
+    TopLeft,
+    TopCenter,
+    TopRight,
+    CenterLeft,
+    Center,
+    CenterRight,
+    BottomLeft,
+    BottomCenter,
+    BottomRight,
+}
+
+#[derive(Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub enum BlendMode {
+    Clear,
+    Src,
+    Dst,
+    SrcOver,
+    SstOver,
+    SrcIn,
+    SstIn,
+    SrcOut,
+    DstOut,
+    SrcATop,
+    Xor,
+    Plus,
+    Modulate,
+    Screen,
+    Overlay,
+    Darken,
+    Lighten,
+    ColorDodge,
+    ColorBurn,
+    HardLight,
+    SoftLight,
+    Difference,
+    Exclusion,
+    Multiply,
+    Hue,
+    Saturation,
+    Color,
+    Luminosity,
+}
+
+#[derive(Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub enum BlurStyle {
+    Normal,
+    Solid,
+    Outer,
+    Inner,
+}
+
+#[derive(Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub enum BoxShape {
+    Circle,
+    Rectangle,
+}
+
+#[derive(Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub enum BorderStyle {
+    Solid,
+    None,
+}
+
+#[derive(Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub enum BorderSide {
+    StrokeAlignInside,
+    StrokeAlignCenter,
+    StrokeAlignOutside,
+}
+
+impl BorderSide {
+    pub fn get_value(&self) -> f64 {
+        match self {
+            BorderSide::StrokeAlignInside => -1.0,
+            BorderSide::StrokeAlignCenter => 0.0,
+            BorderSide::StrokeAlignOutside => 1.0,
+        }
+    }
+}
+
+#[derive(Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub enum FilterQuality {
+    None,
+    Low,
+    Medium,
+    High,
+}
+
+#[derive(Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub enum ImageRepeat {
+    Repeat,
+    RepeatX,
+    RepeatY,
+    NoRepeat,
+}
+
+#[derive(Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub enum BoxFit {
+    Fill,
+    Contain,
+    Cover,
+    ScaleDown,
+    None,
+    FitWidth,
+    FitHeight,
+}
+
+#[derive(Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub enum DecorationImageType {
+    File,
+    Network,
+    Asset,
+}
+
+#[derive(Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub enum RectType {
+    FromCenter,
+    FromCircle,
+    FromLTRB,
+    FromLTWH,
+    FromPoints,
+}
+
+#[derive(Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub enum GradientType {
+    Linear,
+    Radial,
+    Sweep,
+}
+
+#[derive(Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub enum TileMode {
+    Clamp,
+    Repeat,
+    Mirror,
+    Decal,
+}

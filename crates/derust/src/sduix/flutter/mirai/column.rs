@@ -51,6 +51,11 @@ impl Column {
         })
     }
 
+    pub fn with_id(mut self, id: &str) -> Self {
+        self.id = id.to_string();
+        self
+    }
+
     pub fn with_main_axis_alignment(mut self, main_axis_alignment: MainAxisAlignment) -> Self {
         self.main_axis_alignment = Some(main_axis_alignment);
         self
