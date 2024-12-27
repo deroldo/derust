@@ -420,3 +420,63 @@ pub enum TileMode {
     Mirror,
     Decal,
 }
+
+#[derive(Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub enum MaterialColor {
+    Primary,
+    Shade50,
+    Shade100,
+    Shade200,
+    Shade300,
+    Shade400,
+    Shade500,
+    Shade600,
+    Shade700,
+    Shade800,
+    Shade900,
+}
+
+#[derive(Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub enum AlignmentDirectional {
+    TopStart,
+    TopCenter,
+    TopEnd,
+    CenterStart,
+    Center,
+    CenterEnd,
+    BottomStart,
+    BottomCenter,
+    BottomEnd,
+}
+
+#[derive(Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub enum OverflowBarAlignment {
+    Start,
+    Center,
+    End,
+}
+
+#[derive(Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub enum Brightness {
+    Dark,
+    Light,
+}
+
+#[derive(Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub enum BottomNavigationBarType {
+    Fixed,
+    Shifting,
+}
+
+#[derive(Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub enum BottomNavigationBarLandscapeLayout {
+    Spread,
+    Centered,
+    Linear,
+}
