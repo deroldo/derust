@@ -9,15 +9,15 @@ pub trait Widget: Clone + Serialize {
 }
 
 pub trait WidgetAsValue {
-    fn as_value(&self, tags: &HttpTags) -> Result<Value, HttpError>;
+    fn widget_as_value(&self, tags: &HttpTags) -> Result<Value, HttpError>;
 }
 
 impl<T: Widget> WidgetAsValue for T {
-    fn as_value(&self, tags: &HttpTags) -> Result<Value, HttpError> {
+    fn widget_as_value(&self, tags: &HttpTags) -> Result<Value, HttpError> {
         serde_json::to_value(self).map_err(|error| {
             HttpError::without_body(
                 StatusCode::INTERNAL_SERVER_ERROR,
-                format!("Failed to convert {} to value: {error}", self.get_type()),
+                format!("Failed to convert widget {} to value: {error}", self.get_type()),
                 tags.clone(),
             )
         })
@@ -25,15 +25,49 @@ impl<T: Widget> WidgetAsValue for T {
 }
 
 pub trait WidgetsAsValue {
-    fn as_values(&self, tags: &HttpTags) -> Result<Vec<Value>, HttpError>;
+    fn widgets_as_values(&self, tags: &HttpTags) -> Result<Vec<Value>, HttpError>;
 }
 
 impl<T: Widget> WidgetsAsValue for Vec<T> {
-    fn as_values(&self, tags: &HttpTags) -> Result<Vec<Value>, HttpError> {
+    fn widgets_as_values(&self, tags: &HttpTags) -> Result<Vec<Value>, HttpError> {
         let mut values = vec![];
 
         for widget in self {
-            values.push(widget.as_value(tags)?);
+            values.push(widget.widget_as_value(tags)?);
+        }
+
+        Ok(values)
+    }
+}
+
+pub trait Action: Clone + Serialize {}
+
+pub trait ActionAsValue {
+    fn action_as_value(&self, tags: &HttpTags) -> Result<Value, HttpError>;
+}
+
+impl<T: Action> ActionAsValue for T {
+    fn action_as_value(&self, tags: &HttpTags) -> Result<Value, HttpError> {
+        serde_json::to_value(self).map_err(|error| {
+            HttpError::without_body(
+                StatusCode::INTERNAL_SERVER_ERROR,
+                format!("Failed to convert action to value: {error}"),
+                tags.clone(),
+            )
+        })
+    }
+}
+
+pub trait ActionsAsValue {
+    fn actions_as_values(&self, tags: &HttpTags) -> Result<Vec<Value>, HttpError>;
+}
+
+impl<T: Widget> ActionsAsValue for Vec<T> {
+    fn actions_as_values(&self, tags: &HttpTags) -> Result<Vec<Value>, HttpError> {
+        let mut values = vec![];
+
+        for widget in self {
+            values.push(widget.widget_as_value(tags)?);
         }
 
         Ok(values)
@@ -479,4 +513,18 @@ pub enum BottomNavigationBarLandscapeLayout {
     Spread,
     Centered,
     Linear,
+}
+
+#[derive(Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub enum MaterialTapTargetSize {
+    Padded,
+    ShrinkWrap,
+}
+
+#[derive(Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub enum FlexFit {
+    Tight,
+    Loose,
 }

@@ -1,9 +1,9 @@
 use crate::httpx::{AppContext, HttpError, HttpTags};
-use crate::sduix::flutter::mirai::widget::{EdgeInsets, Widget, WidgetAsValue};
+use crate::sduix::flutter::mirai::widget::{EdgeInsets, WidgetAsValue, Widget};
+use crate::sduix::Color;
 use serde::Serialize;
 use serde_json::Value;
 use uuid::Uuid;
-use crate::sduix::Color;
 
 #[derive(Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -118,32 +118,32 @@ impl ListTile {
     }
 
     pub fn with_on_tap(mut self, on_tap: impl Widget, tags: &HttpTags) -> Result<Self, HttpError> {
-        self.on_tap = Some(on_tap.as_value(tags)?);
+        self.on_tap = Some(on_tap.widget_as_value(tags)?);
         Ok(self)
     }
 
     pub fn with_on_long_press(mut self, on_long_press: impl Widget, tags: &HttpTags) -> Result<Self, HttpError> {
-        self.on_tap = Some(on_long_press.as_value(tags)?);
+        self.on_tap = Some(on_long_press.widget_as_value(tags)?);
         Ok(self)
     }
 
     pub fn with_leading(mut self, leading: impl Widget, tags: &HttpTags) -> Result<Self, HttpError> {
-        self.leading = Some(leading.as_value(tags)?);
+        self.leading = Some(leading.widget_as_value(tags)?);
         Ok(self)
     }
 
     pub fn with_title(mut self, title: impl Widget, tags: &HttpTags) -> Result<Self, HttpError> {
-        self.title = Some(title.as_value(tags)?);
+        self.title = Some(title.widget_as_value(tags)?);
         Ok(self)
     }
 
     pub fn with_subtitle(mut self, subtitle: impl Widget, tags: &HttpTags) -> Result<Self, HttpError> {
-        self.subtitle = Some(subtitle.as_value(tags)?);
+        self.subtitle = Some(subtitle.widget_as_value(tags)?);
         Ok(self)
     }
 
     pub fn with_trailing(mut self, trailing: impl Widget, tags: &HttpTags) -> Result<Self, HttpError> {
-        self.trailing = Some(trailing.as_value(tags)?);
+        self.trailing = Some(trailing.widget_as_value(tags)?);
         Ok(self)
     }
 

@@ -1,6 +1,6 @@
 use crate::httpx::{AppContext, HttpError, HttpTags};
 use crate::sduix::flutter::mirai::text_style::TextStyle;
-use crate::sduix::flutter::mirai::widget::{Clip, EdgeInsets, MainAxisAlignment, OverflowBarAlignment, VerticalDirection, Widget, WidgetAsValue, WidgetsAsValue};
+use crate::sduix::flutter::mirai::widget::{Clip, EdgeInsets, MainAxisAlignment, WidgetAsValue, WidgetsAsValue, OverflowBarAlignment, VerticalDirection, Widget};
 use crate::sduix::Color;
 use serde::Serialize;
 use serde_json::Value;
@@ -106,7 +106,7 @@ impl AlertDialog {
     }
 
     pub fn with_icon(mut self, icon: impl Widget, tags: &HttpTags) -> Result<Self, HttpError> {
-        self.icon = Some(icon.as_value(tags)?);
+        self.icon = Some(icon.widget_as_value(tags)?);
         Ok(self)
     }
 
@@ -121,7 +121,7 @@ impl AlertDialog {
     }
 
     pub fn with_title(mut self, title: impl Widget, tags: &HttpTags) -> Result<Self, HttpError> {
-        self.title = Some(title.as_value(tags)?);
+        self.title = Some(title.widget_as_value(tags)?);
         Ok(self)
     }
 
@@ -136,7 +136,7 @@ impl AlertDialog {
     }
 
     pub fn with_content(mut self, content: impl Widget, tags: &HttpTags) -> Result<Self, HttpError> {
-        self.content = Some(content.as_value(tags)?);
+        self.content = Some(content.widget_as_value(tags)?);
         Ok(self)
     }
 
@@ -151,7 +151,7 @@ impl AlertDialog {
     }
 
     pub fn with_actions(mut self, actions: Vec<impl Widget>, tags: &HttpTags) -> Result<Self, HttpError> {
-        self.actions = Some(actions.as_values(tags)?);
+        self.actions = Some(actions.widgets_as_values(tags)?);
         Ok(self)
     }
 

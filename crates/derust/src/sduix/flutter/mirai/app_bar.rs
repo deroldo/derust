@@ -1,9 +1,9 @@
 use crate::httpx::{AppContext, HttpError, HttpTags};
+use crate::sduix::flutter::mirai::widget::{WidgetAsValue, WidgetsAsValue, Widget};
+use crate::sduix::Color;
 use serde::Serialize;
 use serde_json::Value;
 use uuid::Uuid;
-use crate::sduix::Color;
-use crate::sduix::flutter::mirai::widget::{Widget, WidgetAsValue, WidgetsAsValue};
 
 #[derive(Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -89,17 +89,17 @@ impl AppBar {
     }
 
     pub fn with_title(mut self, title: impl Widget, tags: &HttpTags) -> Result<Self, HttpError> {
-        self.title = Some(title.as_value(tags)?);
+        self.title = Some(title.widget_as_value(tags)?);
         Ok(self)
     }
 
     pub fn with_bottom(mut self, bottom: impl Widget, tags: &HttpTags) -> Result<Self, HttpError> {
-        self.bottom = Some(bottom.as_value(tags)?);
+        self.bottom = Some(bottom.widget_as_value(tags)?);
         Ok(self)
     }
 
     pub fn with_leading(mut self, leading: impl Widget, tags: &HttpTags) -> Result<Self, HttpError> {
-        self.leading = Some(leading.as_value(tags)?);
+        self.leading = Some(leading.widget_as_value(tags)?);
         Ok(self)
     }
 
@@ -169,7 +169,7 @@ impl AppBar {
     }
 
     pub fn with_actions(mut self, actions: Vec<impl Widget>, tags: &HttpTags) -> Result<Self, HttpError> {
-        self.actions = Some(actions.as_values(tags)?);
+        self.actions = Some(actions.widgets_as_values(tags)?);
         Ok(self)
     }
 }

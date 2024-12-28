@@ -1,5 +1,5 @@
 use crate::httpx::{AppContext, HttpError, HttpTags};
-use crate::sduix::flutter::mirai::widget::{Clip, EdgeInsets, Widget, WidgetAsValue};
+use crate::sduix::flutter::mirai::widget::{Clip, EdgeInsets, WidgetAsValue, Widget};
 use crate::sduix::Color;
 use serde::Serialize;
 use serde_json::Value;
@@ -101,7 +101,7 @@ impl Card {
     }
 
     pub fn with_child(mut self, child: impl Widget, tags: &HttpTags) -> Result<Self, HttpError> {
-        self.child = Some(child.as_value(tags)?);
+        self.child = Some(child.widget_as_value(tags)?);
         Ok(self)
     }
 

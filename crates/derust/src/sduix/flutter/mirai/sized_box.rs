@@ -1,5 +1,5 @@
 use crate::httpx::{AppContext, HttpError, HttpTags};
-use crate::sduix::flutter::mirai::widget::{Widget, WidgetAsValue};
+use crate::sduix::flutter::mirai::widget::{WidgetAsValue, Widget};
 use serde::Serialize;
 use serde_json::Value;
 use uuid::Uuid;
@@ -55,7 +55,7 @@ impl SizedBox {
     }
 
     pub fn with_child(mut self, widget: impl Widget, tags: &HttpTags) -> Result<Self, HttpError> {
-        self.child = Some(widget.as_value(tags)?);
+        self.child = Some(widget.widget_as_value(tags)?);
         Ok(self)
     }
 }

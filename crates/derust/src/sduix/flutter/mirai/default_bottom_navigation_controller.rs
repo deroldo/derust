@@ -1,5 +1,4 @@
 use crate::httpx::{AppContext, HttpError, HttpTags};
-use crate::sduix::flutter::mirai::text_style::TextStyle;
 use crate::sduix::flutter::mirai::widget::{WidgetAsValue, Widget};
 use serde::Serialize;
 use serde_json::Value;
@@ -7,18 +6,17 @@ use uuid::Uuid;
 
 #[derive(Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct TextSpan {
+pub struct DefaultBottomNavigationController {
     #[serde(rename = "type")]
     widget_type: String,
     id: String,
-    data: String,
+    length: i64,
     #[serde(skip_serializing_if = "Option::is_none")]
-    style: Option<TextStyle>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    on_tap: Option<Value>,
+    initial_index: Option<i64>,
+    child: Value,
 }
 
-impl Widget for TextSpan {
+impl Widget for DefaultBottomNavigationController {
     fn get_id(&self) -> String {
         self.id.clone()
     }
@@ -28,18 +26,20 @@ impl Widget for TextSpan {
     }
 }
 
-impl TextSpan {
+impl DefaultBottomNavigationController {
     pub fn new<S: Clone>(
         _context: &AppContext<S>,
-        text_span: &str,
-    ) -> Self {
-        Self {
-            widget_type: "textSpan".to_string(),
+        length: i64,
+        child: impl Widget,
+        tags: &HttpTags,
+    ) -> Result<Self, HttpError> {
+        Ok(Self {
+            widget_type: "defaultBottomNavigationController".to_string(),
             id: Uuid::now_v7().to_string(),
-            data: text_span.to_string(),
-            style: None,
-            on_tap: None,
-        }
+            length,
+            initial_index: None,
+            child: child.widget_as_value(tags)?,
+        })
     }
 
     pub fn with_id(mut self, id: &str) -> Self {
@@ -47,13 +47,8 @@ impl TextSpan {
         self
     }
 
-    pub fn with_styled(mut self, style: TextStyle) -> Self {
-        self.style = Some(style);
+    pub fn with_initial_index(mut self, initial_index: i64) -> Self {
+        self.initial_index = Some(initial_index);
         self
-    }
-
-    pub fn with_on_tap(mut self, on_tap: impl Widget, tags: &HttpTags) -> Result<Self, HttpError> {
-        self.on_tap = Some(on_tap.widget_as_value(tags)?);
-        Ok(self)
     }
 }

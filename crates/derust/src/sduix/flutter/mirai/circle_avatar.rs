@@ -1,5 +1,5 @@
 use crate::httpx::{AppContext, HttpError, HttpTags};
-use crate::sduix::flutter::mirai::widget::{Widget, WidgetAsValue};
+use crate::sduix::flutter::mirai::widget::{WidgetAsValue, Widget};
 use crate::sduix::Color;
 use serde::Serialize;
 use serde_json::Value;
@@ -69,7 +69,7 @@ impl CircleAvatar {
     }
 
     pub fn with_child(mut self, child: impl Widget, tags: &HttpTags) -> Result<Self, HttpError> {
-        self.child = Some(child.as_value(tags)?);
+        self.child = Some(child.widget_as_value(tags)?);
         Ok(self)
     }
 
@@ -89,12 +89,12 @@ impl CircleAvatar {
     }
 
     pub fn with_on_background_image_error(mut self, on_background_image_error: impl Widget, tags: &HttpTags) -> Result<Self, HttpError> {
-        self.on_background_image_error = Some(on_background_image_error.as_value(tags)?);
+        self.on_background_image_error = Some(on_background_image_error.widget_as_value(tags)?);
         Ok(self)
     }
 
     pub fn with_on_foreground_image_error(mut self, on_foreground_image_error: impl Widget, tags: &HttpTags) -> Result<Self, HttpError> {
-        self.on_foreground_image_error = Some(on_foreground_image_error.as_value(tags)?);
+        self.on_foreground_image_error = Some(on_foreground_image_error.widget_as_value(tags)?);
         Ok(self)
     }
 

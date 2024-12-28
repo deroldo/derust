@@ -1,5 +1,5 @@
 use crate::httpx::{AppContext, HttpError, HttpTags};
-use crate::sduix::flutter::mirai::widget::{CrossAxisAlignment, MainAxisAlignment, MainAxisSize, TextDirection, VerticalDirection, Widget, WidgetsAsValue};
+use crate::sduix::flutter::mirai::widget::{CrossAxisAlignment, MainAxisAlignment, MainAxisSize, WidgetsAsValue, TextDirection, VerticalDirection, Widget};
 use serde::Serialize;
 use serde_json::Value;
 use uuid::Uuid;
@@ -47,7 +47,7 @@ impl Column {
             main_axis_size: None,
             text_direction: None,
             vertical_direction: None,
-            children: children.as_values(tags)?,
+            children: children.widgets_as_values(tags)?,
         })
     }
 

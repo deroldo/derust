@@ -1,5 +1,5 @@
 use crate::httpx::{AppContext, HttpError, HttpTags};
-use crate::sduix::flutter::mirai::widget::{AlignmentDirectional, Widget, WidgetAsValue};
+use crate::sduix::flutter::mirai::widget::{AlignmentDirectional, WidgetAsValue, Widget};
 use serde::Serialize;
 use serde_json::Value;
 use uuid::Uuid;
@@ -60,7 +60,7 @@ impl Align {
     }
 
     pub fn with_child(mut self, child: impl Widget, tags: &HttpTags) -> Result<Self, HttpError> {
-        self.child = Some(child.as_value(tags)?);
+        self.child = Some(child.widget_as_value(tags)?);
         Ok(self)
     }
 }

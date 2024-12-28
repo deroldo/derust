@@ -1,6 +1,6 @@
 use crate::httpx::{AppContext, HttpError, HttpTags};
 use crate::sduix::flutter::mirai::app_bar::AppBar;
-use crate::sduix::flutter::mirai::widget::{FloatingActionButtonLocation, Widget, WidgetAsValue};
+use crate::sduix::flutter::mirai::widget::{FloatingActionButtonLocation, WidgetAsValue, Widget};
 use crate::sduix::Color;
 use serde::Serialize;
 use serde_json::Value;
@@ -77,22 +77,22 @@ impl Scaffold {
     }
 
     pub fn with_body(mut self, body: impl Widget, tags: &HttpTags) -> Result<Self, HttpError> {
-        self.body = Some(body.as_value(tags)?);
+        self.body = Some(body.widget_as_value(tags)?);
         Ok(self)
     }
 
     pub fn with_floating_action_button(mut self, floating_action_button: impl Widget, tags: &HttpTags) -> Result<Self, HttpError> {
-        self.floating_action_button = Some(floating_action_button.as_value(tags)?);
+        self.floating_action_button = Some(floating_action_button.widget_as_value(tags)?);
         Ok(self)
     }
 
     pub fn with_bottom_navigation_bar(mut self, bottom_navigation_bar: impl Widget, tags: &HttpTags) -> Result<Self, HttpError> {
-        self.bottom_navigation_bar = Some(bottom_navigation_bar.as_value(tags)?);
+        self.bottom_navigation_bar = Some(bottom_navigation_bar.widget_as_value(tags)?);
         Ok(self)
     }
 
     pub fn with_bottom_sheet(mut self, bottom_sheet: impl Widget, tags: &HttpTags) -> Result<Self, HttpError> {
-        self.bottom_sheet = Some(bottom_sheet.as_value(tags)?);
+        self.bottom_sheet = Some(bottom_sheet.widget_as_value(tags)?);
         Ok(self)
     }
 
