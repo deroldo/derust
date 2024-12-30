@@ -1,10 +1,12 @@
 use crate::httpx::AppContext;
-use crate::sduix::flutter::mirai::widget::{TextAlign, TextDirection, TextOverflow, TextWidthBasis, Widget};
+use crate::sduix::flutter::mirai::text_span::TextSpan;
+use crate::sduix::flutter::mirai::text_style::TextStyle;
+use crate::sduix::flutter::mirai::widget::{
+    TextAlign, TextDirection, TextOverflow, TextWidthBasis, Widget,
+};
 use crate::sduix::Color;
 use serde::Serialize;
 use uuid::Uuid;
-use crate::sduix::flutter::mirai::text_span::TextSpan;
-use crate::sduix::flutter::mirai::text_style::TextStyle;
 
 #[derive(Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -48,10 +50,7 @@ impl Widget for Text {
 }
 
 impl Text {
-    pub fn new<S: Clone>(
-        _context: &AppContext<S>,
-        text: &str,
-    ) -> Self {
+    pub fn new<S: Clone>(_context: &AppContext<S>, text: &str) -> Self {
         Self {
             widget_type: "text".to_string(),
             id: Uuid::now_v7().to_string(),

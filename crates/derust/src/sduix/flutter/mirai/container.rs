@@ -1,7 +1,7 @@
 use crate::httpx::{AppContext, HttpError, HttpTags};
 use crate::sduix::flutter::mirai::box_constraints::BoxConstraints;
 use crate::sduix::flutter::mirai::box_decoration::BoxDecoration;
-use crate::sduix::flutter::mirai::widget::{Alignment, EdgeInsets, WidgetAsValue, Widget};
+use crate::sduix::flutter::mirai::widget::{Alignment, EdgeInsets, Widget, WidgetAsValue};
 use crate::sduix::Color;
 use serde::Serialize;
 use serde_json::Value;
@@ -46,9 +46,7 @@ impl Widget for Container {
 }
 
 impl Container {
-    pub fn new<S: Clone>(
-        _context: &AppContext<S>,
-    ) -> Self {
+    pub fn new<S: Clone>(_context: &AppContext<S>) -> Self {
         Self {
             widget_type: "container".to_string(),
             id: Uuid::now_v7().to_string(),

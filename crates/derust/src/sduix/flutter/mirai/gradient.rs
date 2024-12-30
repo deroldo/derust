@@ -1,8 +1,8 @@
-use serde::Serialize;
 use crate::httpx::AppContext;
-use crate::sduix::Color;
 use crate::sduix::flutter::mirai::alignment_geometry::AlignmentGeometry;
 use crate::sduix::flutter::mirai::widget::{Alignment, GradientType, TileMode};
+use crate::sduix::Color;
+use serde::Serialize;
 
 #[derive(Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -33,10 +33,7 @@ pub struct Gradient {
 }
 
 impl Gradient {
-    pub fn new<S: Clone>(
-        _context: &AppContext<S>,
-        colors: Vec<Color>,
-    ) -> Self {
+    pub fn new<S: Clone>(_context: &AppContext<S>, colors: Vec<Color>) -> Self {
         Self {
             colors: colors.iter().map(|c| c.hex.to_string()).collect(),
             stops: None,

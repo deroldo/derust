@@ -1,5 +1,5 @@
 use crate::httpx::{AppContext, HttpError, HttpTags};
-use crate::sduix::flutter::mirai::widget::{EdgeInsets, WidgetAsValue, Widget};
+use crate::sduix::flutter::mirai::widget::{EdgeInsets, Widget, WidgetAsValue};
 use crate::sduix::Color;
 use serde::Serialize;
 use serde_json::Value;
@@ -79,9 +79,7 @@ impl Widget for ListTile {
 }
 
 impl ListTile {
-    pub fn new<S: Clone>(
-        _context: &AppContext<S>,
-    ) -> Self {
+    pub fn new<S: Clone>(_context: &AppContext<S>) -> Self {
         Self {
             widget_type: "listTile".to_string(),
             id: Uuid::now_v7().to_string(),
@@ -122,12 +120,20 @@ impl ListTile {
         Ok(self)
     }
 
-    pub fn with_on_long_press(mut self, on_long_press: impl Widget, tags: &HttpTags) -> Result<Self, HttpError> {
+    pub fn with_on_long_press(
+        mut self,
+        on_long_press: impl Widget,
+        tags: &HttpTags,
+    ) -> Result<Self, HttpError> {
         self.on_tap = Some(on_long_press.widget_as_value(tags)?);
         Ok(self)
     }
 
-    pub fn with_leading(mut self, leading: impl Widget, tags: &HttpTags) -> Result<Self, HttpError> {
+    pub fn with_leading(
+        mut self,
+        leading: impl Widget,
+        tags: &HttpTags,
+    ) -> Result<Self, HttpError> {
         self.leading = Some(leading.widget_as_value(tags)?);
         Ok(self)
     }
@@ -137,12 +143,20 @@ impl ListTile {
         Ok(self)
     }
 
-    pub fn with_subtitle(mut self, subtitle: impl Widget, tags: &HttpTags) -> Result<Self, HttpError> {
+    pub fn with_subtitle(
+        mut self,
+        subtitle: impl Widget,
+        tags: &HttpTags,
+    ) -> Result<Self, HttpError> {
         self.subtitle = Some(subtitle.widget_as_value(tags)?);
         Ok(self)
     }
 
-    pub fn with_trailing(mut self, trailing: impl Widget, tags: &HttpTags) -> Result<Self, HttpError> {
+    pub fn with_trailing(
+        mut self,
+        trailing: impl Widget,
+        tags: &HttpTags,
+    ) -> Result<Self, HttpError> {
         self.trailing = Some(trailing.widget_as_value(tags)?);
         Ok(self)
     }

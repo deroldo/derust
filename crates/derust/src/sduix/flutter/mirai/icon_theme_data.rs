@@ -25,9 +25,7 @@ pub struct IconThemeData {
 }
 
 impl IconThemeData {
-    pub fn new<S: Clone>(
-        _context: &AppContext<S>,
-    ) -> Self {
+    pub fn new<S: Clone>(_context: &AppContext<S>) -> Self {
         Self {
             size: None,
             fill: None,

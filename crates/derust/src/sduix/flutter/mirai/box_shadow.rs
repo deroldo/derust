@@ -1,8 +1,8 @@
-use serde::Serialize;
 use crate::httpx::AppContext;
-use crate::sduix::Color;
 use crate::sduix::flutter::mirai::offset::Offset;
 use crate::sduix::flutter::mirai::widget::BlurStyle;
+use crate::sduix::Color;
+use serde::Serialize;
 
 #[derive(Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -20,9 +20,7 @@ pub struct BoxShadow {
 }
 
 impl BoxShadow {
-    pub fn new<S: Clone>(
-        _context: &AppContext<S>,
-    ) -> Self {
+    pub fn new<S: Clone>(_context: &AppContext<S>) -> Self {
         Self {
             color: None,
             blur_radius: None,

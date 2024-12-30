@@ -45,9 +45,7 @@ impl Widget for CheckBox {
 }
 
 impl CheckBox {
-    pub fn new<S: Clone>(
-        _context: &AppContext<S>,
-    ) -> Self {
+    pub fn new<S: Clone>(_context: &AppContext<S>) -> Self {
         Self {
             widget_type: "card".to_string(),
             id: Uuid::now_v7().to_string(),

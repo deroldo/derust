@@ -21,9 +21,7 @@ pub struct BottomAppBarTheme {
 }
 
 impl BottomAppBarTheme {
-    pub fn new<S: Clone>(
-        _context: &AppContext<S>,
-    ) -> Self {
+    pub fn new<S: Clone>(_context: &AppContext<S>) -> Self {
         Self {
             color: None,
             elevation: None,

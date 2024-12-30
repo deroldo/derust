@@ -1,5 +1,5 @@
 use crate::httpx::{AppContext, HttpError, HttpTags};
-use crate::sduix::flutter::mirai::widget::{Clip, EdgeInsets, WidgetAsValue, Widget};
+use crate::sduix::flutter::mirai::widget::{Clip, EdgeInsets, Widget, WidgetAsValue};
 use crate::sduix::Color;
 use serde::Serialize;
 use serde_json::Value;
@@ -42,9 +42,7 @@ impl Widget for Card {
 }
 
 impl Card {
-    pub fn new<S: Clone>(
-        _context: &AppContext<S>,
-    ) -> Self {
+    pub fn new<S: Clone>(_context: &AppContext<S>) -> Self {
         Self {
             widget_type: "card".to_string(),
             id: Uuid::now_v7().to_string(),

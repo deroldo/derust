@@ -8,12 +8,12 @@ use crate::databasex::PostgresDatabase;
 use crate::metricx::{prometheus_registry, PrometheusConfig};
 #[cfg(feature = "statsd")]
 use crate::metricx::{statsd_registry, StatsdConfig};
+#[cfg(any(feature = "mirai"))]
+use crate::sduix::Theme;
 #[cfg(feature = "growthbook")]
 use growthbook_sdk_rust::client::GrowthBookClient;
 #[cfg(feature = "prometheus")]
 use metrics_exporter_prometheus::PrometheusHandle;
-#[cfg(any(feature = "mirai"))]
-use crate::sduix::Theme;
 
 #[derive(Clone)]
 pub struct AppContext<S>

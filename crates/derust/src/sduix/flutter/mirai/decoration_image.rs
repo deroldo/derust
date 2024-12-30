@@ -1,6 +1,8 @@
 use crate::httpx::AppContext;
 use crate::sduix::flutter::mirai::rect::Rect;
-use crate::sduix::flutter::mirai::widget::{Alignment, BoxFit, DecorationImageType, FilterQuality, ImageRepeat};
+use crate::sduix::flutter::mirai::widget::{
+    Alignment, BoxFit, DecorationImageType, FilterQuality, ImageRepeat,
+};
 use serde::Serialize;
 
 #[derive(Clone, Serialize)]
@@ -32,10 +34,7 @@ pub struct DecorationImage {
 }
 
 impl DecorationImage {
-    pub fn new<S: Clone>(
-        _context: &AppContext<S>,
-        src: &str,
-    ) -> Self {
+    pub fn new<S: Clone>(_context: &AppContext<S>, src: &str) -> Self {
         Self {
             src: src.to_string(),
             scale: None,

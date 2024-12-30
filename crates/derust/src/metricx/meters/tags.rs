@@ -41,7 +41,11 @@ impl MetricTags {
         tags.vec()
             .iter()
             .filter(|mt| !denied_metric_tags.contains(&mt.key()))
-            .filter(|mt| !denied_metric_tags_by_regex.iter().any(|regex| regex.is_match(&mt.key())))
+            .filter(|mt| {
+                !denied_metric_tags_by_regex
+                    .iter()
+                    .any(|regex| regex.is_match(&mt.key()))
+            })
             .map(|mt| Label::new(mt.key(), mt.value()))
             .collect::<Vec<_>>()
     }
@@ -178,23 +182,14 @@ mod test {
 
     #[tokio::test]
     async fn should_filter_metric_tags() -> Result<(), Box<dyn std::error::Error>> {
-        let tags = MetricTags::from([
-            ("foo", "bar"),
-            ("customer", "1"),
-            ("any_id", "2"),
-        ]);
+        let tags = MetricTags::from([("foo", "bar"), ("customer", "1"), ("any_id", "2")]);
 
         let app_name = "test";
         let env = Environment::Test;
         let denied_tag = "customer".to_string();
         let regex = Regex::new(".+_id$").unwrap();
 
-        let labels = tags.to_labels(
-            app_name,
-            &env,
-            &vec![denied_tag],
-            &vec![regex],
-        );
+        let labels = tags.to_labels(app_name, &env, &vec![denied_tag], &vec![regex]);
 
         assert_eq!(labels.len(), 3);
 

@@ -1,7 +1,7 @@
+use crate::httpx::{HttpError, HttpTags};
 use axum::http::StatusCode;
 use serde::Serialize;
 use serde_json::Value;
-use crate::httpx::{HttpError, HttpTags};
 
 pub trait Widget: Clone + Serialize {
     fn get_id(&self) -> String;
@@ -17,7 +17,10 @@ impl<T: Widget> WidgetAsValue for T {
         serde_json::to_value(self).map_err(|error| {
             HttpError::without_body(
                 StatusCode::INTERNAL_SERVER_ERROR,
-                format!("Failed to convert widget {} to value: {error}", self.get_type()),
+                format!(
+                    "Failed to convert widget {} to value: {error}",
+                    self.get_type()
+                ),
                 tags.clone(),
             )
         })
@@ -192,12 +195,7 @@ pub struct EdgeInsets {
 }
 
 impl EdgeInsets {
-    pub fn all(
-        left: f64,
-        right: f64,
-        top: f64,
-        bottom: f64,
-    ) -> Self {
+    pub fn all(left: f64, right: f64, top: f64, bottom: f64) -> Self {
         Self {
             left: Some(left),
             right: Some(right),
@@ -206,9 +204,7 @@ impl EdgeInsets {
         }
     }
 
-    pub fn left(
-        left: f64,
-    ) -> Self {
+    pub fn left(left: f64) -> Self {
         Self {
             left: Some(left),
             right: None,
@@ -217,9 +213,7 @@ impl EdgeInsets {
         }
     }
 
-    pub fn right(
-        right: f64,
-    ) -> Self {
+    pub fn right(right: f64) -> Self {
         Self {
             left: None,
             right: Some(right),
@@ -228,9 +222,7 @@ impl EdgeInsets {
         }
     }
 
-    pub fn top(
-        top: f64,
-    ) -> Self {
+    pub fn top(top: f64) -> Self {
         Self {
             left: None,
             right: None,
@@ -239,9 +231,7 @@ impl EdgeInsets {
         }
     }
 
-    pub fn bottom(
-        bottom: f64,
-    ) -> Self {
+    pub fn bottom(bottom: f64) -> Self {
         Self {
             left: None,
             right: None,
@@ -527,4 +517,22 @@ pub enum MaterialTapTargetSize {
 pub enum FlexFit {
     Tight,
     Loose,
+}
+
+#[derive(Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub enum FloatingActionButtonType {
+    Extended,
+    Large,
+    Medium,
+    Small,
+}
+
+#[derive(Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub enum AutovalidateMode {
+    Disabled,
+    Always,
+    OnUserInteraction,
+    OnUnfocus,
 }

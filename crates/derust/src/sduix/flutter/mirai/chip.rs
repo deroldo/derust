@@ -3,7 +3,9 @@ use crate::sduix::flutter::mirai::border_side::BorderSide;
 use crate::sduix::flutter::mirai::icon_theme_data::IconThemeData;
 use crate::sduix::flutter::mirai::rounded_rectangle_border::RoundedRectangleBorder;
 use crate::sduix::flutter::mirai::text_style::TextStyle;
-use crate::sduix::flutter::mirai::widget::{EdgeInsets, MaterialTapTargetSize, WidgetAsValue, Widget};
+use crate::sduix::flutter::mirai::widget::{
+    EdgeInsets, MaterialTapTargetSize, Widget, WidgetAsValue,
+};
 use crate::sduix::Color;
 use serde::Serialize;
 use serde_json::Value;
@@ -112,7 +114,11 @@ impl Chip {
         self
     }
 
-    pub fn with_delete_icon(mut self, delete_icon: impl Widget, tags: &HttpTags) -> Result<Self, HttpError> {
+    pub fn with_delete_icon(
+        mut self,
+        delete_icon: impl Widget,
+        tags: &HttpTags,
+    ) -> Result<Self, HttpError> {
         self.delete_icon = Some(delete_icon.widget_as_value(tags)?);
         Ok(self)
     }
@@ -122,7 +128,10 @@ impl Chip {
         self
     }
 
-    pub fn with_delete_button_tooltip_message(mut self, delete_button_tooltip_message: &str) -> Self {
+    pub fn with_delete_button_tooltip_message(
+        mut self,
+        delete_button_tooltip_message: &str,
+    ) -> Self {
         self.delete_button_tooltip_message = Some(delete_button_tooltip_message.to_string());
         self
     }
@@ -177,7 +186,10 @@ impl Chip {
         self
     }
 
-    pub fn with_material_tap_target_size(mut self, material_tap_target_size: MaterialTapTargetSize) -> Self {
+    pub fn with_material_tap_target_size(
+        mut self,
+        material_tap_target_size: MaterialTapTargetSize,
+    ) -> Self {
         self.material_tap_target_size = Some(material_tap_target_size);
         self
     }

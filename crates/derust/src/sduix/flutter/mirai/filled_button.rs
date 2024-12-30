@@ -40,9 +40,7 @@ impl Widget for FilledButton {
 }
 
 impl FilledButton {
-    pub fn new<S: Clone>(
-        _context: &AppContext<S>,
-    ) -> Self {
+    pub fn new<S: Clone>(_context: &AppContext<S>) -> Self {
         Self {
             widget_type: "filledButton".to_string(),
             id: Uuid::now_v7().to_string(),
@@ -62,22 +60,38 @@ impl FilledButton {
         self
     }
 
-    pub fn with_on_pressed(mut self, on_pressed: impl Action, tags: &HttpTags) -> Result<Self, HttpError> {
+    pub fn with_on_pressed(
+        mut self,
+        on_pressed: impl Action,
+        tags: &HttpTags,
+    ) -> Result<Self, HttpError> {
         self.on_pressed = Some(on_pressed.action_as_value(tags)?);
         Ok(self)
     }
 
-    pub fn with_on_long_press(mut self, on_long_press: impl Action, tags: &HttpTags) -> Result<Self, HttpError> {
+    pub fn with_on_long_press(
+        mut self,
+        on_long_press: impl Action,
+        tags: &HttpTags,
+    ) -> Result<Self, HttpError> {
         self.on_long_press = Some(on_long_press.action_as_value(tags)?);
         Ok(self)
     }
 
-    pub fn with_on_hover(mut self, on_hover: impl Action, tags: &HttpTags) -> Result<Self, HttpError> {
+    pub fn with_on_hover(
+        mut self,
+        on_hover: impl Action,
+        tags: &HttpTags,
+    ) -> Result<Self, HttpError> {
         self.on_hover = Some(on_hover.action_as_value(tags)?);
         Ok(self)
     }
 
-    pub fn with_on_focus_change(mut self, on_focus_change: impl Action, tags: &HttpTags) -> Result<Self, HttpError> {
+    pub fn with_on_focus_change(
+        mut self,
+        on_focus_change: impl Action,
+        tags: &HttpTags,
+    ) -> Result<Self, HttpError> {
         self.on_focus_change = Some(on_focus_change.action_as_value(tags)?);
         Ok(self)
     }

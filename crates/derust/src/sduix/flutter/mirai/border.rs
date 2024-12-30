@@ -1,7 +1,7 @@
-use serde::Serialize;
 use crate::httpx::AppContext;
-use crate::sduix::Color;
 use crate::sduix::flutter::mirai::widget::{BorderSide, BorderStyle};
+use crate::sduix::Color;
+use serde::Serialize;
 
 #[derive(Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -17,9 +17,7 @@ pub struct Border {
 }
 
 impl Border {
-    pub fn new<S: Clone>(
-        _context: &AppContext<S>,
-    ) -> Self {
+    pub fn new<S: Clone>(_context: &AppContext<S>) -> Self {
         Self {
             color: None,
             border_style: None,

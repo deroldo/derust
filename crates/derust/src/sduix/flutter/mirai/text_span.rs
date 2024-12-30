@@ -1,6 +1,6 @@
 use crate::httpx::{AppContext, HttpError, HttpTags};
 use crate::sduix::flutter::mirai::text_style::TextStyle;
-use crate::sduix::flutter::mirai::widget::{WidgetAsValue, Widget};
+use crate::sduix::flutter::mirai::widget::{Widget, WidgetAsValue};
 use serde::Serialize;
 use serde_json::Value;
 use uuid::Uuid;
@@ -29,10 +29,7 @@ impl Widget for TextSpan {
 }
 
 impl TextSpan {
-    pub fn new<S: Clone>(
-        _context: &AppContext<S>,
-        text_span: &str,
-    ) -> Self {
+    pub fn new<S: Clone>(_context: &AppContext<S>, text_span: &str) -> Self {
         Self {
             widget_type: "textSpan".to_string(),
             id: Uuid::now_v7().to_string(),

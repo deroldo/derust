@@ -13,9 +13,7 @@ pub struct RoundedRectangleBorder {
 }
 
 impl RoundedRectangleBorder {
-    pub fn new<S: Clone>(
-        _context: &AppContext<S>,
-    ) -> Self {
+    pub fn new<S: Clone>(_context: &AppContext<S>) -> Self {
         Self {
             side: None,
             border_radius: None,

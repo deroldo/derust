@@ -49,9 +49,7 @@ pub struct ButtonStyle {
 }
 
 impl ButtonStyle {
-    pub fn new<S: Clone>(
-        _context: &AppContext<S>,
-    ) -> Self {
+    pub fn new<S: Clone>(_context: &AppContext<S>) -> Self {
         Self {
             foreground_color: None,
             background_color: None,

@@ -34,9 +34,7 @@ impl Widget for ElevatedButton {
 }
 
 impl ElevatedButton {
-    pub fn new<S: Clone>(
-        _context: &AppContext<S>,
-    ) -> Self {
+    pub fn new<S: Clone>(_context: &AppContext<S>) -> Self {
         Self {
             widget_type: "elevatedButton".to_string(),
             id: Uuid::now_v7().to_string(),
@@ -53,7 +51,11 @@ impl ElevatedButton {
         self
     }
 
-    pub fn with_on_pressed(mut self, on_pressed: impl Action, tags: &HttpTags) -> Result<Self, HttpError> {
+    pub fn with_on_pressed(
+        mut self,
+        on_pressed: impl Action,
+        tags: &HttpTags,
+    ) -> Result<Self, HttpError> {
         self.on_pressed = Some(on_pressed.action_as_value(tags)?);
         Ok(self)
     }

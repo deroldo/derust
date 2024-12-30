@@ -38,9 +38,7 @@ pub struct BottomSheetThemeData {
 }
 
 impl BottomSheetThemeData {
-    pub fn new<S: Clone>(
-        _context: &AppContext<S>,
-    ) -> Self {
+    pub fn new<S: Clone>(_context: &AppContext<S>) -> Self {
         Self {
             background_color: None,
             surface_tint_color: None,

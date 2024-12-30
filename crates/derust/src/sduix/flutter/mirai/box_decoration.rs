@@ -1,12 +1,12 @@
-use serde::Serialize;
 use crate::httpx::AppContext;
-use crate::sduix::Color;
 use crate::sduix::flutter::mirai::border::Border;
 use crate::sduix::flutter::mirai::border_radius::BorderRadius;
 use crate::sduix::flutter::mirai::box_shadow::BoxShadow;
 use crate::sduix::flutter::mirai::decoration_image::DecorationImage;
 use crate::sduix::flutter::mirai::gradient::Gradient;
 use crate::sduix::flutter::mirai::widget::{BlendMode, BoxShape};
+use crate::sduix::Color;
+use serde::Serialize;
 
 #[derive(Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -30,9 +30,7 @@ pub struct BoxDecoration {
 }
 
 impl BoxDecoration {
-    pub fn new<S: Clone>(
-        _context: &AppContext<S>,
-    ) -> Self {
+    pub fn new<S: Clone>(_context: &AppContext<S>) -> Self {
         Self {
             color: None,
             background_blend_mode: None,

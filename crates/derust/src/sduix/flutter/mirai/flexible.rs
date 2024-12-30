@@ -1,5 +1,5 @@
 use crate::httpx::{AppContext, HttpError, HttpTags};
-use crate::sduix::flutter::mirai::widget::{FlexFit, WidgetAsValue, Widget};
+use crate::sduix::flutter::mirai::widget::{FlexFit, Widget, WidgetAsValue};
 use serde::Serialize;
 use serde_json::Value;
 use uuid::Uuid;
@@ -29,9 +29,7 @@ impl Widget for Flexible {
 }
 
 impl Flexible {
-    pub fn new<S: Clone>(
-        _context: &AppContext<S>,
-    ) -> Self {
+    pub fn new<S: Clone>(_context: &AppContext<S>) -> Self {
         Self {
             widget_type: "flexible".to_string(),
             id: Uuid::now_v7().to_string(),

@@ -1,5 +1,5 @@
 use crate::httpx::{AppContext, HttpError, HttpTags};
-use crate::sduix::flutter::mirai::widget::{WidgetAsValue, Widget};
+use crate::sduix::flutter::mirai::widget::{Widget, WidgetAsValue};
 use crate::sduix::Color;
 use serde::Serialize;
 use serde_json::Value;
@@ -44,9 +44,7 @@ impl Widget for CircleAvatar {
 }
 
 impl CircleAvatar {
-    pub fn new<S: Clone>(
-        _context: &AppContext<S>,
-    ) -> Self {
+    pub fn new<S: Clone>(_context: &AppContext<S>) -> Self {
         Self {
             widget_type: "card".to_string(),
             id: Uuid::now_v7().to_string(),
@@ -88,12 +86,20 @@ impl CircleAvatar {
         self
     }
 
-    pub fn with_on_background_image_error(mut self, on_background_image_error: impl Widget, tags: &HttpTags) -> Result<Self, HttpError> {
+    pub fn with_on_background_image_error(
+        mut self,
+        on_background_image_error: impl Widget,
+        tags: &HttpTags,
+    ) -> Result<Self, HttpError> {
         self.on_background_image_error = Some(on_background_image_error.widget_as_value(tags)?);
         Ok(self)
     }
 
-    pub fn with_on_foreground_image_error(mut self, on_foreground_image_error: impl Widget, tags: &HttpTags) -> Result<Self, HttpError> {
+    pub fn with_on_foreground_image_error(
+        mut self,
+        on_foreground_image_error: impl Widget,
+        tags: &HttpTags,
+    ) -> Result<Self, HttpError> {
         self.on_foreground_image_error = Some(on_foreground_image_error.widget_as_value(tags)?);
         Ok(self)
     }

@@ -1,5 +1,8 @@
 use crate::httpx::{AppContext, HttpError, HttpTags};
-use crate::sduix::flutter::mirai::widget::{Axis, Clip, DragStartBehavior, EdgeInsets, WidgetAsValue, WidgetsAsValue, ScrollPhysics, ScrollViewKeyboardDismissBehavior, Widget};
+use crate::sduix::flutter::mirai::widget::{
+    Axis, Clip, DragStartBehavior, EdgeInsets, ScrollPhysics, ScrollViewKeyboardDismissBehavior,
+    Widget, WidgetAsValue, WidgetsAsValue,
+};
 use serde::Serialize;
 use serde_json::Value;
 use uuid::Uuid;
@@ -149,7 +152,10 @@ impl ListView {
         self
     }
 
-    pub fn with_keyboard_dismiss_behavior(mut self, keyboard_dismiss_behavior: ScrollViewKeyboardDismissBehavior) -> Self {
+    pub fn with_keyboard_dismiss_behavior(
+        mut self,
+        keyboard_dismiss_behavior: ScrollViewKeyboardDismissBehavior,
+    ) -> Self {
         self.keyboard_dismiss_behavior = Some(keyboard_dismiss_behavior);
         self
     }
@@ -164,7 +170,11 @@ impl ListView {
         self
     }
 
-    pub fn with_separator(mut self, separator: impl Widget, tags: &HttpTags) -> Result<Self, HttpError> {
+    pub fn with_separator(
+        mut self,
+        separator: impl Widget,
+        tags: &HttpTags,
+    ) -> Result<Self, HttpError> {
         self.separator = Some(separator.widget_as_value(tags)?);
         Ok(self)
     }

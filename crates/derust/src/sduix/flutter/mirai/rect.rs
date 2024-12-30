@@ -1,6 +1,6 @@
-use serde::Serialize;
 use crate::sduix::flutter::mirai::offset::Offset;
 use crate::sduix::flutter::mirai::widget::RectType;
+use serde::Serialize;
 
 #[derive(Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -28,6 +28,4 @@ pub struct Rect {
     radius: Option<f64>,
 }
 
-impl Rect {
-
-}
+impl Rect {}

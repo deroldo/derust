@@ -1,5 +1,5 @@
-use serde::Serialize;
 use crate::sduix::flutter::mirai::widget::{FontStyle, FontWeight, TextBaseline};
+use serde::Serialize;
 
 #[derive(Clone, Serialize)]
 #[serde(rename_all = "camelCase")]

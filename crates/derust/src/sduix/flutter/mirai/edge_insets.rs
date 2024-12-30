@@ -15,9 +15,7 @@ pub struct EdgeInsets {
 }
 
 impl EdgeInsets {
-    pub fn new<S: Clone>(
-        _context: &AppContext<S>,
-    ) -> Self {
+    pub fn new<S: Clone>(_context: &AppContext<S>) -> Self {
         Self {
             top: None,
             left: None,

@@ -1,5 +1,5 @@
 use crate::httpx::{AppContext, HttpError, HttpTags};
-use crate::sduix::flutter::mirai::widget::{AlignmentDirectional, WidgetAsValue, Widget};
+use crate::sduix::flutter::mirai::widget::{AlignmentDirectional, Widget, WidgetAsValue};
 use serde::Serialize;
 use serde_json::Value;
 use uuid::Uuid;
@@ -30,10 +30,7 @@ impl Widget for Align {
 }
 
 impl Align {
-    pub fn new<S: Clone>(
-        _context: &AppContext<S>,
-        alignment: AlignmentDirectional,
-    ) -> Self {
+    pub fn new<S: Clone>(_context: &AppContext<S>, alignment: AlignmentDirectional) -> Self {
         Self {
             widget_type: "align".to_string(),
             id: Uuid::now_v7().to_string(),

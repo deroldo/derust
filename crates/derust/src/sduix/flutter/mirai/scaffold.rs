@@ -1,6 +1,6 @@
 use crate::httpx::{AppContext, HttpError, HttpTags};
 use crate::sduix::flutter::mirai::app_bar::AppBar;
-use crate::sduix::flutter::mirai::widget::{FloatingActionButtonLocation, WidgetAsValue, Widget};
+use crate::sduix::flutter::mirai::widget::{FloatingActionButtonLocation, Widget, WidgetAsValue};
 use crate::sduix::Color;
 use serde::Serialize;
 use serde_json::Value;
@@ -46,9 +46,7 @@ impl Widget for Scaffold {
 }
 
 impl Scaffold {
-    pub fn new<S: Clone>(
-        context: &AppContext<S>,
-    ) -> Self {
+    pub fn new<S: Clone>(context: &AppContext<S>) -> Self {
         Self {
             widget_type: "scaffold".to_string(),
             id: Uuid::now_v7().to_string(),
@@ -81,17 +79,29 @@ impl Scaffold {
         Ok(self)
     }
 
-    pub fn with_floating_action_button(mut self, floating_action_button: impl Widget, tags: &HttpTags) -> Result<Self, HttpError> {
+    pub fn with_floating_action_button(
+        mut self,
+        floating_action_button: impl Widget,
+        tags: &HttpTags,
+    ) -> Result<Self, HttpError> {
         self.floating_action_button = Some(floating_action_button.widget_as_value(tags)?);
         Ok(self)
     }
 
-    pub fn with_bottom_navigation_bar(mut self, bottom_navigation_bar: impl Widget, tags: &HttpTags) -> Result<Self, HttpError> {
+    pub fn with_bottom_navigation_bar(
+        mut self,
+        bottom_navigation_bar: impl Widget,
+        tags: &HttpTags,
+    ) -> Result<Self, HttpError> {
         self.bottom_navigation_bar = Some(bottom_navigation_bar.widget_as_value(tags)?);
         Ok(self)
     }
 
-    pub fn with_bottom_sheet(mut self, bottom_sheet: impl Widget, tags: &HttpTags) -> Result<Self, HttpError> {
+    pub fn with_bottom_sheet(
+        mut self,
+        bottom_sheet: impl Widget,
+        tags: &HttpTags,
+    ) -> Result<Self, HttpError> {
         self.bottom_sheet = Some(bottom_sheet.widget_as_value(tags)?);
         Ok(self)
     }
@@ -121,7 +131,10 @@ impl Scaffold {
         self
     }
 
-    pub fn with_floating_action_button_location(mut self, floating_action_button_location: FloatingActionButtonLocation) -> Self {
+    pub fn with_floating_action_button_location(
+        mut self,
+        floating_action_button_location: FloatingActionButtonLocation,
+    ) -> Self {
         self.floating_action_button_location = Some(floating_action_button_location);
         self
     }

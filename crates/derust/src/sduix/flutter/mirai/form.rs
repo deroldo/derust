@@ -1,20 +1,21 @@
 use crate::httpx::{AppContext, HttpError, HttpTags};
-use crate::sduix::flutter::mirai::widget::{Widget, WidgetAsValue};
+use crate::sduix::flutter::mirai::widget::{AutovalidateMode, Widget, WidgetAsValue};
 use serde::Serialize;
 use serde_json::Value;
 use uuid::Uuid;
 
 #[derive(Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct DefaultTabController {
+pub struct Form {
     #[serde(rename = "type")]
     widget_type: String,
     id: String,
-    length: i64,
     child: Value,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    autovalidate_mode: Option<AutovalidateMode>,
 }
 
-impl Widget for DefaultTabController {
+impl Widget for Form {
     fn get_id(&self) -> String {
         self.id.clone()
     }
@@ -24,23 +25,27 @@ impl Widget for DefaultTabController {
     }
 }
 
-impl DefaultTabController {
+impl Form {
     pub fn new<S: Clone>(
         _context: &AppContext<S>,
-        length: i64,
         child: impl Widget,
         tags: &HttpTags,
     ) -> Result<Self, HttpError> {
         Ok(Self {
-            widget_type: "defaultBottomNavigationController".to_string(),
+            widget_type: "form".to_string(),
             id: Uuid::now_v7().to_string(),
-            length,
             child: child.widget_as_value(tags)?,
+            autovalidate_mode: None,
         })
     }
 
     pub fn with_id(mut self, id: &str) -> Self {
         self.id = id.to_string();
+        self
+    }
+
+    pub fn with_autovalidate_mode(mut self, autovalidate_mode: AutovalidateMode) -> Self {
+        self.autovalidate_mode = Some(autovalidate_mode);
         self
     }
 }

@@ -1,7 +1,9 @@
 use crate::httpx::AppContext;
 use crate::sduix::flutter::mirai::icon_theme_data::IconThemeData;
 use crate::sduix::flutter::mirai::text_style::TextStyle;
-use crate::sduix::flutter::mirai::widget::{BottomNavigationBarLandscapeLayout, BottomNavigationBarType};
+use crate::sduix::flutter::mirai::widget::{
+    BottomNavigationBarLandscapeLayout, BottomNavigationBarType,
+};
 use crate::sduix::Color;
 use serde::Serialize;
 
@@ -37,9 +39,7 @@ pub struct BottomNavBarThemeData {
 }
 
 impl BottomNavBarThemeData {
-    pub fn new<S: Clone>(
-        _context: &AppContext<S>,
-    ) -> Self {
+    pub fn new<S: Clone>(_context: &AppContext<S>) -> Self {
         Self {
             background_color: None,
             elevation: None,
@@ -117,7 +117,10 @@ impl BottomNavBarThemeData {
         self
     }
 
-    pub fn with_landscape_layout(mut self, landscape_layout: BottomNavigationBarLandscapeLayout) -> Self {
+    pub fn with_landscape_layout(
+        mut self,
+        landscape_layout: BottomNavigationBarLandscapeLayout,
+    ) -> Self {
         self.landscape_layout = Some(landscape_layout);
         self
     }

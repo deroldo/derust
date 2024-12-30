@@ -1,5 +1,5 @@
 use crate::httpx::{AppContext, HttpError, HttpTags};
-use crate::sduix::flutter::mirai::widget::{WidgetAsValue, WidgetsAsValue, Widget};
+use crate::sduix::flutter::mirai::widget::{Widget, WidgetAsValue, WidgetsAsValue};
 use serde::Serialize;
 use serde_json::Value;
 
@@ -10,12 +10,8 @@ pub struct BottomNavigationView {
 }
 
 impl BottomNavigationView {
-    pub fn new<S: Clone>(
-        _context: &AppContext<S>,
-    ) -> Self {
-        Self {
-            children: vec![],
-        }
+    pub fn new<S: Clone>(_context: &AppContext<S>) -> Self {
+        Self { children: vec![] }
     }
 
     pub fn with_child(mut self, child: impl Widget, tags: &HttpTags) -> Result<Self, HttpError> {
@@ -23,8 +19,15 @@ impl BottomNavigationView {
         Ok(self)
     }
 
-    pub fn with_children(mut self, children: Vec<impl Widget>, tags: &HttpTags) -> Result<Self, HttpError> {
-        children.widgets_as_values(tags)?.into_iter().for_each(|child| self.children.push(child));
+    pub fn with_children(
+        mut self,
+        children: Vec<impl Widget>,
+        tags: &HttpTags,
+    ) -> Result<Self, HttpError> {
+        children
+            .widgets_as_values(tags)?
+            .into_iter()
+            .for_each(|child| self.children.push(child));
         Ok(self)
     }
 }

@@ -1,5 +1,5 @@
-use serde::Serialize;
 use crate::httpx::AppContext;
+use serde::Serialize;
 
 #[derive(Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -9,14 +9,7 @@ pub struct Size {
 }
 
 impl Size {
-    pub fn new<S: Clone>(
-        _context: &AppContext<S>,
-        width: f64,
-        height: f64,
-    ) -> Self {
-        Self {
-            width,
-            height,
-        }
+    pub fn new<S: Clone>(_context: &AppContext<S>, width: f64, height: f64) -> Self {
+        Self { width, height }
     }
 }

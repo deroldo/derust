@@ -54,9 +54,7 @@ impl Widget for AppBarTheme {
 }
 
 impl AppBarTheme {
-    pub fn new<S: Clone>(
-        _context: &AppContext<S>,
-    ) -> Self {
+    pub fn new<S: Clone>(_context: &AppContext<S>) -> Self {
         Self {
             widget_type: "appBarTheme".to_string(),
             id: Uuid::now_v7().to_string(),

@@ -1,6 +1,9 @@
 use crate::httpx::{AppContext, HttpError, HttpTags};
 use crate::sduix::flutter::mirai::text_style::TextStyle;
-use crate::sduix::flutter::mirai::widget::{Clip, EdgeInsets, MainAxisAlignment, WidgetAsValue, WidgetsAsValue, OverflowBarAlignment, VerticalDirection, Widget};
+use crate::sduix::flutter::mirai::widget::{
+    Clip, EdgeInsets, MainAxisAlignment, OverflowBarAlignment, VerticalDirection, Widget,
+    WidgetAsValue, WidgetsAsValue,
+};
 use crate::sduix::Color;
 use serde::Serialize;
 use serde_json::Value;
@@ -69,9 +72,7 @@ impl Widget for AlertDialog {
 }
 
 impl AlertDialog {
-    pub fn new<S: Clone>(
-        _context: &AppContext<S>,
-    ) -> Self {
+    pub fn new<S: Clone>(_context: &AppContext<S>) -> Self {
         Self {
             widget_type: "alertDialog".to_string(),
             id: Uuid::now_v7().to_string(),
@@ -135,7 +136,11 @@ impl AlertDialog {
         self
     }
 
-    pub fn with_content(mut self, content: impl Widget, tags: &HttpTags) -> Result<Self, HttpError> {
+    pub fn with_content(
+        mut self,
+        content: impl Widget,
+        tags: &HttpTags,
+    ) -> Result<Self, HttpError> {
         self.content = Some(content.widget_as_value(tags)?);
         Ok(self)
     }
@@ -150,7 +155,11 @@ impl AlertDialog {
         self
     }
 
-    pub fn with_actions(mut self, actions: Vec<impl Widget>, tags: &HttpTags) -> Result<Self, HttpError> {
+    pub fn with_actions(
+        mut self,
+        actions: Vec<impl Widget>,
+        tags: &HttpTags,
+    ) -> Result<Self, HttpError> {
         self.actions = Some(actions.widgets_as_values(tags)?);
         Ok(self)
     }
@@ -165,17 +174,26 @@ impl AlertDialog {
         self
     }
 
-    pub fn with_actions_overflow_alignment(mut self, actions_overflow_alignment: OverflowBarAlignment) -> Self {
+    pub fn with_actions_overflow_alignment(
+        mut self,
+        actions_overflow_alignment: OverflowBarAlignment,
+    ) -> Self {
         self.actions_overflow_alignment = Some(actions_overflow_alignment);
         self
     }
 
-    pub fn with_actions_overflow_direction(mut self, actions_overflow_direction: VerticalDirection) -> Self {
+    pub fn with_actions_overflow_direction(
+        mut self,
+        actions_overflow_direction: VerticalDirection,
+    ) -> Self {
         self.actions_overflow_direction = Some(actions_overflow_direction);
         self
     }
 
-    pub fn with_actions_overflow_button_spacing(mut self, actions_overflow_button_spacing: f64) -> Self {
+    pub fn with_actions_overflow_button_spacing(
+        mut self,
+        actions_overflow_button_spacing: f64,
+    ) -> Self {
         self.actions_overflow_button_spacing = Some(actions_overflow_button_spacing);
         self
     }

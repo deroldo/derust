@@ -24,9 +24,7 @@ pub struct CardThemeData {
 }
 
 impl CardThemeData {
-    pub fn new<S: Clone>(
-        _context: &AppContext<S>,
-    ) -> Self {
+    pub fn new<S: Clone>(_context: &AppContext<S>) -> Self {
         Self {
             clip_behavior: None,
             color: None,
