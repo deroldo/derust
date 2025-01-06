@@ -536,3 +536,10 @@ pub enum AutovalidateMode {
     OnUserInteraction,
     OnUnfocus,
 }
+
+#[derive(Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub enum IconType {
+    Material,
+    Cupertino,
+}
