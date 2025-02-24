@@ -10,10 +10,10 @@ authors = ["Deroldo <diogoderoldo@gmail.com>"]
 
 [workspace.dependencies]
 # Async runtime
-tokio = { version = "1.42.0", features = ["full"] }
+tokio = { version = "1.43.0", features = ["full"] }
 
 # Http
-axum = { version = "0.7.9", default-features = true, features = ["macros", "tokio"] }
+axum = { version = "0.8.1", default-features = true, features = ["macros", "tokio"] }
 tower-http = { version = "0.6.2", features = ["catch-panic", "timeout", "trace", "request-id", "util", "sensitive-headers", "compression-gzip"] }
 hyper = { version = "1.5.1" }
 

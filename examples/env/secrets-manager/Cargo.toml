@@ -8,6 +8,6 @@ edition = "2021"
 [dependencies]
 derust = { path = "../../../crates/derust", features = ["env_from_secrets_manager"] }
 
-tokio = { version = "1.42.0", features = ["full"] }
-axum = { version = "0.7.9", default-features = true, features = ["macros", "tokio"] }
-serde = { version = "1.0.215", features = ["derive"]}
+tokio = { version = "1.43.0", features = ["full"] }
+axum = { version = "0.8.1", default-features = true, features = ["macros", "tokio"] }
+serde = { version = "1.0.218", features = ["derive"]}
