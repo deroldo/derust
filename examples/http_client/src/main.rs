@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 use derust::envx::Environment;
 use derust::httpx::json::JsonResponse;
 use derust::httpx::{start, AppContext, HttpError, HttpTags};
-use derust::http_clientx::HttpClient;
+use derust::http_clientx::{HttpClient, Response};
 
 #[derive(Clone)]
 pub struct AppState {
@@ -53,11 +53,11 @@ async fn handler(
     let tags = HttpTags::default();
 
     // getting your application state from context
-    let bar: GatewayResponseDto = context.state().gateway.get(&context, "/bar", None, None, &tags).await?;
+    let response: Response<GatewayResponseDto> = context.state().gateway.get(&context, "/bar", None, None, &tags).await?;
 
     Ok(JsonResponse::new(
         StatusCode::OK,
-        FooResponseDto { foo: bar.value },
+        FooResponseDto { foo: response.body.value },
         tags,
     ))
 }

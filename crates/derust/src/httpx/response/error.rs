@@ -66,6 +66,14 @@ impl HttpError {
 
         self
     }
+
+    pub fn response_json(&self) -> Option<Value> {
+        if let Some(body) = self.response_body.clone() {
+            return serde_json::from_str(&body).ok();
+        }
+
+        None
+    }
 }
 
 impl HttpResponse for HttpError {

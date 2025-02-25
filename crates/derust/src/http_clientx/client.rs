@@ -17,6 +17,11 @@ pub struct HttpClient {
     base_url: String,
 }
 
+pub struct Response<T: for<'de> Deserialize<'de>> {
+    pub status_code: StatusCode,
+    pub body: T,
+}
+
 impl HttpClient {
     pub async fn new(
         user_agent: &str,
@@ -47,7 +52,7 @@ impl HttpClient {
         query_params: Option<Vec<(&str, &str)>>,
         headers: Option<Vec<(&str, &str)>>,
         tags: &HttpTags,
-    ) -> Result<T, HttpError>
+    ) -> Result<Response<T>, HttpError>
     where
         T: for<'de> Deserialize<'de>,
         S: Clone,
@@ -67,7 +72,7 @@ impl HttpClient {
         query_params: Option<Vec<(&str, &str)>>,
         headers: Option<Vec<(&str, &str)>>,
         tags: &HttpTags,
-    ) -> Result<T, HttpError>
+    ) -> Result<Response<T>, HttpError>
     where
         T: for<'de> Deserialize<'de>,
         B: serde::Serialize,
@@ -88,7 +93,7 @@ impl HttpClient {
         query_params: Option<Vec<(&str, &str)>>,
         headers: Option<Vec<(&str, &str)>>,
         tags: &HttpTags,
-    ) -> Result<T, HttpError>
+    ) -> Result<Response<T>, HttpError>
     where
         T: for<'de> Deserialize<'de>,
         B: serde::Serialize,
@@ -102,23 +107,23 @@ impl HttpClient {
     }
 
     pub async fn patch<'a, T, B, S>(
+        &self,
         context: &AppContext<S>,
-        client: &HttpClient,
         path: &str,
         body: &B,
         query_params: Option<Vec<(&str, &str)>>,
         headers: Option<Vec<(&str, &str)>>,
         tags: &HttpTags,
-    ) -> Result<T, HttpError>
+    ) -> Result<Response<T>, HttpError>
     where
         T: for<'de> Deserialize<'de>,
         B: serde::Serialize,
         S: Clone,
     {
-        let req = client
+        let req = self
             .client
-            .post(full_url(&client.base_url, path, query_params));
-        let request_context = RequestContext::new(Method::PATCH, &client.base_url, path);
+            .post(full_url(&self.base_url, path, query_params));
+        let request_context = RequestContext::new(Method::PATCH, &self.base_url, path);
         send(context, request_context, req, Some(body), headers, tags).await
     }
 
@@ -129,7 +134,7 @@ impl HttpClient {
         query_params: Option<Vec<(&str, &str)>>,
         headers: Option<Vec<(&str, &str)>>,
         tags: &HttpTags,
-    ) -> Result<T, HttpError>
+    ) -> Result<Response<T>, HttpError>
     where
         T: for<'de> Deserialize<'de>,
         B: serde::Serialize,
@@ -165,7 +170,7 @@ async fn send<'a, T, B, S>(
     body: Option<&B>,
     headers: Option<Vec<(&str, &str)>>,
     tags: &HttpTags,
-) -> Result<T, HttpError>
+) -> Result<Response<T>, HttpError>
 where
     T: for<'de> Deserialize<'de>,
     B: serde::Serialize,
@@ -194,31 +199,47 @@ where
         )
     })?;
 
+    let status_code = res.status();
+
     #[cfg(any(feature = "statsd", feature = "prometheus"))]
     stopwatch.record(MetricTags::from([(
         "status",
-        res.status().as_u16().to_string(),
+        status_code.as_u16().to_string(),
     )]));
 
-    if res.status().is_success() {
-        res.json().await.map_err(|error| {
+    if status_code.is_success() {
+        let body = res.json().await.map_err(|error| {
             HttpError::without_body(
                 error.status().unwrap_or(StatusCode::BAD_GATEWAY),
                 format!("Failed to deserialize response: {error}"),
                 tags.clone(),
             )
+        })?;
+
+        Ok(Response {
+            status_code,
+            body,
         })
     } else {
-        let status_code = res.status();
-        let response_message = res
-            .text()
-            .await
-            .unwrap_or("Failed to get response body as text".to_string());
-        Err(HttpError::without_body(
-            status_code,
-            format!("Http response error: {response_message}"),
-            tags.clone(),
-        ))
+        let response_body = res
+            .json()
+            .await;
+
+        let response = match response_body {
+            Ok(body) => HttpError::with_json(
+                status_code,
+                format!("Http response error: {body}"),
+                body,
+                tags.clone(),
+            ),
+            Err(error) => HttpError::without_body(
+                status_code,
+                format!("Failed to get http response error: {error}"),
+                tags.clone(),
+            ),
+        };
+
+        Err(response)
     }
 }
 
