@@ -9,7 +9,7 @@
 # ...
 
 [dependencies]
-derust = { version = "0.1.1", features = ["outbox"] }
+derust = { version = "0.2.1", features = ["outbox"] }
 
 # ...
 ```
