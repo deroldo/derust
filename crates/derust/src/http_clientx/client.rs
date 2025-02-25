@@ -19,7 +19,7 @@ pub struct HttpClient {
 
 pub struct Response<T: for<'de> Deserialize<'de>> {
     pub status_code: StatusCode,
-    pub body: T,
+    pub body: Option<T>,
 }
 
 impl HttpClient {
@@ -207,10 +207,10 @@ where
         status_code.as_u16().to_string(),
     )]));
 
-    if status_code.is_success() {
+    if status_code.is_success() && status_code.as_u16() != 204 {
         let body = res.json().await.map_err(|error| {
             HttpError::without_body(
-                error.status().unwrap_or(StatusCode::BAD_GATEWAY),
+                error.status().unwrap_or(StatusCode::INTERNAL_SERVER_ERROR),
                 format!("Failed to deserialize response: {error}"),
                 tags.clone(),
             )
@@ -218,7 +218,12 @@ where
 
         Ok(Response {
             status_code,
-            body,
+            body: Some(body),
+        })
+    } else if status_code.as_u16() == 204 {
+        Ok(Response {
+            status_code,
+            body: None,
         })
     } else {
         let response_body = res

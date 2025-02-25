@@ -55,9 +55,11 @@ async fn handler(
     // getting your application state from context
     let response: Response<GatewayResponseDto> = context.state().gateway.get(&context, "/bar", None, None, &tags).await?;
 
+    let foo = response.body.unwrap_or(GatewayResponseDto { value: "None".to_string() }).value;
+
     Ok(JsonResponse::new(
         StatusCode::OK,
-        FooResponseDto { foo: response.body.value },
+        FooResponseDto { foo },
         tags,
     ))
 }
