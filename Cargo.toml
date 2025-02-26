@@ -70,3 +70,4 @@ http-body-util = { version = "0.1.2" }
 regex = { version = "1.11.1" }
 dotenv = { version = "0.15.0" }
 config = { version = "0.15.8" }
+openssl = { version = "0.10.71", features = ["vendored"] }
