@@ -7,8 +7,8 @@ use serde_json::Value;
 pub struct HttpError {
     status_code: StatusCode,
     error_message: String,
-    response_body: Option<String>,
-    response_headers: Option<Vec<(String, String)>>,
+    response_body: Box<Option<String>>,
+    response_headers: Box<Option<Vec<(String, String)>>>,
     tags: HttpTags,
 }
 
@@ -22,8 +22,8 @@ impl HttpError {
         Self {
             status_code,
             error_message,
-            response_body: Some(response_body),
-            response_headers: None,
+            response_body: Box::new(Some(response_body)),
+            response_headers: Box::new(None),
             tags,
         }
     }
@@ -39,8 +39,8 @@ impl HttpError {
         Self {
             status_code,
             error_message,
-            response_body: Some(response_body.to_string()),
-            response_headers: Some(headers),
+            response_body: Box::new(Some(response_body.to_string())),
+            response_headers: Box::new(Some(headers)),
             tags,
         }
     }
@@ -49,8 +49,8 @@ impl HttpError {
         Self {
             status_code,
             error_message,
-            response_body: None,
-            response_headers: None,
+            response_body: Box::new(None),
+            response_headers: Box::new(None),
             tags,
         }
     }
@@ -62,13 +62,13 @@ impl HttpError {
             headers.push((key, value));
         }
 
-        self.response_headers = Some(headers);
+        self.response_headers = Box::new(Some(headers));
 
         self
     }
 
     pub fn response_json(&self) -> Option<Value> {
-        if let Some(body) = self.response_body.clone() {
+        if let Some(body) = self.response_body() {
             return serde_json::from_str(&body).ok();
         }
 
@@ -86,11 +86,14 @@ impl HttpResponse for HttpError {
     }
 
     fn response_body(&self) -> Option<String> {
-        self.response_body.clone()
+        self.response_body.clone().map(|s| Some(s)).unwrap_or(None)
     }
 
     fn response_headers(&self) -> Option<Vec<(String, String)>> {
-        self.response_headers.clone()
+        self.response_headers
+            .clone()
+            .map(|v| Some(v))
+            .unwrap_or(None)
     }
 
     fn tags(&self) -> HttpTags {
