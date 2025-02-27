@@ -20,7 +20,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-derust = { version = "0.2.1" }
+derust = { version = "0.2.3" }
 
 tokio = { version = "1.43.0", features = ["full"] }
 axum = { version = "0.8.1", default-features = true, features = ["macros", "tokio"] }
