@@ -6,6 +6,8 @@ use crate::httpx::{AppContext, HttpTags};
 use axum::middleware::Next;
 use axum::response::{IntoResponse, Response};
 use bytes::Bytes;
+use flate2::read::GzDecoder;
+use std::io::Read;
 
 use tracing::log::{log_enabled, Level};
 use tracing::{error, info};
@@ -117,8 +119,22 @@ where
     }
 
     if local || log_enabled!(Level::Debug) {
-        let res_body_str = std::str::from_utf8(&response_bytes)
-            .unwrap_or("Could not convert response bytes into string");
+        let res_body_str = match decompress_gzip(&response_bytes) {
+            Ok(decompressed) => {
+                std::str::from_utf8(&decompressed)
+                    .unwrap_or("Could not convert response bytes into string after decompression")
+                    .to_string()
+            }
+            Err(_) => {
+                if is_binary(&response_bytes) {
+                    "<binary data>".to_string()
+                } else {
+                    std::str::from_utf8(&response_bytes)
+                        .unwrap_or("Could not convert response bytes into string")
+                        .to_string()
+                }
+            }
+        };
 
         if status.is_server_error() {
             error!(
@@ -155,4 +171,19 @@ where
 {
     let metric_tags = MetricTags::htt_server(req.uri(), req.method());
     timer::start_stopwatch(&context, "http_server_seconds", metric_tags)
+}
+
+fn decompress_gzip(data: &[u8]) -> Result<Vec<u8>, &'static str> {
+    let mut decoder = GzDecoder::new(data);
+    let mut decompressed = Vec::new();
+
+    match decoder.read_to_end(&mut decompressed) {
+        Ok(_) => Ok(decompressed),
+        Err(_) => Err("Failed to decompress GZIP data"),
+    }
+}
+
+fn is_binary(data: &[u8]) -> bool {
+    data.iter()
+        .any(|&byte| (byte < 32 || byte > 126) && !matches!(byte, b'\n' | b'\r' | b'\t'))
 }

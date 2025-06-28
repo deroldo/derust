@@ -1,6 +1,6 @@
 [package]
 name = "derust"
-version = "0.2.3"
+version = "0.2.4"
 edition = "2021"
 authors = ["Deroldo <diogoderoldo@gmail.com>"]
 license = "MIT"
@@ -41,6 +41,8 @@ http_server = [
     "dep:chrono",
     "dep:regex",
     "dep:openssl",
+    "dep:flate2",
+    "dep:tower-layer",
 ]
 http_client = [
     "dep:reqwest",
@@ -101,6 +103,7 @@ tokio = { workspace = true, features = ["full"], optional = true }
 # Http
 axum = { workspace = true, default-features = true, features = ["macros", "tokio"], optional = true }
 tower-http = { workspace = true, features = ["catch-panic", "timeout", "trace", "request-id", "util", "sensitive-headers", "compression-gzip"], optional = true }
+tower-layer = { workspace = true, optional = true }
 hyper = { workspace = true, optional = true }
 
 # Http client
@@ -157,3 +160,4 @@ regex = { workspace = true, optional = true }
 dotenv = { workspace = true, optional = true }
 config = { workspace = true, optional = true }
 openssl = { workspace = true, features = ["vendored"], optional = true }
+flate2 = { workspace = true, optional = true }

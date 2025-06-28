@@ -10,7 +10,7 @@ pub struct PrometheusConfig {
 pub fn prometheus_registry() -> Result<PrometheusHandle, Box<dyn std::error::Error>> {
     let builder = PrometheusBuilder::new()
         .set_buckets(&[
-            0.01, 0.25, 0.05, 0.75, 0.1, 0.15, 0.25, 0.5, 1.0, 2.5, 5.0, 10.0,
+            0.010, 0.025, 0.050, 0.075, 0.100, 0.150, 0.200, 0.250, 0.500, 1.0, 2.5, 5.0, 10.0,
         ])
         .map_err(|error| Box::new(error))?;
 
