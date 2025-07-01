@@ -64,7 +64,8 @@ where
             )
         })?;
 
-    let req = Request::from_parts(req_parts, Body::from(req_bytes.clone()));
+    let mut req = Request::from_parts(req_parts, Body::from(req_bytes.clone()));
+    req.extensions_mut().insert(context.clone());
 
     let res = next.run(req).await;
     let mut tags = res
