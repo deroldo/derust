@@ -36,6 +36,22 @@ where
     Ok(())
 }
 
+#[cfg(feature = "start_test")]
+pub async fn start_test<T>(
+    context: AppContext<T>,
+    router: Router<AppContext<T>>,
+    listener: TcpListener,
+) -> std::io::Result<()>
+where
+    T: Clone + Send + Sync + 'static,
+{
+    let http_router = apply_middlewares(router, context);
+
+    axum::serve(listener, http_router.into_make_service())
+        .with_graceful_shutdown(shutdown_signal())
+        .await
+}
+
 async fn start_http_server(wg: WaitGroup, port: u16, router: Router<()>) {
     info!("Starting http server on port {}", port);
 

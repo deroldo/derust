@@ -20,7 +20,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-derust = { version = "0.2.4" }
+derust = { version = "0.2.5" }
 
 tokio = { version = "1.43.0", features = ["full"] }
 axum = { version = "0.8.1", default-features = true, features = ["macros", "tokio"] }
@@ -88,6 +88,27 @@ async fn handler(
       tags,
     ))
 }
+```
+
+## Tests
+```rust
+let env = Environment::detect().ok().unwrap_or(Environment::Local);
+
+// any cloneable struct
+let app_state = AppState {
+    bar: "bar".to_string(),
+};
+
+let application_name = "sample";
+
+// easy way to get application context things, like your application state struct
+let context = AppContext::new(application_name, env, app_state)?;
+
+let router = Router::new().nest("/foo", Router::new().route("/", get(handler)));
+
+let listener = TcpListener::bind("127.0.0.1:0").await.unwrap();
+
+start_test(context, router, listener).await
 ```
 
 ## Features

@@ -1,6 +1,6 @@
 [package]
 name = "derust"
-version = "0.2.4"
+version = "0.2.5"
 edition = "2021"
 authors = ["Deroldo <diogoderoldo@gmail.com>"]
 license = "MIT"
@@ -95,6 +95,8 @@ prometheus = [
 growthbook = [
     "dep:growthbook-sdk-rust"
 ]
+start_test = [
+]
 
 [dependencies]
 # Async runtime
@@ -138,7 +140,7 @@ aws-config = { workspace = true, features = ["behavior-version-latest"], optiona
 opentelemetry = { workspace = true, optional = true }
 tracing = { workspace = true, features = ["attributes", "tracing-attributes"], optional = true }
 axum-tracing-opentelemetry = { workspace = true, optional = true }
-opentelemetry-otlp = { workspace = true, features = ["http", "logs", "reqwest-client", "tracing", "serde", "integration-testing", "reqwest", "metrics"], optional = true}
+opentelemetry-otlp = { workspace = true, features = ["http", "logs", "reqwest-client", "tracing", "serde", "integration-testing", "reqwest", "metrics"], optional = true }
 init-tracing-opentelemetry = { workspace = true, features = ["otlp", "opentelemetry-otlp", "tracer", "tracing_subscriber_ext"], optional = true }
 tracing-subscriber = { workspace = true, optional = true }
 tracing-opentelemetry = { workspace = true, optional = true }
