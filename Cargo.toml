@@ -10,7 +10,7 @@ authors = ["Deroldo <diogoderoldo@gmail.com>"]
 
 [workspace.dependencies]
 # Async runtime
-tokio = { version = "1.45.1", features = ["full"] }
+tokio = { version = "1.46.0", features = ["full"] }
 
 # Http
 axum = { version = "0.8.4", default-features = true, features = ["macros", "tokio"] }
@@ -19,7 +19,7 @@ tower-layer = { version = "0.3.3" }
 hyper = { version = "1.6.0" }
 
 # Http client
-reqwest = { version = "0.12.20", features = ["http2", "default-tls", "default", "json", "gzip"] }
+reqwest = { version = "0.12.22", features = ["http2", "default-tls", "default", "json", "gzip"] }
 reqwest-middleware = { version = "0.4.2", features = ["json", "http2", "rustls-tls"] }
 reqwest-tracing = { version = "0.5.8", features = ["opentelemetry_0_26"] }
 
@@ -41,10 +41,10 @@ growthbook-sdk-rust = { version = "0.1.1" } # fork
 sqlx = { version = "0.8.6", features = ["json", "chrono", "bigdecimal", "postgres", "uuid", "rust_decimal", "migrate", "runtime-tokio"] }
 
 # AWS
-aws-sdk-sqs = { version = "1.73.0" }
-aws-sdk-sns = { version = "1.74.0" }
-aws-sdk-secretsmanager = { version = "1.77.0" }
-aws-config = { version = "1.8.0", features = ["behavior-version-latest"] }
+aws-sdk-sqs = { version = "1.74.0" }
+aws-sdk-sns = { version = "1.75.0" }
+aws-sdk-secretsmanager = { version = "1.78.0" }
+aws-config = { version = "1.8.1", features = ["behavior-version-latest"] }
 
 # Observability
 tracing = { version = "0.1.41", features = ["attributes", "tracing-attributes"] }

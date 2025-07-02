@@ -14,7 +14,7 @@ use tracing::{error, info};
 
 #[cfg(any(feature = "statsd", feature = "prometheus"))]
 use regex::Regex;
-
+use serde_json::Value;
 #[cfg(any(feature = "statsd", feature = "prometheus"))]
 use crate::metricx::{timer, MetricTags, Stopwatch};
 
@@ -68,20 +68,37 @@ where
     req.extensions_mut().insert(context.clone());
 
     let res = next.run(req).await;
-    let mut tags = res
+    let tags = res
         .extensions()
         .get::<HttpTags>()
         .cloned()
         .unwrap_or(HttpTags::default());
 
-    if local || log_enabled!(Level::Debug) {
-        let request_body_string = std::str::from_utf8(&req_bytes)
+    let request_body_string = if local || log_enabled!(Level::Debug) {
+        let payload = std::str::from_utf8(&req_bytes)
             .unwrap_or("Could not convert request bytes into string");
-        tags.add("request-body", request_body_string);
-    }
+        
+        let result_value = serde_json::from_str::<Value>(payload);
+        match result_value {
+            Ok(value) => serde_json::to_string(&value).unwrap_or_default(),
+            Err(_) => payload.to_string()
+        }
+    } else {
+        String::new()
+    };
 
     let (parts, res_body) = res.into_parts();
-    let bytes = buffer_and_print(context, method, uri, parts.status, res_body, tags, local).await?;
+    let bytes = buffer_and_print(
+        context,
+        method,
+        uri,
+        parts.status,
+        res_body,
+        request_body_string,
+        tags,
+        local,
+    )
+    .await?;
     let res = Response::from_parts(parts, Body::from(bytes));
 
     #[cfg(any(feature = "statsd", feature = "prometheus"))]
@@ -99,6 +116,7 @@ async fn buffer_and_print<S>(
     uri: Uri,
     status: StatusCode,
     res_body: Body,
+    request_body_string: String,
     tags: HttpTags,
     local: bool,
 ) -> Result<Bytes, (StatusCode, String)>
@@ -121,11 +139,9 @@ where
 
     if local || log_enabled!(Level::Debug) {
         let res_body_str = match decompress_gzip(&response_bytes) {
-            Ok(decompressed) => {
-                std::str::from_utf8(&decompressed)
-                    .unwrap_or("Could not convert response bytes into string after decompression")
-                    .to_string()
-            }
+            Ok(decompressed) => std::str::from_utf8(&decompressed)
+                .unwrap_or("Could not convert response bytes into string after decompression")
+                .to_string(),
             Err(_) => {
                 if is_binary(&response_bytes) {
                     "<binary data>".to_string()
@@ -140,13 +156,13 @@ where
         if status.is_server_error() {
             error!(
                 tags = ?tags.values(),
-                "{method} {uri} -> {} :: response :: {res_body_str}",
+                "{method} {uri} -> {} :: request={request_body_string} :: response={res_body_str}",
                 status.as_u16(),
             );
         } else {
             info!(
                 tags = ?tags.values(),
-                "{method} {uri} -> {} :: response :: {res_body_str}",
+                "{method} {uri} -> {} :: request={request_body_string} :: response={res_body_str}",
                 status.as_u16(),
             );
         }
