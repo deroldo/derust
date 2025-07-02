@@ -91,6 +91,14 @@ async fn handler(
 ```
 
 ## Tests
+
+Active `start_test` feature
+```toml
+derust = { version = "0.2.5", features = [..., "start_test"] }
+```
+
+And then:
+
 ```rust
 let env = Environment::detect().ok().unwrap_or(Environment::Local);
 
