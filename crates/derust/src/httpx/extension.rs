@@ -25,7 +25,7 @@ pub(crate) fn apply_middlewares<S>(
 where
     S: Clone + Send + Sync + 'static,
 {
-    let mut builder = router.route(health::HEALTH_PATH, get(health::route()));
+    let mut builder = router.route(health::HEALTH_PATH, get(health::route));
 
     #[cfg(feature = "prometheus")]
     {

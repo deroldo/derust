@@ -20,7 +20,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-derust = { version = "0.2.5" }
+derust = { version = "0.2.6" }
 
 tokio = { version = "1.43.0", features = ["full"] }
 axum = { version = "0.8.1", default-features = true, features = ["macros", "tokio"] }
@@ -90,11 +90,17 @@ async fn handler(
 }
 ```
 
+## Envs
+
+| env                      | default | description                                                                                                                          |
+|--------------------------|---------|--------------------------------------------------------------------------------------------------------------------------------------|
+| SERVER_TIMEOUT_IN_MILLIS | 10000   | Maximum time in milliseconds that the server will try to respond to a request before returning a timeout error (408 Request Timeout) |
+
 ## Tests
 
 Active `start_test` feature
 ```toml
-derust = { version = "0.2.5", features = [..., "start_test"] }
+derust = { version = "0.2.6", features = ["start_test"] }
 ```
 
 And then:

@@ -2,7 +2,7 @@ use std::env;
 use std::time::Duration;
 use tower_http::timeout::TimeoutLayer;
 
-const DEFAULT_TIMEOUT_ENV_NAME: &str = "SERVER_TIMEOUT";
+const DEFAULT_TIMEOUT_ENV_NAME: &str = "SERVER_TIMEOUT_IN_MILLIS";
 const DEFAULT_TIMEOUT_STR: &str = "10000";
 const DEFAULT_TIMEOUT_U64: u64 = 10000;
 
