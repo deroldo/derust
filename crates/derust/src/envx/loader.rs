@@ -18,8 +18,8 @@ pub async fn load_app_config<T: for<'a> Deserialize<'a>>(
     #[cfg(feature = "env_from_secrets_manager")] secrets_manager_ids: Vec<&str>,
 ) -> Result<T, Box<dyn std::error::Error>> {
     if environment.is_local() || environment.is_test() {
-        dotenv().ok();
         from_filename(format!(".env.{}", environment.get_name())).ok();
+        dotenv().ok();
     }
 
     let env_source = if let Some(prefix) = prefix {
