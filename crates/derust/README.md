@@ -20,7 +20,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-derust = { version = "0.2.7" }
+derust = { version = "0.2.8" }
 
 tokio = { version = "1.43.0", features = ["full"] }
 axum = { version = "0.8.1", default-features = true, features = ["macros", "tokio"] }
@@ -100,7 +100,7 @@ async fn handler(
 
 Active `start_test` feature
 ```toml
-derust = { version = "0.2.7", features = ["start_test"] }
+derust = { version = "0.2.8", features = ["start_test"] }
 ```
 
 And then:

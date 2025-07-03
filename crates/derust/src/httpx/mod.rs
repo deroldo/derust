@@ -8,6 +8,7 @@ mod middlewares;
 mod health;
 
 mod response;
+mod request;
 mod server;
 mod tags;
 
@@ -21,5 +22,7 @@ pub use config::*;
 pub use context::*;
 pub use error::*;
 pub use response::*;
+pub use response::json::*;
+pub use request::json_request::*;
 pub use server::*;
 pub use tags::*;
