@@ -186,7 +186,7 @@ fn start_stopwatch<S>(context: &AppContext<S>, req: &Request<Body>) -> Stopwatch
 where
     S: Clone,
 {
-    let metric_tags = MetricTags::htt_server(req.uri(), req.method());
+    let metric_tags = MetricTags::http_server(req.uri(), req.method());
     timer::start_stopwatch(&context, "http_server_seconds", metric_tags)
 }
 

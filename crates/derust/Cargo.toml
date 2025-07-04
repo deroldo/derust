@@ -1,6 +1,6 @@
 [package]
 name = "derust"
-version = "0.2.9"
+version = "0.3.0"
 edition = "2021"
 authors = ["Deroldo <diogoderoldo@gmail.com>"]
 license = "MIT"
@@ -93,7 +93,7 @@ prometheus = [
     "dep:hyper",
 ]
 growthbook = [
-    "dep:growthbook-sdk-rust"
+    "dep:growthbook-rust-sdk"
 ]
 start_test = [
 ]
@@ -124,8 +124,7 @@ thiserror = { workspace = true, optional = true }
 outbox-pattern-processor = { workspace = true, optional = true }
 
 # Feture toggle / feature flag
-#growthbook-rust-sdk = { workspace = true, optional = true }
-growthbook-sdk-rust = { workspace = true, optional = true }
+growthbook-rust-sdk = { workspace = true, optional = true }
 
 # SQL
 sqlx = { workspace = true, features = ["json", "chrono", "postgres", "uuid", "runtime-tokio"], optional = true }

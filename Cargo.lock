@@ -1103,7 +1103,7 @@ dependencies = [
 
 [[package]]
 name = "derust"
-version = "0.2.9"
+version = "0.3.0"
 dependencies = [
  "async-trait",
  "aws-config",
@@ -1118,7 +1118,7 @@ dependencies = [
  "config",
  "dotenv",
  "flate2",
- "growthbook-sdk-rust",
+ "growthbook-rust-sdk",
  "http-body-util",
  "hyper 1.6.0",
  "init-tracing-opentelemetry",
@@ -1475,10 +1475,10 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a8d1add55171497b4705a648c6b583acafb01d58050a51727785f0b2c8e0a2b2"
 
 [[package]]
-name = "growthbook-sdk-rust"
-version = "0.1.1"
+name = "growthbook-rust-sdk"
+version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1b476e4a3b66b7e4ba946ca1cde38aca55e5f47b7692f49f00d6741520f43fba"
+checksum = "75f5be29e7a0cc77d83604e1ffe24b81cf6300bd94299f43cecee2a1a783ef81"
 dependencies = [
  "chrono",
  "hashers",
@@ -3969,15 +3969,15 @@ dependencies = [
 
 [[package]]
 name = "strum"
-version = "0.26.3"
+version = "0.27.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8fec0f0aef304996cf250b31b5a10dee7980c85da9d759361292b8bca5a18f06"
+checksum = "f64def088c51c9510a8579e3c5d67c65349dcf755e5479ad3d010aa6454e2c32"
 
 [[package]]
 name = "strum_macros"
-version = "0.26.4"
+version = "0.27.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4c6bee85a5a24955dc440386795aa378cd9cf82acd5f764469152d2270e581be"
+checksum = "c77a8c5abcaf0f9ce05d62342b7d298c346515365c36b673df4ebe3ced01fde8"
 dependencies = [
  "heck",
  "proc-macro2",

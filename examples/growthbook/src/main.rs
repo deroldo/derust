@@ -8,7 +8,7 @@ use derust::envx::Environment;
 use derust::growthbookx;
 use derust::growthbookx::{growth_book_attributes, GrowthBookConfig};
 use derust::httpx::json::JsonResponse;
-use derust::httpx::{start, AppContext, HttpError, HttpTags};
+use derust::httpx::{start, AppContext, GrowthBookClientTrait, HttpError, HttpTags};
 
 #[derive(Clone)]
 pub struct AppState {
@@ -29,6 +29,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // required to access growthbook admin dashboard to create the sdk-key: http://localhost:3000
     let gb_config = GrowthBookConfig {
         growth_book_url: "http://localhost:3100".to_string(),
+        // change it with your created sdk-key
         sdk_key: "sdk-key".to_string(),
         update_interval: None,
         http_timeout: None,

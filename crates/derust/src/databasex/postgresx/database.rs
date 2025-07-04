@@ -54,11 +54,7 @@ impl PostgresDatabase {
             if let Some(ro) = self.read_only.clone() {
                 ro
             } else {
-                return Err(HttpError::without_body(
-                    StatusCode::INTERNAL_SERVER_ERROR,
-                    "Read-only database not found".to_string(),
-                    tags.clone(),
-                ));
+                self.read_write.clone()
             }
         } else {
             self.read_write.clone()
@@ -77,6 +73,7 @@ impl PostgresDatabase {
     pub async fn begin_transaction<S>(
         &self,
         context: &AppContext<S>,
+        operation_name: &str,
         tags: &HttpTags,
     ) -> Result<PostgresTransaction<S>, HttpError>
     where
@@ -90,13 +87,16 @@ impl PostgresDatabase {
             )
         })?;
 
+        let mut metric_tags = MetricTags::from(tags.clone());
+        metric_tags = metric_tags.push("operation".to_string(), operation_name.to_string());
+
         Ok(PostgresTransaction {
             transaction,
             #[cfg(any(feature = "statsd", feature = "prometheus"))]
             stopwatch: timer::start_stopwatch(
                 context,
                 "repository_transaction_seconds",
-                MetricTags::from(tags.clone()),
+                metric_tags,
             ),
         })
     }
@@ -118,15 +118,7 @@ impl PostgresDatabase {
             )
         })?;
 
-        Ok(PostgresTransaction {
-            transaction,
-            #[cfg(any(feature = "statsd", feature = "prometheus"))]
-            stopwatch: timer::start_stopwatch(
-                context,
-                "repository_transaction_seconds",
-                MetricTags::from(tags.clone()),
-            ),
-        })
+        Ok(PostgresTransaction { transaction })
     }
 }
 

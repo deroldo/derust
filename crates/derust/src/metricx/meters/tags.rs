@@ -51,7 +51,7 @@ impl MetricTags {
         self
     }
 
-    pub fn htt_server(req_url: &Uri, req_method: &Method) -> MetricTags {
+    pub fn http_server(req_url: &Uri, req_method: &Method) -> MetricTags {
         let path = normalize_path(req_url.path(), REGEXES_REPLACE.clone());
         MetricTags::from([("method", req_method.as_str()), ("path", &path)])
     }
