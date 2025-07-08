@@ -53,7 +53,7 @@ where
 }
 
 async fn start_http_server(wg: WaitGroup, port: u16, router: Router<()>) {
-    info!("Starting http server on port {}", port);
+    info!("Started http server on port {}", port);
 
     let addr = SocketAddr::from((Ipv4Addr::UNSPECIFIED, port));
 
