@@ -1,7 +1,8 @@
+use axum::http::StatusCode;
 use crate::databasex::repository::Repository;
 use crate::databasex::PostgresTransaction;
 use crate::httpx::{AppContext, HttpError, HttpTags};
-use sqlx::query::{QueryAs, QueryScalar};
+use sqlx::query::{Query, QueryAs, QueryScalar};
 use sqlx::{Database, FromRow, Postgres};
 
 #[async_trait::async_trait]
@@ -115,6 +116,29 @@ impl Repository<Postgres> for Option<&mut PostgresTransaction<'_>> {
                     .get_connection(true, tags)
                     .await?
                     .exists(context, query_name, query, tags)
+                    .await
+            }
+        }
+    }
+
+    async fn execute<'a, S>(
+        &mut self,
+        context: &'a AppContext<S>,
+        query_name: &'a str,
+        query: Query<'a, Postgres, <Postgres as Database>::Arguments<'a>>,
+        tags: &HttpTags,
+    ) -> Result<(), HttpError>
+    where
+        S: Clone + Send + Sync,
+    {
+        match self {
+            Some(trx) => trx.execute(context, query_name, query, tags).await,
+            None => {
+                context
+                    .database()
+                    .get_connection(true, tags)
+                    .await?
+                    .execute(context, query_name, query, tags)
                     .await
             }
         }

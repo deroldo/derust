@@ -2,7 +2,7 @@ use crate::databasex::repository::Repository;
 use crate::databasex::PostgresTransaction;
 use crate::httpx::{AppContext, HttpError, HttpTags};
 use axum::http::StatusCode;
-use sqlx::query::{QueryAs, QueryScalar};
+use sqlx::query::{Query, QueryAs, QueryScalar};
 use sqlx::{Database, FromRow, Postgres};
 
 #[async_trait::async_trait]
@@ -131,5 +131,26 @@ impl Repository<Postgres> for PostgresTransaction<'_> {
             });
 
         result
+    }
+
+    async fn execute<'a, S>(
+        &mut self,
+        context: &'a AppContext<S>,
+        query_name: &'a str,
+        query: Query<'a, Postgres, <Postgres as Database>::Arguments<'a>>,
+        tags: &HttpTags,
+    ) -> Result<(), HttpError>
+    where
+        S: Clone + Send + Sync,
+    {
+        query.execute(&mut *self.transaction).await.map_err(|error| {
+            HttpError::without_body(
+                StatusCode::INTERNAL_SERVER_ERROR,
+                format!("Failed to execute fetch one for {query_name} with error: {error}"),
+                tags.clone(),
+            )
+        })?;
+
+        Ok(())
     }
 }

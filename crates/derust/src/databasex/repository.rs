@@ -1,6 +1,6 @@
 use crate::httpx::{AppContext, HttpError, HttpTags};
-use sqlx::query::{QueryAs, QueryScalar};
-use sqlx::{Database, FromRow};
+use sqlx::query::{Query, QueryAs, QueryScalar};
+use sqlx::{Database, FromRow, Postgres};
 
 #[async_trait::async_trait]
 pub trait Repository<DB: Database> {
@@ -54,6 +54,16 @@ pub trait Repository<DB: Database> {
         query: QueryScalar<'a, DB, bool, <DB as Database>::Arguments<'a>>,
         tags: &HttpTags,
     ) -> Result<bool, HttpError>
+    where
+        S: Clone + Send + Sync;
+
+    async fn execute<'a, S>(
+        &mut self,
+        context: &'a AppContext<S>,
+        query_name: &'a str,
+        query: Query<'a, Postgres, <Postgres as Database>::Arguments<'a>>,
+        tags: &HttpTags,
+    ) -> Result<(), HttpError>
     where
         S: Clone + Send + Sync;
 }
