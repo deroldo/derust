@@ -18,13 +18,14 @@ pub async fn start<T>(
     context: AppContext<T>,
     router: Router<AppContext<T>>,
     #[cfg(feature = "outbox")] outbox_processor_resources: OutboxProcessorResources,
+    enable_ws: bool,
 ) -> Result<(), Box<dyn std::error::Error>>
 where
     T: Clone + Send + Sync + 'static,
 {
     let wg = WaitGroup::new();
     let http_router = apply_middlewares(router, context);
-    tokio::spawn(start_http_server(wg.add(1), port, http_router));
+    tokio::spawn(start_http_server(wg.add(1), port, http_router, enable_ws));
 
     #[cfg(feature = "outbox")]
     tokio::spawn(outboxx::run(wg.add(1), outbox_processor_resources));
@@ -52,15 +53,21 @@ where
         .await
 }
 
-async fn start_http_server(wg: WaitGroup, port: u16, router: Router<()>) {
+async fn start_http_server(wg: WaitGroup, port: u16, router: Router<()>, enable_ws: bool) {
     info!("Started http server on port {}", port);
 
     let addr = SocketAddr::from((Ipv4Addr::UNSPECIFIED, port));
 
     if let Ok(listener) = TcpListener::bind(addr).await {
-        let _ = axum::serve(listener, router.into_make_service())
-            .with_graceful_shutdown(shutdown_signal())
-            .await;
+        if enable_ws {
+            let _ = axum::serve(listener, router.into_make_service_with_connect_info::<SocketAddr>())
+                .with_graceful_shutdown(shutdown_signal())
+                .await;
+        } else {
+            let _ = axum::serve(listener, router.into_make_service())
+                .with_graceful_shutdown(shutdown_signal())
+                .await;
+        }
     }
 
     wg.done();
