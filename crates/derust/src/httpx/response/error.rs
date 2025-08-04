@@ -5,6 +5,7 @@ use axum::http::{Response, StatusCode};
 use axum_tracing_opentelemetry::tracing_opentelemetry_instrumentation_sdk::find_current_trace_id;
 use serde_json::Value;
 
+#[derive(Debug)]
 pub struct HttpError {
     status_code: StatusCode,
     error_message: String,
@@ -12,6 +13,14 @@ pub struct HttpError {
     response_headers: Box<Option<Vec<(String, String)>>>,
     tags: HttpTags,
 }
+
+impl std::fmt::Display for HttpError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.error_message)
+    }
+}
+
+impl std::error::Error for HttpError {}
 
 impl HttpError {
     pub fn with_body(

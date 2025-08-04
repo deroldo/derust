@@ -61,7 +61,7 @@ impl HttpClient {
             .client
             .get(full_url(&self.base_url, path, query_params));
         let request_context = RequestContext::new(Method::GET, &self.base_url, path);
-        send(context, request_context, req, None::<&()>, headers, tags).await
+        send(context, request_context, req, None::<&()>, headers, None, tags).await
     }
 
     pub async fn post<'a, T, B, S>(
@@ -82,7 +82,27 @@ impl HttpClient {
             .client
             .post(full_url(&self.base_url, path, query_params));
         let request_context = RequestContext::new(Method::POST, &self.base_url, path);
-        send(context, request_context, req, Some(body), headers, tags).await
+        send(context, request_context, req, Some(body), headers, None, tags).await
+    }
+
+    pub async fn form<'a, T, S>(
+        &self,
+        context: &AppContext<S>,
+        path: &str,
+        form: &[(&str, &str)],
+        query_params: Option<Vec<(&str, &str)>>,
+        headers: Option<Vec<(&str, &str)>>,
+        tags: &HttpTags,
+    ) -> Result<Response<T>, HttpError>
+    where
+        T: for<'de> Deserialize<'de>,
+        S: Clone,
+    {
+        let req = self
+            .client
+            .post(full_url(&self.base_url, path, query_params));
+        let request_context = RequestContext::new(Method::POST, &self.base_url, path);
+        send(context, request_context, req, None::<serde_json::Value>.as_ref(), headers, Some(form), tags).await
     }
 
     pub async fn put<'a, T, B, S>(
@@ -103,7 +123,7 @@ impl HttpClient {
             .client
             .post(full_url(&self.base_url, path, query_params));
         let request_context = RequestContext::new(Method::PUT, &self.base_url, path);
-        send(context, request_context, req, Some(body), headers, tags).await
+        send(context, request_context, req, Some(body), headers, None, tags).await
     }
 
     pub async fn patch<'a, T, B, S>(
@@ -124,7 +144,7 @@ impl HttpClient {
             .client
             .post(full_url(&self.base_url, path, query_params));
         let request_context = RequestContext::new(Method::PATCH, &self.base_url, path);
-        send(context, request_context, req, Some(body), headers, tags).await
+        send(context, request_context, req, Some(body), headers, None, tags).await
     }
 
     pub async fn delete<'a, T, B, S>(
@@ -144,7 +164,7 @@ impl HttpClient {
             .client
             .post(full_url(&self.base_url, path, query_params));
         let request_context = RequestContext::new(Method::DELETE, &self.base_url, path);
-        send(context, request_context, req, None::<&B>, headers, tags).await
+        send(context, request_context, req, None::<&B>, headers, None, tags).await
     }
 }
 
@@ -169,6 +189,7 @@ async fn send<'a, T, B, S>(
     mut request_builder: RequestBuilder,
     body: Option<&B>,
     headers: Option<Vec<(&str, &str)>>,
+    form: Option<&[(&str, &str)]>,
     tags: &HttpTags,
 ) -> Result<Response<T>, HttpError>
 where
@@ -178,6 +199,10 @@ where
 {
     if let Some(b) = body {
         request_builder = request_builder.json(b);
+    }
+
+    if let Some(values) = form {
+        request_builder = request_builder.form(values);
     }
 
     for (key, value) in headers.unwrap_or_default() {
