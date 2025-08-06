@@ -32,10 +32,16 @@ where
     S: Clone,
 {
     #[cfg(any(feature = "statsd", feature = "prometheus"))]
+    let mut metric_tags = MetricTags::from(tags);
+    #[cfg(any(feature = "statsd", feature = "prometheus"))]
+    {
+        metric_tags = metric_tags.push("operation".to_string(), "insert".to_string());
+    }
+    #[cfg(any(feature = "statsd", feature = "prometheus"))]
     let stopwatch = timer::start_stopwatch(
         context,
-        "repository_outbox_insert_seconds",
-        MetricTags::from(tags.clone()),
+        "repository_outbox_seconds",
+        metric_tags.clone(),
     );
 
     let result = OutboxRepository::insert(db_conn, outbox)
@@ -55,9 +61,8 @@ where
             Err(_) => "false",
         };
 
-        let mut result_metric_tags = MetricTags::from(tags);
-        result_metric_tags = result_metric_tags.push("success".to_string(), success.to_string());
-        stopwatch.record(result_metric_tags);
+        metric_tags = metric_tags.push("success".to_string(), success.to_string());
+        stopwatch.record(metric_tags);
     }
 
     result

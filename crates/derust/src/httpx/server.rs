@@ -17,18 +17,19 @@ pub async fn start<T>(
     port: u16,
     context: AppContext<T>,
     router: Router<AppContext<T>>,
+    enable_web_socket: bool,
     #[cfg(feature = "outbox")] outbox_processor_resources: OutboxProcessorResources,
-    enable_ws: bool,
+    #[cfg(feature = "outbox")] outbox_metrics_monitor_enabled: bool,
 ) -> Result<(), Box<dyn std::error::Error>>
 where
     T: Clone + Send + Sync + 'static,
 {
     let wg = WaitGroup::new();
-    let http_router = apply_middlewares(router, context);
-    tokio::spawn(start_http_server(wg.add(1), port, http_router, enable_ws));
+    let http_router = apply_middlewares(router, context.clone());
+    tokio::spawn(start_http_server(wg.add(1), port, http_router, enable_web_socket));
 
     #[cfg(feature = "outbox")]
-    tokio::spawn(outboxx::run(wg.add(1), outbox_processor_resources));
+    tokio::spawn(outboxx::run(wg.add(1), context.clone(), outbox_processor_resources, outbox_metrics_monitor_enabled));
 
     wg.wait();
 
@@ -53,13 +54,13 @@ where
         .await
 }
 
-async fn start_http_server(wg: WaitGroup, port: u16, router: Router<()>, enable_ws: bool) {
+async fn start_http_server(wg: WaitGroup, port: u16, router: Router<()>, enable_web_socket: bool) {
     info!("Started http server on port {}", port);
 
     let addr = SocketAddr::from((Ipv4Addr::UNSPECIFIED, port));
 
     if let Ok(listener) = TcpListener::bind(addr).await {
-        if enable_ws {
+        if enable_web_socket {
             let _ = axum::serve(listener, router.into_make_service_with_connect_info::<SocketAddr>())
                 .with_graceful_shutdown(shutdown_signal())
                 .await;
