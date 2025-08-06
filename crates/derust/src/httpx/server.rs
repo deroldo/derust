@@ -20,6 +20,7 @@ pub async fn start<T>(
     enable_web_socket: bool,
     #[cfg(feature = "outbox")] outbox_processor_resources: OutboxProcessorResources,
     #[cfg(feature = "outbox")] outbox_metrics_monitor_enabled: bool,
+    #[cfg(feature = "outbox")] outbox_metrics_monitor_interval_in_secs: Option<u64>,
 ) -> Result<(), Box<dyn std::error::Error>>
 where
     T: Clone + Send + Sync + 'static,
@@ -29,7 +30,7 @@ where
     tokio::spawn(start_http_server(wg.add(1), port, http_router, enable_web_socket));
 
     #[cfg(feature = "outbox")]
-    tokio::spawn(outboxx::run(wg.add(1), context.clone(), outbox_processor_resources, outbox_metrics_monitor_enabled));
+    tokio::spawn(outboxx::run(wg.add(1), context.clone(), outbox_processor_resources, outbox_metrics_monitor_enabled, outbox_metrics_monitor_interval_in_secs));
 
     wg.wait();
 

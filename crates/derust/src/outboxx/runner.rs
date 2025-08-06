@@ -14,6 +14,7 @@ pub async fn run<T>(
     context: AppContext<T>,
     outbox_processor_resources: OutboxProcessorResources,
     #[cfg(any(feature = "statsd", feature = "prometheus"))] metrics_monitor_enabled: bool,
+    #[cfg(any(feature = "statsd", feature = "prometheus"))] outbox_metrics_monitor_interval_in_secs: Option<u64>,
 ) where
     T: Clone + Send + Sync + 'static,
 {
@@ -23,7 +24,7 @@ pub async fn run<T>(
 
     #[cfg(any(feature = "statsd", feature = "prometheus"))]
     if metrics_monitor_enabled {
-        tokio::spawn(metrics_monitor(wg.add(1), context.clone(), outbox_processor_resources.clone()));
+        tokio::spawn(metrics_monitor(wg.add(1), context.clone(), outbox_processor_resources.clone(), outbox_metrics_monitor_interval_in_secs));
     }
 
     info!("Started embedded outbox-pattern-processor");
@@ -59,6 +60,7 @@ async fn metrics_monitor<T>(
     wg: WaitGroup,
     context: AppContext<T>,
     outbox_processor_resources: OutboxProcessorResources,
+    outbox_metrics_monitor_interval_in_secs: Option<u64>,
 ) where
     T: Clone + Send + Sync + 'static,
 {
@@ -69,7 +71,7 @@ async fn metrics_monitor<T>(
     loop {
         tokio::select! {
             _ = one_shot_metrics_monitor(&context) => {
-                tokio::time::sleep(Duration::from_secs(15)).await; // TODO ajuste na duration
+                tokio::time::sleep(Duration::from_secs(outbox_metrics_monitor_interval_in_secs.unwrap_or(5))).await; // TODO ajuste na duration
             }
             _ = &mut shutdown_signal => {
                 break;
