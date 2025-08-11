@@ -10,6 +10,7 @@ use crate::envx::Environment;
 use aws_config::{BehaviorVersion, Region, SdkConfig};
 use aws_sdk_secretsmanager::config::Credentials;
 use lazy_static::lazy_static;
+use tracing::info;
 
 const LOCALSTACK_ENDPOINT: &str = "http://localhost:4566";
 
@@ -36,6 +37,7 @@ pub struct SecretsManagerClient {
 
 pub async fn load_aws_config(env: Environment) -> SdkConfig {
     if env.is_local() || env.is_test() {
+        info!("Loading AWS config for localstack");
         aws_config::from_env()
             .region(LOCALSTACK_REGION.clone())
             .credentials_provider(LOCALSTACK_CREDENTIALS.clone())
