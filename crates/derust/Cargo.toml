@@ -1,6 +1,6 @@
 [package]
 name = "derust"
-version = "0.3.7"
+version = "0.3.8"
 edition = "2021"
 authors = ["Deroldo <diogoderoldo@gmail.com>"]
 license = "MIT"

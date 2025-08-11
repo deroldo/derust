@@ -126,10 +126,10 @@ fn restructure_json(input: &str, prefix: &Option<String>) -> Result<Value, serde
             let mut current_map = &mut result;
             for (i, part) in parts.iter().enumerate() {
                 if i == parts.len() - 1 {
-                    current_map.insert(part.to_string(), value.clone());
+                    current_map.insert(part.to_string().to_lowercase(), value.clone());
                 } else {
                     let next_map = current_map
-                        .entry(part.to_string())
+                        .entry(part.to_string().to_lowercase())
                         .or_insert_with(|| Value::Object(serde_json::Map::new()));
                     current_map = next_map.as_object_mut().unwrap();
                 }
@@ -147,7 +147,7 @@ fn convert_serde_value_to_config_map(serde_value: &Value) -> HashMap<String, con
     if let Some(object) = serde_value.as_object() {
         for (key, value) in object {
             let config_value = parse_serde_value(value);
-            key_map.insert(key.clone(), config_value);
+            key_map.insert(key.clone().to_lowercase(), config_value);
         }
     }
 
@@ -184,7 +184,7 @@ fn parse_serde_value(value: &Value) -> config::Value {
         }
         _ => {
             let value_string = if value.is_string() {
-                value.as_str().unwrap().to_lowercase()
+                value.as_str().unwrap().to_string()
             } else {
                 value.to_string()
             };

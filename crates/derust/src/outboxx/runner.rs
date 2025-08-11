@@ -117,7 +117,7 @@ where
             current_gauge(&context, "outbox_pattern_processor_delay", metric_tags.clone(), delay as f64);
         },
         Err(error) => {
-            error!("Http server stopped!");
+            error!("Failed when try to get outbox_pattern_processor_delay!");
         }
     }
 
