@@ -28,6 +28,8 @@ pub mod databasex;
 #[cfg(feature = "growthbook")]
 pub mod growthbookx;
 
+pub use axum::http::StatusCode;
+
 pub async fn shutdown_signal() {
     let ctrl_c = async {
         signal::ctrl_c()
