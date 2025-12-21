@@ -99,7 +99,11 @@ impl AsyncSource for SecretsManagerSource {
             let serde_value = restructure_json(&json, &self.prefix).unwrap();
 
             for (key, value) in convert_serde_value_to_config_map(&serde_value) {
-                map.insert(key, value);
+                map.entry(key)
+                    .and_modify(|existing| {
+                        merge_values(existing, value.clone());
+                    })
+                    .or_insert(value);
             }
         }
 
@@ -141,6 +145,31 @@ fn restructure_json(input: &str, prefix: &Option<String>) -> Result<Value, serde
     }
 
     Ok(Value::Object(result))
+}
+
+fn merge_values(left: &mut config::Value, right: config::Value) {
+    match (&mut left.kind, right.kind) {
+        // Table + Table → merge recursivo
+        (ValueKind::Table(l), ValueKind::Table(r)) => {
+            for (key, r_value) in r {
+                l.entry(key)
+                    .and_modify(|l_value| {
+                        merge_values(l_value, r_value.clone());
+                    })
+                    .or_insert(r_value);
+            }
+        }
+
+        // Array + Array → concat
+        (ValueKind::Array(l), ValueKind::Array(r)) => {
+            l.extend(r);
+        }
+
+        // Qualquer outro caso → sobrescreve
+        (l, r) => {
+            *l = r;
+        }
+    }
 }
 
 #[allow(dead_code)]
