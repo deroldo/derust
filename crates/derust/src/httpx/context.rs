@@ -28,6 +28,7 @@ where
     #[cfg(feature = "prometheus")]
     prometheus_handle: PrometheusHandle,
     ignore_log_for_paths: Vec<String>,
+    allowed_origins: Vec<String>,
     #[cfg(feature = "growthbook")]
     growth_book: GrowthBookClient,
     state: S,
@@ -72,6 +73,7 @@ where
             #[cfg(feature = "prometheus")]
             prometheus_handle,
             ignore_log_for_paths: vec!["/metrics".to_string()],
+            allowed_origins: vec![],
             #[cfg(feature = "growthbook")]
             growth_book,
             state,
@@ -89,6 +91,15 @@ where
 
     pub fn ignore_log_for_paths(&self) -> &Vec<String> {
         &self.ignore_log_for_paths
+    }
+
+    pub fn with_allowed_origins(mut self, paths: Vec<String>) -> Self {
+        self.allowed_origins = paths;
+        self
+    }
+
+    pub fn allowed_origins(&self) -> &Vec<String> {
+        &self.allowed_origins
     }
 
     pub fn env(&self) -> &Environment {

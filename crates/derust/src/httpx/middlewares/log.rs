@@ -1,6 +1,6 @@
 use axum::body::Body;
 use axum::extract::State;
-use axum::http::{Method, Request, StatusCode, Uri};
+use axum::http::{HeaderValue, Method, Request, StatusCode, Uri};
 
 use crate::httpx::{AppContext, HttpTags};
 use axum::middleware::Next;
@@ -13,10 +13,10 @@ use tracing::log::{log_enabled, Level};
 use tracing::{error, info};
 
 #[cfg(any(feature = "statsd", feature = "prometheus"))]
+use crate::metricx::{timer, MetricTags, Stopwatch};
+#[cfg(any(feature = "statsd", feature = "prometheus"))]
 use regex::Regex;
 use serde_json::Value;
-#[cfg(any(feature = "statsd", feature = "prometheus"))]
-use crate::metricx::{timer, MetricTags, Stopwatch};
 
 pub async fn local_log_request<S>(
     State(context): State<AppContext<S>>,
@@ -55,6 +55,13 @@ where
     let (req_parts, req_body) = req.into_parts();
     let method = req_parts.method.clone();
     let uri = req_parts.uri.clone();
+
+    let headers = req_parts.headers.clone();
+
+    let option_origin = headers
+        .get("origin")
+        .and_then(|origin| origin.to_str().ok());
+
     let req_bytes = axum::body::to_bytes(req_body, usize::MAX)
         .await
         .map_err(|err| {
@@ -77,17 +84,37 @@ where
     let request_body_string = if local || log_enabled!(Level::Debug) {
         let payload = std::str::from_utf8(&req_bytes)
             .unwrap_or("Could not convert request bytes into string");
-        
+
         let result_value = serde_json::from_str::<Value>(payload);
         match result_value {
             Ok(value) => serde_json::to_string(&value).unwrap_or_default(),
-            Err(_) => payload.to_string()
+            Err(_) => payload.to_string(),
         }
     } else {
         String::new()
     };
 
-    let (parts, res_body) = res.into_parts();
+    let (mut parts, res_body) = res.into_parts();
+
+    if let Some(origin) = option_origin {
+        let all_origin_enabled = context
+            .allowed_origins()
+            .iter()
+            .any(|allowed_origin| allowed_origin.contains("*"));
+
+        if all_origin_enabled
+            || context.allowed_origins().iter().any(|allowed_origin| {
+                normalize_origin(allowed_origin).contains(&normalize_origin(origin))
+            })
+        {
+            if let Ok(header_value) = HeaderValue::from_str(origin) {
+                parts
+                    .headers
+                    .append("Access-Control-Allow-Origin", header_value);
+            }
+        }
+    }
+
     let bytes = buffer_and_print(
         context,
         method,
@@ -108,6 +135,13 @@ where
     )]));
 
     Ok(res)
+}
+
+fn normalize_origin(origin: &str) -> String {
+    origin
+        .replace("https://", "")
+        .replace("http://", "")
+        .replace("/", "")
 }
 
 async fn buffer_and_print<S>(
