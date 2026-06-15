@@ -39,6 +39,27 @@ where
     Ok(())
 }
 
+#[cfg(feature = "outbox")]
+pub async fn start_only_api<T>(
+    port: u16,
+    context: AppContext<T>,
+    router: Router<AppContext<T>>,
+    enable_web_socket: bool,
+) -> Result<(), Box<dyn std::error::Error>>
+where
+    T: Clone + Send + Sync + 'static,
+{
+    let wg = WaitGroup::new();
+    let http_router = apply_middlewares(router, context.clone());
+    tokio::spawn(start_http_server(wg.add(1), port, http_router, enable_web_socket));
+
+    wg.wait();
+
+    info!("Shutdown completed!");
+
+    Ok(())
+}
+
 #[cfg(feature = "start_test")]
 pub async fn start_test<T>(
     context: AppContext<T>,
