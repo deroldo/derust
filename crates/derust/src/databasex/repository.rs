@@ -8,7 +8,7 @@ pub trait Repository<DB: Database> {
         &mut self,
         context: &'a AppContext<S>,
         query_name: &'a str,
-        query: QueryAs<'a, DB, T, <DB as Database>::Arguments<'a>>,
+        query: QueryAs<'a, DB, T, <DB as Database>::Arguments>,
         tags: &HttpTags,
     ) -> Result<T, HttpError>
     where
@@ -19,7 +19,7 @@ pub trait Repository<DB: Database> {
         &mut self,
         context: &'a AppContext<S>,
         query_name: &'a str,
-        query: QueryAs<'a, DB, T, <DB as Database>::Arguments<'a>>,
+        query: QueryAs<'a, DB, T, <DB as Database>::Arguments>,
         tags: &HttpTags,
     ) -> Result<Option<T>, HttpError>
     where
@@ -30,7 +30,7 @@ pub trait Repository<DB: Database> {
         &mut self,
         context: &'a AppContext<S>,
         query_name: &'a str,
-        query: QueryAs<'a, DB, T, <DB as Database>::Arguments<'a>>,
+        query: QueryAs<'a, DB, T, <DB as Database>::Arguments>,
         tags: &HttpTags,
     ) -> Result<Vec<T>, HttpError>
     where
@@ -41,7 +41,7 @@ pub trait Repository<DB: Database> {
         &mut self,
         context: &'a AppContext<S>,
         query_name: &'a str,
-        query: QueryScalar<'a, DB, i64, <DB as Database>::Arguments<'a>>,
+        query: QueryScalar<'a, DB, i64, <DB as Database>::Arguments>,
         tags: &HttpTags,
     ) -> Result<u64, HttpError>
     where
@@ -51,7 +51,7 @@ pub trait Repository<DB: Database> {
         &mut self,
         context: &'a AppContext<S>,
         query_name: &'a str,
-        query: QueryScalar<'a, DB, bool, <DB as Database>::Arguments<'a>>,
+        query: QueryScalar<'a, DB, bool, <DB as Database>::Arguments>,
         tags: &HttpTags,
     ) -> Result<bool, HttpError>
     where
@@ -61,7 +61,7 @@ pub trait Repository<DB: Database> {
         &mut self,
         context: &'a AppContext<S>,
         query_name: &'a str,
-        query: Query<'a, Postgres, <Postgres as Database>::Arguments<'a>>,
+        query: Query<'a, Postgres, <Postgres as Database>::Arguments>,
         tags: &HttpTags,
     ) -> Result<(), HttpError>
     where

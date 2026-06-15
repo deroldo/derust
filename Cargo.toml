@@ -31,13 +31,13 @@ serde_json = { version = "1.0.140" }
 thiserror = { version = "2.0.12" }
 
 # Outbox
-outbox-pattern-processor = { version = "0.3.6" }
+outbox-pattern-processor = { version = "0.4.0" }
 
 # Feture toggle / feature flag
 growthbook-rust-sdk = { version = "1.1.0" } # wating for https://github.com/will-bank/growthbook-rust-sdk/pull/5
 
 # SQL
-sqlx = { version = "0.8.6", features = ["json", "chrono", "bigdecimal", "postgres", "uuid", "rust_decimal", "migrate", "runtime-tokio"] }
+sqlx = { version = "0.9.0", features = ["json", "chrono", "bigdecimal", "postgres", "uuid", "rust_decimal", "migrate", "runtime-tokio"] }
 
 # AWS
 aws-sdk-sqs = { version = "1.74.0" }

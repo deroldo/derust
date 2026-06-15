@@ -12,7 +12,7 @@ impl Repository<Postgres> for PgConnection {
         &mut self,
         context: &'a AppContext<S>,
         query_name: &'a str,
-        query: QueryAs<'a, Postgres, T, <Postgres as Database>::Arguments<'a>>,
+        query: QueryAs<'a, Postgres, T, <Postgres as Database>::Arguments>,
         tags: &HttpTags,
     ) -> Result<T, HttpError>
     where
@@ -40,7 +40,7 @@ impl Repository<Postgres> for PgConnection {
         &mut self,
         context: &'a AppContext<S>,
         query_name: &'a str,
-        query: QueryAs<'a, Postgres, T, <Postgres as Database>::Arguments<'a>>,
+        query: QueryAs<'a, Postgres, T, <Postgres as Database>::Arguments>,
         tags: &HttpTags,
     ) -> Result<Option<T>, HttpError>
     where
@@ -68,7 +68,7 @@ impl Repository<Postgres> for PgConnection {
         &mut self,
         context: &'a AppContext<S>,
         query_name: &'a str,
-        query: QueryAs<'a, Postgres, T, <Postgres as Database>::Arguments<'a>>,
+        query: QueryAs<'a, Postgres, T, <Postgres as Database>::Arguments>,
         tags: &HttpTags,
     ) -> Result<Vec<T>, HttpError>
     where
@@ -96,7 +96,7 @@ impl Repository<Postgres> for PgConnection {
         &mut self,
         context: &'a AppContext<S>,
         query_name: &'a str,
-        query: QueryScalar<'a, Postgres, i64, <Postgres as Database>::Arguments<'a>>,
+        query: QueryScalar<'a, Postgres, i64, <Postgres as Database>::Arguments>,
         tags: &HttpTags,
     ) -> Result<u64, HttpError>
     where
@@ -123,7 +123,7 @@ impl Repository<Postgres> for PgConnection {
         &mut self,
         context: &'a AppContext<S>,
         query_name: &'a str,
-        query: QueryScalar<'a, Postgres, bool, <Postgres as Database>::Arguments<'a>>,
+        query: QueryScalar<'a, Postgres, bool, <Postgres as Database>::Arguments>,
         tags: &HttpTags,
     ) -> Result<bool, HttpError>
     where
@@ -150,7 +150,7 @@ impl Repository<Postgres> for PgConnection {
         &mut self,
         context: &'a AppContext<S>,
         query_name: &'a str,
-        query: Query<'a, Postgres, <Postgres as Database>::Arguments<'a>>,
+        query: Query<'a, Postgres, <Postgres as Database>::Arguments>,
         tags: &HttpTags,
     ) -> Result<(), HttpError>
     where
