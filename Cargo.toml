@@ -33,6 +33,11 @@ thiserror = { version = "2.0.12" }
 # Outbox
 outbox-pattern-processor = { version = "0.4.0" }
 
+# Auth / JWT
+protect-endpoints-core = { version = "0.2.0" }
+jsonwebtoken = { version = "10.4.0" }
+tower = { version = "0.5.2" }
+
 # Feture toggle / feature flag
 growthbook-rust-sdk = { version = "1.1.0" } # wating for https://github.com/will-bank/growthbook-rust-sdk/pull/5
 

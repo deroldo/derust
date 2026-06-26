@@ -1,6 +1,17 @@
 mod axum;
+mod auth_extractor;
 mod config;
 mod context;
+
+pub mod protect_endpoints_core {
+    pub use ::protect_endpoints_core::*;
+    pub use jsonwebtoken::{Algorithm, DecodingKey, Validation};
+    pub use super::auth_extractor::AuthoritiesExtractor;
+
+    pub trait AuthoritiesClaims {
+        fn roles(&self) -> Vec<String>;
+    }
+}
 
 pub(crate) mod extension;
 mod middlewares;

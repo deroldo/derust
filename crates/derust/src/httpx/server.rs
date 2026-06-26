@@ -13,6 +13,9 @@ use crate::outboxx;
 #[cfg(feature = "outbox")]
 use outbox_pattern_processor::outbox_resources::OutboxProcessorResources;
 
+#[cfg(feature = "sqs")]
+use crate::awsx::sqsx::SqsQueueConsumer;
+
 pub async fn start<T>(
     port: u16,
     context: AppContext<T>,
@@ -21,6 +24,7 @@ pub async fn start<T>(
     #[cfg(feature = "outbox")] outbox_processor_resources: OutboxProcessorResources,
     #[cfg(feature = "outbox")] outbox_metrics_monitor_enabled: bool,
     #[cfg(feature = "outbox")] outbox_metrics_monitor_interval_in_secs: Option<u64>,
+    #[cfg(feature = "sqs")] sqs_consumers: Vec<SqsQueueConsumer<T>>,
 ) -> Result<(), Box<dyn std::error::Error>>
 where
     T: Clone + Send + Sync + 'static,
@@ -31,6 +35,9 @@ where
 
     #[cfg(feature = "outbox")]
     tokio::spawn(outboxx::run(wg.add(1), context.clone(), outbox_processor_resources, outbox_metrics_monitor_enabled, outbox_metrics_monitor_interval_in_secs));
+
+    #[cfg(feature = "sqs")]
+    tokio::spawn(crate::awsx::sqsx::run(wg.add(1), context.clone(), sqs_consumers));
 
     wg.wait();
 

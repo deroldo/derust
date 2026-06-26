@@ -1,6 +1,6 @@
 [package]
 name = "derust"
-version = "0.4.1"
+version = "0.4.3"
 edition = "2021"
 authors = ["Deroldo <diogoderoldo@gmail.com>"]
 license = "MIT"
@@ -43,6 +43,9 @@ http_server = [
     "dep:openssl",
     "dep:flate2",
     "dep:tower-layer",
+    "dep:protect-endpoints-core",
+    "dep:jsonwebtoken",
+    "dep:tower",
 ]
 http_client = [
     "dep:reqwest",
@@ -68,6 +71,10 @@ postgres = [
 outbox = [
     "dep:outbox-pattern-processor",
     "dep:sqlx",
+    "dep:wg",
+]
+sqs = [
+    "aws",
     "dep:wg",
 ]
 statsd = [
@@ -122,6 +129,11 @@ thiserror = { workspace = true, optional = true }
 
 # Outbox
 outbox-pattern-processor = { workspace = true, optional = true }
+
+# Auth / JWT
+protect-endpoints-core = { workspace = true, optional = true }
+jsonwebtoken = { workspace = true, optional = true }
+tower = { workspace = true, optional = true }
 
 # Feture toggle / feature flag
 growthbook-rust-sdk = { workspace = true, optional = true }

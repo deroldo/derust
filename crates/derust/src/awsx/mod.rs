@@ -2,6 +2,9 @@ mod secrets_manager;
 mod sns;
 mod sqs;
 
+#[cfg(feature = "sqs")]
+pub mod sqsx;
+
 pub use secrets_manager::*;
 pub use sns::*;
 pub use sqs::*;

@@ -9,7 +9,7 @@
 # ...
 
 [dependencies]
-derust = { version = "0.2.1", features = ["http_client"] } 
+derust = { version = "<last-version>", features = ["http_client"] } 
 
 # ...
 ```

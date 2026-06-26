@@ -20,7 +20,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-derust = { version = "0.3.13" }
+derust = { version = "<last-version>" }
 
 tokio = { version = "1.43.0", features = ["full"] }
 axum = { version = "0.8.1", default-features = true, features = ["macros", "tokio"] }
@@ -100,7 +100,7 @@ async fn handler(
 
 Active `start_test` feature
 ```toml
-derust = { version = "0.3.13", features = ["start_test"] }
+derust = { version = "<last-version>", features = ["start_test"] }
 ```
 
 And then:
@@ -124,6 +124,84 @@ let listener = TcpListener::bind("127.0.0.1:0").await.unwrap();
 
 start_test(context, router, listener).await
 ```
+
+## JWT Authentication
+
+JWT protection for routes is available out of the box via [`protect-endpoints-core`](https://crates.io/crates/protect-endpoints-core) (re-exported as `derust::httpx::protect_endpoints_core`) and [`protect-axum`](https://crates.io/crates/protect-axum).
+
+```toml
+# Cargo.toml
+[dependencies]
+derust = { version = "<last-version>" }
+protect-axum = { version = "0.2.0" }
+jsonwebtoken = { version = "10.4.0", features = ["rust_crypto"] }
+```
+
+```rust
+// Define your claims struct and implement AuthoritiesClaims to expose roles
+use derust::httpx::protect_endpoints_core::AuthoritiesClaims;
+use serde::{Deserialize, Serialize};
+
+#[derive(Serialize, Deserialize, Clone)]
+pub struct AccessClaims {
+    pub sub: uuid::Uuid,
+    pub exp: i64,
+    // ...any other fields
+}
+
+impl AuthoritiesClaims for AccessClaims {
+    fn roles(&self) -> Vec<String> {
+        vec!["USER".to_string()]
+    }
+}
+```
+
+```rust
+// Configure protected routes in your router
+use derust::httpx::protect_endpoints_core::{Algorithm, AuthoritiesExtractor, DecodingKey, Validation};
+use protect_axum::GrantsLayer;
+
+let mut validation = Validation::new(Algorithm::ES256);
+validation.set_audience(&["my-service"]);
+
+let protected = Router::new()
+    .route("/me", get(me_handler))
+    // Layer 2: role-based access control (optional)
+    .layer(GrantsLayer::with_extractor(
+        AuthoritiesExtractor::<AccessClaims>::grants_extractor,
+    ))
+    // Layer 1: JWT validation and claims extraction
+    .layer(AuthoritiesExtractor::<AccessClaims>::new(decoding_key, validation));
+```
+
+```rust
+// Access claims in your handler via axum Extension
+use axum::Extension;
+
+async fn me_handler(
+    State(context): State<AppContext<AppState>>,
+    Extension(claims): Extension<AccessClaims>,
+) -> Result<JsonResponse<ResponseBody>, HttpError> {
+    let user_id = claims.sub;
+    // ...
+}
+```
+
+```rust
+// Restrict a handler to a specific role using the protect macro
+use protect_axum::GrantsLayer;
+
+#[protect_axum::protect(any("ADMIN"))]
+async fn admin_handler(
+    State(context): State<AppContext<AppState>>,
+    Extension(claims): Extension<AccessClaims>,
+) -> Result<JsonResponse<ResponseBody>, HttpError> {
+    // only reachable when the token carries the "ADMIN" role
+    // ...
+}
+```
+
+The `AuthoritiesExtractor` layer reads the `Authorization: Bearer <token>` header, validates the JWT signature and expiration, and inserts the deserialized claims into the request as an Axum `Extension<T>`. If validation fails, it returns `401 Unauthorized`. The `GrantsLayer` attaches the roles returned by `AuthoritiesClaims::roles()` so that `#[protect_axum::protect(any(...))]` can enforce them per handler.
 
 ## Features
 
