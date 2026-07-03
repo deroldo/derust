@@ -174,6 +174,63 @@ let protected = Router::new()
     .layer(AuthoritiesExtractor::<AccessClaims>::new(decoding_key, validation));
 ```
 
+### Multiple keys (`kid`-based selection)
+
+To validate tokens signed by different keys, build a `JwtKeystore` mapping each JWT `kid` header to its decoding key. The key is selected by the token's `kid` before signature validation — keys are never tried in sequence:
+
+```rust
+use derust::httpx::protect_endpoints_core::{AuthoritiesExtractor, DecodingKey, JwtKeystore};
+
+let keystore = JwtKeystore::new([
+    ("key-2024".to_string(), DecodingKey::from_ec_pem(old_pem)?),
+    ("key-2025".to_string(), DecodingKey::from_ec_pem(new_pem)?),
+]);
+
+let protected = Router::new()
+    .route("/me", get(me_handler))
+    .layer(AuthoritiesExtractor::<AccessClaims>::with_keystore(keystore, validation));
+```
+
+With a multi-key keystore, a token without a `kid` header or with an unknown `kid` is rejected. The single-key constructor `AuthoritiesExtractor::new` is equivalent to `JwtKeystore::single(key)`: the key is the explicit default and validates every token, with or without `kid`.
+
+For migrations where already-issued tokens carry no `kid` header, `JwtKeystore::with_fallback(keys, fallback)` keeps the `kid`-based selection but validates tokens **without** a `kid` against the fallback key. Tokens with an unknown `kid` are still rejected — the fallback only applies to the missing-`kid` case:
+
+```rust
+let keystore = JwtKeystore::with_fallback(
+    [("key-2025".to_string(), DecodingKey::from_ec_pem(new_pem)?)],
+    DecodingKey::from_ec_pem(legacy_pem)?, // validates legacy tokens without kid
+);
+```
+
+Authentication failures are distinguished for debugging — missing `kid`, unknown `kid`, and invalid signature/expired token are logged as distinct `JwtAuthError` variants (and inserted into the request extensions) — but all of them result in `401 Unauthorized` at the HTTP layer.
+
+Keys can also be declared through configuration (env vars or AWS Secrets Manager, via `load_app_config`). The map key is a free label; the token `kid` is matched against the `kid` field:
+
+```bash
+APP__JWT__KEYS__K2024__KID=key-2024
+APP__JWT__KEYS__K2024__FORMAT=ec_pem      # secret | base64_secret | rsa_pem | ec_pem | ed_pem
+APP__JWT__KEYS__K2024__KEY="-----BEGIN PUBLIC KEY-----..."
+APP__JWT__KEYS__K2025__KID=key-2025
+APP__JWT__KEYS__K2025__FORMAT=ec_pem
+APP__JWT__KEYS__K2025__KEY="-----BEGIN PUBLIC KEY-----..."
+APP__JWT__KEYS__K2024__FALLBACK=true      # optional: at most one key; also validates tokens without kid
+```
+
+```rust
+use derust::httpx::protect_endpoints_core::{JwtKeystore, JwtKeystoreConfig};
+use serde::Deserialize;
+
+#[derive(Deserialize)]
+struct AppConfig {
+    jwt: JwtKeystoreConfig,
+}
+
+let config: AppConfig = load_app_config(environment, Some("APP")).await?;
+let keystore = JwtKeystore::from_config(&config.jwt)?;
+```
+
+Multiple keys enable **zero-downtime key rotation**: start signing new tokens with a new `kid` while keeping the old key in the keystore, wait until all tokens signed with the old key have expired, then remove the old entry.
+
 ```rust
 // Access claims in your handler via axum Extension
 use axum::Extension;
@@ -201,7 +258,7 @@ async fn admin_handler(
 }
 ```
 
-The `AuthoritiesExtractor` layer reads the `Authorization: Bearer <token>` header, validates the JWT signature and expiration, and inserts the deserialized claims into the request as an Axum `Extension<T>`. If validation fails, it returns `401 Unauthorized`. The `GrantsLayer` attaches the roles returned by `AuthoritiesClaims::roles()` so that `#[protect_axum::protect(any(...))]` can enforce them per handler.
+The `AuthoritiesExtractor` layer reads the `Authorization: Bearer <token>` header, selects the decoding key (by `kid` when using a keystore), validates the JWT signature and expiration, and inserts the deserialized claims into the request as an Axum `Extension<T>`. If validation fails, it returns `401 Unauthorized`. The `GrantsLayer` attaches the roles returned by `AuthoritiesClaims::roles()` so that `#[protect_axum::protect(any(...))]` can enforce them per handler.
 
 ## Features
 

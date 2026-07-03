@@ -1,12 +1,15 @@
-mod axum;
 mod auth_extractor;
+mod axum;
 mod config;
 mod context;
 
 pub mod protect_endpoints_core {
+    pub use super::auth_extractor::{
+        AuthoritiesExtractor, JwtAuthError, JwtKeyConfig, JwtKeyFormat, JwtKeystore,
+        JwtKeystoreConfig, JwtKeystoreConfigError,
+    };
     pub use ::protect_endpoints_core::*;
     pub use jsonwebtoken::{Algorithm, DecodingKey, Validation};
-    pub use super::auth_extractor::AuthoritiesExtractor;
 
     pub trait AuthoritiesClaims {
         fn roles(&self) -> Vec<String>;
@@ -18,8 +21,8 @@ mod middlewares;
 
 mod health;
 
-mod response;
 mod request;
+mod response;
 mod server;
 mod tags;
 
@@ -32,8 +35,8 @@ pub use growthbook_rust_sdk::client::*;
 pub use config::*;
 pub use context::*;
 pub use error::*;
-pub use response::*;
-pub use response::json::*;
 pub use request::json_request::*;
+pub use response::json::*;
+pub use response::*;
 pub use server::*;
 pub use tags::*;

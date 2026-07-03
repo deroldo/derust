@@ -1,6 +1,6 @@
 [package]
 name = "derust"
-version = "0.4.3"
+version = "0.4.4"
 edition = "2021"
 authors = ["Deroldo <diogoderoldo@gmail.com>"]
 license = "MIT"
@@ -174,3 +174,8 @@ dotenv = { workspace = true, optional = true }
 config = { workspace = true, optional = true }
 openssl = { workspace = true, features = ["vendored"], optional = true }
 flate2 = { workspace = true, optional = true }
+
+[dev-dependencies]
+# jsonwebtoken needs a crypto provider to sign/verify tokens in tests;
+# the library itself stays provider-neutral so applications pick their own
+jsonwebtoken = { workspace = true, features = ["rust_crypto"] }
