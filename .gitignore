@@ -3,6 +3,8 @@
 /target
 /.idea
 
+.mcp.json
+
 /examples/**/target
 /examples/**/*.lock
 /examples/**/docker/**/volume

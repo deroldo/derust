@@ -95,6 +95,13 @@ async fn handler(
 | env                      | default | description                                                                                                                          |
 |--------------------------|---------|--------------------------------------------------------------------------------------------------------------------------------------|
 | SERVER_TIMEOUT_IN_MILLIS | 10000   | Maximum time in milliseconds that the server will try to respond to a request before returning a timeout error (408 Request Timeout) |
+| DERUST_OTEL_DEBUG        | false   | When set to `true`, adds `otel=debug` to the tracing filter to help diagnose OTLP exporter setup issues. Keep this off in production: `init_tracing_opentelemetry`'s debug logging dumps all `OTEL_*` env vars (including secrets such as `OTEL_EXPORTER_OTLP_HEADERS`) at the `debug` level. |
+
+By default, `derust` respects the `RUST_LOG` (or, if unset, `OTEL_LOG_LEVEL`) env var already defined by the host application, appending only the fixed, non-sensitive filters `derust=info`, `tower_http::trace=off` and `otel::tracing=trace`. It does **not** force `otel=debug` unless `DERUST_OTEL_DEBUG=true` is explicitly set, since that level can leak secrets configured via `OTEL_*` env vars (e.g. `OTEL_EXPORTER_OTLP_HEADERS` carrying an API key/Authorization header) into your logs.
+
+### OTLP HTTP exporter (`OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf`)
+
+`derust` builds its OTLP span exporter on top of `opentelemetry-otlp`'s blocking `reqwest` client (feature `reqwest-blocking-client`), the same client that `init-tracing-opentelemetry`'s `otlp` feature already pulls in. This is a fixed, internal implementation detail with no additional configuration required, but it is worth documenting because getting it wrong previously broke the HTTP exporter at **runtime**: `opentelemetry-otlp` requires exactly one HTTP client feature (`reqwest-client`, `reqwest-blocking-client` or `hyper-client`) to be enabled, and Cargo unifies dependency features across the whole build, so declaring `reqwest-client` directly (as `derust` used to) while `init-tracing-opentelemetry` also enables `reqwest-blocking-client` left both enabled at once — which `opentelemetry-otlp` treats as "no client selected", failing with `ExporterBuildError(NoHttpClient)` only once an app actually set `OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf`. If you vendor or override these dependencies' features in your own `Cargo.toml`, make sure only one `reqwest*`/`hyper-client` feature of `opentelemetry-otlp` ends up enabled — you can check with `cargo tree -e features -i opentelemetry-otlp`.
 
 ## Tests
 
