@@ -1,7 +1,7 @@
 # derust - growthbook
 
-Este módulo re-exporta diretamente a API pública da crate
-[`growthbook-rust-sdk`](https://crates.io/crates/growthbook-rust-sdk) (versão fixada em
+Este módulo re-exporta diretamente a API pública da crate oficial
+[`growthbook-rust`](https://crates.io/crates/growthbook-rust) (versão fixada em
 `crates/derust/Cargo.toml`). O derust não adiciona nenhuma camada própria de
 configuração, cliente ou tratamento de erro sobre o GrowthBook — use os tipos e
 funções nativos da SDK diretamente através de `derust::growthbookx`.
@@ -44,7 +44,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     };
 
     // required to access growthbook admin dashboard to create the sdk-key: http://localhost:3000
-    // API 100% nativa da growthbook-rust-sdk: sem casca própria do derust.
+    // API 100% nativa da growthbook-rust (SDK oficial): sem casca própria do derust.
     let growthbook = GrowthBookClient::new(
         "http://localhost:3100",
         "sdk-key",
@@ -108,9 +108,20 @@ A partir da versão `0.5.0`, `derust::growthbookx` não expõe mais `GrowthBookC
 - `GrowthBookClient::new(api_url, sdk_key, update_interval, http_timeout)` no lugar de
   `growthbookx::initialize(&GrowthBookConfig { .. })`.
 - `GrowthBookAttribute::from(value)` no lugar de `growth_book_attributes(value, &tags)`
-  — note que o tipo de erro retornado agora é `growthbook_rust_sdk::error::GrowthbookError`
+  — note que o tipo de erro retornado agora é `growthbook_rust::error::GrowthbookError`
   (também re-exportado por `derust::growthbookx::GrowthbookError`), não mais
   `derust::httpx::HttpError`. Se você usava esse erro diretamente em um handler HTTP,
   converta-o manualmente para `HttpError` (veja o exemplo acima).
 - `derust::httpx::GrowthBookClientTrait` também deixou de existir — importe de
   `derust::growthbookx::GrowthBookClientTrait`.
+
+Ainda dentro da `0.5.0`, a dependência interna troca da crate não-oficial
+[`growthbook-rust-sdk`](https://crates.io/crates/growthbook-rust-sdk)
+(`will-bank/growthbook-rust-sdk`) para a crate **oficial**
+[`growthbook-rust`](https://crates.io/crates/growthbook-rust)
+(`growthbook/growthbook-rust`). A API pública exposta por `derust::growthbookx`
+permanece com os mesmos nomes e assinaturas (`GrowthBookClient::new(...)`,
+`GrowthBookClientTrait`, `GrowthBookAttribute::from(...)`, `GrowthbookError`, etc.),
+mas os tipos concretos agora vêm da crate oficial — se você importava algo diretamente
+de `growthbook_rust_sdk::*` (fora do re-export de `derust::growthbookx`), troque para
+`growthbook_rust::*` ou, preferencialmente, use sempre `derust::growthbookx::*`.

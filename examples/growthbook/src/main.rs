@@ -26,7 +26,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     };
 
     // required to access growthbook admin dashboard to create the sdk-key: http://localhost:3000
-    // API 100% nativa da growthbook-rust-sdk: sem casca própria do derust.
+    // API 100% nativa da growthbook-rust (SDK oficial): sem casca própria do derust.
     let growthbook = GrowthBookClient::new(
         "http://localhost:3100",
         // change it with your created sdk-key

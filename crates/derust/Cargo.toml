@@ -100,7 +100,7 @@ prometheus = [
     "dep:hyper",
 ]
 growthbook = [
-    "dep:growthbook-rust-sdk"
+    "dep:growthbook-rust"
 ]
 start_test = [
 ]
@@ -136,7 +136,7 @@ jsonwebtoken = { workspace = true, optional = true }
 tower = { workspace = true, optional = true }
 
 # Feture toggle / feature flag
-growthbook-rust-sdk = { workspace = true, optional = true }
+growthbook-rust = { workspace = true, optional = true }
 
 # SQL
 sqlx = { workspace = true, features = ["json", "chrono", "postgres", "uuid", "runtime-tokio"], optional = true }

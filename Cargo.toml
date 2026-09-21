@@ -39,7 +39,7 @@ jsonwebtoken = { version = "10.4.0" }
 tower = { version = "0.5.2" }
 
 # Feture toggle / feature flag
-growthbook-rust-sdk = { version = "1.1.0" } # wating for https://github.com/will-bank/growthbook-rust-sdk/pull/5
+growthbook-rust = { version = "0.2.2" } # official growthbook-rust SDK (github.com/growthbook/growthbook-rust)
 
 # SQL
 sqlx = { version = "0.9.0", features = ["json", "chrono", "bigdecimal", "postgres", "uuid", "rust_decimal", "migrate", "runtime-tokio"] }
