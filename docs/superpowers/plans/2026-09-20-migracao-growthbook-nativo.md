@@ -584,7 +584,7 @@ git commit -m "docs(growthbookx): document native SDK usage and breaking change"
 **Contexto:** Ver "Global Constraints" acima para a justificativa do bump para
 `0.5.0` (não `1.0.0`) dado o versionamento pre-1.0 já em uso pelo projeto.
 
-- [ ] **Step 1: Atualizar a versão no Cargo.toml do crate**
+- [x] **Step 1: Atualizar a versão no Cargo.toml do crate**
 
 Em `crates/derust/Cargo.toml`, altere:
 
@@ -598,29 +598,29 @@ para:
 version = "0.5.0"
 ```
 
-- [ ] **Step 2: Rodar a suíte completa de testes do crate com a feature `growthbook`**
+- [x] **Step 2: Rodar a suíte completa de testes do crate com a feature `growthbook`**
 
 Rode: `cargo nextest run --features growthbook` (a partir de `crates/derust`, ou
 `cargo nextest run -p derust --features growthbook` a partir da raiz do workspace)
 Esperado: todos os testes passam, 0 falhas.
 
-- [ ] **Step 3: Rodar a suíte completa de testes com o conjunto default de features (sem `growthbook`) para garantir que nada quebrou fora da feature**
+- [x] **Step 3: Rodar a suíte completa de testes com o conjunto default de features (sem `growthbook`) para garantir que nada quebrou fora da feature**
 
 Rode: `task test` (equivalente a `cargo nextest run`)
 Esperado: todos os testes passam, 0 falhas.
 
-- [ ] **Step 4: Rodar lint completo do workspace**
+- [x] **Step 4: Rodar lint completo do workspace**
 
 Rode: `task lint` (equivalente a `cargo fmt --all -- --check && cargo clippy -- -D warnings`)
 Esperado: sem erros. Rode também `cargo clippy --features growthbook -- -D warnings`
 para cobrir a feature opcional.
 
-- [ ] **Step 5: Build do exemplo `growthbook` (checagem final de ponta a ponta)**
+- [x] **Step 5: Build do exemplo `growthbook` (checagem final de ponta a ponta)**
 
 Rode: `cd examples/growthbook && cargo build`
 Esperado: build sem erros.
 
-- [ ] **Step 6: Confirmar critérios de sucesso do plano de negócio, um a um**
+- [x] **Step 6: Confirmar critérios de sucesso do plano de negócio, um a um**
 
 Rode cada verificação e confirme o resultado esperado antes de prosseguir:
 
@@ -634,12 +634,36 @@ grep -n "version" crates/derust/Cargo.toml | head -1
 ```
 Esperado: `version = "0.5.0"`.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add crates/derust/Cargo.toml
 git commit -m "chore: bump derust version to 0.5.0 (breaking change: native growthbook API)"
 ```
+
+**Nota de execução (fase de Implementação, 2026-09-20):** `task lint`
+(`cargo fmt --all -- --check && cargo clippy -- -D warnings`) falha hoje na branch
+`migracao_growthbook_nativo`, mas por débito **pré-existente e não relacionado a
+GrowthBook** — confirmado comparando com o estado da branch antes de qualquer commit
+deste plano (stash temporário aplicado e removido durante a verificação, sem impacto
+no histórico): diffs de `cargo fmt` em `awsx/sqsx/*`, `databasex/postgresx/*`,
+`http_clientx/client.rs`, `httpx/health.rs`, `httpx/server.rs`, `httpx/request/mod.rs`,
+`metricx/meters/*`, `outboxx/*`; e erros de `cargo clippy -D warnings` em
+`httpx/health.rs`, `httpx/middlewares/log.rs`, `httpx/response/error.rs`,
+`envx/loader.rs`, entre outros. Nenhum desses arquivos foi tocado por este plano.
+`crates/derust/src/growthbookx/mod.rs` e `crates/derust/src/httpx/mod.rs` (os únicos
+arquivos de código editados por este plano) não aparecem em nenhum desses diffs/erros —
+confirmado isoladamente com `cargo fmt --all -- --check` e
+`cargo clippy --features growthbook -- -D warnings` filtrando pela saída. O único
+clippy-erro-como-warning tocando um arquivo editado por este plano
+(`examples/growthbook/src/main.rs`) é o uso deprecated de `rand::thread_rng`/`gen_range`,
+que já existia idêntico no arquivo antes desta migração (não foi introduzido pela
+Task 3). Respeitando a Global Constraint "Não tocar em nenhuma outra feature do derust
+não relacionada a GrowthBook", esses itens de débito técnico pré-existente não foram
+corrigidos aqui — ficam registrados para decisão de quem revisar (corrigir em PR
+separado ou aceitar como débito conhecido). `cargo nextest run` (com e sem `--features
+growthbook`) passa 100% (26/26 testes); build do crate e do exemplo `examples/growthbook`
+passam sem erros (apenas warnings pré-existentes/deprecations do crate `rand`).
 
 ---
 
