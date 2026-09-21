@@ -1,5 +1,11 @@
 # derust - growthbook
 
+Este módulo re-exporta diretamente a API pública da crate
+[`growthbook-rust-sdk`](https://crates.io/crates/growthbook-rust-sdk) (versão fixada em
+`crates/derust/Cargo.toml`). O derust não adiciona nenhuma camada própria de
+configuração, cliente ou tratamento de erro sobre o GrowthBook — use os tipos e
+funções nativos da SDK diretamente através de `derust::growthbookx`.
+
 ## [Example](https://github.com/deroldo/derust/tree/main/examples/growthbook)
 
 ```toml
@@ -18,8 +24,7 @@ derust = { version = "<last-version>", features = ["growthbook"] }
 // main.rs
 
 // ...
-use derust::growthbookx;
-use derust::growthbookx::{growth_book_attributes, GrowthBookConfig};
+use derust::growthbookx::{GrowthBookAttribute, GrowthBookClient, GrowthBookClientTrait};
 // ...
 
 #[derive(Clone)]
@@ -39,21 +44,23 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     };
 
     // required to access growthbook admin dashboard to create the sdk-key: http://localhost:3000
-    let gb_config = GrowthBookConfig {
-        growth_book_url: "http://localhost:3100".to_string(),
-        sdk_key: "sdk-key".to_string(),
-        update_interval: None,
-        http_timeout: None,
-    };
-    let growthbook = growthbookx::initialize(&gb_config).await?;
+    // API 100% nativa da growthbook-rust-sdk: sem casca própria do derust.
+    let growthbook = GrowthBookClient::new(
+        "http://localhost:3100",
+        "sdk-key",
+        None, // update_interval
+        None, // http_timeout
+    )
+    .await
+    .map_err(|error| Box::new(error) as Box<dyn std::error::Error>)?;
 
     let application_name = "sample";
 
     // easy way to get application context things, like your application state struct
     let context = AppContext::new(application_name, env, growthbook, app_state)?;
 
-    // start as the basic 
-    // ... 
+    // start as the basic
+    // ...
 }
 ```
 
@@ -67,10 +74,19 @@ async fn handler(
 
     let pair = rand::thread_rng().gen_range(0..100) % 2 == 0;
 
-    // creating growhtbook attributes to match conditions
-    let attrs = growth_book_attributes(json!({
+    // creating growthbook attributes directly from the SDK's native API.
+    // note: `GrowthBookAttribute::from` returns the SDK's own `GrowthbookError`, not
+    // derust's `HttpError` — convert it explicitly where needed, as shown below.
+    let attrs = GrowthBookAttribute::from(json!({
         "pair": pair,
-    }), &tags)?;
+    }))
+    .map_err(|error| {
+        HttpError::without_body(
+            StatusCode::INTERNAL_SERVER_ERROR,
+            format!("Failed to parse growth book attributes: {error}"),
+            tags.clone(),
+        )
+    })?;
 
     // boolean condition
     // can you also get `feature_result` and parse to String or your struct type
@@ -83,3 +99,18 @@ async fn handler(
     // ...
 }
 ```
+
+## Breaking change (v0.5.0)
+
+A partir da versão `0.5.0`, `derust::growthbookx` não expõe mais `GrowthBookConfig`,
+`growthbookx::initialize()` nem `growth_book_attributes()`. Use diretamente:
+
+- `GrowthBookClient::new(api_url, sdk_key, update_interval, http_timeout)` no lugar de
+  `growthbookx::initialize(&GrowthBookConfig { .. })`.
+- `GrowthBookAttribute::from(value)` no lugar de `growth_book_attributes(value, &tags)`
+  — note que o tipo de erro retornado agora é `growthbook_rust_sdk::error::GrowthbookError`
+  (também re-exportado por `derust::growthbookx::GrowthbookError`), não mais
+  `derust::httpx::HttpError`. Se você usava esse erro diretamente em um handler HTTP,
+  converta-o manualmente para `HttpError` (veja o exemplo acima).
+- `derust::httpx::GrowthBookClientTrait` também deixou de existir — importe de
+  `derust::growthbookx::GrowthBookClientTrait`.
