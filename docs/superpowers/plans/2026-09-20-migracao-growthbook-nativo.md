@@ -423,11 +423,11 @@ git commit -m "docs(examples): update growthbook example to native SDK API"
 blocos de código nativos, mantendo a mesma estrutura de seções (Cargo.toml, main.rs,
 handler).
 
-- [ ] **Step 1: Ler o README atual**
+- [x] **Step 1: Ler o README atual**
 
 Rode: `cat crates/derust/src/growthbookx/README.md`
 
-- [ ] **Step 2: Reescrever o README com os blocos de código nativos**
+- [x] **Step 2: Reescrever o README com os blocos de código nativos**
 
 Substitua todo o conteúdo de `crates/derust/src/growthbookx/README.md` por:
 
@@ -550,13 +550,13 @@ A partir da versão `0.5.0`, `derust::growthbookx` não expõe mais `GrowthBookC
   `derust::growthbookx::GrowthBookClientTrait`.
 ````
 
-- [ ] **Step 3: Revisar visualmente o diff**
+- [x] **Step 3: Revisar visualmente o diff**
 
 Rode: `git diff crates/derust/src/growthbookx/README.md`
 Confirme que não sobrou nenhuma referência a `GrowthBookConfig`, `growthbookx::initialize`
 ou `growth_book_attributes` (`grep -n "GrowthBookConfig\|growthbookx::initialize\|growth_book_attributes" crates/derust/src/growthbookx/README.md` deve retornar vazio, exceto na seção "Breaking change" que os menciona apenas como referência histórica).
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add crates/derust/src/growthbookx/README.md
