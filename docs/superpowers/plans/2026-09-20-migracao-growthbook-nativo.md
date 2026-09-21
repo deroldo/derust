@@ -274,13 +274,13 @@ do handler HTTP: antes o erro virava `HttpError` automaticamente via `?` porque
 `growth_book_attributes` já fazia essa tradução; agora o handler precisa converter
 `GrowthbookError` para `HttpError` manualmente, como mostrado no Step 2 abaixo).
 
-- [ ] **Step 1: Ler o arquivo atual completo**
+- [x] **Step 1: Ler o arquivo atual completo**
 
 Rode: `cat examples/growthbook/src/main.rs`
 (referência: conteúdo já lido nesta fase de refinamento, reproduzido abaixo para
 comparação linha a linha durante a edição)
 
-- [ ] **Step 2: Reescrever o arquivo com a API nativa**
+- [x] **Step 2: Reescrever o arquivo com a API nativa**
 
 Substitua todo o conteúdo de `examples/growthbook/src/main.rs` por:
 
@@ -377,7 +377,7 @@ async fn handler(
 }
 ```
 
-- [ ] **Step 3: Compilar o exemplo**
+- [x] **Step 3: Compilar o exemplo**
 
 Rode: `cargo build -p growthbook --manifest-path examples/growthbook/Cargo.toml`
 (confira o nome do pacote em `examples/growthbook/Cargo.toml` com
@@ -385,14 +385,14 @@ Rode: `cargo build -p growthbook --manifest-path examples/growthbook/Cargo.toml`
 não seja `growthbook`)
 Esperado: build sem erros.
 
-- [ ] **Step 4: Rodar lint no exemplo**
+- [x] **Step 4: Rodar lint no exemplo**
 
 Rode: `cargo fmt --all -- --check` (a partir da raiz do workspace principal do exemplo —
 `examples/growthbook` é um crate standalone fora do workspace `derust`, então rode
 `cd examples/growthbook && cargo fmt --all -- --check && cargo clippy -- -D warnings`)
 Esperado: sem erros.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add examples/growthbook/src/main.rs
