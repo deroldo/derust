@@ -207,7 +207,7 @@ arquitetura tomada nesta fase" acima — leia-a antes de implementar esta tarefa
 resumo: `growthbookx` passa a ser o único ponto de entrada público para GrowthBook,
 removendo a duplicidade hoje existente em `httpx::mod.rs`.
 
-- [ ] **Step 1: Localizar e remover o re-export**
+- [x] **Step 1: Localizar e remover o re-export**
 
 Em `crates/derust/src/httpx/mod.rs`, remova estas duas linhas (atualmente por volta da
 linha 32-33):
@@ -224,18 +224,18 @@ público removido aqui e **não deve ser alterado nesta tarefa nem em nenhuma ou
 deste plano — `AppContext::new()` e `AppContext::growth_book()` já usam o tipo nativo e
 não precisam de nenhuma mudança de assinatura.
 
-- [ ] **Step 2: Compilar o crate inteiro com a feature `growthbook`**
+- [x] **Step 2: Compilar o crate inteiro com a feature `growthbook`**
 
 Rode: `cargo build -p derust --features growthbook`
 Esperado: build sem erros (o campo interno de `context.rs` continua resolvendo pois
 importa diretamente da crate `growthbook_rust_sdk`, não do re-export removido).
 
-- [ ] **Step 3: Rodar lint**
+- [x] **Step 3: Rodar lint**
 
 Rode: `cargo fmt --all -- --check && cargo clippy --features growthbook -- -D warnings`
 Esperado: sem erros.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add crates/derust/src/httpx/mod.rs
