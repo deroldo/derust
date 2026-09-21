@@ -2,13 +2,12 @@ use axum::extract::State;
 use axum::http::StatusCode;
 use axum::routing::get;
 use axum::Router;
+use derust::envx::Environment;
+use derust::growthbookx::{GrowthBookAttribute, GrowthBookClient, GrowthBookClientTrait};
+use derust::httpx::json::JsonResponse;
+use derust::httpx::{start, AppContext, HttpError, HttpTags};
 use rand::Rng;
 use serde_json::json;
-use derust::envx::Environment;
-use derust::growthbookx;
-use derust::growthbookx::{growth_book_attributes, GrowthBookConfig};
-use derust::httpx::json::JsonResponse;
-use derust::httpx::{start, AppContext, GrowthBookClientTrait, HttpError, HttpTags};
 
 #[derive(Clone)]
 pub struct AppState {
@@ -27,14 +26,16 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     };
 
     // required to access growthbook admin dashboard to create the sdk-key: http://localhost:3000
-    let gb_config = GrowthBookConfig {
-        growth_book_url: "http://localhost:3100".to_string(),
+    // API 100% nativa da growthbook-rust-sdk: sem casca própria do derust.
+    let growthbook = GrowthBookClient::new(
+        "http://localhost:3100",
         // change it with your created sdk-key
-        sdk_key: "sdk-key".to_string(),
-        update_interval: None,
-        http_timeout: None,
-    };
-    let growthbook = growthbookx::initialize(&gb_config).await?;
+        "sdk-key",
+        None, // update_interval
+        None, // http_timeout
+    )
+    .await
+    .map_err(|error| Box::new(error) as Box<dyn std::error::Error>)?;
 
     let application_name = "sample";
 
@@ -46,7 +47,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // automatic health-check route
     // automatic route response status code log
-    start(port, context, router).await
+    start(port, context, router, false).await
 }
 
 #[derive(serde::Serialize)]
@@ -61,10 +62,17 @@ async fn handler(
 
     let pair = rand::thread_rng().gen_range(0..100) % 2 == 0;
 
-    // creating growhtbook attributes to match conditions
-    let attrs = growth_book_attributes(json!({
+    // creating growthbook attributes to match conditions, direto da SDK nativa
+    let attrs = GrowthBookAttribute::from(json!({
         "pair": pair,
-    }), &tags)?;
+    }))
+    .map_err(|error| {
+        HttpError::without_body(
+            StatusCode::INTERNAL_SERVER_ERROR,
+            format!("Failed to parse growth book attributes: {error}"),
+            tags.clone(),
+        )
+    })?;
 
     // boolean condition
     // can you also get `feature_result` and parse to String or your struct type
