@@ -136,7 +136,7 @@ conceitos da SDK. O objetivo desta tarefa é eliminar essa casca por completo e 
 o módulo apenas re-exportando os tipos nativos necessários, sem nenhuma lógica ou
 tradução de erro proprietária do derust.
 
-- [ ] **Step 1: Ler o arquivo atual para confirmar o estado antes de editar**
+- [x] **Step 1: Ler o arquivo atual para confirmar o estado antes de editar**
 
 Rode: `cat crates/derust/src/growthbookx/mod.rs`
 
@@ -144,7 +144,7 @@ Confirme que ele contém exatamente `GrowthBookConfig`, `initialize()` e
 `growth_book_attributes()` como descrito acima (se o conteúdo divergir, pare e avalie
 antes de prosseguir — pode indicar que outra tarefa já alterou o arquivo).
 
-- [ ] **Step 2: Substituir o conteúdo do arquivo por re-exports puros**
+- [x] **Step 2: Substituir o conteúdo do arquivo por re-exports puros**
 
 Escreva `crates/derust/src/growthbookx/mod.rs` com exatamente este conteúdo:
 
@@ -161,7 +161,7 @@ pub use growthbook_rust_sdk::model_public::{
 };
 ```
 
-- [ ] **Step 3: Compilar com a feature `growthbook` para validar que não há erro de import**
+- [x] **Step 3: Compilar com a feature `growthbook` para validar que não há erro de import**
 
 Rode: `cargo build -p derust --features growthbook`
 Esperado: build sem erros. Se houver erro de item não encontrado (ex: nome de tipo
@@ -170,12 +170,12 @@ SDK (você pode inspecionar o código-fonte baixado em
 `~/.cargo/registry/src/*/growthbook-rust-sdk-1.1.0/src/{client,model_public,error}.rs`
 para confirmar os nomes exatos).
 
-- [ ] **Step 4: Rodar lint**
+- [x] **Step 4: Rodar lint**
 
 Rode: `cargo fmt --all -- --check && cargo clippy --features growthbook -- -D warnings`
 Esperado: sem erros. Se `cargo fmt` reclamar, rode `cargo fmt --all` e reveja o diff.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add crates/derust/src/growthbookx/mod.rs
