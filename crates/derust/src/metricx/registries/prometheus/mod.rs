@@ -12,9 +12,13 @@ pub fn prometheus_registry() -> Result<PrometheusHandle, Box<dyn std::error::Err
         .set_buckets(&crate::metricx::HISTOGRAM_BUCKET_BOUNDARIES)
         .map_err(|error| Box::new(error))?;
 
-    let handler = builder
-        .install_recorder()
-        .map_err(|error| Box::new(error))?;
+    let recorder = builder.build_recorder();
+    let handle = recorder.handle();
 
-    Ok(handler)
+    metrics::set_global_recorder(crate::metricx::otel_bridge::OtelBridgingRecorder::new(
+        recorder,
+    ))
+    .map_err(|error| Box::new(error))?;
+
+    Ok(handle)
 }
