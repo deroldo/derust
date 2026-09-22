@@ -68,14 +68,20 @@ This does **not** replace `metricx`'s `GET /metrics` (Prometheus) or StatsD push
 those keep working exactly as before, independently. You can enable OTLP push, the
 existing pull/StatsD path, both, or neither.
 
-**Important:** metrics instrumented today via the `metrics` crate (the macros used
-internally by `metricx`, e.g. `counter!`/`histogram!`) are **not** automatically
-forwarded to the OTLP `MeterProvider` — there is no maintained bridge between the
-`metrics` crate and `opentelemetry::metrics` today. If you need custom metrics pushed
-via OTLP, instrument them directly with the `opentelemetry::metrics` API (via
-`opentelemetry::global::meter(...)`, after `tracex::init()` has run) — this means
-double instrumentation if you also want the same metric on the Prometheus/StatsD path.
-This is a known, documented limitation, not a bug.
+**Metrics bridge:** every metric instrumented via `metricx` (`increment`,
+`increment_one`, `current_gauge`, `record_money`, `record_duration`,
+`start_stopwatch`, including the automatic HTTP/DB duration metrics) automatically
+feeds **both** channels — the existing Prometheus `/metrics` pull endpoint (or StatsD
+push) **and** the OTLP `MeterProvider` above — with no instrumentation changes
+required. This works by wrapping the `Recorder` that `metricx` already builds
+(`PrometheusRecorder`/`StatsdRecorder`) with an internal bridge that also forwards
+every emission to `opentelemetry::global::meter("derust")`. The bridge is always
+active (compiled in whenever `statsd`/`prometheus` is enabled) but has no observable
+effect when no OTLP `MeterProvider` is configured — `opentelemetry::global::meter(...)`
+then resolves to the API's no-op default, so the extra forwarding calls are cheap
+lookups with no I/O. Histogram bucket boundaries are identical on both channels (a
+single shared constant feeds both the Prometheus exporter and the OTLP `View`), so
+`record_money`/`record_duration` distributions never diverge between the two.
 
 ### Logs
 

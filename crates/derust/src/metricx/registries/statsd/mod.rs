@@ -44,7 +44,9 @@ pub fn statsd_registry(config: &StatsdConfig) -> Result<(), Box<dyn std::error::
     let h = recorder.register_histogram(&key, &metrics::Metadata::new("any", Level::INFO, None));
     h.record(1.0);
 
-    let _ = metrics::set_global_recorder(recorder);
+    let _ = metrics::set_global_recorder(crate::metricx::otel_bridge::OtelBridgingRecorder::new(
+        recorder,
+    ));
 
     info!("StatsD registry configured on {}:{}", host, port);
 

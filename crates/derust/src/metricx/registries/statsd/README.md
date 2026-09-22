@@ -2,6 +2,12 @@
 
 Automatic HTTP requests duration metrics as `http_server_seconds`
 
+> **OTLP push:** when `tracex::init()` is configured for OTLP push (the same
+> `OTEL_EXPORTER_OTLP_*` env vars used for traces/logs), every metric described below
+> is also pushed via OTLP automatically, with no code changes — see
+> [`tracex`'s README, "OTLP push for metrics and logs"](../../../tracex/README.md#otlp-push-for-metrics-and-logs)
+> for details.
+
 Automatic duration metrics for features:
 - `http_client` as `http_client_seconds`
 - `postgres` as:

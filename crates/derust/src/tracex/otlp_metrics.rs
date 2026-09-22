@@ -43,12 +43,34 @@ pub(crate) fn build_otlp_meter_provider(resource: Resource) -> Option<SdkMeterPr
         }
     }?;
 
-    Some(
-        SdkMeterProvider::builder()
-            .with_periodic_exporter(exporter)
-            .with_resource(resource)
-            .build(),
-    )
+    let mut builder = SdkMeterProvider::builder()
+        .with_periodic_exporter(exporter)
+        .with_resource(resource);
+
+    // Keeps histogram bucket boundaries identical between the OTLP push channel and
+    // the Prometheus pull channel (`crate::metricx::HISTOGRAM_BUCKET_BOUNDARIES`),
+    // whenever `metricx` is compiled in. Without this `View`, the SDK's default
+    // histogram aggregation would use different (and divergent) bucket boundaries.
+    #[cfg(any(feature = "statsd", feature = "prometheus"))]
+    {
+        builder = builder.with_view(|instrument: &opentelemetry_sdk::metrics::Instrument| {
+            if instrument.kind() == opentelemetry_sdk::metrics::InstrumentKind::Histogram {
+                opentelemetry_sdk::metrics::Stream::builder()
+                    .with_aggregation(
+                        opentelemetry_sdk::metrics::Aggregation::ExplicitBucketHistogram {
+                            boundaries: crate::metricx::HISTOGRAM_BUCKET_BOUNDARIES.to_vec(),
+                            record_min_max: true,
+                        },
+                    )
+                    .build()
+                    .ok()
+            } else {
+                None
+            }
+        });
+    }
+
+    Some(builder.build())
 }
 
 /// Mirrors `init_tracing_opentelemetry::otlp::infer_protocol`'s decision (private in
@@ -111,6 +133,75 @@ mod test {
         assert!(
             result.is_none(),
             "expected build_otlp_meter_provider to return None when no OTLP env is set"
+        );
+
+        reset_env();
+    }
+
+    #[cfg(any(feature = "statsd", feature = "prometheus"))]
+    #[tokio::test]
+    async fn histogram_uses_shared_bucket_boundaries_via_view() {
+        use opentelemetry::metrics::MeterProvider;
+        use opentelemetry_sdk::metrics::data::{AggregatedMetrics, MetricData};
+        use opentelemetry_sdk::metrics::{InMemoryMetricExporter, PeriodicReader};
+
+        let _guard = ENV_LOCK.lock().unwrap();
+        reset_env();
+
+        let exporter = InMemoryMetricExporter::default();
+        let reader = PeriodicReader::builder(exporter.clone()).build();
+        let resource = Resource::builder_empty().build();
+
+        // Reimplements just the "with_view" part (skipping `infer_metrics_protocol`,
+        // already covered by other tests) so an `InMemoryMetricExporter` can be
+        // injected instead of a real OTLP exporter.
+        let provider = SdkMeterProvider::builder()
+            .with_reader(reader)
+            .with_resource(resource)
+            .with_view(|instrument: &opentelemetry_sdk::metrics::Instrument| {
+                if instrument.kind() == opentelemetry_sdk::metrics::InstrumentKind::Histogram {
+                    opentelemetry_sdk::metrics::Stream::builder()
+                        .with_aggregation(
+                            opentelemetry_sdk::metrics::Aggregation::ExplicitBucketHistogram {
+                                boundaries: crate::metricx::HISTOGRAM_BUCKET_BOUNDARIES.to_vec(),
+                                record_min_max: true,
+                            },
+                        )
+                        .build()
+                        .ok()
+                } else {
+                    None
+                }
+            })
+            .build();
+
+        let meter = provider.meter("test");
+        let histogram = meter.f64_histogram("test_histogram").build();
+        histogram.record(0.2, &[]);
+
+        provider.force_flush().unwrap();
+
+        let metrics = exporter.get_finished_metrics().unwrap();
+        let metric = metrics
+            .iter()
+            .flat_map(|resource_metrics| resource_metrics.scope_metrics())
+            .flat_map(|scope_metrics| scope_metrics.metrics())
+            .find(|metric| metric.name() == "test_histogram")
+            .expect("expected a `test_histogram` metric to have been exported");
+
+        let data_point_bounds: Vec<f64> = match metric.data() {
+            AggregatedMetrics::F64(MetricData::Histogram(histogram)) => histogram
+                .data_points()
+                .next()
+                .expect("expected at least one histogram data point")
+                .bounds()
+                .collect(),
+            other => panic!("expected an f64 Histogram, got {other:?}"),
+        };
+
+        assert_eq!(
+            data_point_bounds,
+            crate::metricx::HISTOGRAM_BUCKET_BOUNDARIES.to_vec()
         );
 
         reset_env();

@@ -16,9 +16,9 @@ All notable changes to `derust` are documented in this file.
   `init-tracing-opentelemetry`) to a new `tracex::Guard`, which additionally flushes
   and shuts down the metrics/logs OTLP pipelines on `Drop`. The documented usage
   pattern (`let _guard = tracex::init()?;`) is unaffected.
-
-### Notes
-
-- Metrics instrumented via the `metrics` crate (used internally by `metricx`) are not
-  automatically forwarded to the new OTLP `MeterProvider` — see
-  `crates/derust/src/tracex/README.md` for details.
+- Metrics instrumented via `metricx` (`increment`, `increment_one`, `current_gauge`,
+  `record_money`, `record_duration`, `start_stopwatch`, including the automatic
+  HTTP/DB duration metrics) now also reach the OTLP push pipeline described above,
+  with no instrumentation changes required — the existing Prometheus `/metrics` pull
+  endpoint and StatsD push remain unaffected. Histogram bucket boundaries are
+  identical on both channels.
