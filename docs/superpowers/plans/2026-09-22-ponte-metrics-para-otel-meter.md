@@ -1175,7 +1175,7 @@ git commit -m "test(metricx): cover the 3 business-plan scope criteria for the O
 - Consumes: comportamento final implementado nas Tasks 1-5.
 - Produces: documentação e changelog atualizados; nenhuma mudança de código.
 
-- [ ] **Step 1: Corrigir `crates/derust/src/tracex/README.md`**
+- [x] **Step 1: Corrigir `crates/derust/src/tracex/README.md`**
 
 Na seção "Coexists with the `metricx` Prometheus/StatsD pull path", substitua o
 parágrafo que hoje diz que métricas via `metrics` crate "are not automatically
@@ -1188,7 +1188,7 @@ quando push não está configurado) e mantenha o aviso de custo de ingestão (j�
 na seção "Cost warning", ainda válido e agora mais relevante, já que passa a haver
 dados reais fluindo).
 
-- [ ] **Step 2: Atualizar os READMEs de `metricx`**
+- [x] **Step 2: Atualizar os READMEs de `metricx`**
 
 Em `crates/derust/src/metricx/registries/prometheus/README.md` e
 `.../statsd/README.md`, adicione uma nota curta (próxima ao topo, junto com a descrição
@@ -1197,7 +1197,7 @@ push OTLP (mesmas envs `OTEL_EXPORTER_OTLP_*` de traces/logs), essas mesmas mét
 também chegam via push, sem nenhuma mudança de código — com um link/referência à seção
 correspondente do README de `tracex`.
 
-- [ ] **Step 3: Atualizar `CHANGELOG.md`**
+- [x] **Step 3: Atualizar `CHANGELOG.md`**
 
 Na entrada `## [0.5.1]`, seção `### Notes`, remova a frase "Metrics instrumented via
 the `metrics` crate ... are not automatically forwarded to the new OTLP
@@ -1215,14 +1215,14 @@ descrevendo o comportamento novo, por exemplo:
 
 Remova a seção `### Notes` inteira se, depois dessa edição, ela ficar vazia.
 
-- [ ] **Step 4: Revisar os diffs**
+- [x] **Step 4: Revisar os diffs**
 
 ```bash
 git diff crates/derust/src/tracex/README.md crates/derust/src/metricx/registries/prometheus/README.md crates/derust/src/metricx/registries/statsd/README.md CHANGELOG.md
 ```
 Confirme que nenhum conteúdo não relacionado foi alterado.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add crates/derust/src/tracex/README.md crates/derust/src/metricx/registries/prometheus/README.md crates/derust/src/metricx/registries/statsd/README.md CHANGELOG.md
