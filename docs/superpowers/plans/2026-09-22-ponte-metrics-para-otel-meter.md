@@ -393,7 +393,7 @@ git commit -m "chore: enable spec_unstable_metrics_views and add opentelemetry d
 que `PrometheusBuilder::set_buckets()` já tem hoje (um único array de buckets vale para
 todos os histogramas, não por métrica).
 
-- [ ] **Step 1: Adicionar a constante compartilhada em `crates/derust/src/metricx/mod.rs`**
+- [x] **Step 1: Adicionar a constante compartilhada em `crates/derust/src/metricx/mod.rs`**
 
 ```rust
 mod meters;
@@ -418,7 +418,7 @@ pub(crate) const HISTOGRAM_BUCKET_BOUNDARIES: [f64; 13] = [
 ];
 ```
 
-- [ ] **Step 2: Usar a constante em `prometheus_registry()`**
+- [x] **Step 2: Usar a constante em `prometheus_registry()`**
 
 Em `crates/derust/src/metricx/registries/prometheus/mod.rs`, troque:
 ```rust
@@ -435,7 +435,7 @@ por:
         .map_err(|error| Box::new(error))?;
 ```
 
-- [ ] **Step 3: Adicionar a `View` em `tracex::otlp_metrics::build_otlp_meter_provider`**
+- [x] **Step 3: Adicionar a `View` em `tracex::otlp_metrics::build_otlp_meter_provider`**
 
 Em `crates/derust/src/tracex/otlp_metrics.rs`, troque o `Some(SdkMeterProvider::builder()...)`
 final por:
@@ -472,7 +472,7 @@ manter consistente, então a `View` simplesmente não é adicionada (SDK usa os 
 default do `opentelemetry_sdk`) — comportamento aceitável, pois não há nada com que
 divergir.
 
-- [ ] **Step 4: Teste de regressão — a `View` é aplicada quando `prometheus`/`statsd` está habilitado**
+- [x] **Step 4: Teste de regressão — a `View` é aplicada quando `prometheus`/`statsd` está habilitado**
 
 Adicione ao `mod test` existente em `otlp_metrics.rs` (reaproveitando `ENV_LOCK`/
 `reset_env` já definidos ali):
@@ -534,7 +534,7 @@ Adicione ao `mod test` existente em `otlp_metrics.rs` (reaproveitando `ENV_LOCK`
 (Este teste só compila/roda quando `statsd` ou `prometheus` está habilitado — rode com
 `cargo nextest run -p derust --features "http_server,prometheus" -- histogram_uses_shared_bucket_boundaries_via_view`.)
 
-- [ ] **Step 5: Rodar testes e lint**
+- [x] **Step 5: Rodar testes e lint**
 
 ```bash
 cargo nextest run -p derust --features "http_server,prometheus" -- otlp_metrics
@@ -542,7 +542,7 @@ cargo fmt --all -- --check && cargo clippy --features "http_server,prometheus" -
 ```
 Esperado: sem erros/falhas.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add crates/derust/src/metricx/mod.rs crates/derust/src/metricx/registries/prometheus/mod.rs crates/derust/src/tracex/otlp_metrics.rs
@@ -583,7 +583,7 @@ paralelas de verdade)
 fechadas (sempre encaminha para `global::meter(...)`; `absolute`/`increment`/
 `decrement` de gauge não traduzidos).
 
-- [ ] **Step 1: Escrever `crates/derust/src/metricx/otel_bridge.rs`**
+- [x] **Step 1: Escrever `crates/derust/src/metricx/otel_bridge.rs`**
 
 ```rust
 use std::collections::HashMap;
@@ -860,7 +860,7 @@ omite esse detalhe de fiação para não distrair da lógica principal — imple
 corretamente é responsabilidade desta task, confirmando a API exata lendo
 `opentelemetry_sdk-0.30.0/src/metrics/meter_provider.rs` durante a implementação).
 
-- [ ] **Step 2: Registrar o módulo em `metricx/mod.rs`**
+- [x] **Step 2: Registrar o módulo em `metricx/mod.rs`**
 
 ```rust
 mod meters;
@@ -868,7 +868,7 @@ mod otel_bridge;
 mod registries;
 ```
 
-- [ ] **Step 3: Rodar os testes isoladamente**
+- [x] **Step 3: Rodar os testes isoladamente**
 
 ```bash
 cargo nextest run -p derust --features prometheus -- otel_bridge
@@ -876,13 +876,13 @@ cargo nextest run -p derust --features prometheus -- otel_bridge
 Esperado: `forwards_counter_increments_to_both_inner_recorder_and_otel` e
 `does_not_forward_gauge_increment_decrement_only_set` passam.
 
-- [ ] **Step 4: Lint**
+- [x] **Step 4: Lint**
 
 ```bash
 cargo fmt --all -- --check && cargo clippy --features prometheus -- -D warnings
 ```
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add crates/derust/src/metricx/otel_bridge.rs crates/derust/src/metricx/mod.rs
