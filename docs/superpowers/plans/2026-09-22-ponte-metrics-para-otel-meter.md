@@ -1022,7 +1022,7 @@ teste; a fronteira relevante para o bridge é "existe ou não um `MeterProvider`
 instalado", que é exatamente o que `tracex::init()` decide via env, e já está coberto
 pelos testes de `tracex` na tarefa anterior.
 
-- [ ] **Step 1: Teste do critério (1) — métrica aparece nos dois canais quando "push" está configurado**
+- [x] **Step 1: Teste do critério (1) — métrica aparece nos dois canais quando "push" está configurado**
 
 ```rust
 #[tokio::test]
@@ -1071,7 +1071,7 @@ observar em teste — sem endpoint HTTP de scrape — então cobrir só `prometh
 suficiente para o critério (1), e a Task 3 já cobre o bridge em si de forma agnóstica
 ao backend.)
 
-- [ ] **Step 2: Teste do critério (2) — sem `MeterProvider` real, comportamento é idêntico ao pré-existente**
+- [x] **Step 2: Teste do critério (2) — sem `MeterProvider` real, comportamento é idêntico ao pré-existente**
 
 ```rust
 #[tokio::test]
@@ -1096,7 +1096,7 @@ async fn pull_channel_behaviour_is_unchanged_without_a_real_meter_provider() {
 }
 ```
 
-- [ ] **Step 3: Teste do critério (3) — tags negadas não aparecem em nenhum dos dois canais**
+- [x] **Step 3: Teste do critério (3) — tags negadas não aparecem em nenhum dos dois canais**
 
 ```rust
 #[tokio::test]
@@ -1134,20 +1134,20 @@ async fn denied_tags_are_hidden_on_both_channels() {
 }
 ```
 
-- [ ] **Step 4: Rodar a suíte completa destes testes**
+- [x] **Step 4: Rodar a suíte completa destes testes**
 
 ```bash
 cargo nextest run -p derust --features "prometheus,start_test" -- metric_appears_on_both pull_channel_behaviour denied_tags_are_hidden
 ```
 Esperado: os 3 testes passam.
 
-- [ ] **Step 5: Lint**
+- [x] **Step 5: Lint**
 
 ```bash
 cargo fmt --all -- --check && cargo clippy --features "prometheus,start_test" -- -D warnings
 ```
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add -A
