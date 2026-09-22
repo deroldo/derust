@@ -345,7 +345,7 @@ exploração"). Usa `OTEL_EXPORTER_OTLP_PROTOCOL` (com fallback futuro natural p
 `OTEL_EXPORTER_OTLP_METRICS_PROTOCOL`, que o SDK já lê sozinho dentro do exporter — não
 precisamos replicar essa parte, só a escolha de transporte).
 
-- [ ] **Step 1: Escrever o arquivo `otlp_metrics.rs`**
+- [x] **Step 1: Escrever o arquivo `otlp_metrics.rs`**
 
 ```rust
 use opentelemetry_otlp::MetricExporter;
@@ -468,7 +468,7 @@ mod test {
 }
 ```
 
-- [ ] **Step 2: Registrar o módulo em `tracex/mod.rs`**
+- [x] **Step 2: Registrar o módulo em `tracex/mod.rs`**
 
 Em `crates/derust/src/tracex/mod.rs`, adicione `mod otlp_metrics;` junto às outras
 declarações de módulo (o módulo é privado — só `initialize.rs`, no mesmo crate, precisa
@@ -483,13 +483,13 @@ pub mod log;
 pub use initialize::*;
 ```
 
-- [ ] **Step 3: Rodar os novos testes isoladamente**
+- [x] **Step 3: Rodar os novos testes isoladamente**
 
 Rode: `cargo nextest run -p derust --features http_server -- otlp_metrics`
 Esperado: `builds_meter_provider_with_http_protobuf_env` e
 `returns_none_without_any_otlp_env` passam.
 
-- [ ] **Step 4: Rodar lint**
+- [x] **Step 4: Rodar lint**
 
 Rode: `cargo fmt --all -- --check && cargo clippy --features http_server -- -D warnings`
 Esperado: sem erros. Se `MetricExporter`/`SdkMeterProvider` gerarem warning de import
@@ -497,7 +497,7 @@ não usado em outro lugar, confirme que não há duplicidade de import com o que
 vai adicionar em `initialize.rs` (ainda não deveria haver, pois `initialize.rs` só é
 tocado na Task 4).
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add crates/derust/src/tracex/otlp_metrics.rs crates/derust/src/tracex/mod.rs
