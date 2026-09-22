@@ -235,7 +235,7 @@ usada), então declará-lo direto não deve mudar nenhuma versão resolvida no
 `Cargo.lock` além de adicioná-lo à lista de dependências diretas.
 `opentelemetry-appender-tracing` é dependência nova.
 
-- [ ] **Step 1: Adicionar `opentelemetry_sdk` e `opentelemetry-appender-tracing` ao `[workspace.dependencies]` da raiz**
+- [x] **Step 1: Adicionar `opentelemetry_sdk` e `opentelemetry-appender-tracing` ao `[workspace.dependencies]` da raiz**
 
 No `Cargo.toml` da raiz do workspace, logo abaixo da linha `opentelemetry-http =
 { version = "0.30.0", features = ["reqwest"] }`, adicione:
@@ -245,7 +245,7 @@ opentelemetry_sdk = { version = "0.30.0", features = ["metrics", "logs"] }
 opentelemetry-appender-tracing = { version = "0.30.0" }
 ```
 
-- [ ] **Step 2: Declarar as duas dependências em `crates/derust/Cargo.toml`**
+- [x] **Step 2: Declarar as duas dependências em `crates/derust/Cargo.toml`**
 
 Na seção `# Observability` de `[dependencies]`, logo abaixo da linha `opentelemetry-http = { workspace = true, features = ["reqwest"], optional = true }`, adicione:
 
@@ -254,7 +254,7 @@ opentelemetry_sdk = { workspace = true, optional = true }
 opentelemetry-appender-tracing = { workspace = true, optional = true }
 ```
 
-- [ ] **Step 3: Adicionar as duas novas deps à feature `http_server`**
+- [x] **Step 3: Adicionar as duas novas deps à feature `http_server`**
 
 Em `crates/derust/Cargo.toml`, na lista `http_server = [...]`, adicione as duas linhas
 (mantendo o restante da lista intacto):
@@ -264,7 +264,7 @@ Em `crates/derust/Cargo.toml`, na lista `http_server = [...]`, adicione as duas 
     "dep:opentelemetry-appender-tracing",
 ```
 
-- [ ] **Step 4: Confirmar que o crate ainda compila com as novas deps (sem uso ainda)**
+- [x] **Step 4: Confirmar que o crate ainda compila com as novas deps (sem uso ainda)**
 
 Rode: `cargo build -p derust --features http_server`
 Esperado: build sem erros (as deps ficam disponíveis mas não usadas ainda — pode gerar
@@ -274,7 +274,7 @@ algum erro de resolução de versão, pare e investigue antes de prosseguir — 
 que a suposição de unificação de features documentada em "Achados da exploração" está
 errada).
 
-- [ ] **Step 5: Confirmar que `grpc-tonic` já está disponível para `MetricExporter`/`LogExporter` sem mudança extra de feature**
+- [x] **Step 5: Confirmar que `grpc-tonic` já está disponível para `MetricExporter`/`LogExporter` sem mudança extra de feature**
 
 Rode:
 ```bash
@@ -300,12 +300,12 @@ Se `with_tonic()` **não** compilar: adicione `"opentelemetry-otlp/grpc-tonic"` 
 de features de `opentelemetry-otlp` em `Cargo.toml` (raiz) antes de prosseguir, e
 anote esse ajuste nesta task antes de fazer o commit.
 
-- [ ] **Step 6: Rodar lint**
+- [x] **Step 6: Rodar lint**
 
 Rode: `cargo fmt --all -- --check && cargo clippy --features http_server -- -D warnings`
 Esperado: sem erros.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add Cargo.toml crates/derust/Cargo.toml Cargo.lock
