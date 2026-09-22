@@ -909,7 +909,7 @@ git commit -m "feat(metricx): add OtelBridgingRecorder forwarding metrics to ope
   Result<PrometheusHandle, Box<dyn std::error::Error>>` e `statsd_registry(config:
   &StatsdConfig) -> Result<(), Box<dyn std::error::Error>>` continuam idênticas.
 
-- [ ] **Step 1: `prometheus_registry()` — usar `build_recorder()` + wrapper em vez de `install_recorder()`**
+- [x] **Step 1: `prometheus_registry()` — usar `build_recorder()` + wrapper em vez de `install_recorder()`**
 
 Em `crates/derust/src/metricx/registries/prometheus/mod.rs`, troque:
 ```rust
@@ -933,7 +933,7 @@ por:
 antes de editar, ver "Achados da exploração de código"; ajuste o `?`/`map_err` conforme
 o que a leitura direta confirmar.)
 
-- [ ] **Step 2: `statsd_registry()` — envolver o recorder antes de instalar**
+- [x] **Step 2: `statsd_registry()` — envolver o recorder antes de instalar**
 
 Em `crates/derust/src/metricx/registries/statsd/mod.rs`, troque:
 ```rust
@@ -960,7 +960,7 @@ por:
 tocando só o `StatsdRecorder` puro, sem gerar um valor "fantasma" de 1.0 no lado OTel;
 isso é intencional, não um bug a corrigir.)
 
-- [ ] **Step 3: Rodar os testes existentes de `metricx`**
+- [x] **Step 3: Rodar os testes existentes de `metricx`**
 
 ```bash
 cargo nextest run -p derust --features prometheus -- metricx
@@ -969,13 +969,13 @@ cargo nextest run -p derust --features statsd -- metricx
 Esperado: todos passam (inclui `should_normalize_path`/`should_filter_metric_tags`
 já existentes, sem nenhuma mudança de comportamento esperada neles).
 
-- [ ] **Step 4: Lint**
+- [x] **Step 4: Lint**
 
 ```bash
 cargo fmt --all -- --check && cargo clippy --features "prometheus,statsd" -- -D warnings
 ```
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add crates/derust/src/metricx/registries/prometheus/mod.rs crates/derust/src/metricx/registries/statsd/mod.rs
