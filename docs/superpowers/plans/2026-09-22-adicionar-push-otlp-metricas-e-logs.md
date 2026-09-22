@@ -723,13 +723,13 @@ o mesmo resultado porque `DetectResource` lê as mesmas envs/detecção de ambie
 ambos os casos — não há divergência de `service.name` entre os três sinais apesar de
 serem duas chamadas separadas).
 
-- [ ] **Step 1: Ler o arquivo atual completo para confirmar as linhas exatas antes de editar**
+- [x] **Step 1: Ler o arquivo atual completo para confirmar as linhas exatas antes de editar**
 
 Rode: `cat crates/derust/src/tracex/initialize.rs`
 Confirme que bate com o conteúdo já lido nesta fase de refinamento (reproduzido em
 "Achados da exploração de código" acima). Se divergir, pare e reavalie antes de editar.
 
-- [ ] **Step 2: Reescrever o topo do arquivo (imports, `init()`, novo `Guard`)**
+- [x] **Step 2: Reescrever o topo do arquivo (imports, `init()`, novo `Guard`)**
 
 Substitua as linhas 1 a 22 do arquivo atual (do primeiro `use` até o fechamento de
 `init()`, ou seja, tudo antes de `const DERUST_OTEL_DEBUG_ENV_NAME`) por:
@@ -820,12 +820,12 @@ impl Drop for Guard {
 }
 ```
 
-- [ ] **Step 3: Confirmar que o resto do arquivo (a partir de `const DERUST_OTEL_DEBUG_ENV_NAME`) não precisa de nenhuma mudança**
+- [x] **Step 3: Confirmar que o resto do arquivo (a partir de `const DERUST_OTEL_DEBUG_ENV_NAME`) não precisa de nenhuma mudança**
 
 `build_loglevel_filter_layer()` e seus testes existentes continuam idênticos — não
 tocar nessa parte do arquivo nesta task.
 
-- [ ] **Step 4: Adicionar os 3 testes de regressão pedidos pelo plano de negócio, ao final do `mod test` existente**
+- [x] **Step 4: Adicionar os 3 testes de regressão pedidos pelo plano de negócio, ao final do `mod test` existente**
 
 Adicione estes três testes dentro do `mod test` já existente (mesmo bloco dos testes
 atuais, reaproveitando `ENV_LOCK`/`reset_env` já definidos ali):
@@ -894,24 +894,24 @@ padrão. A cobertura granular por sinal já existe nos testes unitários das Tas
 `build_otlp_logger_provider` isoladamente; estes três testes aqui cobrem especificamente
 o requisito do plano de negócio de que `init()` "builda sem erro" ponta a ponta.
 
-- [ ] **Step 5: Rodar a suíte de testes do módulo `tracex`**
+- [x] **Step 5: Rodar a suíte de testes do módulo `tracex`**
 
 Rode: `cargo nextest run -p derust --features http_server -- tracex`
 Esperado: todos os testes de `tracex` (existentes + novos) passam, 0 falhas.
 
-- [ ] **Step 6: Rodar lint**
+- [x] **Step 6: Rodar lint**
 
 Rode: `cargo fmt --all -- --check && cargo clippy --features http_server -- -D warnings`
 Esperado: sem erros.
 
-- [ ] **Step 7: Build e teste dos exemplos que usam `tracex::init()`**
+- [x] **Step 7: Build e teste dos exemplos que usam `tracex::init()`**
 
 Rode: `cd examples/trace && cargo build` (confirma que `let _guard = tracex::init();`
 continua compilando sem anotação de tipo — ver "Decisões técnicas tomadas nesta fase",
 item 3)
 Esperado: build sem erros.
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add crates/derust/src/tracex/initialize.rs
