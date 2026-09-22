@@ -1237,7 +1237,7 @@ checksum = "7cd812cc2bc1d69d4764bd80df88b4317eaef9e773c75226407d9bc0876b211c"
 
 [[package]]
 name = "derust"
-version = "0.6.0"
+version = "0.5.1"
 dependencies = [
  "async-trait",
  "aws-config",

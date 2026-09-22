@@ -2,7 +2,7 @@
 
 All notable changes to `derust` are documented in this file.
 
-## [0.6.0]
+## [0.5.1]
 
 ### Added
 

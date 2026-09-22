@@ -1027,11 +1027,13 @@ git commit -m "docs(tracex): document OTLP push for metrics and logs"
 **Interfaces:**
 - Consumes: nada de código — fecha o plano com documentação de release e validação
   full-suite.
-- Produces: `derust` pronto para publicação em `0.6.0` (o `cargo publish` em si é
+- Produces: `derust` pronto para publicação em `0.5.1` (o `cargo publish` em si é
   manual, ver Step 5 abaixo).
 
-**Contexto:** Ver "Achados da exploração de código" para a justificativa do bump minor
-(`0.5.0` → `0.6.0`, feature aditiva) e da ausência de `CHANGELOG.md` prévio.
+**Contexto:** Ver "Achados da exploração de código" para a justificativa original do bump
+minor (`0.5.0` → `0.6.0`, feature aditiva). **Decisão do mantenedor:** o bump final
+usado foi `0.5.0` → `0.5.1` (patch), não minor — divergência intencional do texto
+original deste plano, aplicada após a implementação já estar validada.
 
 - [x] **Step 1: Criar `CHANGELOG.md`**
 
@@ -1042,7 +1044,7 @@ Crie `CHANGELOG.md` na raiz do workspace com este conteúdo:
 
 All notable changes to `derust` are documented in this file.
 
-## [0.6.0]
+## [0.5.1]
 
 ### Added
 
@@ -1075,7 +1077,7 @@ version = "0.5.0"
 para:
 
 ```toml
-version = "0.6.0"
+version = "0.5.1"
 ```
 
 - [x] **Step 3: Rodar a suíte completa de testes do crate**
@@ -1133,7 +1135,7 @@ escopo deste plano.
 
 ```bash
 git add CHANGELOG.md crates/derust/Cargo.toml
-git commit -m "chore: bump derust version to 0.6.0, add CHANGELOG (OTLP push for metrics and logs)"
+git commit -m "chore: bump derust version to 0.5.1, add CHANGELOG (OTLP push for metrics and logs)"
 ```
 
 - [ ] **Step 7: Publicação no crates.io (ação manual, fora do escopo de execução automatizada)** — pendência humana, não marcar como concluída pelo agente de implementação (ver texto abaixo).
@@ -1157,7 +1159,7 @@ que este é o único passo restante do critério de sucesso do plano de negócio
 | 3 — pipeline de logs | `cargo nextest run -- otlp_logs` (2 testes, mesmo padrão da Task 2) | Mesma checagem da Task 2, mais confirmar `with_batch_exporter` (não `with_periodic_exporter`, que é específico de métricas) |
 | 4 — integração em `init()` + `Guard` | `cargo nextest run -- tracex` (inclui os 3 novos testes de regressão pedidos pelo plano de negócio + os 4 testes já existentes) + build de `examples/trace` | Confirmar que `let _guard = tracex::init();` (padrão documentado, sem anotação de tipo) continua compilando; revisar `Drop` de `Guard` chamando shutdown nos 3 providers |
 | 5 — documentação | Revisão textual | Confirmar que a seção nova reflete exatamente o comportamento implementado na Task 4 (envs, coexistência com `metricx`, limitação do bridge `metrics`→OTLP) |
-| 6 — CHANGELOG, versão, validação final | `task test`, `task lint`, build de todos os exemplos relevantes | Confirmar version bump `0.5.0`→`0.6.0`; confirmar que o Step 7 (publicação manual) está claramente sinalizado como pendência humana, não como falha de execução |
+| 6 — CHANGELOG, versão, validação final | `task test`, `task lint`, build de todos os exemplos relevantes | Confirmar version bump `0.5.0`→`0.5.1`; confirmar que o Step 7 (publicação manual) está claramente sinalizado como pendência humana, não como falha de execução |
 
 ## Paralelização
 
