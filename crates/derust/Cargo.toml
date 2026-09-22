@@ -89,6 +89,7 @@ statsd = [
     "dep:cadence",
     "dep:metrics-exporter-statsd",
     "dep:metrics",
+    "dep:opentelemetry",
 ]
 prometheus = [
     "dep:regex",
@@ -101,6 +102,7 @@ prometheus = [
     "dep:metrics",
     "dep:http-body-util",
     "dep:hyper",
+    "dep:opentelemetry",
 ]
 growthbook = [
     "dep:growthbook-rust"
