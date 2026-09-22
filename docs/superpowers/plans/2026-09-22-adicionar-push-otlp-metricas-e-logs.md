@@ -942,11 +942,11 @@ código" da fase de refinamento anterior, mas não citado aqui por já ter sido 
 diretamente nesta fase) documenta só o `_guard = tracex::init()` para traces + logs
 locais/B3 traceparent. Adicione, ao final do arquivo, uma nova seção:
 
-- [ ] **Step 1: Ler o README atual**
+- [x] **Step 1: Ler o README atual**
 
 Rode: `cat crates/derust/src/tracex/README.md`
 
-- [ ] **Step 2: Adicionar a seção "OTLP push for metrics and logs" ao final do arquivo**
+- [x] **Step 2: Adicionar a seção "OTLP push for metrics and logs" ao final do arquivo**
 
 Acrescente este bloco ao final de `crates/derust/src/tracex/README.md` (mantendo todo
 o conteúdo existente acima intacto):
@@ -997,13 +997,13 @@ observability backend (e.g. Grafana Cloud). Review your backend's ingestion pric
 before enabling this in production.
 ````
 
-- [ ] **Step 3: Revisar o diff**
+- [x] **Step 3: Revisar o diff**
 
 Rode: `git diff crates/derust/src/tracex/README.md`
 Confirme que o conteúdo anterior do arquivo não foi alterado, só a nova seção foi
 adicionada ao final.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add crates/derust/src/tracex/README.md
