@@ -1033,7 +1033,7 @@ git commit -m "docs(tracex): document OTLP push for metrics and logs"
 **Contexto:** Ver "Achados da exploração de código" para a justificativa do bump minor
 (`0.5.0` → `0.6.0`, feature aditiva) e da ausência de `CHANGELOG.md` prévio.
 
-- [ ] **Step 1: Criar `CHANGELOG.md`**
+- [x] **Step 1: Criar `CHANGELOG.md`**
 
 Crie `CHANGELOG.md` na raiz do workspace com este conteúdo:
 
@@ -1064,7 +1064,7 @@ All notable changes to `derust` are documented in this file.
   `crates/derust/src/tracex/README.md` for details.
 ```
 
-- [ ] **Step 2: Atualizar a versão no Cargo.toml do crate**
+- [x] **Step 2: Atualizar a versão no Cargo.toml do crate**
 
 Em `crates/derust/Cargo.toml`, altere:
 
@@ -1078,12 +1078,12 @@ para:
 version = "0.6.0"
 ```
 
-- [ ] **Step 3: Rodar a suíte completa de testes do crate**
+- [x] **Step 3: Rodar a suíte completa de testes do crate**
 
 Rode: `task test` (equivalente a `cargo nextest run`)
 Esperado: todos os testes passam, 0 falhas (inclui os testes novos das Tasks 2, 3 e 4).
 
-- [ ] **Step 4: Rodar lint completo do workspace**
+- [x] **Step 4: Rodar lint completo do workspace**
 
 Rode: `task lint` (equivalente a `cargo fmt --all -- --check && cargo clippy -- -D
 warnings`)
@@ -1096,7 +1096,18 @@ execução"), confirme isoladamente que os arquivos tocados por este plano
 ressalva aqui se aplicável — não é responsabilidade deste plano corrigir débito técnico
 de outros módulos.
 
-- [ ] **Step 5: Build de todos os exemplos (checagem final de ponta a ponta)**
+**Ressalva confirmada:** `task lint` falha (`cargo fmt --all -- --check` e
+`cargo clippy --workspace -- -D warnings`), mas exclusivamente por débito técnico
+pré-existente e não relacionado a este plano, em módulos como `awsx/sqsx/*`,
+`databasex/postgresx/*`, `envx/loader.rs`, `http_clientx/client.rs`, `httpx/health.rs`,
+`httpx/request/mod.rs`, `httpx/server.rs`, `metricx/meters/*`, `outboxx/*` (confirmado
+via `git stash`/comparação com o estado anterior a este plano — os mesmos erros já
+existiam antes de qualquer mudança desta implementação). Nenhum arquivo tocado por este
+plano (`crates/derust/src/tracex/*`, `Cargo.toml` raiz, `crates/derust/Cargo.toml`,
+`CHANGELOG.md`) aparece nessa lista de diffs de fmt, e `cargo clippy --workspace -- -D
+warnings 2>&1 | grep -i tracex` não retorna nenhuma ocorrência.
+
+- [x] **Step 5: Build de todos os exemplos (checagem final de ponta a ponta)**
 
 Rode, a partir da raiz do workspace: `cargo build --workspace` e, para cada diretório em
 `examples/*` (que são crates standalone fora do workspace principal): `cd examples/trace
@@ -1105,14 +1116,27 @@ Rode, a partir da raiz do workspace: `cargo build --workspace` e, para cada dire
 alguns exemplos podem não usar tracing diretamente).
 Esperado: build sem erros em todos.
 
-- [ ] **Step 6: Commit**
+**Resultado real:** `cargo build --workspace` (crate `derust`) compila sem erros.
+Dos 8 diretórios em `examples/*` (`basic`, `database`, `env`, `growthbook`,
+`http_client`, `metrics`, `outbox`, `trace`): `database`, `env`, `metrics` e
+`growthbook` compilam sem erros; `basic`, `http_client`, `outbox` e `trace` falham
+por débito técnico pré-existente e não relacionado a este plano — a assinatura de
+`httpx::server::start()` já exige um 4º argumento (`bool`) que esses exemplos não
+passam, e `trace`/`outbox` adicionalmente referenciam `serde_json`/tipos sem a
+dependência correspondente declarada no `Cargo.toml` do próprio exemplo. Confirmado
+via `git stash` que os mesmos erros já existem no branch `main` antes de qualquer
+mudança deste plano — nenhuma linha alterada por esta implementação (`tracex/*`,
+`Cargo.toml`, `CHANGELOG.md`) está envolvida. Corrigir esses exemplos está fora do
+escopo deste plano.
+
+- [x] **Step 6: Commit**
 
 ```bash
 git add CHANGELOG.md crates/derust/Cargo.toml
 git commit -m "chore: bump derust version to 0.6.0, add CHANGELOG (OTLP push for metrics and logs)"
 ```
 
-- [ ] **Step 7: Publicação no crates.io (ação manual, fora do escopo de execução automatizada)**
+- [ ] **Step 7: Publicação no crates.io (ação manual, fora do escopo de execução automatizada)** — pendência humana, não marcar como concluída pelo agente de implementação (ver texto abaixo).
 
 A publicação (`cargo publish -p derust` a partir de `crates/derust`) requer
 credenciais de `cargo login` da conta do mantenedor (`diogoderoldo@gmail.com`), que não
