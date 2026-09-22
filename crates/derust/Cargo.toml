@@ -186,3 +186,7 @@ flate2 = { workspace = true, optional = true }
 # jsonwebtoken needs a crypto provider to sign/verify tokens in tests;
 # the library itself stays provider-neutral so applications pick their own
 jsonwebtoken = { workspace = true, features = ["rust_crypto"] }
+# InMemoryMetricExporter (used by otlp_metrics tests) is only compiled in behind
+# opentelemetry_sdk's own "testing" feature; adding it here (rather than to the
+# workspace/library dependency) keeps it out of the published crate's default feature set.
+opentelemetry_sdk = { workspace = true, features = ["testing"] }
