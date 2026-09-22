@@ -532,7 +532,7 @@ por `LogExporter`/`SdkLoggerProvider`, e `with_periodic_exporter` por
 `PeriodicReader` — API diferente confirmada em
 `opentelemetry_sdk-0.30.0/src/logs/logger_provider.rs:226`).
 
-- [ ] **Step 1: Escrever o arquivo `otlp_logs.rs`**
+- [x] **Step 1: Escrever o arquivo `otlp_logs.rs`**
 
 ```rust
 use opentelemetry_otlp::LogExporter;
@@ -654,7 +654,7 @@ mod test {
 }
 ```
 
-- [ ] **Step 2: Registrar o módulo em `tracex/mod.rs`**
+- [x] **Step 2: Registrar o módulo em `tracex/mod.rs`**
 
 ```rust
 mod initialize;
@@ -668,18 +668,18 @@ pub use initialize::*;
 (Se a Task 2 já rodou antes desta, o arquivo já vai ter `mod otlp_metrics;` — apenas
 adicione a linha `mod otlp_logs;` junto, sem duplicar nada.)
 
-- [ ] **Step 3: Rodar os novos testes isoladamente**
+- [x] **Step 3: Rodar os novos testes isoladamente**
 
 Rode: `cargo nextest run -p derust --features http_server -- otlp_logs`
 Esperado: `builds_logger_provider_with_http_protobuf_env` e
 `returns_none_without_any_otlp_env` passam.
 
-- [ ] **Step 4: Rodar lint**
+- [x] **Step 4: Rodar lint**
 
 Rode: `cargo fmt --all -- --check && cargo clippy --features http_server -- -D warnings`
 Esperado: sem erros.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add crates/derust/src/tracex/otlp_logs.rs crates/derust/src/tracex/mod.rs
