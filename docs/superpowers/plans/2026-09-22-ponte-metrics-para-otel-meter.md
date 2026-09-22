@@ -290,7 +290,7 @@ código-fonte das dependências envolvidas:
   (Task 2); `opentelemetry::{global, KeyValue}` e `opentelemetry::metrics::Meter`
   disponíveis como dependência direta de `metricx` (Tasks 3/4).
 
-- [ ] **Step 1: Adicionar `spec_unstable_metrics_views` à feature de `opentelemetry_sdk` no workspace**
+- [x] **Step 1: Adicionar `spec_unstable_metrics_views` à feature de `opentelemetry_sdk` no workspace**
 
 Em `Cargo.toml` (raiz), altere a linha:
 ```toml
@@ -301,7 +301,7 @@ para:
 opentelemetry_sdk = { version = "0.30.0", features = ["metrics", "logs", "spec_unstable_metrics_views"] }
 ```
 
-- [ ] **Step 2: Adicionar `dep:opentelemetry` às features `statsd` e `prometheus` em `crates/derust/Cargo.toml`**
+- [x] **Step 2: Adicionar `dep:opentelemetry` às features `statsd` e `prometheus` em `crates/derust/Cargo.toml`**
 
 Nas listas de features, adicione a linha `"dep:opentelemetry",` a ambas:
 ```toml
@@ -333,7 +333,7 @@ prometheus = [
 (`opentelemetry = { workspace = true }` já existe em `[dependencies]` — não precisa
 adicionar/alterar essa linha, só as listas de feature acima.)
 
-- [ ] **Step 3: Build isolado de cada combinação de features**
+- [x] **Step 3: Build isolado de cada combinação de features**
 
 Rode, em sequência:
 ```bash
@@ -347,12 +347,12 @@ da feature `spec_unstable_metrics_views` sendo unificada (confirme com `git diff
 Cargo.lock` — só deve mudar a lista de features de `opentelemetry_sdk`/`opentelemetry`
 no lockfile, não versões).
 
-- [ ] **Step 4: Lint**
+- [x] **Step 4: Lint**
 
 Rode: `cargo fmt --all -- --check && cargo clippy --features "prometheus,statsd" -- -D warnings`
 Esperado: sem erros.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add Cargo.toml crates/derust/Cargo.toml Cargo.lock
