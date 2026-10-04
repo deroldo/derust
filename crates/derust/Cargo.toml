@@ -185,6 +185,9 @@ openssl = { workspace = true, features = ["vendored"], optional = true }
 flate2 = { workspace = true, optional = true }
 
 [dev-dependencies]
+# Fake HTTP layer for the SQS client in sqsx runner tests (resolves to the version already in Cargo.lock)
+aws-smithy-http-client = { version = "1", features = ["test-util"] }
+http = { version = "1" }
 # jsonwebtoken needs a crypto provider to sign/verify tokens in tests;
 # the library itself stays provider-neutral so applications pick their own
 jsonwebtoken = { workspace = true, features = ["rust_crypto"] }

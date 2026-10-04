@@ -38,6 +38,11 @@ impl Message {
             .unwrap_or(1)
     }
 
+    #[cfg(test)]
+    pub(crate) fn into_sdk(self) -> SdkMessage {
+        self.0
+    }
+
     pub(crate) fn receipt_handle(&self) -> Option<&str> {
         self.0.receipt_handle()
     }
