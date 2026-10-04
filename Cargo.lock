@@ -1269,6 +1269,7 @@ dependencies = [
  "opentelemetry_sdk 0.30.0",
  "outbox-pattern-processor",
  "protect-endpoints-core",
+ "rand 0.9.1",
  "regex",
  "reqwest",
  "reqwest-middleware 0.4.2",

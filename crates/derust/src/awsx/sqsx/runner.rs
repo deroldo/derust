@@ -1,4 +1,4 @@
-use aws_sdk_sqs::types::Message as SdkMessage;
+use aws_sdk_sqs::types::{Message as SdkMessage, MessageSystemAttributeName};
 use std::time::Duration;
 use tracing::log::{log_enabled, Level};
 use tracing::{error, info};
@@ -12,11 +12,8 @@ use crate::shutdown_signal;
 #[cfg(any(feature = "statsd", feature = "prometheus"))]
 use crate::metricx::{start_stopwatch, MetricTags};
 
-pub async fn run<T>(
-    wg: WaitGroup,
-    context: AppContext<T>,
-    consumers: Vec<SqsQueueConsumer<T>>,
-) where
+pub async fn run<T>(wg: WaitGroup, context: AppContext<T>, consumers: Vec<SqsQueueConsumer<T>>)
+where
     T: Clone + Send + Sync + 'static,
 {
     let aws_config = load_aws_config(*context.env()).await;
@@ -39,11 +36,8 @@ pub async fn run<T>(
     info!("SQS consumers stopped");
 }
 
-async fn poll_queue<T>(
-    context: AppContext<T>,
-    sqs: SqsClient,
-    consumer: SqsQueueConsumer<T>,
-) where
+async fn poll_queue<T>(context: AppContext<T>, sqs: SqsClient, consumer: SqsQueueConsumer<T>)
+where
     T: Clone + Send + Sync + 'static,
 {
     let mut shutdown = Box::into_pin(Box::new(shutdown_signal()));
@@ -54,6 +48,7 @@ async fn poll_queue<T>(
             .receive_message()
             .queue_url(&consumer.queue_url)
             .max_number_of_messages(10)
+            .message_system_attribute_names(MessageSystemAttributeName::ApproximateReceiveCount)
             .wait_time_seconds(20)
             .send();
 
@@ -93,7 +88,8 @@ async fn process_message<T>(
     let receipt_handle = msg.receipt_handle().unwrap_or_default().to_string();
 
     #[cfg(any(feature = "statsd", feature = "prometheus"))]
-    let metric_tags = MetricTags::default().push("queue_url".to_string(), consumer.queue_url.clone());
+    let metric_tags =
+        MetricTags::default().push("queue_url".to_string(), consumer.queue_url.clone());
 
     #[cfg(any(feature = "statsd", feature = "prometheus"))]
     let stopwatch = start_stopwatch(context, "sqs_consumer_seconds", metric_tags);
