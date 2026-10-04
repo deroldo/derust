@@ -1,6 +1,6 @@
 [package]
 name = "derust"
-version = "0.5.1"
+version = "0.5.2"
 edition = "2021"
 authors = ["Deroldo <diogoderoldo@gmail.com>"]
 license = "MIT"
@@ -79,6 +79,7 @@ outbox = [
 sqs = [
     "aws",
     "dep:wg",
+    "dep:rand",
 ]
 statsd = [
     "dep:regex",
@@ -148,6 +149,7 @@ sqlx = { workspace = true, features = ["json", "chrono", "postgres", "uuid", "ru
 
 # AWS
 aws-sdk-sqs = { workspace = true, optional = true }
+rand = { workspace = true, optional = true }
 aws-sdk-sns = { workspace = true, optional = true }
 aws-sdk-secretsmanager = { workspace = true, optional = true }
 aws-config = { workspace = true, features = ["behavior-version-latest"], optional = true }
@@ -183,6 +185,9 @@ openssl = { workspace = true, features = ["vendored"], optional = true }
 flate2 = { workspace = true, optional = true }
 
 [dev-dependencies]
+# Fake HTTP layer for the SQS client in sqsx runner tests (resolves to the version already in Cargo.lock)
+aws-smithy-http-client = { version = "1", features = ["test-util"] }
+http = { version = "1" }
 # jsonwebtoken needs a crypto provider to sign/verify tokens in tests;
 # the library itself stays provider-neutral so applications pick their own
 jsonwebtoken = { workspace = true, features = ["rust_crypto"] }

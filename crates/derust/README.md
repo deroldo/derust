@@ -267,6 +267,42 @@ async fn admin_handler(
 
 The `AuthoritiesExtractor` layer reads the `Authorization: Bearer <token>` header, selects the decoding key (by `kid` when using a keystore), validates the JWT signature and expiration, and inserts the deserialized claims into the request as an Axum `Extension<T>`. If validation fails, it returns `401 Unauthorized`. The `GrantsLayer` attaches the roles returned by `AuthoritiesClaims::roles()` so that `#[protect_axum::protect(any(...))]` can enforce them per handler.
 
+## SQS consumer retry with exponential backoff
+
+Requires the `sqs` feature. By default, a message whose handler returns `Err` goes back to the
+queue after the queue's fixed visibility timeout. To space retries progressively instead, opt in with
+`SqsQueueConsumer::with_retry_policy`:
+
+```rust
+use derust::awsx::sqsx::{RetryPolicy, SqsQueueConsumer};
+use std::time::Duration;
+
+let consumer = SqsQueueConsumer::new(&queue_url, |ctx, msg| async move {
+    tracing::info!("attempt {}", msg.receive_count());
+    process(ctx, msg).await
+})
+.with_retry_policy(
+    RetryPolicy::default()                       // base 5s, max 15min, factor 2.0
+        .with_base_delay(Duration::from_secs(2)) // optional
+        .with_max_delay(Duration::from_secs(600)),
+);
+```
+
+- **Opt-in**: without `with_retry_policy` nothing changes.
+- **Full jitter**: after a failure the message becomes visible again after
+  `random(0, min(max, base * factor^(n-1)))`, where `n` is the receive count (1 = first delivery).
+  The ceiling never exceeds the SQS limit of 12 hours. Defaults: base 5s, max 15min, factor 2.0.
+- `Message::receive_count()` returns the current attempt number (1 = first delivery; missing
+  information is treated as 1). It is read from the `ApproximateReceiveCount` system attribute,
+  which the consumer now requests on `receive_message`.
+- Each rescheduling is logged as `SQS message retry scheduled ... retry_delay_secs=<n>`. If
+  adjusting the delay fails, only an error is logged and the message returns through the queue's
+  visibility timeout.
+- The queue's redrive policy / DLQ keeps working: SQS counts `maxReceiveCount` as usual.
+- Messages of a batch are processed sequentially, so time spent on earlier messages consumes the
+  visibility timeout of the following ones; size the queue's visibility timeout accordingly.
+- The backoff does **not** apply to errors from `receive_message` itself.
+
 ## Features
 
 - [aws](https://github.com/deroldo/derust/tree/main/crates/derust/src/awsx)
