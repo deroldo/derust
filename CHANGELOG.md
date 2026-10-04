@@ -2,7 +2,7 @@
 
 All notable changes to `derust` are documented in this file.
 
-## [0.5.1]
+## [0.5.2]
 
 ### Added
 
@@ -12,6 +12,11 @@ All notable changes to `derust` are documented in this file.
 - `Message::receive_count()` / `MessageBuilder::receive_count()`.
 - The SQS consumer's `receive_message` now requests `ApproximateReceiveCount`.
 - New optional dependency `rand` under the `sqs` feature.
+
+## [0.5.1]
+
+### Added
+
 - `tracex::init()` now also builds OTLP push pipelines for **metrics** and **logs**,
   reusing the same `OTEL_EXPORTER_OTLP_ENDPOINT`/`OTEL_EXPORTER_OTLP_PROTOCOL`/
   `OTEL_EXPORTER_OTLP_HEADERS` env vars already used for traces. Opt-in by env
