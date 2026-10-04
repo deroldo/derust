@@ -6,6 +6,12 @@ All notable changes to `derust` are documented in this file.
 
 ### Added
 
+- `sqsx::RetryPolicy` and `SqsQueueConsumer::with_retry_policy` (opt-in): failed SQS messages are
+  rescheduled via `ChangeMessageVisibility` with exponential backoff and full jitter
+  (defaults: base 5s, max 15min, factor 2.0; capped at the 12h SQS limit).
+- `Message::receive_count()` / `MessageBuilder::receive_count()`.
+- The SQS consumer's `receive_message` now requests `ApproximateReceiveCount`.
+- New optional dependency `rand` under the `sqs` feature.
 - `tracex::init()` now also builds OTLP push pipelines for **metrics** and **logs**,
   reusing the same `OTEL_EXPORTER_OTLP_ENDPOINT`/`OTEL_EXPORTER_OTLP_PROTOCOL`/
   `OTEL_EXPORTER_OTLP_HEADERS` env vars already used for traces. Opt-in by env

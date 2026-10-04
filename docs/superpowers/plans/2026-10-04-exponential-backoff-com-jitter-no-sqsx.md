@@ -199,9 +199,9 @@ Duration::from_secs_f64(secs.max(0.0))   // secs é finito e >= 0 aqui
 `delay_with_sample`: `Duration::from_secs_f64(max_delay_for(n).as_secs_f64() * sample_clamped)`.
 `delay_for`: `delay_with_sample(n, rand::random::<f64>())`.
 
-- [ ] **Step 1: Dependências.** Adicionar `rand` conforme acima; `cargo build --features sqs` deve compilar e `Cargo.lock` não deve resolver uma versão de `rand` além de uma 0.9.x já presente.
+- [x] **Step 1: Dependências.** Adicionar `rand` conforme acima; `cargo build --features sqs` deve compilar e `Cargo.lock` não deve resolver uma versão de `rand` além de uma 0.9.x já presente.
 
-- [ ] **Step 2: Escrever os testes primeiro** (`#[cfg(test)] mod tests` em `retry.rs`), todos falhando por `todo!()`/ausência:
+- [x] **Step 2: Escrever os testes primeiro** (`#[cfg(test)] mod tests` em `retry.rs`), todos falhando por `todo!()`/ausência:
   - `default_policy_is_5s_15min_factor_2` — `Default` retorna 5s/900s/2.0.
   - `max_delay_grows_exponentially_until_cap` — defaults: n=1→5s, n=2→10s, n=3→20s, n=8→640s, n=9→900s (capado), n=100→900s.
   - `receive_count_zero_is_treated_as_first_attempt` — n=0 igual a n=1.
@@ -214,11 +214,11 @@ Duration::from_secs_f64(secs.max(0.0))   // secs é finito e >= 0 aqui
   - `delay_for_stays_within_zero_and_ceiling` — 1000 iterações com n=3 (teto 20s): sempre `<= 20s`.
   - `to_visibility_timeout_secs_truncates_and_saturates` — 1.9s→1; 0→0; 43_200s→43_200; 100h→43_200; `Duration::MAX`→43_200.
 
-- [ ] **Step 3: Implementar** até verde. `cargo nextest run --features sqs -- retry`.
+- [x] **Step 3: Implementar** até verde. `cargo nextest run --features sqs -- retry`.
 
-- [ ] **Step 4:** `mod retry;` + `pub use retry::RetryPolicy;` em `mod.rs` (a constante e a função de conversão ficam `pub(crate)`/`pub` dentro de `retry.rs`; só `RetryPolicy` é re-exportada). Rustdoc em cada item público explicando a fórmula e os defaults.
+- [x] **Step 4:** `mod retry;` + `pub use retry::RetryPolicy;` em `mod.rs` (a constante e a função de conversão ficam `pub(crate)`/`pub` dentro de `retry.rs`; só `RetryPolicy` é re-exportada). Rustdoc em cada item público explicando a fórmula e os defaults.
 
-- [ ] **Step 5: Lint e commit.** `cargo clippy --features sqs -- -D warnings`; commit `feat(sqsx): add RetryPolicy with full-jitter exponential backoff`.
+- [x] **Step 5: Lint e commit.** `cargo clippy --features sqs -- -D warnings`; commit `feat(sqsx): add RetryPolicy with full-jitter exponential backoff`.
 
 **Plano de testes:** os 11 testes acima (puros, sem rede, sem relógio).
 **Plano de revisão:** confirmar (a) nenhum caminho chama `Duration::from_secs_f64` com `inf`/NaN/negativo; (b) `powi` com expoente convertido sem overflow de `as i32`; (c) defaults exatamente 5s/900s/2.0; (d) `rand` só é usado em `delay_for`; (e) nenhum `unwrap`.
@@ -263,14 +263,14 @@ impl MessageBuilder {
 Em `poll_queue`, adicionar à chamada `receive_message()`:
 `.message_system_attribute_names(MessageSystemAttributeName::ApproximateReceiveCount)`.
 
-- [ ] **Step 1: Testes primeiro** (`#[cfg(test)] mod tests` em `consumer.rs`):
+- [x] **Step 1: Testes primeiro** (`#[cfg(test)] mod tests` em `consumer.rs`):
   - `receive_count_defaults_to_one_when_attribute_missing` — `Message::builder().body("x").build().receive_count() == 1`.
   - `receive_count_reads_builder_value` — `.receive_count(4)` → 4.
   - `receive_count_invalid_or_zero_is_one` — montar `SdkMessage::builder().attributes(ApproximateReceiveCount, "abc")` e `"0"` e `""` e `"-3"`, via `Message::new(..)` (é `pub(crate)`, ok em teste do mesmo crate) → 1.
   - `receive_count_large_value` — `"4294967295"` → `u32::MAX`; `"99999999999"` (overflow de u32) → 1.
-- [ ] **Step 2: Implementar**, rodar `cargo nextest run --features sqs -- receive_count`.
-- [ ] **Step 3: Ajustar o `receive_message`** e rodar `cargo build --features sqs` (compila é a verificação; o comportamento de rede é coberto na Task 5).
-- [ ] **Step 4: Lint e commit** `feat(sqsx): expose Message::receive_count and request ApproximateReceiveCount`.
+- [x] **Step 2: Implementar**, rodar `cargo nextest run --features sqs -- receive_count`.
+- [x] **Step 3: Ajustar o `receive_message`** e rodar `cargo build --features sqs` (compila é a verificação; o comportamento de rede é coberto na Task 5).
+- [x] **Step 4: Lint e commit** `feat(sqsx): expose Message::receive_count and request ApproximateReceiveCount`.
 
 **Plano de testes:** 4 testes unitários acima + build.
 **Plano de revisão:** confirmar que `Message` não ganha campo novo (é derivado do SDK), que `MessageBuilder::receive_count` não quebra os métodos existentes e que o atributo é pedido via `message_system_attribute_names`, não `attribute_names`.
@@ -303,12 +303,12 @@ impl<S> SqsQueueConsumer<S> where S: Clone + Send + Sync + 'static {
 }
 ```
 
-- [ ] **Step 1: Testes primeiro** (`consumer.rs`):
+- [x] **Step 1: Testes primeiro** (`consumer.rs`):
   - `new_has_no_retry_policy` — `SqsQueueConsumer::<()>::new("q", |_c, _m| async { Ok(()) }).retry_policy.is_none()` (usar um estado `()`/struct `Clone` trivial).
   - `with_retry_policy_sets_policy` — `.with_retry_policy(RetryPolicy::default()).retry_policy == Some(RetryPolicy::default())`.
   - `with_retry_policy_keeps_queue_url_and_handler` — `queue_url` preservado.
-- [ ] **Step 2: Implementar** e rodar `cargo nextest run --features sqs -- retry_policy`.
-- [ ] **Step 3: Lint e commit** `feat(sqsx): add SqsQueueConsumer::with_retry_policy (opt-in)`.
+- [x] **Step 2: Implementar** e rodar `cargo nextest run --features sqs -- retry_policy`.
+- [x] **Step 3: Lint e commit** `feat(sqsx): add SqsQueueConsumer::with_retry_policy (opt-in)`.
 
 **Plano de testes:** 3 testes unitários.
 **Plano de revisão:** `new()` continua com a mesma assinatura (`git diff` não toca a linha `pub fn new<H, Fut>(queue_url: &str, handler: H) -> Self`); campo é `pub(crate)`, não público.
@@ -362,16 +362,16 @@ Nada pode usar `?`, `unwrap` ou `panic!` aqui; falha só é logada. Se `receipt_
 (`unwrap_or_default()` existente), ainda assim a chamada é feita e a eventual falha é só logada
 (comportamento análogo ao `delete_message` atual, que ignora o resultado).
 
-- [ ] **Step 1: Testes puros primeiro** (`runner.rs`, `#[cfg(test)]`):
+- [x] **Step 1: Testes puros primeiro** (`runner.rs`, `#[cfg(test)]`):
   - `retry_delay_secs_is_none_without_policy` — `retry_delay_secs(None, 5) == None`.
   - `retry_delay_secs_is_within_ceiling` — política default, n=3, 500 iterações: `Some(s)` com `0 <= s <= 20`.
   - `retry_delay_secs_never_exceeds_12h` — política `max=100h`, n=`u32::MAX`: `s <= 43_200` e `s >= 0`.
-- [ ] **Step 2: Teste de I/O com cliente simulado.** Montar um `aws_sdk_sqs::Client` de teste cuja camada HTTP é substituída (preferência: `aws-smithy-mocks` como dev-dependency; alternativa: `aws-smithy-http-client` com `test-util` e `StaticReplayClient`; checar qual compila com o `aws-sdk-sqs` 1.74 / `aws-config` 1.8 do workspace e, se nenhum compilar sem inflar o lockfile de forma desproporcional, parar e reportar em vez de improvisar). Construir `SqsClient { client }` (campo `pub`). Casos:
+- [x] **Step 2: Teste de I/O com cliente simulado.** Montar um `aws_sdk_sqs::Client` de teste cuja camada HTTP é substituída (preferência: `aws-smithy-mocks` como dev-dependency; alternativa: `aws-smithy-http-client` com `test-util` e `StaticReplayClient`; checar qual compila com o `aws-sdk-sqs` 1.74 / `aws-config` 1.8 do workspace e, se nenhum compilar sem inflar o lockfile de forma desproporcional, parar e reportar em vez de improvisar). Construir `SqsClient { client }` (campo `pub`). Casos:
   - `apply_retry_backoff_sends_visibility_timeout` — o mock captura a requisição; assertar que a ação é `ChangeMessageVisibility`, com `QueueUrl`, `ReceiptHandle` e `VisibilityTimeout` iguais aos passados.
   - `apply_retry_backoff_swallows_service_error` — o mock responde erro (ex.: `ReceiptHandleIsInvalid`/HTTP 400); a função retorna normalmente (sem panic) e uma chamada subsequente funciona (consumidor não é derrubado).
-- [ ] **Step 3: Implementar** as duas funções e a integração no ramo `Err`; rodar `cargo nextest run --features sqs -- runner`.
-- [ ] **Step 4: Conferir métrica.** Com `--features sqs,prometheus` e `--features sqs,statsd`, `cargo build` ok; o bloco `#[cfg(any(feature = "statsd", feature = "prometheus"))]` do `stopwatch.record` permanece intacto.
-- [ ] **Step 5: Lint e commit** `feat(sqsx): apply exponential backoff with full jitter via ChangeMessageVisibility on handler failure`.
+- [x] **Step 3: Implementar** as duas funções e a integração no ramo `Err`; rodar `cargo nextest run --features sqs -- runner`.
+- [x] **Step 4: Conferir métrica.** Com `--features sqs,prometheus` e `--features sqs,statsd`, `cargo build` ok; o bloco `#[cfg(any(feature = "statsd", feature = "prometheus"))]` do `stopwatch.record` permanece intacto.
+- [x] **Step 5: Lint e commit** `feat(sqsx): apply exponential backoff with full jitter via ChangeMessageVisibility on handler failure`.
 
 **Plano de testes:** 3 testes puros + 2 testes com cliente simulado.
 **Plano de revisão:** (a) o `error!` existente do ramo `Err` e o ramo `Ok` não mudaram; (b) sem política, nenhuma chamada nova é feita (função pura devolve `None` e o `if let` não entra); (c) a falha do SDK nunca propaga; (d) o log do atraso contém `retry_delay_secs` e `receive_count`; (e) o `msg` não é usado após o move para o handler.
@@ -389,14 +389,14 @@ Nada pode usar `?`, `unwrap` ou `panic!` aqui; falha só é logada. Se `receipt_
 
 Se `process_message` exigir um `AppContext` real para ser chamado, construir um com os helpers de teste já usados em `crates/derust` (procurar `AppContext::new` em testes existentes, ex.: em `httpx`) — features mínimas `sqs` + `http_server`.
 
-- [ ] **Step 1: Testes** (cada um com o mock registrando as chamadas recebidas):
+- [x] **Step 1: Testes** (cada um com o mock registrando as chamadas recebidas):
   - `failing_handler_with_policy_changes_visibility` — consumer com `with_retry_policy(RetryPolicy::default())`, handler `Err`, mensagem com `receive_count(3)`: exatamente 1 chamada `ChangeMessageVisibility` com `VisibilityTimeout` em `[0, 20]`, e **nenhuma** `DeleteMessage`.
   - `failing_handler_without_policy_makes_no_sqs_calls` — consumer só com `new()`: **zero** chamadas ao SDK (preserva o comportamento atual).
   - `successful_handler_with_policy_deletes_and_does_not_change_visibility` — `Ok(())`: 1 `DeleteMessage`, 0 `ChangeMessageVisibility`.
   - `visibility_failure_does_not_stop_processing` — o mock falha em `ChangeMessageVisibility`; `process_message` retorna e uma segunda mensagem do lote é processada normalmente.
   - `handler_sees_receive_count` — handler captura `msg.receive_count()` e confirma o valor vindo do atributo (e 1 quando ausente).
-- [ ] **Step 2:** `cargo nextest run --features sqs`; também `--features sqs,prometheus` (confirma que `sqs_consumer_seconds` continua compilando/rodando no mesmo caminho).
-- [ ] **Step 3: Commit** `test(sqsx): cover retry backoff and no-policy regression paths`.
+- [x] **Step 2:** `cargo nextest run --features sqs`; também `--features sqs,prometheus` (confirma que `sqs_consumer_seconds` continua compilando/rodando no mesmo caminho).
+- [x] **Step 3: Commit** `test(sqsx): cover retry backoff and no-policy regression paths`.
 
 **Plano de testes:** os 5 testes acima.
 **Plano de revisão:** conferir que cada critério de sucesso do plano de negócio tem pelo menos um teste: crescimento limitado (Task 1), número da tentativa acessível (Task 2 e `handler_sees_receive_count`), sem política = igual a hoje (`failing_handler_without_policy_makes_no_sqs_calls`), falha ao ajustar atraso não interrompe (`visibility_failure_does_not_stop_processing`), log do atraso (Task 4).
@@ -447,7 +447,7 @@ alterar o número da versão do crate sem decisão explícita):
 - `receive_message` agora solicita `ApproximateReceiveCount`.
 - Nova dependência opcional `rand` na feature `sqs`.
 
-- [ ] **Step 1:** Escrever README e CHANGELOG. **Step 2:** `cargo doc --features sqs --no-deps` sem warnings de rustdoc nos itens novos. **Step 3:** commit `docs(sqsx): document retry policy and receive_count, update CHANGELOG`.
+- [x] **Step 1:** Escrever README e CHANGELOG. **Step 2:** `cargo doc --features sqs --no-deps` sem warnings de rustdoc nos itens novos. **Step 3:** commit `docs(sqsx): document retry policy and receive_count, update CHANGELOG`.
 
 **Plano de testes:** revisão textual + `cargo doc`; se o trecho do README for copiado como doc-test, `cargo test --doc --features sqs`.
 **Plano de revisão:** README e CHANGELOG não prometem backoff no erro de `receive_message`, nem decisão de retry por tipo de erro, nem paralelismo; defaults documentados batem com `RetryPolicy::default()`.
@@ -460,11 +460,11 @@ alterar o número da versão do crate sem decisão explícita):
 
 **Depende de:** todas.
 
-- [ ] `task lint` (fmt + clippy `-D warnings`) e `cargo clippy --features sqs,prometheus -- -D warnings`, `--features sqs,statsd`.
-- [ ] `task test` completo; mais `cargo nextest run --features sqs`.
-- [ ] `cargo build` (default) e `cargo build --features sqs`: confirma que o gate de feature está correto.
-- [ ] `git diff main --stat`: nenhum arquivo fora do mapa de arquivos acima; `Cargo.lock` só ganha `rand` (se já não estiver como dependência do crate) e eventuais dev-deps de teste, sem bump de versões existentes.
-- [ ] Marcar as tarefas como concluídas neste documento e commitar `docs(plan): mark tasks as completed`.
+- [x] `task lint` (fmt + clippy `-D warnings`) e `cargo clippy --features sqs,prometheus -- -D warnings`, `--features sqs,statsd`.
+- [x] `task test` completo; mais `cargo nextest run --features sqs`.
+- [x] `cargo build` (default) e `cargo build --features sqs`: confirma que o gate de feature está correto.
+- [x] `git diff main --stat`: nenhum arquivo fora do mapa de arquivos acima; `Cargo.lock` só ganha `rand` (se já não estiver como dependência do crate) e eventuais dev-deps de teste, sem bump de versões existentes.
+- [x] Marcar as tarefas como concluídas neste documento e commitar `docs(plan): mark tasks as completed`.
 
 ---
 
