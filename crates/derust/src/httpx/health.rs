@@ -1,5 +1,6 @@
+use crate::commonx::{DerustError, DerustTags};
 use crate::httpx::json::JsonResponse;
-use crate::httpx::{AppContext, HttpError, HttpTags};
+use crate::httpx::AppContext;
 use axum::extract::State;
 use axum::http::StatusCode;
 use serde::Serialize;
@@ -59,7 +60,7 @@ pub async fn route<S>(
     #[cfg_attr(not(feature = "postgres"), allow(unused_variables))] State(state): State<
         AppContext<S>,
     >,
-) -> Result<JsonResponse<HealthResponseDto>, HttpError>
+) -> Result<JsonResponse<HealthResponseDto>, DerustError>
 where
     S: Clone + Send + Sync + 'static,
 {
@@ -96,6 +97,6 @@ where
     Ok(JsonResponse::new(
         http_status,
         response,
-        HttpTags::default(),
+        DerustTags::default(),
     ))
 }

@@ -65,7 +65,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 ```
 
 ```rust
-let tags = HttpTags::from([
+let tags = DerustTags::from([
     ("kind", "foo"),
     ("customer_id", "1"), // will be ignored with that configuration by `denied_metric_tags`
 ]);

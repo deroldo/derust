@@ -8,7 +8,8 @@ use uuid::Uuid;
 use derust::databasex::{DatabaseConfig, PostgresDatabase};
 use derust::envx::{load_app_config, Environment};
 use derust::httpx::json::JsonResponse;
-use derust::httpx::{start, AppContext, HttpError, HttpTags};
+use derust::commonx::{DerustError, DerustTags};
+use derust::httpx::{start, AppContext};
 use derust::outboxx;
 use derust::outboxx::OutboxProcessorResources;
 
@@ -63,8 +64,8 @@ pub struct FooResponse {
 
 async fn handler(
     State(context): State<AppContext<AppState>>,
-) -> Result<JsonResponse<FooResponse>, HttpError> {
-    let tags = HttpTags::default();
+) -> Result<JsonResponse<FooResponse>, DerustError> {
+    let tags = DerustTags::default();
 
     // getting your application state from context
     let bar = context.state().bar.clone();

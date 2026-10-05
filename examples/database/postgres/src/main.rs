@@ -6,7 +6,8 @@ use sqlx::query_scalar;
 use derust::databasex::{DatabaseConfig, PostgresDatabase, Repository};
 use derust::envx::Environment;
 use derust::httpx::json::JsonResponse;
-use derust::httpx::{start, AppContext, HttpError, HttpTags};
+use derust::commonx::{DerustError, DerustTags};
+use derust::httpx::{start, AppContext};
 
 #[derive(Clone)]
 pub struct AppState {
@@ -58,8 +59,8 @@ pub struct FooResponse {
 
 async fn handler(
     State(context): State<AppContext<AppState>>,
-) -> Result<JsonResponse<FooResponse>, HttpError> {
-    let tags = HttpTags::default();
+) -> Result<JsonResponse<FooResponse>, DerustError> {
+    let tags = DerustTags::default();
 
     let query = query_scalar("select count(1) from foo");
 

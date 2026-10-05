@@ -53,7 +53,7 @@ pub struct GatewayResponseDto {
 async fn handler(
     State(context): State<AppContext<AppState>>,
     // automatic add tags into log
-) -> Result<JsonResponse, HttpError> {
+) -> Result<JsonResponse, DerustError> {
     // ...
 
     let bar: GatewayResponseDto = context.state().gateway.get(&context, "/bar", None, None, &tags).await?;

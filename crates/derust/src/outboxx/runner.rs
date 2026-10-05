@@ -1,4 +1,5 @@
-use crate::httpx::{AppContext, HttpError, HttpTags};
+use crate::commonx::{DerustError, DerustTags};
+use crate::httpx::AppContext;
 use crate::metricx::{current_gauge, start_stopwatch, MetricTags};
 use crate::shutdown_signal;
 use axum::http::StatusCode;
@@ -96,11 +97,11 @@ async fn metrics_monitor<T>(
 }
 
 #[cfg(any(feature = "statsd", feature = "prometheus"))]
-async fn one_shot_metrics_monitor<T>(context: &AppContext<T>) -> Result<(), HttpError>
+async fn one_shot_metrics_monitor<T>(context: &AppContext<T>) -> Result<(), DerustError>
 where
     T: Clone + Send + Sync + 'static,
 {
-    let tags = HttpTags::default();
+    let tags = DerustTags::default();
 
     let mut metric_tags =
         MetricTags::from(tags.clone()).push("operation".to_string(), "monitor".to_string());
@@ -117,7 +118,7 @@ where
     let mut conn = context.database().get_connection(true, &tags).await?;
 
     let result = query.fetch_one(&mut *conn).await.map_err(|error| {
-        HttpError::without_body(
+        DerustError::without_body(
             StatusCode::INTERNAL_SERVER_ERROR,
             format!("Failed to one_shot_metrics_monitor: {error}"),
             tags.clone(),

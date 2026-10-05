@@ -2,7 +2,8 @@ use axum::body::Body;
 use axum::extract::State;
 use axum::http::{HeaderValue, Method, Request, StatusCode, Uri};
 
-use crate::httpx::{AppContext, HttpTags};
+use crate::commonx::DerustTags;
+use crate::httpx::AppContext;
 use axum::middleware::Next;
 use axum::response::{IntoResponse, Response};
 use bytes::Bytes;
@@ -77,9 +78,9 @@ where
     let res = next.run(req).await;
     let tags = res
         .extensions()
-        .get::<HttpTags>()
+        .get::<DerustTags>()
         .cloned()
-        .unwrap_or(HttpTags::default());
+        .unwrap_or(DerustTags::default());
 
     let request_body_string = if local || log_enabled!(Level::Debug) {
         let payload = std::str::from_utf8(&req_bytes)
@@ -152,7 +153,7 @@ async fn buffer_and_print<S>(
     status: StatusCode,
     res_body: Body,
     request_body_string: String,
-    tags: HttpTags,
+    tags: DerustTags,
     local: bool,
 ) -> Result<Bytes, (StatusCode, String)>
 where

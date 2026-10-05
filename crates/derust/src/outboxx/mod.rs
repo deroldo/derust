@@ -8,7 +8,8 @@ pub use http::*;
 pub use outbox_pattern_processor::outbox_resources::OutboxProcessorResources;
 pub use runner::*;
 
-use crate::httpx::{AppContext, HttpError, HttpTags};
+use crate::commonx::{DerustError, DerustTags};
+use crate::httpx::AppContext;
 use axum::http::StatusCode;
 use outbox_pattern_processor::outbox::Outbox;
 use outbox_pattern_processor::outbox_repository::OutboxRepository;
@@ -27,8 +28,8 @@ pub async fn insert_outbox<S>(
     context: &AppContext<S>,
     db_conn: &mut PgConnection,
     outbox: Outbox,
-    tags: &HttpTags,
-) -> Result<Outbox, HttpError>
+    tags: &DerustTags,
+) -> Result<Outbox, DerustError>
 where
     S: Clone,
 {
@@ -45,7 +46,7 @@ where
     let result = OutboxRepository::insert(db_conn, outbox)
         .await
         .map_err(|error| {
-            HttpError::without_body(
+            DerustError::without_body(
                 StatusCode::INTERNAL_SERVER_ERROR,
                 format!("Failed to insert outbox: {error}"),
                 tags.clone(),

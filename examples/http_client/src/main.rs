@@ -5,7 +5,8 @@ use axum::Router;
 use serde::{Deserialize, Serialize};
 use derust::envx::Environment;
 use derust::httpx::json::JsonResponse;
-use derust::httpx::{start, AppContext, HttpError, HttpTags};
+use derust::commonx::{DerustError, DerustTags};
+use derust::httpx::{start, AppContext};
 use derust::http_clientx::{HttpClient, Response};
 
 #[derive(Clone)]
@@ -49,8 +50,8 @@ pub struct FooResponseDto {
 
 async fn handler(
     State(context): State<AppContext<AppState>>,
-) -> Result<JsonResponse<FooResponseDto>, HttpError> {
-    let tags = HttpTags::default();
+) -> Result<JsonResponse<FooResponseDto>, DerustError> {
+    let tags = DerustTags::default();
 
     // getting your application state from context
     let response: Response<GatewayResponseDto> = context.state().gateway.get(&context, "/bar", None, None, &tags).await?;

@@ -69,10 +69,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 async fn handler(
     State(context): State<AppContext<AppState>>,
-) -> Result<JsonResponse<FooResponse>, HttpError> {
+) -> Result<JsonResponse<FooResponse>, DerustError> {
     // ...
 
-    let tags = HttpTags::default();
+    let tags = DerustTags::default();
 
     let mut trx = context.database().begin_transaction(&context, &tags).await?;
 

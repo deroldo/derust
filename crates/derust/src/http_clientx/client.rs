@@ -1,4 +1,5 @@
-use crate::httpx::{AppContext, HttpError, HttpTags};
+use crate::commonx::{DerustError, DerustTags};
+use crate::httpx::AppContext;
 use opentelemetry::trace::TraceContextExt;
 use reqwest::{Client, Method, StatusCode};
 use reqwest_middleware::{ClientBuilder, ClientWithMiddleware, RequestBuilder};
@@ -51,8 +52,8 @@ impl HttpClient {
         path: &str,
         query_params: Option<Vec<(&str, &str)>>,
         headers: Option<Vec<(&str, &str)>>,
-        tags: &HttpTags,
-    ) -> Result<Response<T>, HttpError>
+        tags: &DerustTags,
+    ) -> Result<Response<T>, DerustError>
     where
         T: for<'de> Deserialize<'de>,
         S: Clone,
@@ -80,8 +81,8 @@ impl HttpClient {
         body: &B,
         query_params: Option<Vec<(&str, &str)>>,
         headers: Option<Vec<(&str, &str)>>,
-        tags: &HttpTags,
-    ) -> Result<Response<T>, HttpError>
+        tags: &DerustTags,
+    ) -> Result<Response<T>, DerustError>
     where
         T: for<'de> Deserialize<'de>,
         B: serde::Serialize,
@@ -110,8 +111,8 @@ impl HttpClient {
         form: &[(&str, &str)],
         query_params: Option<Vec<(&str, &str)>>,
         headers: Option<Vec<(&str, &str)>>,
-        tags: &HttpTags,
-    ) -> Result<Response<T>, HttpError>
+        tags: &DerustTags,
+    ) -> Result<Response<T>, DerustError>
     where
         T: for<'de> Deserialize<'de>,
         S: Clone,
@@ -139,8 +140,8 @@ impl HttpClient {
         body: &B,
         query_params: Option<Vec<(&str, &str)>>,
         headers: Option<Vec<(&str, &str)>>,
-        tags: &HttpTags,
-    ) -> Result<Response<T>, HttpError>
+        tags: &DerustTags,
+    ) -> Result<Response<T>, DerustError>
     where
         T: for<'de> Deserialize<'de>,
         B: serde::Serialize,
@@ -169,8 +170,8 @@ impl HttpClient {
         body: &B,
         query_params: Option<Vec<(&str, &str)>>,
         headers: Option<Vec<(&str, &str)>>,
-        tags: &HttpTags,
-    ) -> Result<Response<T>, HttpError>
+        tags: &DerustTags,
+    ) -> Result<Response<T>, DerustError>
     where
         T: for<'de> Deserialize<'de>,
         B: serde::Serialize,
@@ -198,8 +199,8 @@ impl HttpClient {
         path: &str,
         query_params: Option<Vec<(&str, &str)>>,
         headers: Option<Vec<(&str, &str)>>,
-        tags: &HttpTags,
-    ) -> Result<Response<T>, HttpError>
+        tags: &DerustTags,
+    ) -> Result<Response<T>, DerustError>
     where
         T: for<'de> Deserialize<'de>,
         B: serde::Serialize,
@@ -244,8 +245,8 @@ async fn send<'a, T, B, S>(
     body: Option<&B>,
     headers: Option<Vec<(&str, &str)>>,
     form: Option<&[(&str, &str)]>,
-    tags: &HttpTags,
-) -> Result<Response<T>, HttpError>
+    tags: &DerustTags,
+) -> Result<Response<T>, DerustError>
 where
     T: for<'de> Deserialize<'de>,
     B: serde::Serialize,
@@ -271,7 +272,7 @@ where
     let stopwatch = start_stopwatch(&context, request_context);
 
     let res = request_builder.send().await.map_err(|error| {
-        HttpError::without_body(
+        DerustError::without_body(
             error.status().unwrap_or(StatusCode::BAD_GATEWAY),
             format!("Failed to send http request: {error}"),
             tags.clone(),
@@ -288,7 +289,7 @@ where
 
     if status_code.is_success() && status_code.as_u16() != 204 {
         let body = res.json().await.map_err(|error| {
-            HttpError::without_body(
+            DerustError::without_body(
                 error.status().unwrap_or(StatusCode::INTERNAL_SERVER_ERROR),
                 format!("Failed to deserialize response: {error}"),
                 tags.clone(),
@@ -308,13 +309,13 @@ where
         let response_body = res.json().await;
 
         let response = match response_body {
-            Ok(body) => HttpError::with_json(
+            Ok(body) => DerustError::with_json(
                 status_code,
                 format!("Http response error: {body}"),
                 body,
                 tags.clone(),
             ),
-            Err(error) => HttpError::without_body(
+            Err(error) => DerustError::without_body(
                 status_code,
                 format!("Failed to get http response error: {error}"),
                 tags.clone(),

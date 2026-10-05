@@ -1,6 +1,7 @@
+use crate::commonx::{DerustError, DerustTags};
 use crate::databasex::repository::Repository;
 use crate::databasex::PostgresTransaction;
-use crate::httpx::{AppContext, HttpError, HttpTags};
+use crate::httpx::AppContext;
 use axum::http::StatusCode;
 use sqlx::query::{Query, QueryAs, QueryScalar};
 use sqlx::{Database, FromRow, Postgres};
@@ -13,8 +14,8 @@ impl Repository<Postgres> for Option<&mut PostgresTransaction<'_>> {
         context: &'a AppContext<S>,
         query_name: &'a str,
         query: QueryAs<'a, Postgres, T, <Postgres as Database>::Arguments>,
-        tags: &HttpTags,
-    ) -> Result<T, HttpError>
+        tags: &DerustTags,
+    ) -> Result<T, DerustError>
     where
         T: for<'r> FromRow<'r, <Postgres as Database>::Row> + Send + Unpin,
         S: Clone + Send + Sync,
@@ -37,8 +38,8 @@ impl Repository<Postgres> for Option<&mut PostgresTransaction<'_>> {
         context: &'a AppContext<S>,
         query_name: &'a str,
         query: QueryAs<'a, Postgres, T, <Postgres as Database>::Arguments>,
-        tags: &HttpTags,
-    ) -> Result<Option<T>, HttpError>
+        tags: &DerustTags,
+    ) -> Result<Option<T>, DerustError>
     where
         T: for<'r> FromRow<'r, <Postgres as Database>::Row> + Send + Unpin,
         S: Clone + Send + Sync,
@@ -61,8 +62,8 @@ impl Repository<Postgres> for Option<&mut PostgresTransaction<'_>> {
         context: &'a AppContext<S>,
         query_name: &'a str,
         query: QueryAs<'a, Postgres, T, <Postgres as Database>::Arguments>,
-        tags: &HttpTags,
-    ) -> Result<Vec<T>, HttpError>
+        tags: &DerustTags,
+    ) -> Result<Vec<T>, DerustError>
     where
         T: for<'r> FromRow<'r, <Postgres as Database>::Row> + Send + Unpin,
         S: Clone + Send + Sync,
@@ -85,8 +86,8 @@ impl Repository<Postgres> for Option<&mut PostgresTransaction<'_>> {
         context: &'a AppContext<S>,
         query_name: &'a str,
         query: QueryScalar<'a, Postgres, i64, <Postgres as Database>::Arguments>,
-        tags: &HttpTags,
-    ) -> Result<u64, HttpError>
+        tags: &DerustTags,
+    ) -> Result<u64, DerustError>
     where
         S: Clone + Send + Sync,
     {
@@ -108,8 +109,8 @@ impl Repository<Postgres> for Option<&mut PostgresTransaction<'_>> {
         context: &'a AppContext<S>,
         query_name: &'a str,
         query: QueryScalar<'a, Postgres, bool, <Postgres as Database>::Arguments>,
-        tags: &HttpTags,
-    ) -> Result<bool, HttpError>
+        tags: &DerustTags,
+    ) -> Result<bool, DerustError>
     where
         S: Clone + Send + Sync,
     {
@@ -131,8 +132,8 @@ impl Repository<Postgres> for Option<&mut PostgresTransaction<'_>> {
         context: &'a AppContext<S>,
         query_name: &'a str,
         query: Query<'a, Postgres, <Postgres as Database>::Arguments>,
-        tags: &HttpTags,
-    ) -> Result<(), HttpError>
+        tags: &DerustTags,
+    ) -> Result<(), DerustError>
     where
         S: Clone + Send + Sync,
     {

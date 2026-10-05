@@ -1,5 +1,6 @@
+use crate::commonx::{DerustError, DerustTags};
 use crate::databasex::repository::Repository;
-use crate::httpx::{AppContext, HttpError, HttpTags};
+use crate::httpx::AppContext;
 #[cfg(any(feature = "statsd", feature = "prometheus"))]
 use crate::metricx::{timer, MetricTags, Stopwatch};
 use axum::http::StatusCode;
@@ -13,8 +14,8 @@ impl Repository<Postgres> for PgConnection {
         context: &'a AppContext<S>,
         query_name: &'a str,
         query: QueryAs<'a, Postgres, T, <Postgres as Database>::Arguments>,
-        tags: &HttpTags,
-    ) -> Result<T, HttpError>
+        tags: &DerustTags,
+    ) -> Result<T, DerustError>
     where
         T: for<'r> FromRow<'r, <Postgres as Database>::Row> + Send + Unpin,
         S: Clone + Send + Sync,
@@ -23,7 +24,7 @@ impl Repository<Postgres> for PgConnection {
         let stopwatch = stopwatch_start(context, query_name, tags);
 
         let result = query.fetch_one(&mut *self).await.map_err(|error| {
-            HttpError::without_body(
+            DerustError::without_body(
                 StatusCode::INTERNAL_SERVER_ERROR,
                 format!("Failed to execute fetch one for {query_name} with error: {error}"),
                 tags.clone(),
@@ -41,8 +42,8 @@ impl Repository<Postgres> for PgConnection {
         context: &'a AppContext<S>,
         query_name: &'a str,
         query: QueryAs<'a, Postgres, T, <Postgres as Database>::Arguments>,
-        tags: &HttpTags,
-    ) -> Result<Option<T>, HttpError>
+        tags: &DerustTags,
+    ) -> Result<Option<T>, DerustError>
     where
         T: for<'r> FromRow<'r, <Postgres as Database>::Row> + Send + Unpin,
         S: Clone + Send + Sync,
@@ -51,7 +52,7 @@ impl Repository<Postgres> for PgConnection {
         let stopwatch = stopwatch_start(context, query_name, tags);
 
         let result = query.fetch_optional(self).await.map_err(|error| {
-            HttpError::without_body(
+            DerustError::without_body(
                 StatusCode::INTERNAL_SERVER_ERROR,
                 format!("Failed to execute fetch optional for {query_name} with error: {error}"),
                 tags.clone(),
@@ -69,8 +70,8 @@ impl Repository<Postgres> for PgConnection {
         context: &'a AppContext<S>,
         query_name: &'a str,
         query: QueryAs<'a, Postgres, T, <Postgres as Database>::Arguments>,
-        tags: &HttpTags,
-    ) -> Result<Vec<T>, HttpError>
+        tags: &DerustTags,
+    ) -> Result<Vec<T>, DerustError>
     where
         T: for<'r> FromRow<'r, <Postgres as Database>::Row> + Send + Unpin,
         S: Clone + Send + Sync,
@@ -79,7 +80,7 @@ impl Repository<Postgres> for PgConnection {
         let stopwatch = stopwatch_start(context, query_name, tags);
 
         let result = query.fetch_all(self).await.map_err(|error| {
-            HttpError::without_body(
+            DerustError::without_body(
                 StatusCode::INTERNAL_SERVER_ERROR,
                 format!("Failed to execute fetch all for {query_name} with error: {error}"),
                 tags.clone(),
@@ -97,8 +98,8 @@ impl Repository<Postgres> for PgConnection {
         context: &'a AppContext<S>,
         query_name: &'a str,
         query: QueryScalar<'a, Postgres, i64, <Postgres as Database>::Arguments>,
-        tags: &HttpTags,
-    ) -> Result<u64, HttpError>
+        tags: &DerustTags,
+    ) -> Result<u64, DerustError>
     where
         S: Clone + Send + Sync,
     {
@@ -106,7 +107,7 @@ impl Repository<Postgres> for PgConnection {
         let stopwatch = stopwatch_start(context, query_name, tags);
 
         let result = query.fetch_one(self).await.map_err(|error| {
-            HttpError::without_body(
+            DerustError::without_body(
                 StatusCode::INTERNAL_SERVER_ERROR,
                 format!("Failed to execute count for {query_name} with error: {error}"),
                 tags.clone(),
@@ -124,8 +125,8 @@ impl Repository<Postgres> for PgConnection {
         context: &'a AppContext<S>,
         query_name: &'a str,
         query: QueryScalar<'a, Postgres, bool, <Postgres as Database>::Arguments>,
-        tags: &HttpTags,
-    ) -> Result<bool, HttpError>
+        tags: &DerustTags,
+    ) -> Result<bool, DerustError>
     where
         S: Clone + Send + Sync,
     {
@@ -133,7 +134,7 @@ impl Repository<Postgres> for PgConnection {
         let stopwatch = stopwatch_start(context, query_name, tags);
 
         let result = query.fetch_one(self).await.map_err(|error| {
-            HttpError::without_body(
+            DerustError::without_body(
                 StatusCode::INTERNAL_SERVER_ERROR,
                 format!("Failed to execute exists for {query_name} with error: {error}"),
                 tags.clone(),
@@ -151,8 +152,8 @@ impl Repository<Postgres> for PgConnection {
         context: &'a AppContext<S>,
         query_name: &'a str,
         query: Query<'a, Postgres, <Postgres as Database>::Arguments>,
-        tags: &HttpTags,
-    ) -> Result<(), HttpError>
+        tags: &DerustTags,
+    ) -> Result<(), DerustError>
     where
         S: Clone + Send + Sync,
     {
@@ -160,7 +161,7 @@ impl Repository<Postgres> for PgConnection {
         let stopwatch = stopwatch_start(context, query_name, tags);
 
         let result = query.execute(&mut *self).await.map_err(|error| {
-            HttpError::without_body(
+            DerustError::without_body(
                 StatusCode::INTERNAL_SERVER_ERROR,
                 format!("Failed to execute fetch one for {query_name} with error: {error}"),
                 tags.clone(),
@@ -175,7 +176,7 @@ impl Repository<Postgres> for PgConnection {
 }
 
 #[cfg(any(feature = "statsd", feature = "prometheus"))]
-fn stopwatch_start<S>(context: &AppContext<S>, query_name: &str, tags: &HttpTags) -> Stopwatch<S>
+fn stopwatch_start<S>(context: &AppContext<S>, query_name: &str, tags: &DerustTags) -> Stopwatch<S>
 where
     S: Clone + Send + Sync,
 {
@@ -185,7 +186,7 @@ where
 }
 
 #[cfg(any(feature = "statsd", feature = "prometheus"))]
-fn stopwatch_record<S>(tags: &HttpTags, stopwatch: Stopwatch<S>, success: bool)
+fn stopwatch_record<S>(tags: &DerustTags, stopwatch: Stopwatch<S>, success: bool)
 where
     S: Clone,
 {

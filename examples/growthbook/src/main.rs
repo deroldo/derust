@@ -5,7 +5,8 @@ use axum::Router;
 use derust::envx::Environment;
 use derust::growthbookx::{GrowthBookAttribute, GrowthBookClient, GrowthBookClientTrait};
 use derust::httpx::json::JsonResponse;
-use derust::httpx::{start, AppContext, HttpError, HttpTags};
+use derust::commonx::{DerustError, DerustTags};
+use derust::httpx::{start, AppContext};
 use rand::Rng;
 use serde_json::json;
 
@@ -57,8 +58,8 @@ pub struct FooResponse {
 
 async fn handler(
     State(context): State<AppContext<AppState>>,
-) -> Result<JsonResponse<FooResponse>, HttpError> {
-    let tags = HttpTags::default();
+) -> Result<JsonResponse<FooResponse>, DerustError> {
+    let tags = DerustTags::default();
 
     let pair = rand::thread_rng().gen_range(0..100) % 2 == 0;
 
@@ -67,7 +68,7 @@ async fn handler(
         "pair": pair,
     }))
     .map_err(|error| {
-        HttpError::without_body(
+        DerustError::without_body(
             StatusCode::INTERNAL_SERVER_ERROR,
             format!("Failed to parse growth book attributes: {error}"),
             tags.clone(),

@@ -1,4 +1,5 @@
-use crate::httpx::{AppContext, HttpError, HttpTags};
+use crate::commonx::{DerustError, DerustTags};
+use crate::httpx::AppContext;
 use sqlx::query::{Query, QueryAs, QueryScalar};
 use sqlx::{Database, FromRow, Postgres};
 
@@ -9,8 +10,8 @@ pub trait Repository<DB: Database> {
         context: &'a AppContext<S>,
         query_name: &'a str,
         query: QueryAs<'a, DB, T, <DB as Database>::Arguments>,
-        tags: &HttpTags,
-    ) -> Result<T, HttpError>
+        tags: &DerustTags,
+    ) -> Result<T, DerustError>
     where
         T: for<'r> FromRow<'r, <DB as Database>::Row> + Send + Unpin,
         S: Clone + Send + Sync;
@@ -20,8 +21,8 @@ pub trait Repository<DB: Database> {
         context: &'a AppContext<S>,
         query_name: &'a str,
         query: QueryAs<'a, DB, T, <DB as Database>::Arguments>,
-        tags: &HttpTags,
-    ) -> Result<Option<T>, HttpError>
+        tags: &DerustTags,
+    ) -> Result<Option<T>, DerustError>
     where
         T: for<'r> FromRow<'r, <DB as Database>::Row> + Send + Unpin,
         S: Clone + Send + Sync;
@@ -31,8 +32,8 @@ pub trait Repository<DB: Database> {
         context: &'a AppContext<S>,
         query_name: &'a str,
         query: QueryAs<'a, DB, T, <DB as Database>::Arguments>,
-        tags: &HttpTags,
-    ) -> Result<Vec<T>, HttpError>
+        tags: &DerustTags,
+    ) -> Result<Vec<T>, DerustError>
     where
         T: for<'r> FromRow<'r, <DB as Database>::Row> + Send + Unpin,
         S: Clone + Send + Sync;
@@ -42,8 +43,8 @@ pub trait Repository<DB: Database> {
         context: &'a AppContext<S>,
         query_name: &'a str,
         query: QueryScalar<'a, DB, i64, <DB as Database>::Arguments>,
-        tags: &HttpTags,
-    ) -> Result<u64, HttpError>
+        tags: &DerustTags,
+    ) -> Result<u64, DerustError>
     where
         S: Clone + Send + Sync;
 
@@ -52,8 +53,8 @@ pub trait Repository<DB: Database> {
         context: &'a AppContext<S>,
         query_name: &'a str,
         query: QueryScalar<'a, DB, bool, <DB as Database>::Arguments>,
-        tags: &HttpTags,
-    ) -> Result<bool, HttpError>
+        tags: &DerustTags,
+    ) -> Result<bool, DerustError>
     where
         S: Clone + Send + Sync;
 
@@ -62,8 +63,8 @@ pub trait Repository<DB: Database> {
         context: &'a AppContext<S>,
         query_name: &'a str,
         query: Query<'a, Postgres, <Postgres as Database>::Arguments>,
-        tags: &HttpTags,
-    ) -> Result<(), HttpError>
+        tags: &DerustTags,
+    ) -> Result<(), DerustError>
     where
         S: Clone + Send + Sync;
 }

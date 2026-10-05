@@ -1,5 +1,5 @@
 use super::consumer::Message;
-use crate::httpx::HttpTags;
+use crate::commonx::DerustTags;
 use tracing::warn;
 
 pub(crate) const TRACE_ID_ATTRIBUTE: &str = "x-trace-id";
@@ -47,10 +47,10 @@ pub(crate) fn resolve(msg: &Message) -> TraceResolution {
     }
 }
 
-/// Fresh `HttpTags` (per message) holding `x-trace-id`, plus the id as a `String`.
-pub(crate) fn tags_for(msg: &Message) -> (HttpTags, String) {
+/// Fresh `DerustTags` (per message) holding `x-trace-id`, plus the id as a `String`.
+pub(crate) fn tags_for(msg: &Message) -> (DerustTags, String) {
     let id = resolve(msg).id;
-    let mut tags = HttpTags::default();
+    let mut tags = DerustTags::default();
     tags.add(TRACE_ID_ATTRIBUTE, &id);
     (tags, id)
 }

@@ -35,7 +35,7 @@ The crate is entirely feature-gated. Enabling a feature pulls in the relevant de
 | Feature | Module | Purpose |
 |---|---|---|
 | `env` (default via `http_server`) | `envx` | Config loading from env vars / `.env` files |
-| `http_server` (default) | `httpx`, `tracex` | Axum server bootstrap, middleware stack, tracing |
+| `http_server` (default) | `httpx`, `commonx`, `tracex` | Axum server bootstrap, middleware stack, tracing |
 | `http_client` | `http_clientx` | Reqwest client with OpenTelemetry tracing |
 | `postgres` | `databasex` | SQLx Postgres pool + transaction helpers |
 | `outbox` | `outboxx` | Outbox pattern processor (requires `postgres`) |
@@ -62,11 +62,16 @@ JWT authentication support is always available as part of `http_server` (default
 
 With `env_from_secrets_manager`, secrets are fetched from AWS Secrets Manager and merged into the config map before deserialisation.
 
+### Common types (`commonx`)
+
+Available with `http_server` (default). Import as `derust::commonx::{DerustError, DerustTags}`.
+
+- **`DerustTags`** — key-value pairs threaded through handlers and logged alongside every response.
+- **`DerustError`** — error type that implements `IntoResponse`; carries status code, message, optional body, headers, and tags.
+
 ### HTTP layer (`httpx`)
 
-- **`HttpTags`** — key-value pairs threaded through handlers and logged alongside every response.
 - **`JsonResponse`** / **`TextResponse`** — typed response wrappers returned from handlers.
-- **`HttpError`** — error type that implements `IntoResponse`; carries status code, message, optional body, headers, and tags.
 - Built-in middleware: request timeout (env `SERVER_TIMEOUT_IN_MILLIS`, default 10 000 ms), tracing/OpenTelemetry (B3 traceparent), compression (gzip), sensitive header redaction, panic catching, and automatic response-status logging.
 - Automatic routes: `GET /health` (always), `GET /metrics` (prometheus feature only).
 

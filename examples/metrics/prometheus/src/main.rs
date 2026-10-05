@@ -4,7 +4,8 @@ use axum::routing::get;
 use axum::Router;
 use derust::envx::Environment;
 use derust::httpx::json::JsonResponse;
-use derust::httpx::{start, AppContext, HttpError, HttpTags};
+use derust::commonx::{DerustError, DerustTags};
+use derust::httpx::{start, AppContext};
 use derust::metricx::{current_gauge, increment, increment_one, record_duration, record_money, start_stopwatch, MetricTags, PrometheusConfig};
 use regex::Regex;
 
@@ -44,8 +45,8 @@ pub struct FooResponse {
 
 async fn handler(
     State(context): State<AppContext<AppState>>,
-) -> Result<JsonResponse<FooResponse>, HttpError> {
-    let tags = HttpTags::from([
+) -> Result<JsonResponse<FooResponse>, DerustError> {
+    let tags = DerustTags::from([
         ("kind", "foo"),
         ("customer_id", "1"), // will be ignored with that configuration by `denied_metric_tags`
     ]);
@@ -63,6 +64,6 @@ async fn handler(
     Ok(JsonResponse::new(
         StatusCode::OK,
         FooResponse { foo: "".to_string() },
-        HttpTags::default(),
+        DerustTags::default(),
     ))
 }

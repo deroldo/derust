@@ -1,4 +1,4 @@
-use crate::httpx::tags::HttpTags;
+use super::tags::DerustTags;
 use crate::httpx::HttpResponse;
 use axum::body::Body;
 use axum::http::{Response, StatusCode};
@@ -6,28 +6,28 @@ use axum_tracing_opentelemetry::tracing_opentelemetry_instrumentation_sdk::find_
 use serde_json::Value;
 
 #[derive(Debug)]
-pub struct HttpError {
+pub struct DerustError {
     status_code: StatusCode,
     error_message: String,
     response_body: Box<Option<String>>,
     response_headers: Box<Option<Vec<(String, String)>>>,
-    tags: HttpTags,
+    tags: DerustTags,
 }
 
-impl std::fmt::Display for HttpError {
+impl std::fmt::Display for DerustError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}", self.error_message)
     }
 }
 
-impl std::error::Error for HttpError {}
+impl std::error::Error for DerustError {}
 
-impl HttpError {
+impl DerustError {
     pub fn with_body(
         status_code: StatusCode,
         error_message: String,
         response_body: String,
-        tags: HttpTags,
+        tags: DerustTags,
     ) -> Self {
         Self {
             status_code,
@@ -42,7 +42,7 @@ impl HttpError {
         status_code: StatusCode,
         error_message: String,
         response_body: Value,
-        tags: HttpTags,
+        tags: DerustTags,
     ) -> Self {
         let headers = vec![("Content-Type".to_string(), "application/json".to_string())];
 
@@ -55,7 +55,7 @@ impl HttpError {
         }
     }
 
-    pub fn without_body(status_code: StatusCode, error_message: String, tags: HttpTags) -> Self {
+    pub fn without_body(status_code: StatusCode, error_message: String, tags: DerustTags) -> Self {
         Self {
             status_code,
             error_message,
@@ -86,7 +86,7 @@ impl HttpError {
     }
 }
 
-impl HttpResponse for HttpError {
+impl HttpResponse for DerustError {
     fn status_code(&self) -> StatusCode {
         self.status_code
     }
@@ -103,7 +103,7 @@ impl HttpResponse for HttpError {
         (*self.response_headers).clone()
     }
 
-    fn tags(&self) -> HttpTags {
+    fn tags(&self) -> DerustTags {
         let mut tags = self.tags.clone();
         tags.add("error_message", &self.error_message);
 
@@ -121,8 +121,8 @@ impl HttpResponse for HttpError {
     }
 }
 
-impl From<HttpError> for Response<Body> {
-    fn from(http_error: HttpError) -> Self {
+impl From<DerustError> for Response<Body> {
+    fn from(http_error: DerustError) -> Self {
         let mut response = Response::builder().status(http_error.status_code());
 
         if let Some(headers) = http_error.response_headers() {
@@ -139,5 +139,28 @@ impl From<HttpError> for Response<Body> {
                 .body(Body::empty())
                 .unwrap()
         })
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn without_body_exposes_status_and_tags() {
+        let error = DerustError::without_body(
+            StatusCode::BAD_REQUEST,
+            "x".into(),
+            DerustTags::from([("a", "b")]),
+        );
+        assert_eq!(error.status_code(), StatusCode::BAD_REQUEST);
+        let values = error.tags().values();
+        assert_eq!(values.get("a").map(String::as_str), Some("b"));
+        assert!(values.contains_key("error_message") || values.contains_key("error"));
+    }
+
+    #[test]
+    fn tags_error_message_sets_error_key() {
+        assert_eq!(DerustTags::error_message("m").values()["error"], "m");
     }
 }

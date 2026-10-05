@@ -4,7 +4,8 @@ use axum::routing::get;
 use axum::Router;
 use derust::envx::Environment;
 use derust::httpx::json::JsonResponse;
-use derust::httpx::{start, AppContext, HttpError, HttpTags};
+use derust::commonx::{DerustError, DerustTags};
+use derust::httpx::{start, AppContext};
 
 #[derive(Clone)]
 pub struct AppState {
@@ -40,13 +41,13 @@ pub struct FooResponse {
 
 async fn handler(
     State(context): State<AppContext<AppState>>,
-) -> Result<JsonResponse<FooResponse>, HttpError> {
+) -> Result<JsonResponse<FooResponse>, DerustError> {
     // getting your application state from context
     let bar = context.state().bar.clone();
 
     Ok(JsonResponse::new(
         StatusCode::OK,
         FooResponse { foo: bar },
-        HttpTags::default(),
+        DerustTags::default(),
     ))
 }

@@ -1,4 +1,4 @@
-use crate::httpx::HttpTags;
+use crate::commonx::DerustTags;
 use axum_tracing_opentelemetry::tracing_opentelemetry_instrumentation_sdk::find_current_trace_id;
 use std::collections::HashMap;
 
@@ -9,7 +9,7 @@ pub(crate) const SQS_SNS_MAX_ATTRIBUTES: usize = 10;
 const IDEMPOTENT_KEY_HEADER: &str = "x-idempotent-key";
 
 /// Trace id already in `tags` (any key case, non-empty) or else the current span's trace id.
-pub(crate) fn resolve_trace_id(tags: &HttpTags) -> Option<String> {
+pub(crate) fn resolve_trace_id(tags: &DerustTags) -> Option<String> {
     tags.values()
         .into_iter()
         .find(|(k, v)| k.eq_ignore_ascii_case(TRACE_ID_HEADER) && !v.is_empty())
@@ -160,12 +160,12 @@ mod tests {
 
     #[test]
     fn resolve_uses_tags_then_falls_back() {
-        let tags = HttpTags::from([("X-Trace-Id", "abc")]);
+        let tags = DerustTags::from([("X-Trace-Id", "abc")]);
         assert_eq!(resolve_trace_id(&tags), Some("abc".to_string()));
         assert_eq!(
-            resolve_trace_id(&HttpTags::from([("x-trace-id", "")])),
+            resolve_trace_id(&DerustTags::from([("x-trace-id", "")])),
             None
         );
-        assert_eq!(resolve_trace_id(&HttpTags::default()), None);
+        assert_eq!(resolve_trace_id(&DerustTags::default()), None);
     }
 }

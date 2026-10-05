@@ -6,12 +6,12 @@ All notable changes to `derust` are documented in this file.
 
 ### Breaking
 
-- The `SqsQueueConsumer` handler now receives `HttpTags` (by value) as a third argument:
-  `Fn(AppContext<S>, Message, HttpTags)`. Migration: change `|ctx, msg|` to `|ctx, msg, _tags|`.
+- The `SqsQueueConsumer` handler now receives `DerustTags` (by value) as a third argument:
+  `Fn(AppContext<S>, Message, DerustTags)`. Migration: change `|ctx, msg|` to `|ctx, msg, _tags|`.
 
 ### Added
 
-- Consumed SQS messages now get `HttpTags` containing `x-trace-id`, read from the `x-trace-id`
+- Consumed SQS messages now get `DerustTags` containing `x-trace-id`, read from the `x-trace-id`
   message attribute; a new trace id is generated when it is missing or invalid.
 - `Message::message_attribute()` / `MessageBuilder::message_attribute()`.
 - The SQS consumer's `receive_message` now requests the `x-trace-id` message attribute.
@@ -24,6 +24,34 @@ All notable changes to `derust` are documented in this file.
 - For SQS/SNS the trace is delivered as a MessageAttribute; with the 10-attribute limit
   (`x-idempotent-key` counts as one) the trace is silently omitted when there is no free slot.
 - For HTTP the header is `x-trace-id`; strict destinations that reject unknown headers may be affected.
+
+### Changed (BREAKING)
+
+- `httpx::HttpTags` is now `commonx::DerustTags`.
+- `httpx::HttpError` is now `commonx::DerustError`.
+- The old names were removed outright (no `#[deprecated]` aliases) and `httpx` no longer re-exports
+  the new names.
+- The new `commonx` module is available with the `http_server` feature (default).
+- `HttpResponse`, `HttpClient*`, `JsonResponse` and `TextResponse` are unchanged.
+- No behavior change: logs, metrics and HTTP responses are identical.
+
+### Migration guide
+
+| Before | After |
+|---|---|
+| `derust::httpx::HttpTags` | `derust::commonx::DerustTags` |
+| `derust::httpx::HttpError` | `derust::commonx::DerustError` |
+
+```rust
+// before
+use derust::httpx::{HttpError, HttpTags};
+// after
+use derust::commonx::{DerustError, DerustTags};
+```
+
+Signatures that mention these types change nominally: SQS handlers
+(`Result<(), DerustError>`), `databasex` repositories, `outboxx`, `http_clientx`, and any
+implementation of `HttpResponse::tags() -> DerustTags`.
 
 ## [0.5.2]
 

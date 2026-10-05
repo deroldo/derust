@@ -5,7 +5,8 @@ use axum::Router;
 use serde::Deserialize;
 use derust::envx::{load_app_config, Environment};
 use derust::httpx::json::JsonResponse;
-use derust::httpx::{start, AppContext, HttpError, HttpTags};
+use derust::commonx::{DerustError, DerustTags};
+use derust::httpx::{start, AppContext};
 
 #[derive(Clone)]
 pub struct AppState {
@@ -72,7 +73,7 @@ pub struct FooResponse {
 
 async fn handler(
     State(context): State<AppContext<AppState>>,
-) -> Result<JsonResponse<FooResponse>, HttpError> {
+) -> Result<JsonResponse<FooResponse>, DerustError> {
     // getting your application state from context
     let config = &context.state().app_config;
     let bar = config.foo.bar.clone();
@@ -84,6 +85,6 @@ async fn handler(
             foo: bar,
             pk,
         },
-        HttpTags::default(),
+        DerustTags::default(),
     ))
 }

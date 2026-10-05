@@ -1,4 +1,5 @@
-use crate::httpx::{AppContext, HttpError, HttpTags};
+use crate::commonx::{DerustError, DerustTags};
+use crate::httpx::AppContext;
 use crate::outboxx::insert_outbox;
 use crate::outboxx::trace::{resolve_trace_id, with_trace_header_limited, SQS_SNS_MAX_ATTRIBUTES};
 use chrono::{DateTime, Utc};
@@ -15,8 +16,8 @@ pub async fn send_to_sqs<S>(
     queue_url: &str,
     headers: Option<HashMap<String, String>>,
     payload: &Value,
-    tags: &HttpTags,
-) -> Result<Outbox, HttpError>
+    tags: &DerustTags,
+) -> Result<Outbox, DerustError>
 where
     S: Clone,
 {
@@ -35,8 +36,8 @@ pub async fn send_to_sqs_with_delay<S>(
     headers: Option<HashMap<String, String>>,
     payload: &Value,
     process_after: Option<DateTime<Utc>>,
-    tags: &HttpTags,
-) -> Result<Outbox, HttpError>
+    tags: &DerustTags,
+) -> Result<Outbox, DerustError>
 where
     S: Clone,
 {
