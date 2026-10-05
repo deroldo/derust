@@ -2,6 +2,7 @@ mod http;
 mod runner;
 mod sns;
 mod sqs;
+mod trace;
 
 pub use http::*;
 pub use outbox_pattern_processor::outbox_resources::OutboxProcessorResources;

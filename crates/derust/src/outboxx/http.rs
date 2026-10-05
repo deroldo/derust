@@ -1,5 +1,6 @@
 use crate::httpx::{AppContext, HttpError, HttpTags};
 use crate::outboxx::insert_outbox;
+use crate::outboxx::trace::{resolve_trace_id, with_trace_header};
 use chrono::{DateTime, Utc};
 use outbox_pattern_processor::outbox::Outbox;
 use serde_json::Value;
@@ -19,6 +20,8 @@ pub async fn send_to_http<S>(
 where
     S: Clone,
 {
+    let trace_id = resolve_trace_id(tags);
+    let headers = with_trace_header(headers, trace_id.as_deref());
     let outbox = Outbox::http_post_json(partition_key, url, headers, payload);
     insert_outbox(context, db_conn, outbox, tags).await
 }
@@ -36,6 +39,8 @@ pub async fn send_to_http_with_delay<S>(
 where
     S: Clone,
 {
+    let trace_id = resolve_trace_id(tags);
+    let headers = with_trace_header(headers, trace_id.as_deref());
     let mut outbox = Outbox::http_post_json(partition_key, url, headers, payload);
     outbox.process_after = process_after;
     insert_outbox(context, db_conn, outbox, tags).await
