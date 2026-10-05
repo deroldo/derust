@@ -96,14 +96,11 @@ impl HttpResponse for HttpError {
     }
 
     fn response_body(&self) -> Option<String> {
-        self.response_body.clone().map(|s| Some(s)).unwrap_or(None)
+        (*self.response_body).clone()
     }
 
     fn response_headers(&self) -> Option<Vec<(String, String)>> {
-        self.response_headers
-            .clone()
-            .map(|v| Some(v))
-            .unwrap_or(None)
+        (*self.response_headers).clone()
     }
 
     fn tags(&self) -> HttpTags {

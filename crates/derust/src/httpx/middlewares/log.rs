@@ -144,6 +144,7 @@ fn normalize_origin(origin: &str) -> String {
         .replace("/", "")
 }
 
+#[allow(clippy::too_many_arguments)]
 async fn buffer_and_print<S>(
     context: &AppContext<S>,
     method: Method,
@@ -236,5 +237,5 @@ fn decompress_gzip(data: &[u8]) -> Result<Vec<u8>, &'static str> {
 
 fn is_binary(data: &[u8]) -> bool {
     data.iter()
-        .any(|&byte| (byte < 32 || byte > 126) && !matches!(byte, b'\n' | b'\r' | b'\t'))
+        .any(|&byte| !(32..=126).contains(&byte) && !matches!(byte, b'\n' | b'\r' | b'\t'))
 }

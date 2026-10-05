@@ -10,6 +10,7 @@ use crate::metricx::{statsd_registry, StatsdConfig};
 use growthbook_rust::client::GrowthBookClient;
 #[cfg(feature = "prometheus")]
 use metrics_exporter_prometheus::PrometheusHandle;
+#[cfg(any(feature = "statsd", feature = "prometheus"))]
 use regex::Regex;
 
 #[derive(Clone)]

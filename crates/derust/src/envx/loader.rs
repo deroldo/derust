@@ -11,6 +11,7 @@ use crate::awsx::{load_aws_config, secrets_manager};
 #[cfg(feature = "env_from_secrets_manager")]
 use aws_sdk_secretsmanager::Client;
 use serde::Deserialize;
+#[cfg(feature = "env_from_secrets_manager")]
 use tracing::info;
 
 pub async fn load_app_config<T: for<'a> Deserialize<'a>>(
@@ -153,6 +154,7 @@ fn restructure_json(input: &str, prefix: &Option<String>) -> Result<Value, serde
     Ok(Value::Object(result))
 }
 
+#[cfg(feature = "env_from_secrets_manager")]
 fn merge_values(left: &mut config::Value, right: config::Value) {
     match (&mut left.kind, right.kind) {
         // Table + Table → merge recursivo

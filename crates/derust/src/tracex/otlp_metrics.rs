@@ -43,6 +43,10 @@ pub(crate) fn build_otlp_meter_provider(resource: Resource) -> Option<SdkMeterPr
         }
     }?;
 
+    #[cfg_attr(
+        not(any(feature = "statsd", feature = "prometheus")),
+        allow(unused_mut)
+    )]
     let mut builder = SdkMeterProvider::builder()
         .with_periodic_exporter(exporter)
         .with_resource(resource);

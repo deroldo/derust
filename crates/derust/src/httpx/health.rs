@@ -2,10 +2,10 @@ use crate::httpx::json::JsonResponse;
 use crate::httpx::{AppContext, HttpError, HttpTags};
 use axum::extract::State;
 use axum::http::StatusCode;
-use opentelemetry_otlp::WithExportConfig;
 use serde::Serialize;
-use std::error::Error;
+#[cfg(feature = "postgres")]
 use std::time::Duration;
+#[cfg(feature = "postgres")]
 use tokio::time::timeout;
 
 pub const HEALTH_PATH: &str = "/health";
@@ -14,6 +14,7 @@ pub const HEALTH_PATH: &str = "/health";
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum HealthStatus {
     Ok,
+    #[cfg_attr(not(feature = "postgres"), allow(dead_code))]
     Failure,
 }
 
@@ -32,6 +33,7 @@ pub struct HealthResponseDto {
 
 impl HealthResponseDto {
     fn new(#[cfg(feature = "postgres")] database: DatabaseHealthResponseDto) -> Self {
+        #[cfg_attr(not(feature = "postgres"), allow(unused_mut))]
         let mut status = HealthStatus::Ok;
 
         #[cfg(feature = "postgres")]
@@ -54,7 +56,9 @@ pub struct DatabaseHealthResponseDto {
 }
 
 pub async fn route<S>(
-    State(state): State<AppContext<S>>,
+    #[cfg_attr(not(feature = "postgres"), allow(unused_variables))] State(state): State<
+        AppContext<S>,
+    >,
 ) -> Result<JsonResponse<HealthResponseDto>, HttpError>
 where
     S: Clone + Send + Sync + 'static,
