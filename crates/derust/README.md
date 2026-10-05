@@ -36,7 +36,8 @@ use axum::routing::get;
 use axum::Router;
 use derust::envx::Environment;
 use derust::httpx::json::JsonResponse;
-use derust::httpx::{start, AppContext, HttpError, HttpTags};
+use derust::commonx::{DerustError, DerustTags};
+use derust::httpx::{start, AppContext};
 use derust::tracex;
 use serde_json::json;
 
@@ -73,11 +74,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 async fn handler(
     State(context): State<AppContext<AppState>>,
     // automatic add tags into log
-) -> Result<JsonResponse, HttpError> {
+) -> Result<JsonResponse, DerustError> {
     let customer_id = "1";
     
     // tags to be added into log
-    let tags = HttpTags::from([("customer_id", customer_id)]);
+    let tags = DerustTags::from([("customer_id", customer_id)]);
     
     // getting your application state from context
     let bar = context.state().bar.clone();
@@ -245,7 +246,7 @@ use axum::Extension;
 async fn me_handler(
     State(context): State<AppContext<AppState>>,
     Extension(claims): Extension<AccessClaims>,
-) -> Result<JsonResponse<ResponseBody>, HttpError> {
+) -> Result<JsonResponse<ResponseBody>, DerustError> {
     let user_id = claims.sub;
     // ...
 }
@@ -259,7 +260,7 @@ use protect_axum::GrantsLayer;
 async fn admin_handler(
     State(context): State<AppContext<AppState>>,
     Extension(claims): Extension<AccessClaims>,
-) -> Result<JsonResponse<ResponseBody>, HttpError> {
+) -> Result<JsonResponse<ResponseBody>, DerustError> {
     // only reachable when the token carries the "ADMIN" role
     // ...
 }

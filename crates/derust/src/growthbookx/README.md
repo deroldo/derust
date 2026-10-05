@@ -69,19 +69,19 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 async fn handler(
     State(context): State<AppContext<AppState>>,
-) -> Result<JsonResponse<FooResponse>, HttpError> {
-    let tags = HttpTags::default();
+) -> Result<JsonResponse<FooResponse>, DerustError> {
+    let tags = DerustTags::default();
 
     let pair = rand::thread_rng().gen_range(0..100) % 2 == 0;
 
     // creating growthbook attributes directly from the SDK's native API.
     // note: `GrowthBookAttribute::from` returns the SDK's own `GrowthbookError`, not
-    // derust's `HttpError` — convert it explicitly where needed, as shown below.
+    // derust's `DerustError` — convert it explicitly where needed, as shown below.
     let attrs = GrowthBookAttribute::from(json!({
         "pair": pair,
     }))
     .map_err(|error| {
-        HttpError::without_body(
+        DerustError::without_body(
             StatusCode::INTERNAL_SERVER_ERROR,
             format!("Failed to parse growth book attributes: {error}"),
             tags.clone(),
@@ -110,8 +110,8 @@ A partir da versão `0.5.0`, `derust::growthbookx` não expõe mais `GrowthBookC
 - `GrowthBookAttribute::from(value)` no lugar de `growth_book_attributes(value, &tags)`
   — note que o tipo de erro retornado agora é `growthbook_rust::error::GrowthbookError`
   (também re-exportado por `derust::growthbookx::GrowthbookError`), não mais
-  `derust::httpx::HttpError`. Se você usava esse erro diretamente em um handler HTTP,
-  converta-o manualmente para `HttpError` (veja o exemplo acima).
+  `derust::commonx::DerustError`. Se você usava esse erro diretamente em um handler HTTP,
+  converta-o manualmente para `DerustError` (veja o exemplo acima).
 - `derust::httpx::GrowthBookClientTrait` também deixou de existir — importe de
   `derust::growthbookx::GrowthBookClientTrait`.
 
