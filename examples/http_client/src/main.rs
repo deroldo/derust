@@ -35,7 +35,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // automatic health-check route
     // automatic route response status code log
-    start(port, context, router).await
+    start(port, context, router, false).await
 }
 
 #[derive(Deserialize)]

@@ -3,6 +3,7 @@ use axum::http::StatusCode;
 use axum::routing::get;
 use axum::Router;
 use derust::envx::Environment;
+use regex::Regex;
 use derust::httpx::json::JsonResponse;
 use derust::commonx::{DerustError, DerustTags};
 use derust::httpx::{start, AppContext};
@@ -39,7 +40,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // automatic health-check route
     // automatic route response status code log
-    start(port, context, router).await
+    start(port, context, router, false).await
 }
 
 #[derive(serde::Serialize)]

@@ -10,7 +10,9 @@ use derust::envx::{load_app_config, Environment};
 use derust::httpx::json::JsonResponse;
 use derust::commonx::{DerustError, DerustTags};
 use derust::httpx::{start, AppContext};
+use derust::metricx::PrometheusConfig;
 use derust::outboxx;
+use regex::Regex;
 use derust::outboxx::OutboxProcessorResources;
 
 #[derive(Clone)]
@@ -41,7 +43,18 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let application_name = "sample";
 
     // easy way to get application context things, like your application state struct
-    let context = AppContext::new(application_name, env, database.clone(), app_state)?;
+    let prometheus_config = PrometheusConfig {
+        denied_metric_tags: vec![],
+        denied_metric_tags_by_regex: vec![Regex::new(".+_id$").unwrap()],
+    };
+
+    let context = AppContext::new(
+        application_name,
+        env,
+        database.clone(),
+        prometheus_config,
+        app_state,
+    )?;
 
     let port = 3000;
     let router = Router::new().nest("/foo", Router::new().route("/", get(handler)));
@@ -54,7 +67,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // automatic health-check route
     // automatic route response status code log
     // automatic start outbox-pattern-processor
-    start(port, context, router, outbox_resources).await
+    start(port, context, router, false, outbox_resources, true, None).await
 }
 
 #[derive(serde::Serialize)]
@@ -70,7 +83,7 @@ async fn handler(
     // getting your application state from context
     let bar = context.state().bar.clone();
 
-    let mut trx = context.database().begin_transaction(&context, &tags).await?;
+    let mut trx = context.database().begin_transaction(&context, "foo_transaction", &tags).await?;
 
     // sending outbox event
     // you can also use `send_to_sqs` or `send_to_sns` functions
