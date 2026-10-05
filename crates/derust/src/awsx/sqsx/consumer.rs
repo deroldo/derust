@@ -1,12 +1,13 @@
 use aws_sdk_sqs::types::builders::MessageBuilder as SdkMessageBuilder;
 use aws_sdk_sqs::types::Message as SdkMessage;
+use aws_sdk_sqs::types::MessageAttributeValue;
 use aws_sdk_sqs::types::MessageSystemAttributeName;
 use std::future::Future;
 use std::pin::Pin;
 use std::sync::Arc;
 
 use super::retry::RetryPolicy;
-use crate::httpx::{AppContext, HttpError};
+use crate::httpx::{AppContext, HttpError, HttpTags};
 
 pub struct Message(SdkMessage);
 
@@ -36,6 +37,14 @@ impl Message {
             .and_then(|v| v.parse::<u32>().ok())
             .filter(|n| *n >= 1)
             .unwrap_or(1)
+    }
+
+    /// String value of a message attribute, if present.
+    pub fn message_attribute(&self, name: &str) -> Option<&str> {
+        self.0
+            .message_attributes()
+            .and_then(|a| a.get(name))
+            .and_then(|v| v.string_value())
     }
 
     #[cfg(test)]
@@ -71,13 +80,29 @@ impl MessageBuilder {
         ))
     }
 
+    /// Adds a String message attribute; useful to test handlers.
+    pub fn message_attribute(self, name: impl Into<String>, value: impl Into<String>) -> Self {
+        match MessageAttributeValue::builder()
+            .data_type("String")
+            .string_value(value)
+            .build()
+        {
+            Ok(v) => Self(self.0.message_attributes(name, v)),
+            Err(_) => self,
+        }
+    }
+
     pub fn build(self) -> Message {
         Message::new(self.0.build())
     }
 }
 
 type HandlerFn<S> = Arc<
-    dyn Fn(AppContext<S>, Message) -> Pin<Box<dyn Future<Output = Result<(), HttpError>> + Send>>
+    dyn Fn(
+            AppContext<S>,
+            Message,
+            HttpTags,
+        ) -> Pin<Box<dyn Future<Output = Result<(), HttpError>> + Send>>
         + Send
         + Sync,
 >;
@@ -97,12 +122,12 @@ where
 {
     pub fn new<H, Fut>(queue_url: &str, handler: H) -> Self
     where
-        H: Fn(AppContext<S>, Message) -> Fut + Send + Sync + 'static,
+        H: Fn(AppContext<S>, Message, HttpTags) -> Fut + Send + Sync + 'static,
         Fut: Future<Output = Result<(), HttpError>> + Send + 'static,
     {
         Self {
             queue_url: queue_url.to_string(),
-            handler: Arc::new(move |ctx, msg| Box::pin(handler(ctx, msg))),
+            handler: Arc::new(move |ctx, msg, tags| Box::pin(handler(ctx, msg, tags))),
             retry_policy: None,
         }
     }
@@ -153,8 +178,26 @@ mod tests {
         assert_eq!(with_count("99999999999").receive_count(), 1);
     }
 
+    #[test]
+    fn message_attribute_reads_values() {
+        let m = Message::builder().message_attribute("a", "1").build();
+        assert_eq!(m.message_attribute("a"), Some("1"));
+        assert_eq!(m.message_attribute("b"), None);
+        assert_eq!(Message::builder().build().message_attribute("a"), None);
+        let no_string = SdkMessage::builder()
+            .message_attributes(
+                "a",
+                MessageAttributeValue::builder()
+                    .data_type("Binary")
+                    .build()
+                    .unwrap(),
+            )
+            .build();
+        assert_eq!(Message::new(no_string).message_attribute("a"), None);
+    }
+
     fn consumer() -> SqsQueueConsumer<()> {
-        SqsQueueConsumer::<()>::new("q", |_c, _m| async { Ok(()) })
+        SqsQueueConsumer::<()>::new("q", |_c, _m, _t| async { Ok(()) })
     }
 
     #[test]

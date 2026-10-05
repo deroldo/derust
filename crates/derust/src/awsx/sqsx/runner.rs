@@ -6,6 +6,7 @@ use wg::WaitGroup;
 
 use super::consumer::{Message, SqsQueueConsumer};
 use super::retry::{to_visibility_timeout_secs, RetryPolicy};
+use super::trace::{self, TRACE_ID_ATTRIBUTE};
 use crate::awsx::{load_aws_config, sqs_client, SqsClient};
 use crate::httpx::AppContext;
 use crate::shutdown_signal;
@@ -50,6 +51,7 @@ where
             .queue_url(&consumer.queue_url)
             .max_number_of_messages(10)
             .message_system_attribute_names(MessageSystemAttributeName::ApproximateReceiveCount)
+            .message_attribute_names(TRACE_ID_ATTRIBUTE)
             .wait_time_seconds(20)
             .send();
 
@@ -88,6 +90,7 @@ async fn process_message<T>(
     let body = msg.body().unwrap_or("").to_string();
     let receipt_handle = msg.receipt_handle().unwrap_or_default().to_string();
     let receive_count = msg.receive_count();
+    let (tags, trace_id) = trace::tags_for(&msg);
 
     #[cfg(any(feature = "statsd", feature = "prometheus"))]
     let metric_tags =
@@ -96,19 +99,19 @@ async fn process_message<T>(
     #[cfg(any(feature = "statsd", feature = "prometheus"))]
     let stopwatch = start_stopwatch(context, "sqs_consumer_seconds", metric_tags);
 
-    let result = (consumer.handler)(context.clone(), msg).await;
+    let result = (consumer.handler)(context.clone(), msg, tags).await;
 
     match &result {
         Ok(_) => {
             if context.env().is_local() || log_enabled!(Level::Debug) {
                 info!(
-                    "SQS message consumed :: queue={} :: message_id={} :: body={}",
-                    consumer.queue_url, message_id, body
+                    "SQS message consumed :: queue={} :: message_id={} :: trace_id={} :: body={}",
+                    consumer.queue_url, message_id, trace_id, body
                 );
             } else {
                 info!(
-                    "SQS message consumed :: queue={} :: message_id={}",
-                    consumer.queue_url, message_id
+                    "SQS message consumed :: queue={} :: message_id={} :: trace_id={}",
+                    consumer.queue_url, message_id, trace_id
                 );
             }
 
@@ -123,13 +126,13 @@ async fn process_message<T>(
         Err(err) => {
             if context.env().is_local() || log_enabled!(Level::Debug) {
                 error!(
-                    "SQS message failed :: queue={} :: message_id={} :: body={} :: error={:?}",
-                    consumer.queue_url, message_id, body, err
+                    "SQS message failed :: queue={} :: message_id={} :: trace_id={} :: body={} :: error={:?}",
+                    consumer.queue_url, message_id, trace_id, body, err
                 );
             } else {
                 error!(
-                    "SQS message failed :: queue={} :: message_id={} :: error={:?}",
-                    consumer.queue_url, message_id, err
+                    "SQS message failed :: queue={} :: message_id={} :: trace_id={} :: error={:?}",
+                    consumer.queue_url, message_id, trace_id, err
                 );
             }
 
@@ -145,6 +148,7 @@ async fn process_message<T>(
                     &message_id,
                     receive_count,
                     delay_secs,
+                    &trace_id,
                 )
                 .await;
             }
@@ -172,6 +176,7 @@ async fn apply_retry_backoff(
     message_id: &str,
     receive_count: u32,
     delay_secs: i32,
+    trace_id: &str,
 ) {
     match sqs
         .client
@@ -183,12 +188,12 @@ async fn apply_retry_backoff(
         .await
     {
         Ok(_) => info!(
-            "SQS message retry scheduled :: queue={} :: message_id={} :: receive_count={} :: retry_delay_secs={}",
-            queue_url, message_id, receive_count, delay_secs
+            "SQS message retry scheduled :: queue={} :: message_id={} :: receive_count={} :: retry_delay_secs={} :: trace_id={}",
+            queue_url, message_id, receive_count, delay_secs, trace_id
         ),
         Err(e) => error!(
-            "Failed to apply retry delay :: queue={} :: message_id={} :: receive_count={} :: retry_delay_secs={} :: error={:?}",
-            queue_url, message_id, receive_count, delay_secs, e
+            "Failed to apply retry delay :: queue={} :: message_id={} :: receive_count={} :: retry_delay_secs={} :: trace_id={} :: error={:?}",
+            queue_url, message_id, receive_count, delay_secs, trace_id, e
         ),
     }
 }
@@ -287,7 +292,7 @@ mod tests {
     #[tokio::test]
     async fn apply_retry_backoff_sends_visibility_timeout() {
         let (sqs, calls) = fake_sqs(false);
-        apply_retry_backoff(&sqs, "http://q/queue", "rh-1", "m-1", 3, 17).await;
+        apply_retry_backoff(&sqs, "http://q/queue", "rh-1", "m-1", 3, 17, "t").await;
         let calls = calls.lock().unwrap();
         assert_eq!(calls.len(), 1);
         assert_eq!(calls[0].0, "ChangeMessageVisibility");
@@ -299,8 +304,8 @@ mod tests {
     #[tokio::test]
     async fn apply_retry_backoff_swallows_service_error() {
         let (sqs, calls) = fake_sqs(true);
-        apply_retry_backoff(&sqs, "http://q/queue", "rh-1", "m-1", 3, 17).await;
-        apply_retry_backoff(&sqs, "http://q/queue", "rh-2", "m-2", 1, 0).await;
+        apply_retry_backoff(&sqs, "http://q/queue", "rh-1", "m-1", 3, 17, "t").await;
+        apply_retry_backoff(&sqs, "http://q/queue", "rh-2", "m-2", 1, 0, "t").await;
         assert_eq!(actions(&calls).len(), 2);
     }
 
@@ -322,6 +327,32 @@ mod tests {
             AppContext::new("test", Environment::Test, ()).unwrap()
         }
 
+        fn sdk_msg_traced(id: &str, trace: Option<&str>) -> SdkMessage {
+            let mut b = Message::builder()
+                .message_id(id)
+                .body("b")
+                .receipt_handle(format!("rh-{id}"));
+            if let Some(t) = trace {
+                b = b.message_attribute("x-trace-id", t);
+            }
+            b.build().into_sdk()
+        }
+
+        fn recording() -> (SqsQueueConsumer<()>, Arc<Mutex<Vec<Option<String>>>>) {
+            let seen = Arc::new(Mutex::new(Vec::new()));
+            let s = seen.clone();
+            let consumer = SqsQueueConsumer::<()>::new("http://q/queue", move |_c, _m, t| {
+                let s = s.clone();
+                async move {
+                    s.lock()
+                        .unwrap()
+                        .push(t.values().get("x-trace-id").cloned());
+                    Ok(())
+                }
+            });
+            (consumer, seen)
+        }
+
         fn sdk_msg(id: &str, count: Option<u32>) -> SdkMessage {
             let mut b = Message::builder()
                 .message_id(id)
@@ -334,7 +365,7 @@ mod tests {
         }
 
         fn failing() -> SqsQueueConsumer<()> {
-            SqsQueueConsumer::<()>::new("http://q/queue", |_c, _m| async {
+            SqsQueueConsumer::<()>::new("http://q/queue", |_c, _m, _t| async {
                 Err(HttpError::without_body(
                     StatusCode::INTERNAL_SERVER_ERROR,
                     "boom".to_string(),
@@ -344,7 +375,7 @@ mod tests {
         }
 
         fn succeeding() -> SqsQueueConsumer<()> {
-            SqsQueueConsumer::<()>::new("http://q/queue", |_c, _m| async { Ok(()) })
+            SqsQueueConsumer::<()>::new("http://q/queue", |_c, _m, _t| async { Ok(()) })
         }
 
         #[tokio::test]
@@ -393,7 +424,7 @@ mod tests {
         async fn handler_sees_receive_count() {
             let seen = Arc::new(Mutex::new(Vec::new()));
             let s = seen.clone();
-            let consumer = SqsQueueConsumer::<()>::new("http://q/queue", move |_c, m| {
+            let consumer = SqsQueueConsumer::<()>::new("http://q/queue", move |_c, m, _t| {
                 let s = s.clone();
                 async move {
                     s.lock().unwrap().push(m.receive_count());
@@ -404,6 +435,51 @@ mod tests {
             process_message(&ctx(), &sqs, &consumer, sdk_msg("1", Some(4))).await;
             process_message(&ctx(), &sqs, &consumer, sdk_msg("2", None)).await;
             assert_eq!(*seen.lock().unwrap(), vec![4, 1]);
+        }
+
+        #[tokio::test]
+        async fn handler_receives_trace_from_attribute() {
+            let (consumer, seen) = recording();
+            let (sqs, _c) = fake_sqs(false);
+            process_message(&ctx(), &sqs, &consumer, sdk_msg_traced("1", Some("abc"))).await;
+            assert_eq!(*seen.lock().unwrap(), vec![Some("abc".to_string())]);
+        }
+
+        #[tokio::test]
+        async fn missing_or_invalid_trace_generates_new_and_still_consumes() {
+            let (consumer, seen) = recording();
+            let (sqs, calls) = fake_sqs(false);
+            process_message(&ctx(), &sqs, &consumer, sdk_msg_traced("1", None)).await;
+            process_message(&ctx(), &sqs, &consumer, sdk_msg_traced("2", Some(""))).await;
+            let seen = seen.lock().unwrap();
+            for t in seen.iter() {
+                let t = t.as_ref().unwrap();
+                assert!(t.len() == 32 && t.chars().all(|c| c.is_ascii_hexdigit()));
+            }
+            assert_eq!(actions(&calls), vec!["DeleteMessage", "DeleteMessage"]);
+        }
+
+        #[tokio::test]
+        async fn batch_does_not_leak_trace_between_messages() {
+            let (consumer, seen) = recording();
+            let (sqs, _c) = fake_sqs(false);
+            process_message(&ctx(), &sqs, &consumer, sdk_msg_traced("a", Some("aaa"))).await;
+            process_message(&ctx(), &sqs, &consumer, sdk_msg_traced("b", None)).await;
+            process_message(&ctx(), &sqs, &consumer, sdk_msg_traced("c", Some("ccc"))).await;
+            let seen = seen.lock().unwrap();
+            assert_eq!(seen[0].as_deref(), Some("aaa"));
+            assert_ne!(seen[1].as_deref(), Some("aaa"));
+            assert_eq!(seen[2].as_deref(), Some("ccc"));
+        }
+
+        #[tokio::test]
+        async fn redelivery_keeps_same_trace() {
+            let (consumer, seen) = recording();
+            let (sqs, _c) = fake_sqs(false);
+            process_message(&ctx(), &sqs, &consumer, sdk_msg_traced("1", Some("same"))).await;
+            process_message(&ctx(), &sqs, &consumer, sdk_msg_traced("1", Some("same"))).await;
+            let seen = seen.lock().unwrap();
+            assert_eq!(seen[0], seen[1]);
         }
     }
 }
