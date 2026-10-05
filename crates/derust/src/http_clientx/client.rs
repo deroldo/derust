@@ -61,7 +61,16 @@ impl HttpClient {
             .client
             .get(full_url(&self.base_url, path, query_params));
         let request_context = RequestContext::new(Method::GET, &self.base_url, path);
-        send(context, request_context, req, None::<&()>, headers, None, tags).await
+        send(
+            context,
+            request_context,
+            req,
+            None::<&()>,
+            headers,
+            None,
+            tags,
+        )
+        .await
     }
 
     pub async fn post<'a, T, B, S>(
@@ -82,7 +91,16 @@ impl HttpClient {
             .client
             .post(full_url(&self.base_url, path, query_params));
         let request_context = RequestContext::new(Method::POST, &self.base_url, path);
-        send(context, request_context, req, Some(body), headers, None, tags).await
+        send(
+            context,
+            request_context,
+            req,
+            Some(body),
+            headers,
+            None,
+            tags,
+        )
+        .await
     }
 
     pub async fn form<'a, T, S>(
@@ -102,7 +120,16 @@ impl HttpClient {
             .client
             .post(full_url(&self.base_url, path, query_params));
         let request_context = RequestContext::new(Method::POST, &self.base_url, path);
-        send(context, request_context, req, None::<serde_json::Value>.as_ref(), headers, Some(form), tags).await
+        send(
+            context,
+            request_context,
+            req,
+            None::<serde_json::Value>.as_ref(),
+            headers,
+            Some(form),
+            tags,
+        )
+        .await
     }
 
     pub async fn put<'a, T, B, S>(
@@ -123,7 +150,16 @@ impl HttpClient {
             .client
             .post(full_url(&self.base_url, path, query_params));
         let request_context = RequestContext::new(Method::PUT, &self.base_url, path);
-        send(context, request_context, req, Some(body), headers, None, tags).await
+        send(
+            context,
+            request_context,
+            req,
+            Some(body),
+            headers,
+            None,
+            tags,
+        )
+        .await
     }
 
     pub async fn patch<'a, T, B, S>(
@@ -144,7 +180,16 @@ impl HttpClient {
             .client
             .post(full_url(&self.base_url, path, query_params));
         let request_context = RequestContext::new(Method::PATCH, &self.base_url, path);
-        send(context, request_context, req, Some(body), headers, None, tags).await
+        send(
+            context,
+            request_context,
+            req,
+            Some(body),
+            headers,
+            None,
+            tags,
+        )
+        .await
     }
 
     pub async fn delete<'a, T, B, S>(
@@ -164,7 +209,16 @@ impl HttpClient {
             .client
             .post(full_url(&self.base_url, path, query_params));
         let request_context = RequestContext::new(Method::DELETE, &self.base_url, path);
-        send(context, request_context, req, None::<&B>, headers, None, tags).await
+        send(
+            context,
+            request_context,
+            req,
+            None::<&B>,
+            headers,
+            None,
+            tags,
+        )
+        .await
     }
 }
 
@@ -251,9 +305,7 @@ where
             body: None,
         })
     } else {
-        let response_body = res
-            .json()
-            .await;
+        let response_body = res.json().await;
 
         let response = match response_body {
             Ok(body) => HttpError::with_json(

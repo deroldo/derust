@@ -143,13 +143,16 @@ impl Repository<Postgres> for PostgresTransaction<'_> {
     where
         S: Clone + Send + Sync,
     {
-        query.execute(&mut *self.transaction).await.map_err(|error| {
-            HttpError::without_body(
-                StatusCode::INTERNAL_SERVER_ERROR,
-                format!("Failed to execute fetch one for {query_name} with error: {error}"),
-                tags.clone(),
-            )
-        })?;
+        query
+            .execute(&mut *self.transaction)
+            .await
+            .map_err(|error| {
+                HttpError::without_body(
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    format!("Failed to execute fetch one for {query_name} with error: {error}"),
+                    tags.clone(),
+                )
+            })?;
 
         Ok(())
     }

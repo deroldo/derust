@@ -179,13 +179,16 @@ impl<SS: Clone + Send + Sync> Repository<Postgres> for PostgresTransaction<'_, S
         #[cfg(any(feature = "statsd", feature = "prometheus"))]
         let stopwatch = stopwatch_start(context, query_name, tags);
 
-        let result = query.execute(&mut *self.transaction).await.map_err(|error| {
-            HttpError::without_body(
-                StatusCode::INTERNAL_SERVER_ERROR,
-                format!("Failed to execute fetch one for {query_name} with error: {error}"),
-                tags.clone(),
-            )
-        });
+        let result = query
+            .execute(&mut *self.transaction)
+            .await
+            .map_err(|error| {
+                HttpError::without_body(
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    format!("Failed to execute fetch one for {query_name} with error: {error}"),
+                    tags.clone(),
+                )
+            });
 
         #[cfg(any(feature = "statsd", feature = "prometheus"))]
         stopwatch_record(tags, stopwatch, result.is_ok());

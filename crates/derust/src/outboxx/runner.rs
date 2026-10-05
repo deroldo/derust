@@ -1,5 +1,5 @@
 use crate::httpx::{AppContext, HttpError, HttpTags};
-use crate::metricx::{current_gauge, MetricTags, start_stopwatch};
+use crate::metricx::{current_gauge, start_stopwatch, MetricTags};
 use crate::shutdown_signal;
 use axum::http::StatusCode;
 use outbox_pattern_processor::error::OutboxPatternProcessorError;
@@ -18,13 +18,24 @@ pub async fn run<T>(
 ) where
     T: Clone + Send + Sync + 'static,
 {
-    if outbox_processor_resources.scheduled_clear_locked_partition.unwrap_or(false) {
-        tokio::spawn(run_clear_locked_partition(wg.add(1), outbox_processor_resources.clone()));
+    if outbox_processor_resources
+        .scheduled_clear_locked_partition
+        .unwrap_or(false)
+    {
+        tokio::spawn(run_clear_locked_partition(
+            wg.add(1),
+            outbox_processor_resources.clone(),
+        ));
     }
 
     #[cfg(any(feature = "statsd", feature = "prometheus"))]
     if metrics_monitor_enabled {
-        tokio::spawn(metrics_monitor(wg.add(1), context.clone(), outbox_processor_resources.clone(), outbox_metrics_monitor_interval_in_secs));
+        tokio::spawn(metrics_monitor(
+            wg.add(1),
+            context.clone(),
+            outbox_processor_resources.clone(),
+            outbox_metrics_monitor_interval_in_secs,
+        ));
     }
 
     info!("Started embedded outbox-pattern-processor");
@@ -91,7 +102,8 @@ where
 {
     let tags = HttpTags::default();
 
-    let mut metric_tags = MetricTags::from(tags.clone()).push("operation".to_string(), "monitor".to_string());
+    let mut metric_tags =
+        MetricTags::from(tags.clone()).push("operation".to_string(), "monitor".to_string());
     let stopwatch = start_stopwatch(&context, "outbox_pattern_processor", metric_tags.clone());
 
     let query = sqlx::query_scalar::<_, i32>(
@@ -114,8 +126,13 @@ where
 
     match result {
         Ok(delay) => {
-            current_gauge(&context, "outbox_pattern_processor_delay", metric_tags.clone(), delay as f64);
-        },
+            current_gauge(
+                &context,
+                "outbox_pattern_processor_delay",
+                metric_tags.clone(),
+                delay as f64,
+            );
+        }
         Err(error) => {
             error!("Failed when try to get outbox_pattern_processor_delay!");
         }

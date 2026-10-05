@@ -35,7 +35,13 @@ pub async fn load_app_config<T: for<'a> Deserialize<'a>>(
     #[cfg(feature = "env_from_secrets_manager")]
     let result = {
         let aws_config = load_aws_config(environment).await;
-        info!("AWS config loaded for region: {:?}", aws_config.region().map(|r| r.to_string()).unwrap_or("AWS_REGION not found".to_string()));
+        info!(
+            "AWS config loaded for region: {:?}",
+            aws_config
+                .region()
+                .map(|r| r.to_string())
+                .unwrap_or("AWS_REGION not found".to_string())
+        );
 
         let sm_client = secrets_manager(&aws_config);
 

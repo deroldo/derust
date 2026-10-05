@@ -16,7 +16,8 @@ impl<SS: Clone + Send + Sync> Repository<Postgres> for Option<&mut PostgresTrans
     ) -> Result<T, HttpError>
     where
         T: for<'r> FromRow<'r, <Postgres as Database>::Row> + Send + Unpin,
-        S: Clone + Send + Sync {
+        S: Clone + Send + Sync,
+    {
         match self {
             Some(trx) => trx.fetch_one(context, query_name, query, tags).await,
             None => {
@@ -39,7 +40,8 @@ impl<SS: Clone + Send + Sync> Repository<Postgres> for Option<&mut PostgresTrans
     ) -> Result<Option<T>, HttpError>
     where
         T: for<'r> FromRow<'r, <Postgres as Database>::Row> + Send + Unpin,
-        S: Clone + Send + Sync {
+        S: Clone + Send + Sync,
+    {
         match self {
             Some(trx) => trx.fetch_optional(context, query_name, query, tags).await,
             None => {
@@ -62,7 +64,8 @@ impl<SS: Clone + Send + Sync> Repository<Postgres> for Option<&mut PostgresTrans
     ) -> Result<Vec<T>, HttpError>
     where
         T: for<'r> FromRow<'r, <Postgres as Database>::Row> + Send + Unpin,
-        S: Clone + Send + Sync {
+        S: Clone + Send + Sync,
+    {
         match self {
             Some(trx) => trx.fetch_all(context, query_name, query, tags).await,
             None => {
@@ -84,7 +87,8 @@ impl<SS: Clone + Send + Sync> Repository<Postgres> for Option<&mut PostgresTrans
         tags: &HttpTags,
     ) -> Result<u64, HttpError>
     where
-        S: Clone + Send + Sync {
+        S: Clone + Send + Sync,
+    {
         match self {
             Some(trx) => trx.count(context, query_name, query, tags).await,
             None => {
@@ -106,7 +110,8 @@ impl<SS: Clone + Send + Sync> Repository<Postgres> for Option<&mut PostgresTrans
         tags: &HttpTags,
     ) -> Result<bool, HttpError>
     where
-        S: Clone + Send + Sync {
+        S: Clone + Send + Sync,
+    {
         match self {
             Some(trx) => trx.exists(context, query_name, query, tags).await,
             None => {

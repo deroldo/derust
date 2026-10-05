@@ -38,11 +38,8 @@ where
         metric_tags = metric_tags.push("operation".to_string(), "insert".to_string());
     }
     #[cfg(any(feature = "statsd", feature = "prometheus"))]
-    let stopwatch = timer::start_stopwatch(
-        context,
-        "repository_outbox_seconds",
-        metric_tags.clone(),
-    );
+    let stopwatch =
+        timer::start_stopwatch(context, "repository_outbox_seconds", metric_tags.clone());
 
     let result = OutboxRepository::insert(db_conn, outbox)
         .await

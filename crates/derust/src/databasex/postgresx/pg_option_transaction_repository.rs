@@ -1,7 +1,7 @@
-use axum::http::StatusCode;
 use crate::databasex::repository::Repository;
 use crate::databasex::PostgresTransaction;
 use crate::httpx::{AppContext, HttpError, HttpTags};
+use axum::http::StatusCode;
 use sqlx::query::{Query, QueryAs, QueryScalar};
 use sqlx::{Database, FromRow, Postgres};
 
@@ -17,7 +17,8 @@ impl Repository<Postgres> for Option<&mut PostgresTransaction<'_>> {
     ) -> Result<T, HttpError>
     where
         T: for<'r> FromRow<'r, <Postgres as Database>::Row> + Send + Unpin,
-        S: Clone + Send + Sync {
+        S: Clone + Send + Sync,
+    {
         match self {
             Some(trx) => trx.fetch_one(context, query_name, query, tags).await,
             None => {
@@ -40,7 +41,8 @@ impl Repository<Postgres> for Option<&mut PostgresTransaction<'_>> {
     ) -> Result<Option<T>, HttpError>
     where
         T: for<'r> FromRow<'r, <Postgres as Database>::Row> + Send + Unpin,
-        S: Clone + Send + Sync {
+        S: Clone + Send + Sync,
+    {
         match self {
             Some(trx) => trx.fetch_optional(context, query_name, query, tags).await,
             None => {
@@ -63,7 +65,8 @@ impl Repository<Postgres> for Option<&mut PostgresTransaction<'_>> {
     ) -> Result<Vec<T>, HttpError>
     where
         T: for<'r> FromRow<'r, <Postgres as Database>::Row> + Send + Unpin,
-        S: Clone + Send + Sync {
+        S: Clone + Send + Sync,
+    {
         match self {
             Some(trx) => trx.fetch_all(context, query_name, query, tags).await,
             None => {
@@ -85,7 +88,8 @@ impl Repository<Postgres> for Option<&mut PostgresTransaction<'_>> {
         tags: &HttpTags,
     ) -> Result<u64, HttpError>
     where
-        S: Clone + Send + Sync {
+        S: Clone + Send + Sync,
+    {
         match self {
             Some(trx) => trx.count(context, query_name, query, tags).await,
             None => {
@@ -107,7 +111,8 @@ impl Repository<Postgres> for Option<&mut PostgresTransaction<'_>> {
         tags: &HttpTags,
     ) -> Result<bool, HttpError>
     where
-        S: Clone + Send + Sync {
+        S: Clone + Send + Sync,
+    {
         match self {
             Some(trx) => trx.exists(context, query_name, query, tags).await,
             None => {

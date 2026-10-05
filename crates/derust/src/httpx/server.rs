@@ -31,13 +31,28 @@ where
 {
     let wg = WaitGroup::new();
     let http_router = apply_middlewares(router, context.clone());
-    tokio::spawn(start_http_server(wg.add(1), port, http_router, enable_web_socket));
+    tokio::spawn(start_http_server(
+        wg.add(1),
+        port,
+        http_router,
+        enable_web_socket,
+    ));
 
     #[cfg(feature = "outbox")]
-    tokio::spawn(outboxx::run(wg.add(1), context.clone(), outbox_processor_resources, outbox_metrics_monitor_enabled, outbox_metrics_monitor_interval_in_secs));
+    tokio::spawn(outboxx::run(
+        wg.add(1),
+        context.clone(),
+        outbox_processor_resources,
+        outbox_metrics_monitor_enabled,
+        outbox_metrics_monitor_interval_in_secs,
+    ));
 
     #[cfg(feature = "sqs")]
-    tokio::spawn(crate::awsx::sqsx::run(wg.add(1), context.clone(), sqs_consumers));
+    tokio::spawn(crate::awsx::sqsx::run(
+        wg.add(1),
+        context.clone(),
+        sqs_consumers,
+    ));
 
     wg.wait();
 
@@ -58,7 +73,12 @@ where
 {
     let wg = WaitGroup::new();
     let http_router = apply_middlewares(router, context.clone());
-    tokio::spawn(start_http_server(wg.add(1), port, http_router, enable_web_socket));
+    tokio::spawn(start_http_server(
+        wg.add(1),
+        port,
+        http_router,
+        enable_web_socket,
+    ));
 
     wg.wait();
 
@@ -90,9 +110,12 @@ async fn start_http_server(wg: WaitGroup, port: u16, router: Router<()>, enable_
 
     if let Ok(listener) = TcpListener::bind(addr).await {
         if enable_web_socket {
-            let _ = axum::serve(listener, router.into_make_service_with_connect_info::<SocketAddr>())
-                .with_graceful_shutdown(shutdown_signal())
-                .await;
+            let _ = axum::serve(
+                listener,
+                router.into_make_service_with_connect_info::<SocketAddr>(),
+            )
+            .with_graceful_shutdown(shutdown_signal())
+            .await;
         } else {
             let _ = axum::serve(listener, router.into_make_service())
                 .with_graceful_shutdown(shutdown_signal())

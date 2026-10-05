@@ -5,12 +5,16 @@ pub fn increment<S>(context: &AppContext<S>, metric_name: &str, metric_tags: Met
 where
     S: Clone,
 {
-    metrics::counter!(metric_name.to_string(), metric_tags.to_labels(
-        context.app_name(),
-        context.env(),
-        context.denied_metric_tags(),
-        context.denied_metric_tags_by_regex(),
-    )).increment(count);
+    metrics::counter!(
+        metric_name.to_string(),
+        metric_tags.to_labels(
+            context.app_name(),
+            context.env(),
+            context.denied_metric_tags(),
+            context.denied_metric_tags_by_regex(),
+        )
+    )
+    .increment(count);
 }
 
 pub fn increment_one<S>(context: &AppContext<S>, metric_name: &str, metric_tags: MetricTags)
