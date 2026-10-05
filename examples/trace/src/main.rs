@@ -4,7 +4,8 @@ use axum::routing::get;
 use axum::Router;
 use derust::envx::Environment;
 use derust::httpx::json::JsonResponse;
-use derust::httpx::{start, AppContext, HttpError, HttpTags};
+use derust::commonx::{DerustError, DerustTags};
+use derust::httpx::{start, AppContext};
 use derust::tracex;
 use serde_json::json;
 
@@ -46,11 +47,11 @@ pub struct FooResponse {
 async fn handler(
     State(context): State<AppContext<AppState>>,
     // automatic add tags into log
-) -> Result<JsonResponse<FooResponse>, HttpError> {
+) -> Result<JsonResponse<FooResponse>, DerustError> {
     let customer_id = "1";
 
     // tags to be added into log
-    let tags = HttpTags::from([("customer_id", customer_id)]);
+    let tags = DerustTags::from([("customer_id", customer_id)]);
 
     // getting your application state from context
     let bar = context.state().bar.clone();
