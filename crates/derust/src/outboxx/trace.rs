@@ -60,7 +60,7 @@ pub(crate) fn with_trace_header_limited(
         } else {
             reserved_slots
         };
-        m.len() + reserved + 1 <= max
+        m.len() + reserved < max
     })
 }
 
