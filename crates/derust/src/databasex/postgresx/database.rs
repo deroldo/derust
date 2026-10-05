@@ -1,4 +1,5 @@
-use crate::httpx::{AppContext, HttpError, HttpTags};
+use crate::commonx::{DerustError, DerustTags};
+use crate::httpx::AppContext;
 #[cfg(any(feature = "statsd", feature = "prometheus"))]
 use crate::metricx::{timer, MetricTags, Stopwatch};
 use axum::http::StatusCode;
@@ -48,8 +49,8 @@ impl PostgresDatabase {
     pub async fn get_connection(
         &self,
         read_only: bool,
-        tags: &HttpTags,
-    ) -> Result<PoolConnection<Postgres>, HttpError> {
+        tags: &DerustTags,
+    ) -> Result<PoolConnection<Postgres>, DerustError> {
         let pool = if read_only {
             if let Some(ro) = self.read_only.clone() {
                 ro
@@ -61,7 +62,7 @@ impl PostgresDatabase {
         };
 
         pool.acquire().await.map_err(|error| {
-            HttpError::without_body(
+            DerustError::without_body(
                 StatusCode::INTERNAL_SERVER_ERROR,
                 format!("Failed to acquire connection: {error}"),
                 tags.clone(),
@@ -74,13 +75,13 @@ impl PostgresDatabase {
         &self,
         context: &AppContext<S>,
         operation_name: &str,
-        tags: &HttpTags,
-    ) -> Result<PostgresTransaction<S>, HttpError>
+        tags: &DerustTags,
+    ) -> Result<PostgresTransaction<S>, DerustError>
     where
         S: Clone,
     {
         let transaction = self.read_write.begin().await.map_err(|error| {
-            HttpError::without_body(
+            DerustError::without_body(
                 StatusCode::INTERNAL_SERVER_ERROR,
                 format!("Failed to begin transaction: {error}"),
                 tags.clone(),
@@ -105,13 +106,13 @@ impl PostgresDatabase {
     pub async fn begin_transaction<S>(
         &self,
         context: &AppContext<S>,
-        tags: &HttpTags,
-    ) -> Result<PostgresTransaction, HttpError>
+        tags: &DerustTags,
+    ) -> Result<PostgresTransaction, DerustError>
     where
         S: Clone,
     {
         let transaction = self.read_write.begin().await.map_err(|error| {
-            HttpError::without_body(
+            DerustError::without_body(
                 StatusCode::INTERNAL_SERVER_ERROR,
                 format!("Failed to begin transaction: {error}"),
                 tags.clone(),
@@ -142,9 +143,9 @@ impl<'a, S> PostgresTransaction<'a, S>
 where
     S: Clone,
 {
-    pub async fn commit_transaction(self, tags: &HttpTags) -> Result<(), HttpError> {
+    pub async fn commit_transaction(self, tags: &DerustTags) -> Result<(), DerustError> {
         let result = self.transaction.commit().await.map_err(|error| {
-            HttpError::without_body(
+            DerustError::without_body(
                 StatusCode::INTERNAL_SERVER_ERROR,
                 format!("Failed to commit transaction: {error}"),
                 tags.clone(),
@@ -170,9 +171,9 @@ where
 
 #[cfg(not(any(feature = "statsd", feature = "prometheus")))]
 impl<'a> PostgresTransaction<'a> {
-    pub async fn commit_transaction(self, tags: &HttpTags) -> Result<(), HttpError> {
+    pub async fn commit_transaction(self, tags: &DerustTags) -> Result<(), DerustError> {
         self.transaction.commit().await.map_err(|error| {
-            HttpError::without_body(
+            DerustError::without_body(
                 StatusCode::INTERNAL_SERVER_ERROR,
                 format!("Failed to commit transaction: {error}"),
                 tags.clone(),

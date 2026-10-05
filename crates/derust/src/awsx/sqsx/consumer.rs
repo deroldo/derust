@@ -6,7 +6,8 @@ use std::pin::Pin;
 use std::sync::Arc;
 
 use super::retry::RetryPolicy;
-use crate::httpx::{AppContext, HttpError};
+use crate::commonx::DerustError;
+use crate::httpx::AppContext;
 
 pub struct Message(SdkMessage);
 
@@ -77,7 +78,7 @@ impl MessageBuilder {
 }
 
 type HandlerFn<S> = Arc<
-    dyn Fn(AppContext<S>, Message) -> Pin<Box<dyn Future<Output = Result<(), HttpError>> + Send>>
+    dyn Fn(AppContext<S>, Message) -> Pin<Box<dyn Future<Output = Result<(), DerustError>> + Send>>
         + Send
         + Sync,
 >;
@@ -98,7 +99,7 @@ where
     pub fn new<H, Fut>(queue_url: &str, handler: H) -> Self
     where
         H: Fn(AppContext<S>, Message) -> Fut + Send + Sync + 'static,
-        Fut: Future<Output = Result<(), HttpError>> + Send + 'static,
+        Fut: Future<Output = Result<(), DerustError>> + Send + 'static,
     {
         Self {
             queue_url: queue_url.to_string(),

@@ -1,5 +1,5 @@
+use crate::commonx::DerustTags;
 use crate::envx::Environment;
-use crate::httpx::HttpTags;
 use axum::http::{Method, Uri};
 use lazy_static::lazy_static;
 use metrics::Label;
@@ -94,8 +94,8 @@ impl MetricTag {
     }
 }
 
-impl From<&HttpTags> for MetricTags {
-    fn from(value: &HttpTags) -> Self {
+impl From<&DerustTags> for MetricTags {
+    fn from(value: &DerustTags) -> Self {
         let mut tags = MetricTags::default();
         for (key, value) in value.values() {
             tags = tags.push(key, value);
@@ -104,8 +104,8 @@ impl From<&HttpTags> for MetricTags {
     }
 }
 
-impl From<HttpTags> for MetricTags {
-    fn from(value: HttpTags) -> Self {
+impl From<DerustTags> for MetricTags {
+    fn from(value: DerustTags) -> Self {
         let mut tags = MetricTags::default();
         for (key, value) in value.values() {
             tags = tags.push(key, value);

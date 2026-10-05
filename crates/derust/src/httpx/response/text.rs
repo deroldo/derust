@@ -1,4 +1,5 @@
-use crate::httpx::{HttpResponse, HttpTags};
+use crate::commonx::DerustTags;
+use crate::httpx::HttpResponse;
 use axum::http::StatusCode;
 use axum_tracing_opentelemetry::tracing_opentelemetry_instrumentation_sdk::find_current_trace_id;
 
@@ -7,11 +8,11 @@ pub struct TextResponse {
     status_code: StatusCode,
     response_body: String,
     response_headers: Option<Vec<(String, String)>>,
-    tags: HttpTags,
+    tags: DerustTags,
 }
 
 impl TextResponse {
-    pub fn new(status_code: StatusCode, response_body: String, tags: HttpTags) -> Self {
+    pub fn new(status_code: StatusCode, response_body: String, tags: DerustTags) -> Self {
         Self {
             status_code,
             response_body,
@@ -52,7 +53,7 @@ impl HttpResponse for TextResponse {
         Some(headers)
     }
 
-    fn tags(&self) -> HttpTags {
+    fn tags(&self) -> DerustTags {
         let mut tags = self.tags.clone();
 
         if !tags

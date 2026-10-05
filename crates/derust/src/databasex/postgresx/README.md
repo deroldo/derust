@@ -60,8 +60,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 async fn handler(
     State(context): State<AppContext<AppState>>,
-) -> Result<JsonResponse<FooResponse>, HttpError> {
-    let tags = HttpTags::default();
+) -> Result<JsonResponse<FooResponse>, DerustError> {
+    let tags = DerustTags::default();
 
     // get connection
     let mut _conn = context.database().get_connection(false, &tags).await?;

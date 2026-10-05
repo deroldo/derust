@@ -314,8 +314,8 @@ mod tests {
     )))]
     mod process {
         use super::*;
+        use crate::commonx::{DerustError, DerustTags};
         use crate::envx::Environment;
-        use crate::httpx::{HttpError, HttpTags};
         use axum::http::StatusCode;
 
         fn ctx() -> AppContext<()> {
@@ -335,10 +335,10 @@ mod tests {
 
         fn failing() -> SqsQueueConsumer<()> {
             SqsQueueConsumer::<()>::new("http://q/queue", |_c, _m| async {
-                Err(HttpError::without_body(
+                Err(DerustError::without_body(
                     StatusCode::INTERNAL_SERVER_ERROR,
                     "boom".to_string(),
-                    HttpTags::default(),
+                    DerustTags::default(),
                 ))
             })
         }

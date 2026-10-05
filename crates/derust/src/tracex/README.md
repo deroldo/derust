@@ -34,11 +34,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 async fn handler(
     State(context): State<AppContext<AppState>>,
     // automatic add tags into log
-) -> Result<JsonResponse, HttpError> {
+) -> Result<JsonResponse, DerustError> {
     // ...
     
     // tags to be added into log
-    let tags = HttpTags::from([("customer_id", customer_id)]);
+    let tags = DerustTags::from([("customer_id", customer_id)]);
     
     // automatic add tags into log
     info("Request handler", &tags);

@@ -1,6 +1,7 @@
+use crate::commonx::DerustError;
 use crate::httpx::json::JsonResponse;
 use crate::httpx::text::TextResponse;
-use crate::httpx::{HttpError, HttpResponse};
+use crate::httpx::HttpResponse;
 use axum::http::{HeaderMap, HeaderName, HeaderValue};
 use axum::response::{IntoResponse, Response};
 use std::str::FromStr;
@@ -80,7 +81,7 @@ impl IntoResponse for TextResponse {
     }
 }
 
-impl IntoResponse for HttpError {
+impl IntoResponse for DerustError {
     fn into_response(self) -> Response {
         let headers_vec = self.response_headers().unwrap_or_default();
 

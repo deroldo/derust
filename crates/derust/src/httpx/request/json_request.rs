@@ -1,4 +1,4 @@
-use crate::httpx::{HttpError, HttpTags};
+use crate::commonx::{DerustError, DerustTags};
 use axum::{
     extract::{rejection::JsonRejection, FromRequest, Request},
     http::StatusCode,
@@ -17,7 +17,7 @@ where
     axum::Json<T>: FromRequest<S, Rejection = JsonRejection>,
     S: Send + Sync,
 {
-    type Rejection = HttpError;
+    type Rejection = DerustError;
 
     async fn from_request(req: Request, state: &S) -> Result<Self, Self::Rejection> {
         let (parts, body) = req.into_parts();
@@ -26,14 +26,14 @@ where
 
         match axum::Json::<T>::from_request(req, state).await {
             Ok(value) => Ok(Self(value.0)),
-            Err(rejection) => Err(HttpError::with_body(
+            Err(rejection) => Err(DerustError::with_body(
                 StatusCode::BAD_REQUEST,
                 format!("Invalid JSON: {:?}", rejection),
                 json!({
                     "message": rejection.body_text(),
                 })
                 .to_string(),
-                HttpTags::default(),
+                DerustTags::default(),
             )),
         }
     }

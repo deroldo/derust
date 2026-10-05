@@ -24,16 +24,13 @@ mod health;
 mod request;
 mod response;
 mod server;
-mod tags;
 
 #[cfg(feature = "prometheus")]
 mod prometheus;
 
 pub use config::*;
 pub use context::*;
-pub use error::*;
 pub use request::json_request::*;
 pub use response::json::*;
 pub use response::*;
 pub use server::*;
-pub use tags::*;

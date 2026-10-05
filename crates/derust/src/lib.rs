@@ -5,6 +5,9 @@ use tracing::info;
 pub mod envx;
 
 #[cfg(feature = "http_server")]
+pub mod commonx;
+
+#[cfg(feature = "http_server")]
 pub mod httpx;
 
 #[cfg(feature = "http_server")]

@@ -1,4 +1,5 @@
-use crate::httpx::{AppContext, HttpError, HttpTags};
+use crate::commonx::{DerustError, DerustTags};
+use crate::httpx::AppContext;
 use crate::outboxx::insert_outbox;
 use chrono::{DateTime, Utc};
 use outbox_pattern_processor::outbox::Outbox;
@@ -14,8 +15,8 @@ pub async fn send_to_sns<S>(
     topic_arn: &str,
     headers: Option<HashMap<String, String>>,
     payload: &Value,
-    tags: &HttpTags,
-) -> Result<Outbox, HttpError>
+    tags: &DerustTags,
+) -> Result<Outbox, DerustError>
 where
     S: Clone,
 {
@@ -31,8 +32,8 @@ pub async fn send_to_sns_with_delay<S>(
     headers: Option<HashMap<String, String>>,
     payload: &Value,
     process_after: Option<DateTime<Utc>>,
-    tags: &HttpTags,
-) -> Result<Outbox, HttpError>
+    tags: &DerustTags,
+) -> Result<Outbox, DerustError>
 where
     S: Clone,
 {
