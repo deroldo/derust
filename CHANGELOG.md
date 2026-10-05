@@ -2,6 +2,29 @@
 
 All notable changes to `derust` are documented in this file.
 
+## [0.6.0]
+
+### Breaking
+
+- The `SqsQueueConsumer` handler now receives `HttpTags` (by value) as a third argument:
+  `Fn(AppContext<S>, Message, HttpTags)`. Migration: change `|ctx, msg|` to `|ctx, msg, _tags|`.
+
+### Added
+
+- Consumed SQS messages now get `HttpTags` containing `x-trace-id`, read from the `x-trace-id`
+  message attribute; a new trace id is generated when it is missing or invalid.
+- `Message::message_attribute()` / `MessageBuilder::message_attribute()`.
+- The SQS consumer's `receive_message` now requests the `x-trace-id` message attribute.
+- Consumer logs (consumed, failed, retry) include `trace_id`. It is not added as a metric tag.
+
+### Changed
+
+- Outbox SQS, SNS and HTTP sends add the current trace as the `x-trace-id` header when there is
+  one. A caller-provided `x-trace-id` (any case) is never overwritten.
+- For SQS/SNS the trace is delivered as a MessageAttribute; with the 10-attribute limit
+  (`x-idempotent-key` counts as one) the trace is silently omitted when there is no free slot.
+- For HTTP the header is `x-trace-id`; strict destinations that reject unknown headers may be affected.
+
 ## [0.5.2]
 
 ### Added

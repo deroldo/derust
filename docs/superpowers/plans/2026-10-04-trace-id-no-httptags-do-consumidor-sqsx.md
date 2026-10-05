@@ -79,12 +79,12 @@ Commits pequenos, um por tarefa, mensagens em inglês (conventional commits), te
 
 **Arquivos**: criar `crates/derust/src/outboxx/trace.rs`; em `outboxx/mod.rs` adicionar `mod trace;` (sem `pub use`).
 
-- [ ] **Step 1 (testes primeiro)**: em `trace.rs`, `#[cfg(test)] mod tests` cobrindo (todas puras, sem span):
+- [x] **Step 1 (testes primeiro)**: em `trace.rs`, `#[cfg(test)] mod tests` cobrindo (todas puras, sem span):
   - `with_trace_header`: chamador com `x-trace-id` / `X-Trace-Id` / `X-TRACE-ID` -> inalterado, sem duplicar, mesmo valor do chamador (inclusive vazio); sem a chave + trace -> adiciona `x-trace-id` mantendo os demais; `None` + trace -> `Some({x-trace-id})`; `None` sem trace -> `None`; `Some(h)` sem trace -> `Some(h)` idêntico; `Some(vazio)` + trace -> só o trace.
   - `with_trace_header_limited(.., reserved=1, max=10)`: 7 e 8 headers de usuário -> trace entra (8 -> total 10); 9 e 10 -> sem trace e sem erro; 9 headers incluindo `x-idempotent-key` do usuário -> trace entra (reserved=0); `None` + trace -> entra; usuário com `X-Trace-Id` + 10 headers -> inalterado.
   - `resolve_trace_id`: tags com `X-Trace-Id` não vazio -> esse valor; tags com valor vazio/ausente -> cai em `find_current_trace_id()` (sem span em teste = `None`).
-- [ ] **Step 2**: implementar conforme assinaturas da decisão 4 (`with_trace_header` = `with_trace_header_limited` sem limite, via função interna comum). `resolve_trace_id` usa `HttpTags::values()` e `find_current_trace_id()`.
-- [ ] **Step 3**: `cargo nextest run -p derust --features outbox,sqs,postgres,prometheus trace` e clippy verdes.
+- [x] **Step 2**: implementar conforme assinaturas da decisão 4 (`with_trace_header` = `with_trace_header_limited` sem limite, via função interna comum). `resolve_trace_id` usa `HttpTags::values()` e `find_current_trace_id()`.
+- [x] **Step 3**: `cargo nextest run -p derust --features outbox,sqs,postgres,prometheus trace` e clippy verdes.
 
 **Plano de testes**: unitário determinístico (acima); a parte de `find_current_trace_id` com span real é exercida só indiretamente (retorna `None` sem span) — aceitável, a função é do crate externo.
 **Revisão**: conferir a conta de slots (`len + reserved + 1 <= 10`), que as chaves do chamador não mudam de caixa, ausência de `unwrap`.
@@ -95,8 +95,8 @@ Commits pequenos, um por tarefa, mensagens em inglês (conventional commits), te
 
 **Arquivos**: `outboxx/sqs.rs`, `outboxx/sns.rs`, `outboxx/http.rs`.
 
-- [ ] **Step 1**: em cada função (`send_to_sqs`, `send_to_sqs_with_delay`, `send_to_sns`, `send_to_sns_with_delay`, `send_to_http`, `send_to_http_with_delay`), antes de construir o `Outbox`, calcular `let trace_id = trace::resolve_trace_id(tags);` e substituir `headers` por: SQS/SNS -> `with_trace_header_limited(headers, trace_id.as_deref(), 1, SQS_SNS_MAX_ATTRIBUTES)`; HTTP -> `with_trace_header(headers, trace_id.as_deref())`. (Acesso via `super::trace::...`/`crate::outboxx::trace`.)
-- [ ] **Step 2**: `cargo check`/clippy nas duas combinações de features; `cargo nextest run` completo.
+- [x] **Step 1**: em cada função (`send_to_sqs`, `send_to_sqs_with_delay`, `send_to_sns`, `send_to_sns_with_delay`, `send_to_http`, `send_to_http_with_delay`), antes de construir o `Outbox`, calcular `let trace_id = trace::resolve_trace_id(tags);` e substituir `headers` por: SQS/SNS -> `with_trace_header_limited(headers, trace_id.as_deref(), 1, SQS_SNS_MAX_ATTRIBUTES)`; HTTP -> `with_trace_header(headers, trace_id.as_deref())`. (Acesso via `super::trace::...`/`crate::outboxx::trace`.)
+- [x] **Step 2**: `cargo check`/clippy nas duas combinações de features; `cargo nextest run` completo.
 
 **Plano de testes**: sem DB real no crate para testar os `send_*`; a lógica está coberta em T1. Aqui o teste é compilação + revisão: as 6 funções usam o helper correto (SQS/SNS limitado, HTTP sem limite). Se existir infraestrutura de teste de outbox com Postgres em `examples/outbox`, rodar manualmente é opcional.
 **Revisão**: grep por `Outbox::sqs|sns|http_post_json` garantindo que nenhuma chamada usa `headers` cru.
@@ -107,11 +107,11 @@ Commits pequenos, um por tarefa, mensagens em inglês (conventional commits), te
 
 **Arquivos**: `awsx/sqsx/consumer.rs` (só `Message`/`MessageBuilder`), criar `awsx/sqsx/trace.rs`, `awsx/sqsx/mod.rs` (`mod trace;`).
 
-- [ ] **Step 1 (testes primeiro)**:
+- [x] **Step 1 (testes primeiro)**:
   - `consumer.rs`: `Message::message_attribute` retorna `None` sem atributos; retorna o valor posto via `MessageBuilder::message_attribute`; nome diferente -> `None`; atributo sem `string_value` -> `None`.
   - `trace.rs`: `trace_id_from(&Message) -> (String, bool)` ou equivalente (`fn resolve(msg:&Message) -> TraceResolution { id, generated }` — formato livre, mas testável): atributo válido -> mesmo valor, `generated=false`; ausente -> id novo de 32 hex; vazio, só espaços, > 128 chars, com espaço/controle/não-ASCII -> id novo; duas chamadas sem atributo geram ids diferentes; id gerado nunca é só zeros.
-- [ ] **Step 2**: implementar `Message::message_attribute`, `MessageBuilder::message_attribute`, `TRACE_ID_ATTRIBUTE = "x-trace-id"`, validação, `new_trace_id()`, e `pub(crate) fn tags_for(msg: &Message) -> (HttpTags, String)` que monta `HttpTags` com `x-trace-id` (`tags.add("x-trace-id", &id)`) e devolve o id também como `String`; `warn!` quando o atributo está presente e inválido (sem logar o valor).
-- [ ] **Step 3**: `cargo nextest run -p derust --features sqs` e clippy verdes.
+- [x] **Step 2**: implementar `Message::message_attribute`, `MessageBuilder::message_attribute`, `TRACE_ID_ATTRIBUTE = "x-trace-id"`, validação, `new_trace_id()`, e `pub(crate) fn tags_for(msg: &Message) -> (HttpTags, String)` que monta `HttpTags` com `x-trace-id` (`tags.add("x-trace-id", &id)`) e devolve o id também como `String`; `warn!` quando o atributo está presente e inválido (sem logar o valor).
+- [x] **Step 3**: `cargo nextest run -p derust --features sqs` e clippy verdes.
 
 **Plano de testes**: unitários (acima), todos sem rede.
 **Revisão**: nenhum `unwrap`; `HttpTags` novo a cada chamada; o valor bruto inválido não é logado.
@@ -122,8 +122,8 @@ Commits pequenos, um por tarefa, mensagens em inglês (conventional commits), te
 
 **Arquivos**: `awsx/sqsx/consumer.rs`, `awsx/sqsx/runner.rs`.
 
-- [ ] **Step 1**: `consumer.rs`: `HandlerFn<S>` -> `Fn(AppContext<S>, Message, HttpTags)`; `SqsQueueConsumer::new` aceita `H: Fn(AppContext<S>, Message, HttpTags) -> Fut`; `Arc::new(move |ctx, msg, tags| Box::pin(handler(ctx, msg, tags)))`. Importar `HttpTags`. Atualizar os testes existentes (`|_c, _m|` -> `|_c, _m, _t|`).
-- [ ] **Step 2 (testes primeiro, em `runner.rs` `mod process`)**: atualizar `failing()/succeeding()/handler_sees_receive_count` para a nova assinatura e adicionar:
+- [x] **Step 1**: `consumer.rs`: `HandlerFn<S>` -> `Fn(AppContext<S>, Message, HttpTags)`; `SqsQueueConsumer::new` aceita `H: Fn(AppContext<S>, Message, HttpTags) -> Fut`; `Arc::new(move |ctx, msg, tags| Box::pin(handler(ctx, msg, tags)))`. Importar `HttpTags`. Atualizar os testes existentes (`|_c, _m|` -> `|_c, _m, _t|`).
+- [x] **Step 2 (testes primeiro, em `runner.rs` `mod process`)**: atualizar `failing()/succeeding()/handler_sees_receive_count` para a nova assinatura e adicionar:
   - handler recebe `HttpTags` com `x-trace-id` igual ao atributo da mensagem (helper `sdk_msg` ganha parâmetro opcional de trace via `MessageBuilder::message_attribute`);
   - mensagem sem atributo -> handler recebe `x-trace-id` de 32 hex;
   - atributo inválido (vazio) -> id novo, mensagem ainda consumida (`DeleteMessage` chamado);
@@ -131,8 +131,8 @@ Commits pequenos, um por tarefa, mensagens em inglês (conventional commits), te
   - reentrega: duas chamadas com a mesma mensagem (mesmo atributo) -> mesmo trace nas duas;
   - falha do handler com política continua chamando `ChangeMessageVisibility`; sucesso continua `DeleteMessage` (ack/retry inalterados);
   - `apply_retry_backoff` atualizado com o parâmetro `trace_id` (testes existentes ajustados).
-- [ ] **Step 3**: `runner.rs`: em `poll_queue` acrescentar `.message_attribute_names("x-trace-id")` (usar a constante de `trace.rs`); em `process_message` chamar `let (tags, trace_id) = trace::tags_for(&msg);` **antes** de mover `msg`, passar `tags` ao handler e usar `trace_id` nos logs (decisão 6); `apply_retry_backoff(..., &trace_id)` com sufixo nos dois logs. Não adicionar tag de métrica.
-- [ ] **Step 4**: `cargo nextest run -p derust --features sqs` (inclui `mod process`), `cargo nextest run -p derust --features outbox,sqs,postgres,prometheus` (compila `server.rs` que usa `SqsQueueConsumer`), clippy nas duas combinações, `cargo build` sem `sqs`.
+- [x] **Step 3**: `runner.rs`: em `poll_queue` acrescentar `.message_attribute_names("x-trace-id")` (usar a constante de `trace.rs`); em `process_message` chamar `let (tags, trace_id) = trace::tags_for(&msg);` **antes** de mover `msg`, passar `tags` ao handler e usar `trace_id` nos logs (decisão 6); `apply_retry_backoff(..., &trace_id)` com sufixo nos dois logs. Não adicionar tag de métrica.
+- [x] **Step 4**: `cargo nextest run -p derust --features sqs` (inclui `mod process`), `cargo nextest run -p derust --features outbox,sqs,postgres,prometheus` (compila `server.rs` que usa `SqsQueueConsumer`), clippy nas duas combinações, `cargo build` sem `sqs`.
 
 **Plano de testes**: unitários/integração em memória com o cliente SQS fake já existente (`fake_sqs`); verificar também, no teste de `receive_message`, que o request leva `MessageAttributeNames=["x-trace-id"]` se houver como interceptar (o fake registra o corpo JSON; `poll_queue` é infinito, então testar apenas se extrair o builder do request for simples — caso contrário, validar por revisão e teste manual).
 **Revisão**: conferir que o `tags` é movido ao handler e o log usa a `String` separada; que nenhuma tag de métrica contém o trace; que logs de sucesso/falha/retry todos têm `trace_id`.
@@ -141,9 +141,9 @@ Commits pequenos, um por tarefa, mensagens em inglês (conventional commits), te
 
 **Arquivos**: `crates/derust/README.md`, `crates/derust/src/outboxx/README.md`, `CHANGELOG.md`, `crates/derust/Cargo.toml` (`version = "0.6.0"`), `Cargo.lock` (via `cargo check`), exemplos que referenciem a versão, se houver.
 
-- [ ] **Step 1**: `CHANGELOG.md` nova seção `## [0.6.0]` acima de `[0.5.2]`: **Breaking** (nova assinatura `Fn(AppContext<S>, Message, HttpTags)` com antes/depois e guia de migração: handlers existentes passam `|ctx, msg, _tags|`); **Added** (`HttpTags` com `x-trace-id` no consumo, `Message::message_attribute`/`MessageBuilder::message_attribute`, `receive_message` pede o atributo `x-trace-id`); **Changed** (outbox SQS/SNS/HTTP adiciona `x-trace-id` quando há trace; precedência do chamador; limite de 10 atributos com `x-idempotent-key` contado, trace omitido sem erro; HTTP usa `x-trace-id` e destinos estritos podem ser afetados).
-- [ ] **Step 2**: `crates/derust/README.md`: seção do consumidor SQS com a nova assinatura e exemplo lendo `tags.values().get("x-trace-id")`; documentar: trace novo quando ausente/inválido (pode variar entre reentregas), trace omitido por falta de slot rompe a correlação, SNS exige raw message delivery, trace não vira tag de métrica. Atualizar o exemplo existente de `with_retry_policy` (`|ctx, msg|` -> `|ctx, msg, tags|`). `outboxx/README.md`: comportamento de `x-trace-id` nos headers e o limite de slots.
-- [ ] **Step 3**: bump de versão; `cargo check -p derust --features sqs` atualiza o lock; `task lint` nos arquivos tocados e `cargo nextest run` final nas duas combinações.
+- [x] **Step 1**: `CHANGELOG.md` nova seção `## [0.6.0]` acima de `[0.5.2]`: **Breaking** (nova assinatura `Fn(AppContext<S>, Message, HttpTags)` com antes/depois e guia de migração: handlers existentes passam `|ctx, msg, _tags|`); **Added** (`HttpTags` com `x-trace-id` no consumo, `Message::message_attribute`/`MessageBuilder::message_attribute`, `receive_message` pede o atributo `x-trace-id`); **Changed** (outbox SQS/SNS/HTTP adiciona `x-trace-id` quando há trace; precedência do chamador; limite de 10 atributos com `x-idempotent-key` contado, trace omitido sem erro; HTTP usa `x-trace-id` e destinos estritos podem ser afetados).
+- [x] **Step 2**: `crates/derust/README.md`: seção do consumidor SQS com a nova assinatura e exemplo lendo `tags.values().get("x-trace-id")`; documentar: trace novo quando ausente/inválido (pode variar entre reentregas), trace omitido por falta de slot rompe a correlação, SNS exige raw message delivery, trace não vira tag de métrica. Atualizar o exemplo existente de `with_retry_policy` (`|ctx, msg|` -> `|ctx, msg, tags|`). `outboxx/README.md`: comportamento de `x-trace-id` nos headers e o limite de slots.
+- [x] **Step 3**: bump de versão; `cargo check -p derust --features sqs` atualiza o lock; `task lint` nos arquivos tocados e `cargo nextest run` final nas duas combinações.
 
 **Plano de testes**: sem código novo; verificar que os trechos Rust do README compilam por inspeção (nenhum doctest roda neles) e que o lock só mudou a versão do `derust`.
 **Revisão**: CHANGELOG e README coerentes com as decisões 2, 6, 7, 8; nada de linguagem de decisão de negócio nova.

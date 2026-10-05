@@ -277,9 +277,9 @@ queue after the queue's fixed visibility timeout. To space retries progressively
 use derust::awsx::sqsx::{RetryPolicy, SqsQueueConsumer};
 use std::time::Duration;
 
-let consumer = SqsQueueConsumer::new(&queue_url, |ctx, msg| async move {
+let consumer = SqsQueueConsumer::new(&queue_url, |ctx, msg, tags| async move {
     tracing::info!("attempt {}", msg.receive_count());
-    process(ctx, msg).await
+    process(ctx, msg, tags).await
 })
 .with_retry_policy(
     RetryPolicy::default()                       // base 5s, max 15min, factor 2.0
@@ -319,3 +319,26 @@ let consumer = SqsQueueConsumer::new(&queue_url, |ctx, msg| async move {
 
 ## License
 This project is licensed under the MIT license.
+
+## SQS consumer trace id
+
+The consumer handler has the signature `Fn(AppContext<S>, Message, HttpTags)`. The `HttpTags` is
+created per message and contains `x-trace-id`, read from the message attribute of the same name:
+
+```rust
+let consumer = SqsQueueConsumer::new(&queue_url, |ctx, msg, tags| async move {
+    let trace_id = tags.values().get("x-trace-id").cloned();
+    tracing::info!("trace {:?}", trace_id);
+    process(ctx, msg).await
+});
+```
+
+- When the attribute is missing or invalid (empty, longer than 128 chars, or with spaces or
+  non-printable characters), a new trace id is generated. A generated id may differ between
+  redeliveries; an id coming from the attribute is stable.
+- Messages sent with `outboxx` carry the trace automatically (attribute `x-trace-id`). If there is
+  no free MessageAttribute slot (limit of 10, `x-idempotent-key` counts as one), the trace is
+  omitted and the correlation is lost.
+- SNS to SQS: enable raw message delivery on the subscription; otherwise the attributes are
+  wrapped in the body and the consumer generates a new trace.
+- The trace id is logged (`trace_id=`) but is not used as a metric tag.

@@ -96,3 +96,12 @@ async fn handler(
     // ...
 }
 ```
+## Trace id
+
+SQS, SNS and HTTP sends add the current trace to the headers as `x-trace-id` (taken from the
+`x-trace-id` in `tags` if present, otherwise from the current span). A header provided by the
+caller (any case) is never overwritten, and nothing is added when there is no trace. For SQS/SNS
+the header becomes a MessageAttribute; since the limit is 10 and the processor uses one for
+`x-idempotent-key`, the trace is silently omitted when the caller already sends 9 or more headers
+(8 if `x-idempotent-key` is not among them). For HTTP, destinations that reject unknown headers
+may be affected.
