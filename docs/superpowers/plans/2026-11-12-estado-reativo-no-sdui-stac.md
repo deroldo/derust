@@ -325,12 +325,20 @@ Antes de T4-T6: confirmar (humano ou `superpowers:requesting-code-review`) o res
 
 **Depende de:** T1-T12.
 
-- [ ] Inventário oficial e reativo: nenhum item `supported` sem fixture e teste; gerador idempotente (rodar duas vezes sem diff).
-- [ ] Todos os gates: `cargo fmt --all -- --check`; `cargo clippy --all-targets --workspace -- -D warnings`; `cargo clippy --all-targets --package derust --features sdui_stac_1 -- -D warnings`; `cargo clippy --package derust --no-default-features --features sdui_stac_1 -- -D warnings`; `cargo nextest run`; `cargo nextest run --package derust --features sdui_stac_1`; `cargo nextest run --package derust --all-features`; `task lint`; `task test`; exemplos compilam (`examples/*`).
-- [ ] Sem a feature: nada muda no build nem na API pública (`cargo doc -p derust` sem `sdui_stac_1` não lista `sduix`).
-- [ ] Critérios de aceite do plano de negócio, um a um, marcando evidência (teste/fixture/arquivo).
-- [ ] Revisão final do diff (`superpowers:requesting-code-review`); CI da branch (`rust`, `stac-compat-v1`, `stac-compat-v1-reactive`).
-- [ ] Tempo de build e de testes comparado com a linha de base da T3 e registrado.
+- [x] Inventário oficial e reativo: nenhum item `supported` sem fixture e teste; gerador idempotente (rodar duas vezes sem diff).
+- [x] Todos os gates: `cargo fmt --all -- --check`; `cargo clippy --all-targets --workspace -- -D warnings`; `cargo clippy --all-targets --package derust --features sdui_stac_1 -- -D warnings`; `cargo clippy --package derust --no-default-features --features sdui_stac_1 -- -D warnings`; `cargo nextest run`; `cargo nextest run --package derust --features sdui_stac_1`; `cargo nextest run --package derust --all-features`; `task lint`; `task test`; exemplos compilam (`examples/*`).
+- [x] Sem a feature: nada muda no build nem na API pública (`cargo doc -p derust` sem `sdui_stac_1` não lista `sduix`).
+- [x] Critérios de aceite do plano de negócio, um a um, marcando evidência (teste/fixture/arquivo).
+- [x] Revisão final do diff (feita localmente, ver notas); CI remoto da branch **não verificável** (sem push nesta fase): jobs `rust`, `stac-compat-v1`, `stac-compat-v1-reactive` existem em `.github/workflows/ci.yml`.
+- [x] Tempo de build e de testes comparado com a linha de base da T3 e registrado.
+
+**Notas de execução (T13):**
+- Gates (HEAD após T12): fmt, clippy workspace/`sdui_stac_1`/`--no-default-features` com `-D warnings`, nextest 35/35 (default), 550/550 (`sdui_stac_1`), 594/594 (`--all-features`), `task lint`, `task test`, `cargo test --doc --features sdui_stac_1` 11/11. Examples (10) compilam. `cargo doc -p derust` sem a feature não lista `sduix`.
+- Flutter: harness reativo 485/485 (fork), harness oficial v1 263/263.
+- Gerador: rodado duas vezes sobre cópia do checkout `b6cfe7c` do pub-cache; único diff é o `rustfmt` do gerador em `generated_widgets.rs` (`sliver_list`), que some com `cargo fmt --all` (estado commitado é o formatado pelo projeto). Inventário oficial inalterado (259/0/11); reativo 149 supported/7 unsupported, todo `supported` com fixture existente.
+- Tempo (clean, sem baseline numérico registrado na T3; medido contra `caa5b45` em worktree temporária): build da lib com `sdui_stac_1` 22s -> 23s; build+execução dos testes com a feature 11s (333 testes) -> 14s (550 testes).
+- Revisão: sem `unwrap/expect/panic` em código de biblioteca fora de testes/doctests; avisos logam só caminho e nome (teste `secure_values_never_reach_the_error_message`). Sem defeitos encontrados.
+- Pendências fora desta worktree/decisão da pessoa: corrigir "mutuamente exclusivos" em `state_reference.mdx` do fork; pin do fork; D1-D6 provisórias; edição in-place de campo de item; CI remoto.
 
 ---
 
