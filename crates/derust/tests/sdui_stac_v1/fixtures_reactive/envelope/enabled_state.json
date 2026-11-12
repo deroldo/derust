@@ -1,0 +1,10 @@
+{
+  "type": "elevatedButton",
+  "enabled": {
+    "$state": "ready"
+  },
+  "child": {
+    "type": "text",
+    "data": "Go"
+  }
+}

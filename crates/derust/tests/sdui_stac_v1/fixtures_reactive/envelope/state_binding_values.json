@@ -1,0 +1,15 @@
+{
+  "type": "column",
+  "state": {
+    "from_params": {
+      "$state": "params.id"
+    },
+    "owner": {
+      "$state": "global.userName"
+    },
+    "price": 4,
+    "total": {
+      "$expr": "price * 2"
+    }
+  }
+}

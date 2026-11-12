@@ -1,0 +1,12 @@
+{
+  "type": "listView",
+  "items": {
+    "$state": "rows"
+  },
+  "itemTemplate": {
+    "type": "text",
+    "data": {
+      "$expr": "index + ': ' + item.name"
+    }
+  }
+}

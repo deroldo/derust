@@ -1,0 +1,10 @@
+{
+  "type": "sliverVisibility",
+  "visible": {
+    "$state": "show"
+  },
+  "sliver": {
+    "type": "text",
+    "data": "x"
+  }
+}

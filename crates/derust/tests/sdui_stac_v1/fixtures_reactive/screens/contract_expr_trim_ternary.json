@@ -1,0 +1,10 @@
+{
+  "type": "column",
+  "state": { "name": "  Ana " },
+  "children": [
+    {
+      "type": "text",
+      "data": { "$expr": "length(trim(name)) >= 3 ? 'ok' : 'too short'" }
+    }
+  ]
+}

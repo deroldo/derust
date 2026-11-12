@@ -1,0 +1,6 @@
+{
+  "type": "dropdownMenu",
+  "enabled": {
+    "$state": "editable"
+  }
+}

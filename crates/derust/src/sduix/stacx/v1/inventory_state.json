@@ -1,0 +1,1457 @@
+{
+  "fork_repository": "https://github.com/deroldo/derust-stac",
+  "fork_ref": "estado_compartilhado_reativo",
+  "items": [
+    {
+      "name": "envelope.visible: literal",
+      "kind": "envelope",
+      "source": "fork",
+      "json_key": "visible",
+      "status": "supported",
+      "fixture": "envelope/visible_literal",
+      "notes": "state_reference.mdx#visible: bool literal"
+    },
+    {
+      "name": "envelope.visible: state",
+      "kind": "envelope",
+      "source": "fork",
+      "json_key": "visible",
+      "status": "supported",
+      "fixture": "envelope/visible_state",
+      "notes": "state_reference.mdx#visible: $state binding"
+    },
+    {
+      "name": "envelope.visible: expr",
+      "kind": "envelope",
+      "source": "fork",
+      "json_key": "visible",
+      "status": "supported",
+      "fixture": "envelope/visible_expr",
+      "notes": "state_reference.mdx#visible: $expr binding"
+    },
+    {
+      "name": "envelope.visible: native Visibility",
+      "kind": "envelope",
+      "source": "fork",
+      "json_key": "visible",
+      "status": "supported",
+      "fixture": "envelope/visible_native_visibility",
+      "notes": "state_reference.mdx#visible: native field of visibility, same key"
+    },
+    {
+      "name": "envelope.visible: native SliverVisibility",
+      "kind": "envelope",
+      "source": "fork",
+      "json_key": "visible",
+      "status": "supported",
+      "fixture": "envelope/visible_native_sliver_visibility",
+      "notes": "state_reference.mdx#visible: native field of sliverVisibility, same key"
+    },
+    {
+      "name": "envelope.enabled: literal",
+      "kind": "envelope",
+      "source": "fork",
+      "json_key": "enabled",
+      "status": "supported",
+      "fixture": "envelope/enabled_literal",
+      "notes": "state_reference.mdx#enabled: bool literal"
+    },
+    {
+      "name": "envelope.enabled: state",
+      "kind": "envelope",
+      "source": "fork",
+      "json_key": "enabled",
+      "status": "supported",
+      "fixture": "envelope/enabled_state",
+      "notes": "state_reference.mdx#enabled: $state binding"
+    },
+    {
+      "name": "envelope.enabled: expr",
+      "kind": "envelope",
+      "source": "fork",
+      "json_key": "enabled",
+      "status": "supported",
+      "fixture": "envelope/enabled_expr",
+      "notes": "state_reference.mdx#enabled: $expr binding"
+    },
+    {
+      "name": "envelope.enabled: native TextField",
+      "kind": "envelope",
+      "source": "fork",
+      "json_key": "enabled",
+      "status": "supported",
+      "fixture": "envelope/enabled_native_text_field",
+      "notes": "state_reference.mdx#enabled: native field of TextField, same key"
+    },
+    {
+      "name": "envelope.enabled: native TextFormField",
+      "kind": "envelope",
+      "source": "fork",
+      "json_key": "enabled",
+      "status": "supported",
+      "fixture": "envelope/enabled_native_text_form_field",
+      "notes": "state_reference.mdx#enabled: native field of TextFormField, same key"
+    },
+    {
+      "name": "envelope.enabled: native DropdownMenu",
+      "kind": "envelope",
+      "source": "fork",
+      "json_key": "enabled",
+      "status": "supported",
+      "fixture": "envelope/enabled_native_dropdown_menu",
+      "notes": "state_reference.mdx#enabled: native field of DropdownMenu, same key"
+    },
+    {
+      "name": "envelope.enabled: native ListTile",
+      "kind": "envelope",
+      "source": "fork",
+      "json_key": "enabled",
+      "status": "supported",
+      "fixture": "envelope/enabled_native_list_tile",
+      "notes": "state_reference.mdx#enabled: native field of ListTile, same key"
+    },
+    {
+      "name": "envelope.enabled: native Radio",
+      "kind": "envelope",
+      "source": "fork",
+      "json_key": "enabled",
+      "status": "supported",
+      "fixture": "envelope/enabled_native_radio",
+      "notes": "state_reference.mdx#enabled: native field of Radio, same key"
+    },
+    {
+      "name": "envelope.enabled: native BackdropFilter",
+      "kind": "envelope",
+      "source": "fork",
+      "json_key": "enabled",
+      "status": "supported",
+      "fixture": "envelope/enabled_native_backdrop_filter",
+      "notes": "state_reference.mdx#enabled: native field of BackdropFilter, same key"
+    },
+    {
+      "name": "envelope.bind: checkBox",
+      "kind": "envelope",
+      "source": "fork",
+      "json_key": "bind",
+      "status": "supported",
+      "fixture": "envelope/bind_check_box",
+      "notes": "state_reference.mdx#bind: supported widget"
+    },
+    {
+      "name": "envelope.bind: switch",
+      "kind": "envelope",
+      "source": "fork",
+      "json_key": "bind",
+      "status": "supported",
+      "fixture": "envelope/bind_switch",
+      "notes": "state_reference.mdx#bind: supported widget"
+    },
+    {
+      "name": "envelope.bind: radioGroup",
+      "kind": "envelope",
+      "source": "fork",
+      "json_key": "bind",
+      "status": "supported",
+      "fixture": "envelope/bind_radio_group",
+      "notes": "state_reference.mdx#bind: supported widget"
+    },
+    {
+      "name": "envelope.bind: textField",
+      "kind": "envelope",
+      "source": "fork",
+      "json_key": "bind",
+      "status": "supported",
+      "fixture": "envelope/bind_text_field",
+      "notes": "state_reference.mdx#bind: supported widget"
+    },
+    {
+      "name": "envelope.bind: textFormField",
+      "kind": "envelope",
+      "source": "fork",
+      "json_key": "bind",
+      "status": "supported",
+      "fixture": "envelope/bind_text_form_field",
+      "notes": "state_reference.mdx#bind: supported widget"
+    },
+    {
+      "name": "envelope.bind: dropdownMenu",
+      "kind": "envelope",
+      "source": "fork",
+      "json_key": "bind",
+      "status": "supported",
+      "fixture": "envelope/bind_dropdown_menu",
+      "notes": "state_reference.mdx#bind: supported widget"
+    },
+    {
+      "name": "envelope.bind: global key",
+      "kind": "envelope",
+      "source": "fork",
+      "json_key": "bind",
+      "status": "supported",
+      "fixture": "envelope/bind_global",
+      "notes": "state_reference.mdx#bind: `global.key` prefix"
+    },
+    {
+      "name": "envelope.state: block",
+      "kind": "envelope",
+      "source": "fork",
+      "json_key": "state",
+      "status": "supported",
+      "fixture": "envelope/state_block",
+      "notes": "state_reference.mdx#Screen scope: initial values of every JSON kind"
+    },
+    {
+      "name": "envelope.state: binding values",
+      "kind": "envelope",
+      "source": "fork",
+      "json_key": "state",
+      "status": "supported",
+      "fixture": "envelope/state_binding_values",
+      "notes": "state_reference.mdx#Screen scope: values resolved once at creation (params/global)"
+    },
+    {
+      "name": "envelope.globalState",
+      "kind": "envelope",
+      "source": "fork",
+      "json_key": "globalState",
+      "status": "supported",
+      "fixture": "envelope/global_state_block",
+      "notes": "state_reference.mdx#globalState: plain value, initial/persist/secure"
+    },
+    {
+      "name": "envelope.onInit: single action",
+      "kind": "envelope",
+      "source": "fork",
+      "json_key": "onInit",
+      "status": "supported",
+      "fixture": "envelope/on_init_single",
+      "notes": "state_reference.mdx#Screen scope"
+    },
+    {
+      "name": "envelope.onInit: action list",
+      "kind": "envelope",
+      "source": "fork",
+      "json_key": "onInit",
+      "status": "supported",
+      "fixture": "envelope/on_init_list",
+      "notes": "state_reference.mdx#Screen scope: list runs as a sync multiAction"
+    },
+    {
+      "name": "envelope: property order",
+      "kind": "envelope",
+      "source": "fork",
+      "json_key": "visible/enabled/state/onInit",
+      "status": "supported",
+      "fixture": "envelope/all_properties",
+      "notes": "envelope keys follow the discriminator"
+    },
+    {
+      "name": "action.condition: expr on setState",
+      "kind": "envelope",
+      "source": "fork",
+      "json_key": "condition",
+      "status": "supported",
+      "fixture": "actions/set_state_condition_expr",
+      "notes": "state_reference.mdx#condition (actions)"
+    },
+    {
+      "name": "action.condition: expr on navigate",
+      "kind": "envelope",
+      "source": "fork",
+      "json_key": "condition",
+      "status": "supported",
+      "fixture": "envelope/condition_navigate",
+      "notes": "state_reference.mdx#condition (actions): any action"
+    },
+    {
+      "name": "action.condition: literal",
+      "kind": "envelope",
+      "source": "fork",
+      "json_key": "condition",
+      "status": "supported",
+      "fixture": "envelope/condition_literal",
+      "notes": "state_reference.mdx#condition (actions): bool literal"
+    },
+    {
+      "name": "action.condition: on none",
+      "kind": "envelope",
+      "source": "fork",
+      "json_key": "condition",
+      "status": "supported",
+      "fixture": "actions/none_condition",
+      "notes": "state_reference.mdx#condition (actions)"
+    },
+    {
+      "name": "action: setState",
+      "kind": "action",
+      "source": "fork",
+      "json_key": "actionType: setState",
+      "status": "supported",
+      "fixture": "actions/set_state",
+      "notes": "state_reference.mdx#setState"
+    },
+    {
+      "name": "action: incrementState",
+      "kind": "action",
+      "source": "fork",
+      "json_key": "actionType: incrementState",
+      "status": "supported",
+      "fixture": "actions/increment_state",
+      "notes": "state_reference.mdx#incrementState / decrementState"
+    },
+    {
+      "name": "action: decrementState",
+      "kind": "action",
+      "source": "fork",
+      "json_key": "actionType: decrementState",
+      "status": "supported",
+      "fixture": "actions/decrement_state",
+      "notes": "state_reference.mdx#incrementState / decrementState"
+    },
+    {
+      "name": "action: toggleState",
+      "kind": "action",
+      "source": "fork",
+      "json_key": "actionType: toggleState",
+      "status": "supported",
+      "fixture": "actions/toggle_state",
+      "notes": "state_reference.mdx#toggleState"
+    },
+    {
+      "name": "action: resetState",
+      "kind": "action",
+      "source": "fork",
+      "json_key": "actionType: resetState",
+      "status": "supported",
+      "fixture": "actions/reset_state",
+      "notes": "state_reference.mdx#resetState"
+    },
+    {
+      "name": "action: appendState",
+      "kind": "action",
+      "source": "fork",
+      "json_key": "actionType: appendState",
+      "status": "supported",
+      "fixture": "actions/append_state",
+      "notes": "state_reference.mdx#appendState"
+    },
+    {
+      "name": "action: removeFromState",
+      "kind": "action",
+      "source": "fork",
+      "json_key": "actionType: removeFromState",
+      "status": "supported",
+      "fixture": "actions/remove_from_state_index",
+      "notes": "state_reference.mdx#removeFromState"
+    },
+    {
+      "name": "action: toggleItem",
+      "kind": "action",
+      "source": "fork",
+      "json_key": "actionType: toggleItem",
+      "status": "supported",
+      "fixture": "actions/toggle_item",
+      "notes": "state_reference.mdx#toggleItem"
+    },
+    {
+      "name": "action: cancelRequest",
+      "kind": "action",
+      "source": "fork",
+      "json_key": "actionType: cancelRequest",
+      "status": "supported",
+      "fixture": "actions/cancel_request",
+      "notes": "state_reference.mdx#cancelRequest"
+    },
+    {
+      "name": "action: none",
+      "kind": "action",
+      "source": "fork",
+      "json_key": "actionType: none",
+      "status": "supported",
+      "fixture": "actions/none",
+      "notes": "state_reference.mdx#navigate (params, result, pop): onCancel placeholder"
+    },
+    {
+      "name": "action field: setState.values: nested data with bindings",
+      "kind": "action_field",
+      "source": "fork",
+      "json_key": "values",
+      "status": "supported",
+      "fixture": "actions/set_state_multi_nested",
+      "notes": "state_reference.mdx#setState"
+    },
+    {
+      "name": "action field: setState: global key",
+      "kind": "action_field",
+      "source": "fork",
+      "json_key": "key",
+      "status": "supported",
+      "fixture": "actions/toggle_state_global",
+      "notes": "state_reference.mdx#setState; `key` accepts `global.`"
+    },
+    {
+      "name": "action field: incrementState.by/min/max",
+      "kind": "action_field",
+      "source": "fork",
+      "json_key": "by/min/max",
+      "status": "supported",
+      "fixture": "actions/increment_state_by_min_max",
+      "notes": "state_reference.mdx#incrementState / decrementState"
+    },
+    {
+      "name": "action field: incrementState.by: binding",
+      "kind": "action_field",
+      "source": "fork",
+      "json_key": "by",
+      "status": "supported",
+      "fixture": "actions/increment_state_bound",
+      "notes": "state_reference.mdx#incrementState / decrementState"
+    },
+    {
+      "name": "action field: decrementState.by/min/max",
+      "kind": "action_field",
+      "source": "fork",
+      "json_key": "by/min/max",
+      "status": "supported",
+      "fixture": "actions/decrement_state_by_min_max",
+      "notes": "state_reference.mdx#incrementState / decrementState"
+    },
+    {
+      "name": "action field: resetState.keys",
+      "kind": "action_field",
+      "source": "fork",
+      "json_key": "keys",
+      "status": "supported",
+      "fixture": "actions/reset_state_keys",
+      "notes": "state_reference.mdx#resetState"
+    },
+    {
+      "name": "action field: appendState.value",
+      "kind": "action_field",
+      "source": "fork",
+      "json_key": "value",
+      "status": "supported",
+      "fixture": "actions/append_state_value",
+      "notes": "state_reference.mdx#appendState"
+    },
+    {
+      "name": "action field: appendState.value: object",
+      "kind": "action_field",
+      "source": "fork",
+      "json_key": "value",
+      "status": "supported",
+      "fixture": "actions/append_state_object",
+      "notes": "state_reference.mdx#appendState"
+    },
+    {
+      "name": "action field: removeFromState.index",
+      "kind": "action_field",
+      "source": "fork",
+      "json_key": "index",
+      "status": "supported",
+      "fixture": "actions/remove_from_state_index",
+      "notes": "state_reference.mdx#removeFromState"
+    },
+    {
+      "name": "action field: removeFromState.index: binding",
+      "kind": "action_field",
+      "source": "fork",
+      "json_key": "index",
+      "status": "supported",
+      "fixture": "actions/remove_from_state_index_binding",
+      "notes": "state_reference.mdx#removeFromState"
+    },
+    {
+      "name": "action field: removeFromState.value",
+      "kind": "action_field",
+      "source": "fork",
+      "json_key": "value",
+      "status": "supported",
+      "fixture": "actions/remove_from_state_value",
+      "notes": "state_reference.mdx#removeFromState"
+    },
+    {
+      "name": "action field: removeFromState.index+value",
+      "kind": "action_field",
+      "source": "fork",
+      "json_key": "index/value",
+      "status": "supported",
+      "fixture": "actions/remove_from_state_index_and_value",
+      "notes": "state_reference.mdx#removeFromState: index prevails"
+    },
+    {
+      "name": "action field: toggleItem.by",
+      "kind": "action_field",
+      "source": "fork",
+      "json_key": "by",
+      "status": "supported",
+      "fixture": "actions/toggle_item_by",
+      "notes": "state_reference.mdx#toggleItem"
+    },
+    {
+      "name": "action field: toggleItem.value: item field",
+      "kind": "action_field",
+      "source": "fork",
+      "json_key": "value",
+      "status": "supported",
+      "fixture": "actions/toggle_item_item_id",
+      "notes": "state_reference.mdx#toggleItem"
+    },
+    {
+      "name": "action field: toggleItem: limit of selected",
+      "kind": "action_field",
+      "source": "fork",
+      "json_key": "condition",
+      "status": "supported",
+      "fixture": "actions/toggle_item_limit",
+      "notes": "state_reference.mdx#toggleItem"
+    },
+    {
+      "name": "action field: multiAction: sync list of state actions",
+      "kind": "action_field",
+      "source": "fork",
+      "json_key": "actions",
+      "status": "supported",
+      "fixture": "actions/multi_action_contract",
+      "notes": "state_reference.mdx#multiAction"
+    },
+    {
+      "name": "action field: networkRequest.onStart/onSuccess/onError/onFinally",
+      "kind": "action_field",
+      "source": "fork",
+      "json_key": "onStart",
+      "status": "supported",
+      "fixture": "actions/network_request_contract",
+      "notes": "state_reference.mdx#networkRequest (state extensions)"
+    },
+    {
+      "name": "action field: networkRequest: callbacks as ordered list",
+      "kind": "action_field",
+      "source": "fork",
+      "json_key": "onSuccess",
+      "status": "supported",
+      "fixture": "actions/network_request_callbacks_list",
+      "notes": "state_reference.mdx#networkRequest (state extensions)"
+    },
+    {
+      "name": "action field: networkRequest.requestKey",
+      "kind": "action_field",
+      "source": "fork",
+      "json_key": "requestKey",
+      "status": "supported",
+      "fixture": "actions/network_request_contract",
+      "notes": "state_reference.mdx#networkRequest (state extensions)"
+    },
+    {
+      "name": "action field: networkRequest.bodyFromState",
+      "kind": "action_field",
+      "source": "fork",
+      "json_key": "bodyFromState",
+      "status": "supported",
+      "fixture": "actions/network_request_body_from_state",
+      "notes": "state_reference.mdx#networkRequest (state extensions)"
+    },
+    {
+      "name": "action field: networkRequest.body: deep bindings",
+      "kind": "action_field",
+      "source": "fork",
+      "json_key": "body",
+      "status": "supported",
+      "fixture": "actions/network_request_body_deep",
+      "notes": "state_reference.mdx#networkRequest (state extensions)"
+    },
+    {
+      "name": "action field: navigate.params",
+      "kind": "action_field",
+      "source": "fork",
+      "json_key": "params",
+      "status": "supported",
+      "fixture": "actions/navigate_contract",
+      "notes": "state_reference.mdx#navigate (params, result, pop)"
+    },
+    {
+      "name": "action field: navigate.result: value",
+      "kind": "action_field",
+      "source": "fork",
+      "json_key": "result",
+      "status": "supported",
+      "fixture": "actions/navigate_contract",
+      "notes": "state_reference.mdx#navigate (params, result, pop)"
+    },
+    {
+      "name": "action field: navigate.result: absent",
+      "kind": "action_field",
+      "source": "fork",
+      "json_key": "(no result)",
+      "status": "supported",
+      "fixture": "actions/navigate_pop_result_absent",
+      "notes": "state_reference.mdx#navigate (params, result, pop)"
+    },
+    {
+      "name": "action field: navigate.result: null",
+      "kind": "action_field",
+      "source": "fork",
+      "json_key": "result",
+      "status": "supported",
+      "fixture": "actions/navigate_pop_result_null",
+      "notes": "state_reference.mdx#navigate (params, result, pop)"
+    },
+    {
+      "name": "action field: navigate.onResult",
+      "kind": "action_field",
+      "source": "fork",
+      "json_key": "onResult",
+      "status": "supported",
+      "fixture": "actions/navigate_on_result",
+      "notes": "state_reference.mdx#navigate (params, result, pop)"
+    },
+    {
+      "name": "action field: navigate.onCancel",
+      "kind": "action_field",
+      "source": "fork",
+      "json_key": "onCancel",
+      "status": "supported",
+      "fixture": "actions/navigate_on_cancel",
+      "notes": "state_reference.mdx#navigate (params, result, pop)"
+    },
+    {
+      "name": "list template: listView",
+      "kind": "widget_field",
+      "source": "fork",
+      "json_key": "items/itemTemplate",
+      "status": "supported",
+      "fixture": "lists/default_names",
+      "notes": "state_reference.mdx#List templates: listView"
+    },
+    {
+      "name": "list template: gridView",
+      "kind": "widget_field",
+      "source": "fork",
+      "json_key": "items/itemTemplate",
+      "status": "supported",
+      "fixture": "lists/grid_view",
+      "notes": "state_reference.mdx#List templates: gridView"
+    },
+    {
+      "name": "list template: pageView",
+      "kind": "widget_field",
+      "source": "fork",
+      "json_key": "items/itemTemplate",
+      "status": "supported",
+      "fixture": "lists/page_view",
+      "notes": "state_reference.mdx#List templates: pageView"
+    },
+    {
+      "name": "list template: sliverList",
+      "kind": "widget_field",
+      "source": "fork",
+      "json_key": "items/itemTemplate",
+      "status": "supported",
+      "fixture": "lists/sliver_list",
+      "notes": "state_reference.mdx#List templates: sliverList"
+    },
+    {
+      "name": "list template: sliverGrid",
+      "kind": "widget_field",
+      "source": "fork",
+      "json_key": "items/itemTemplate",
+      "status": "supported",
+      "fixture": "lists/sliver_grid",
+      "notes": "state_reference.mdx#List templates: sliverGrid"
+    },
+    {
+      "name": "list: items literal",
+      "kind": "widget_field",
+      "source": "fork",
+      "json_key": "items",
+      "status": "supported",
+      "fixture": "lists/items_literal",
+      "notes": "state_reference.mdx#List templates"
+    },
+    {
+      "name": "list: items $state",
+      "kind": "widget_field",
+      "source": "fork",
+      "json_key": "items",
+      "status": "supported",
+      "fixture": "lists/contract",
+      "notes": "state_reference.mdx#List templates"
+    },
+    {
+      "name": "list: items $expr",
+      "kind": "widget_field",
+      "source": "fork",
+      "json_key": "items",
+      "status": "supported",
+      "fixture": "lists/items_expression",
+      "notes": "state_reference.mdx#List templates"
+    },
+    {
+      "name": "list: as / indexAs",
+      "kind": "widget_field",
+      "source": "fork",
+      "json_key": "as/indexAs",
+      "status": "supported",
+      "fixture": "lists/renamed",
+      "notes": "state_reference.mdx#List templates"
+    },
+    {
+      "name": "list: empty as / indexAs use defaults",
+      "kind": "widget_field",
+      "source": "fork",
+      "json_key": "as/indexAs",
+      "status": "supported",
+      "fixture": "lists/empty_names",
+      "notes": "state_reference.mdx#List templates"
+    },
+    {
+      "name": "list: nested templates",
+      "kind": "widget_field",
+      "source": "fork",
+      "json_key": "itemTemplate",
+      "status": "supported",
+      "fixture": "lists/nested",
+      "notes": "state_reference.mdx#List templates"
+    },
+    {
+      "name": "list: items with children",
+      "kind": "widget_field",
+      "source": "fork",
+      "json_key": "items/children",
+      "status": "supported",
+      "fixture": "lists/with_children",
+      "notes": "state_reference.mdx#List templates"
+    },
+    {
+      "name": "list: per-item state as a set of ids",
+      "kind": "widget_field",
+      "source": "fork",
+      "json_key": "itemTemplate",
+      "status": "supported",
+      "fixture": "lists/selection_limit",
+      "notes": "state_reference.mdx#toggleItem (decision D7)"
+    },
+    {
+      "name": "expr: integer literal",
+      "kind": "literal",
+      "source": "fork",
+      "json_key": "$expr",
+      "status": "supported",
+      "fixture": "expressions/literals",
+      "notes": "state_reference.mdx#Expression grammar",
+      "sample": "42"
+    },
+    {
+      "name": "expr: decimal literal",
+      "kind": "literal",
+      "source": "fork",
+      "json_key": "$expr",
+      "status": "supported",
+      "fixture": "expressions/literals",
+      "notes": "state_reference.mdx#Expression grammar",
+      "sample": "1.5"
+    },
+    {
+      "name": "expr: text literal",
+      "kind": "literal",
+      "source": "fork",
+      "json_key": "$expr",
+      "status": "supported",
+      "fixture": "expressions/literals",
+      "notes": "state_reference.mdx#Expression grammar",
+      "sample": "'hello'"
+    },
+    {
+      "name": "expr: text escapes",
+      "kind": "literal",
+      "source": "fork",
+      "json_key": "$expr",
+      "status": "supported",
+      "fixture": "expressions/literals",
+      "notes": "state_reference.mdx#Expression grammar",
+      "sample": "'line\\nbreak\\ttab\\rcr'"
+    },
+    {
+      "name": "expr: true literal",
+      "kind": "literal",
+      "source": "fork",
+      "json_key": "$expr",
+      "status": "supported",
+      "fixture": "expressions/literals",
+      "notes": "state_reference.mdx#Expression grammar",
+      "sample": "true"
+    },
+    {
+      "name": "expr: null literal",
+      "kind": "literal",
+      "source": "fork",
+      "json_key": "$expr",
+      "status": "supported",
+      "fixture": "expressions/literals",
+      "notes": "state_reference.mdx#Expression grammar",
+      "sample": "null"
+    },
+    {
+      "name": "expr: negative number",
+      "kind": "literal",
+      "source": "fork",
+      "json_key": "$expr",
+      "status": "supported",
+      "fixture": "expressions/literals",
+      "notes": "state_reference.mdx#Expression grammar",
+      "sample": "-5"
+    },
+    {
+      "name": "expr: unary not",
+      "kind": "operator",
+      "source": "fork",
+      "json_key": "$expr",
+      "status": "supported",
+      "fixture": "expressions/unary",
+      "notes": "state_reference.mdx#Expression grammar",
+      "sample": "!a"
+    },
+    {
+      "name": "expr: unary minus",
+      "kind": "operator",
+      "source": "fork",
+      "json_key": "$expr",
+      "status": "supported",
+      "fixture": "expressions/unary",
+      "notes": "state_reference.mdx#Expression grammar",
+      "sample": "-a"
+    },
+    {
+      "name": "expr: repeated unary operators",
+      "kind": "operator",
+      "source": "fork",
+      "json_key": "$expr",
+      "status": "supported",
+      "fixture": "expressions/unary",
+      "notes": "state_reference.mdx#Expression grammar",
+      "sample": "- -a"
+    },
+    {
+      "name": "expr: arithmetic add",
+      "kind": "operator",
+      "source": "fork",
+      "json_key": "$expr",
+      "status": "supported",
+      "fixture": "expressions/arithmetic",
+      "notes": "state_reference.mdx#Expression grammar",
+      "sample": "a + b"
+    },
+    {
+      "name": "expr: arithmetic subtract",
+      "kind": "operator",
+      "source": "fork",
+      "json_key": "$expr",
+      "status": "supported",
+      "fixture": "expressions/arithmetic",
+      "notes": "state_reference.mdx#Expression grammar",
+      "sample": "a - b"
+    },
+    {
+      "name": "expr: arithmetic multiply",
+      "kind": "operator",
+      "source": "fork",
+      "json_key": "$expr",
+      "status": "supported",
+      "fixture": "expressions/arithmetic",
+      "notes": "state_reference.mdx#Expression grammar",
+      "sample": "a * b"
+    },
+    {
+      "name": "expr: arithmetic divide",
+      "kind": "operator",
+      "source": "fork",
+      "json_key": "$expr",
+      "status": "supported",
+      "fixture": "expressions/arithmetic",
+      "notes": "state_reference.mdx#Expression grammar",
+      "sample": "a / b"
+    },
+    {
+      "name": "expr: arithmetic remainder",
+      "kind": "operator",
+      "source": "fork",
+      "json_key": "$expr",
+      "status": "supported",
+      "fixture": "expressions/arithmetic",
+      "notes": "state_reference.mdx#Expression grammar",
+      "sample": "a % b"
+    },
+    {
+      "name": "expr: arithmetic left associativity",
+      "kind": "operator",
+      "source": "fork",
+      "json_key": "$expr",
+      "status": "supported",
+      "fixture": "expressions/arithmetic",
+      "notes": "state_reference.mdx#Expression grammar",
+      "sample": "a - b - c"
+    },
+    {
+      "name": "expr: arithmetic precedence of * over +",
+      "kind": "operator",
+      "source": "fork",
+      "json_key": "$expr",
+      "status": "supported",
+      "fixture": "expressions/arithmetic",
+      "notes": "state_reference.mdx#Expression grammar",
+      "sample": "a + b * c"
+    },
+    {
+      "name": "expr: arithmetic parentheses kept for the right operand",
+      "kind": "operator",
+      "source": "fork",
+      "json_key": "$expr",
+      "status": "supported",
+      "fixture": "expressions/arithmetic",
+      "notes": "state_reference.mdx#Expression grammar",
+      "sample": "a - (b - c)"
+    },
+    {
+      "name": "expr: comparison less",
+      "kind": "operator",
+      "source": "fork",
+      "json_key": "$expr",
+      "status": "supported",
+      "fixture": "expressions/comparison",
+      "notes": "state_reference.mdx#Expression grammar",
+      "sample": "a < b"
+    },
+    {
+      "name": "expr: comparison less or equal",
+      "kind": "operator",
+      "source": "fork",
+      "json_key": "$expr",
+      "status": "supported",
+      "fixture": "expressions/comparison",
+      "notes": "state_reference.mdx#Expression grammar",
+      "sample": "a <= b"
+    },
+    {
+      "name": "expr: comparison greater",
+      "kind": "operator",
+      "source": "fork",
+      "json_key": "$expr",
+      "status": "supported",
+      "fixture": "expressions/comparison",
+      "notes": "state_reference.mdx#Expression grammar",
+      "sample": "a > b"
+    },
+    {
+      "name": "expr: comparison greater or equal",
+      "kind": "operator",
+      "source": "fork",
+      "json_key": "$expr",
+      "status": "supported",
+      "fixture": "expressions/comparison",
+      "notes": "state_reference.mdx#Expression grammar",
+      "sample": "a >= b"
+    },
+    {
+      "name": "expr: equal",
+      "kind": "operator",
+      "source": "fork",
+      "json_key": "$expr",
+      "status": "supported",
+      "fixture": "expressions/equality",
+      "notes": "state_reference.mdx#Expression grammar",
+      "sample": "a == b"
+    },
+    {
+      "name": "expr: not equal",
+      "kind": "operator",
+      "source": "fork",
+      "json_key": "$expr",
+      "status": "supported",
+      "fixture": "expressions/equality",
+      "notes": "state_reference.mdx#Expression grammar",
+      "sample": "a != b"
+    },
+    {
+      "name": "expr: logical and",
+      "kind": "operator",
+      "source": "fork",
+      "json_key": "$expr",
+      "status": "supported",
+      "fixture": "expressions/logical",
+      "notes": "state_reference.mdx#Expression grammar",
+      "sample": "a && b"
+    },
+    {
+      "name": "expr: logical or",
+      "kind": "operator",
+      "source": "fork",
+      "json_key": "$expr",
+      "status": "supported",
+      "fixture": "expressions/logical",
+      "notes": "state_reference.mdx#Expression grammar",
+      "sample": "a || b"
+    },
+    {
+      "name": "expr: and over or precedence",
+      "kind": "operator",
+      "source": "fork",
+      "json_key": "$expr",
+      "status": "supported",
+      "fixture": "expressions/logical",
+      "notes": "state_reference.mdx#Expression grammar",
+      "sample": "a || b && c"
+    },
+    {
+      "name": "expr: ternary",
+      "kind": "operator",
+      "source": "fork",
+      "json_key": "$expr",
+      "status": "supported",
+      "fixture": "expressions/ternary",
+      "notes": "state_reference.mdx#Expression grammar",
+      "sample": "a ? b : c"
+    },
+    {
+      "name": "expr: ternary right associativity",
+      "kind": "operator",
+      "source": "fork",
+      "json_key": "$expr",
+      "status": "supported",
+      "fixture": "expressions/ternary",
+      "notes": "state_reference.mdx#Expression grammar",
+      "sample": "a ? b : c ? d : e"
+    },
+    {
+      "name": "expr: ternary as condition",
+      "kind": "operator",
+      "source": "fork",
+      "json_key": "$expr",
+      "status": "supported",
+      "fixture": "expressions/ternary",
+      "notes": "state_reference.mdx#Expression grammar",
+      "sample": "(a ? b : c) ? d : e"
+    },
+    {
+      "name": "expr: grouping",
+      "kind": "operator",
+      "source": "fork",
+      "json_key": "$expr",
+      "status": "supported",
+      "fixture": "expressions/grouping",
+      "notes": "state_reference.mdx#Expression grammar",
+      "sample": "(a + b) * c"
+    },
+    {
+      "name": "expr: field access",
+      "kind": "operator",
+      "source": "fork",
+      "json_key": "$expr",
+      "status": "supported",
+      "fixture": "expressions/field_access",
+      "notes": "state_reference.mdx#Expression grammar",
+      "sample": "user.address.city"
+    },
+    {
+      "name": "expr: field access on an expression",
+      "kind": "operator",
+      "source": "fork",
+      "json_key": "$expr",
+      "status": "supported",
+      "fixture": "expressions/field_access",
+      "notes": "state_reference.mdx#Expression grammar",
+      "sample": "(a + b).x"
+    },
+    {
+      "name": "expr: index access: literal",
+      "kind": "operator",
+      "source": "fork",
+      "json_key": "$expr",
+      "status": "supported",
+      "fixture": "expressions/index_access",
+      "notes": "state_reference.mdx#Expression grammar",
+      "sample": "items[0]"
+    },
+    {
+      "name": "expr: index access: dynamic",
+      "kind": "operator",
+      "source": "fork",
+      "json_key": "$expr",
+      "status": "supported",
+      "fixture": "expressions/index_access",
+      "notes": "state_reference.mdx#Expression grammar",
+      "sample": "items[i + 1]"
+    },
+    {
+      "name": "expr: function length",
+      "kind": "function",
+      "source": "fork",
+      "json_key": "$expr",
+      "status": "supported",
+      "fixture": "expressions/functions",
+      "notes": "state_reference.mdx#Expression grammar",
+      "sample": "length(tags)"
+    },
+    {
+      "name": "expr: function trim",
+      "kind": "function",
+      "source": "fork",
+      "json_key": "$expr",
+      "status": "supported",
+      "fixture": "expressions/functions",
+      "notes": "state_reference.mdx#Expression grammar",
+      "sample": "trim(name)"
+    },
+    {
+      "name": "expr: function contains (2 args)",
+      "kind": "function",
+      "source": "fork",
+      "json_key": "$expr",
+      "status": "supported",
+      "fixture": "expressions/functions",
+      "notes": "state_reference.mdx#Expression grammar",
+      "sample": "contains(tags, 'red')"
+    },
+    {
+      "name": "expr: function contains (3 args)",
+      "kind": "function",
+      "source": "fork",
+      "json_key": "$expr",
+      "status": "supported",
+      "fixture": "expressions/functions",
+      "notes": "state_reference.mdx#Expression grammar",
+      "sample": "contains(selected, item, 'id')"
+    },
+    {
+      "name": "expr: function composition",
+      "kind": "function",
+      "source": "fork",
+      "json_key": "$expr",
+      "status": "supported",
+      "fixture": "expressions/functions",
+      "notes": "state_reference.mdx#Expression grammar",
+      "sample": "length(trim(name))"
+    },
+    {
+      "name": "binding: $state with path",
+      "kind": "binding",
+      "source": "fork",
+      "json_key": "$state",
+      "status": "supported",
+      "fixture": "bindings/state_paths",
+      "notes": "state_reference.mdx#Bindings"
+    },
+    {
+      "name": "binding: $expr",
+      "kind": "binding",
+      "source": "fork",
+      "json_key": "$expr",
+      "status": "supported",
+      "fixture": "bindings/expr",
+      "notes": "state_reference.mdx#Bindings"
+    },
+    {
+      "name": "binding: in a non-text property",
+      "kind": "binding",
+      "source": "fork",
+      "json_key": "$state/$expr",
+      "status": "supported",
+      "fixture": "bindings/numeric_property",
+      "notes": "bindings_and_expressions.mdx#Where bindings work"
+    },
+    {
+      "name": "root: screen key",
+      "kind": "root",
+      "source": "fork",
+      "json_key": "screen key",
+      "status": "supported",
+      "fixture": "bindings/root_key",
+      "notes": "state_reference.mdx#Variables and namespaces"
+    },
+    {
+      "name": "root: global",
+      "kind": "root",
+      "source": "fork",
+      "json_key": "global",
+      "status": "supported",
+      "fixture": "bindings/root_global",
+      "notes": "state_reference.mdx#Variables and namespaces"
+    },
+    {
+      "name": "root: params",
+      "kind": "root",
+      "source": "fork",
+      "json_key": "params",
+      "status": "supported",
+      "fixture": "bindings/root_params",
+      "notes": "state_reference.mdx#Variables and namespaces"
+    },
+    {
+      "name": "root: result",
+      "kind": "root",
+      "source": "fork",
+      "json_key": "result",
+      "status": "supported",
+      "fixture": "bindings/root_result",
+      "notes": "state_reference.mdx#Variables and namespaces"
+    },
+    {
+      "name": "root: response",
+      "kind": "root",
+      "source": "fork",
+      "json_key": "response",
+      "status": "supported",
+      "fixture": "bindings/root_response",
+      "notes": "state_reference.mdx#Variables and namespaces"
+    },
+    {
+      "name": "root: event",
+      "kind": "root",
+      "source": "fork",
+      "json_key": "event",
+      "status": "supported",
+      "fixture": "bindings/root_event",
+      "notes": "state_reference.mdx#Variables and namespaces"
+    },
+    {
+      "name": "root: item and index",
+      "kind": "root",
+      "source": "fork",
+      "json_key": "item and index",
+      "status": "supported",
+      "fixture": "bindings/root_item_index",
+      "notes": "state_reference.mdx#Variables and namespaces"
+    },
+    {
+      "name": "expr root: screen key",
+      "kind": "root",
+      "source": "fork",
+      "json_key": "$expr",
+      "status": "supported",
+      "fixture": "expressions/roots",
+      "notes": "state_reference.mdx#Variables and namespaces",
+      "sample": "total"
+    },
+    {
+      "name": "expr root: global",
+      "kind": "root",
+      "source": "fork",
+      "json_key": "$expr",
+      "status": "supported",
+      "fixture": "expressions/roots",
+      "notes": "state_reference.mdx#Variables and namespaces",
+      "sample": "global.token"
+    },
+    {
+      "name": "expr root: params",
+      "kind": "root",
+      "source": "fork",
+      "json_key": "$expr",
+      "status": "supported",
+      "fixture": "expressions/roots",
+      "notes": "state_reference.mdx#Variables and namespaces",
+      "sample": "params.name"
+    },
+    {
+      "name": "expr root: result",
+      "kind": "root",
+      "source": "fork",
+      "json_key": "$expr",
+      "status": "supported",
+      "fixture": "expressions/roots",
+      "notes": "state_reference.mdx#Variables and namespaces",
+      "sample": "result.qty"
+    },
+    {
+      "name": "expr root: response",
+      "kind": "root",
+      "source": "fork",
+      "json_key": "$expr",
+      "status": "supported",
+      "fixture": "expressions/roots",
+      "notes": "state_reference.mdx#Variables and namespaces",
+      "sample": "response.body.items"
+    },
+    {
+      "name": "expr root: event",
+      "kind": "root",
+      "source": "fork",
+      "json_key": "$expr",
+      "status": "supported",
+      "fixture": "expressions/roots",
+      "notes": "state_reference.mdx#Variables and namespaces",
+      "sample": "event.value"
+    },
+    {
+      "name": "expr root: item",
+      "kind": "root",
+      "source": "fork",
+      "json_key": "$expr",
+      "status": "supported",
+      "fixture": "expressions/roots",
+      "notes": "state_reference.mdx#Variables and namespaces",
+      "sample": "item.id"
+    },
+    {
+      "name": "contract example: global_state",
+      "kind": "example",
+      "source": "fork",
+      "json_key": "screen",
+      "status": "supported",
+      "fixture": "screens/contract_global_state",
+      "notes": "state_reference.mdx#globalState (copied literally)"
+    },
+    {
+      "name": "contract example: form_bind",
+      "kind": "example",
+      "source": "fork",
+      "json_key": "screen",
+      "status": "supported",
+      "fixture": "screens/contract_form_bind",
+      "notes": "state_reference.mdx#Input change callbacks (copied literally)"
+    },
+    {
+      "name": "contract example: multi_action",
+      "kind": "example",
+      "source": "fork",
+      "json_key": "screen",
+      "status": "supported",
+      "fixture": "screens/contract_multi_action",
+      "notes": "state_reference.mdx#multiAction (copied literally)"
+    },
+    {
+      "name": "contract example: network_request",
+      "kind": "example",
+      "source": "fork",
+      "json_key": "screen",
+      "status": "supported",
+      "fixture": "screens/contract_network_request",
+      "notes": "state_reference.mdx#networkRequest (state extensions) (copied literally)"
+    },
+    {
+      "name": "contract example: navigate",
+      "kind": "example",
+      "source": "fork",
+      "json_key": "screen",
+      "status": "supported",
+      "fixture": "screens/contract_navigate",
+      "notes": "state_reference.mdx#navigate (params, result, pop) (copied literally)"
+    },
+    {
+      "name": "contract example: list",
+      "kind": "example",
+      "source": "fork",
+      "json_key": "screen",
+      "status": "supported",
+      "fixture": "screens/contract_list",
+      "notes": "state_reference.mdx#List templates (copied literally)"
+    },
+    {
+      "name": "contract example: bindings_user_total",
+      "kind": "example",
+      "source": "fork",
+      "json_key": "screen",
+      "status": "supported",
+      "fixture": "screens/contract_bindings_user_total",
+      "notes": "state_reference.mdx#Bindings (copied literally)"
+    },
+    {
+      "name": "contract example: expr_total",
+      "kind": "example",
+      "source": "fork",
+      "json_key": "screen",
+      "status": "supported",
+      "fixture": "screens/contract_expr_total",
+      "notes": "bindings_and_expressions.mdx#Operators and precedence (copied literally)"
+    },
+    {
+      "name": "contract example: expr_trim_ternary",
+      "kind": "example",
+      "source": "fork",
+      "json_key": "screen",
+      "status": "supported",
+      "fixture": "screens/contract_expr_trim_ternary",
+      "notes": "bindings_and_expressions.mdx#Functions (copied literally)"
+    },
+    {
+      "name": "contract example: expr_condition",
+      "kind": "example",
+      "source": "fork",
+      "json_key": "screen",
+      "status": "supported",
+      "fixture": "screens/contract_expr_condition",
+      "notes": "bindings_and_expressions.mdx#Conditions (copied literally)"
+    },
+    {
+      "name": "$state with an operation",
+      "kind": "limitation",
+      "source": "fork",
+      "json_key": "$state",
+      "status": "unsupported",
+      "fixture": null,
+      "notes": "`StatePath` has no operators: `{\"$state\": \"a + 1\"}` evaluates to null at runtime (state_reference.mdx#Bindings), so it cannot be built; use `Expr`."
+    },
+    {
+      "name": "binding-shaped literal data",
+      "kind": "limitation",
+      "source": "fork",
+      "json_key": "$state/$expr",
+      "status": "unsupported",
+      "fixture": null,
+      "notes": "The contract has no escape: a map with exactly one `$state`/`$expr` text key is always a binding (state_reference.mdx#Bindings), so `Validate` rejects `Data::Object` of that shape (decision D2)."
+    },
+    {
+      "name": "unknown function or wrong arity",
+      "kind": "limitation",
+      "source": "fork",
+      "json_key": "$expr",
+      "status": "unsupported",
+      "fixture": null,
+      "notes": "`Expr` is a closed enum of `length`, `trim` and `contains` (state_reference.mdx#Functions); anything else is a syntax error at runtime."
+    },
+    {
+      "name": "bind on radio",
+      "kind": "limitation",
+      "source": "fork",
+      "json_key": "bind",
+      "status": "unsupported",
+      "fixture": null,
+      "notes": "Reported as an error by the runtime (state_reference.mdx#bind): `bind` belongs on the radioGroup; the generated `Radio` has no way around the envelope, the JSON check reports it."
+    },
+    {
+      "name": "binding of a single element of a list property",
+      "kind": "limitation",
+      "source": "fork",
+      "json_key": "(list property)",
+      "status": "unsupported",
+      "fixture": null,
+      "notes": "Only the list as a whole is bindable (`Reactive<Vec<T>>`); documented limitation of the typed model."
+    },
+    {
+      "name": "in-place edit of item fields",
+      "kind": "limitation",
+      "source": "fork",
+      "json_key": "(item state)",
+      "status": "unsupported",
+      "fixture": null,
+      "notes": "Not covered: per-item state is the set-of-ids pattern (decision D7); editing a field of an item in place is an open question."
+    },
+    {
+      "name": "separator reading item/index",
+      "kind": "limitation",
+      "source": "fork",
+      "json_key": "separator",
+      "status": "unsupported",
+      "fixture": null,
+      "notes": "state_reference.mdx#v1 limitations: the separator of a listView is outside the item scope."
+    },
+    {
+      "name": "bind on slider with the typed API",
+      "kind": "limitation",
+      "source": "fork",
+      "json_key": "bind",
+      "status": "unsupported",
+      "fixture": null,
+      "notes": "state_reference.mdx#bind: the runtime accepts `bind` on slider, but `Slider::new(value)` always writes the required `value` and the verifier rejects `bind` together with the property it overrides, so the combination cannot be built from Rust (test `envelope_bind_slider_is_rejected_by_the_verifier`). Needs a decision: make `value` optional for bound sliders or relax the rule."
+    }
+  ]
+}

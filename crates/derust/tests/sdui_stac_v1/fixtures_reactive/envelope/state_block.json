@@ -1,0 +1,21 @@
+{
+  "type": "column",
+  "state": {
+    "count": 3,
+    "flag": true,
+    "name": "Ana",
+    "nothing": null,
+    "ratio": 1.5,
+    "tags": [
+      "a",
+      "b"
+    ],
+    "user": {
+      "langs": [
+        "pt",
+        "en"
+      ],
+      "name": "Ana"
+    }
+  }
+}

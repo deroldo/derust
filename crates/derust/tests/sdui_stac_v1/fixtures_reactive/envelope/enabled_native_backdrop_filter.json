@@ -1,0 +1,14 @@
+{
+  "type": "backdropFilter",
+  "enabled": {
+    "$state": "blur"
+  },
+  "filter": {
+    "type": "blur",
+    "sigmaX": 4.0
+  },
+  "child": {
+    "type": "text",
+    "data": "x"
+  }
+}

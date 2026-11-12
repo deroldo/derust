@@ -1,0 +1,12 @@
+{
+  "type": "column",
+  "state": {
+    "ready": false
+  },
+  "onInit": {
+    "actionType": "setState",
+    "values": {
+      "ready": true
+    }
+  }
+}

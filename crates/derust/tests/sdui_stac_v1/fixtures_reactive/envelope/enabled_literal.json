@@ -1,0 +1,8 @@
+{
+  "type": "elevatedButton",
+  "enabled": false,
+  "child": {
+    "type": "text",
+    "data": "Go"
+  }
+}

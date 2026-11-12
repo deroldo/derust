@@ -1,0 +1,18 @@
+{
+  "type": "column",
+  "state": {
+    "n": 0
+  },
+  "onInit": [
+    {
+      "actionType": "incrementState",
+      "key": "n"
+    },
+    {
+      "actionType": "setState",
+      "values": {
+        "n": 5
+      }
+    }
+  ]
+}

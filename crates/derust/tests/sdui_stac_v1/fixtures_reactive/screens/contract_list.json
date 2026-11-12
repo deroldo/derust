@@ -1,0 +1,28 @@
+{
+  "type": "column",
+  "state": { "todos": [ { "id": 1, "name": "Buy milk" }, { "id": 2, "name": "Walk dog" } ] },
+  "children": [
+    { "type": "text", "data": "Nothing to do", "visible": { "$expr": "length(todos) == 0" } },
+    {
+      "type": "listView",
+      "shrinkWrap": true,
+      "items": { "$state": "todos" },
+      "as": "todo",
+      "indexAs": "i",
+      "itemTemplate": {
+        "type": "listTile",
+        "title": { "type": "text", "data": { "$expr": "(i + 1) + '. ' + todo.name" } },
+        "trailing": {
+          "type": "textButton",
+          "child": { "type": "text", "data": "Done" },
+          "onPressed": { "actionType": "removeFromState", "key": "todos", "index": { "$state": "i" } }
+        }
+      }
+    },
+    {
+      "type": "elevatedButton",
+      "child": { "type": "text", "data": "Add" },
+      "onPressed": { "actionType": "appendState", "key": "todos", "value": { "id": 3, "name": "New task" } }
+    }
+  ]
+}

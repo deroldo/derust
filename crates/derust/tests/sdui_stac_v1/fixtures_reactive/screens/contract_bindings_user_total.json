@@ -1,0 +1,8 @@
+{
+  "type": "column",
+  "state": { "price": 4, "qty": 3, "user": { "name": "Ana" } },
+  "children": [
+    { "type": "text", "data": { "$state": "user.name" } },
+    { "type": "text", "data": { "$expr": "'Total: ' + price * qty" } }
+  ]
+}

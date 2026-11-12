@@ -1,0 +1,23 @@
+{
+  "type": "column",
+  "globalState": {
+    "memory_only": {
+      "initial": 0,
+      "persist": false
+    },
+    "persisted": {
+      "initial": "light",
+      "persist": true
+    },
+    "plain": "Ana",
+    "secret": {
+      "initial": "",
+      "secure": true
+    },
+    "secret_persisted": {
+      "initial": "",
+      "persist": true,
+      "secure": true
+    }
+  }
+}

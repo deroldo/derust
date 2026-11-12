@@ -1,0 +1,6 @@
+{
+  "type": "textFormField",
+  "enabled": {
+    "$state": "editable"
+  }
+}

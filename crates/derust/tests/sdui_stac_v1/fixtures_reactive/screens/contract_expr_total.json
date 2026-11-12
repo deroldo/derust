@@ -1,0 +1,7 @@
+{
+  "type": "column",
+  "state": { "total": 3 },
+  "children": [
+    { "type": "text", "data": { "$expr": "'Total: ' + total" } }
+  ]
+}

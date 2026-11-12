@@ -1,0 +1,8 @@
+{
+  "actionType": "navigate",
+  "condition": {
+    "$expr": "ready && !busy"
+  },
+  "routeName": "/next",
+  "navigationStyle": "push"
+}

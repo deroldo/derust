@@ -1,0 +1,15 @@
+{
+  "type": "column",
+  "visible": {
+    "$state": "v"
+  },
+  "enabled": {
+    "$state": "e"
+  },
+  "state": {
+    "v": true
+  },
+  "onInit": {
+    "actionType": "none"
+  }
+}

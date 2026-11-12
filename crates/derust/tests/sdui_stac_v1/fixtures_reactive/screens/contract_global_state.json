@@ -1,0 +1,21 @@
+{
+  "type": "column",
+  "globalState": {
+    "userName": "Ana",
+    "theme": { "initial": "light", "persist": true },
+    "token": { "initial": "", "secure": true }
+  },
+  "state": {
+    "total": 0,
+    "ready": false,
+    "greeting": { "$expr": "'Hi ' + global.userName" }
+  },
+  "onInit": [
+    { "actionType": "setState", "values": { "ready": true } },
+    { "actionType": "incrementState", "key": "total", "by": 10 }
+  ],
+  "children": [
+    { "type": "text", "data": { "$state": "greeting" } },
+    { "type": "text", "data": { "$expr": "'Total: ' + total" }, "visible": { "$state": "ready" } }
+  ]
+}

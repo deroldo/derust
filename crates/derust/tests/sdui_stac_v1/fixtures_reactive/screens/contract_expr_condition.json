@@ -1,0 +1,15 @@
+{
+  "type": "column",
+  "state": { "name": "", "saved": false },
+  "children": [
+    {
+      "type": "elevatedButton",
+      "child": { "type": "text", "data": "Save" },
+      "onPressed": {
+        "actionType": "setState",
+        "condition": { "$expr": "length(trim(name)) >= 3" },
+        "values": { "saved": true }
+      }
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "type": "listTile",
+  "enabled": {
+    "$state": "editable"
+  },
+  "title": {
+    "type": "text",
+    "data": "t"
+  }
+}

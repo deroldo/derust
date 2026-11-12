@@ -260,14 +260,21 @@ Antes de T4-T6: confirmar (humano ou `superpowers:requesting-code-review`) o res
 
 **Arquivos:** `v1/inventory_state.json`, `crates/derust/tests/sdui_stac_v1/{inventory_state.rs,reactive_fixtures_test.rs,contract_examples_test.rs}`, `fixtures_reactive/**`.
 
-- [ ] `inventory_state.json` completo (decisão 15) e teste de schema (campos, nomes únicos, `status` válido).
-- [ ] Macro `assert_reactive_fixture!("<categoria>/<nome>", valor)` (mesmo padrão de `assert_fixture!`) e teste de completude que falha se algum item `supported` não tiver fixture existente ou teste que o use.
-- [ ] Um fixture e teste por: propriedade do envelope (incluindo `visible`/`enabled` nos widgets com campo nativo, `bind` em cada widget suportado), cada action, cada campo novo, **cada operador e cada função** (um fixture `expressions` por categoria, com a lista `{source, sexp}` consumida pelo T9).
-- [ ] `contract_examples_test.rs`: reproduzir em Rust, **literalmente**, os 6 exemplos JSON de `state_reference.mdx` (copiar o JSON como fixture em `fixtures_reactive/screens/contract_*.json`) e comparar `serde_json::to_value(tela_em_rust)` com o JSON documentado (igualdade de `Value`, ordem de chaves irrelevante). Os dois exemplos de `bindings_and_expressions.mdx` (`price * qty`, `'Total: ' + price * qty`) idem.
+- [x] `inventory_state.json` completo (decisão 15) e teste de schema (campos, nomes únicos, `status` válido).
+- [x] Macro `assert_reactive_fixture!("<categoria>/<nome>", valor)` (mesmo padrão de `assert_fixture!`) e teste de completude que falha se algum item `supported` não tiver fixture existente ou teste que o use.
+- [x] Um fixture e teste por: propriedade do envelope (incluindo `visible`/`enabled` nos widgets com campo nativo, `bind` em cada widget suportado), cada action, cada campo novo, **cada operador e cada função** (um fixture `expressions` por categoria, com a lista `{source, sexp}` consumida pelo T9).
+- [x] `contract_examples_test.rs`: reproduzir em Rust, **literalmente**, os 6 exemplos JSON de `state_reference.mdx` (copiar o JSON como fixture em `fixtures_reactive/screens/contract_*.json`) e comparar `serde_json::to_value(tela_em_rust)` com o JSON documentado (igualdade de `Value`, ordem de chaves irrelevante). Os dois exemplos de `bindings_and_expressions.mdx` (`price * qty`, `'Total: ' + price * qty`) idem.
 
-- [ ] (estado por item) Fixture e exemplo "limite de 3 selecionados": lista com checkbox por item (`value`/`enabled` por expressão sobre `selected`, `onChanged` com `toggleItem`), reproduzido em Rust e aceito pelo harness; teste do verificador para as regras do template.
+- [x] (estado por item) Fixture e exemplo "limite de 3 selecionados": lista com checkbox por item (`value`/`enabled` por expressão sobre `selected`, `onChanged` com `toggleItem`), reproduzido em Rust e aceito pelo harness; teste do verificador para as regras do template.
 
 **Testes/verificação:** remover um fixture e ver o teste de completude falhar; tela de cada exemplo passa também no verificador (T7) sem erros.
+
+**Notas de execução (T10):**
+- `inventory_state.json` tem 156 itens (8 `unsupported` com justificativa); itens de expressão trazem `sample`, verificado no arquivo da categoria. O teste de completude é bidirecional: todo item aponta para fixture existente usada por teste, e todo arquivo de `fixtures_reactive` é usado por `assert_reactive_fixture!` (ou é categoria de `reactive_expressions`).
+- Fixtures novos de envelope/bindings/screens ficam em `reactive_fixtures_test.rs` e `contract_examples_test.rs`; `UPDATE_REACTIVE_FIXTURES=1` escreve só fixtures **ausentes** (revisar o diff).
+- Os 6 exemplos de `state_reference.mdx` e 4 de `bindings_and_expressions.mdx` estão em `screens/contract_*.json`, copiados literalmente. O exemplo de `navigate` usa `onResult` e `onCancel` juntos, mas o mesmo documento diz que são mutuamente exclusivos: `Validate` segue a regra declarada e acusa 1 problema nesse exemplo literal (o teste afirma isso); decisão de negócio fica com a pessoa.
+- `bind` em `slider` não é construível em Rust: `Slider::new(value)` sempre escreve `value` (obrigatório no modelo oficial) e o verificador (T7) rejeita `bind` junto de `value`. Registrado como `unsupported` e coberto por teste que afirma o erro; decisão pendente (tornar `value` opcional no slider ligado ou relaxar a regra).
+- Pendente de T9b: o harness Dart ainda não percorre estes fixtures (só o dump de expressões roda).
 
 **Revisão:** cada item do inventário cita a seção do contrato (`notes`); nada `unsupported` sem justificativa.
 

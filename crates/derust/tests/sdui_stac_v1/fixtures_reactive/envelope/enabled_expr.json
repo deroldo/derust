@@ -1,0 +1,10 @@
+{
+  "type": "elevatedButton",
+  "enabled": {
+    "$expr": "!loading"
+  },
+  "child": {
+    "type": "text",
+    "data": "Go"
+  }
+}

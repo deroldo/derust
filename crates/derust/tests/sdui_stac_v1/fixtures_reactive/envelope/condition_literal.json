@@ -1,0 +1,7 @@
+{
+  "actionType": "setState",
+  "condition": true,
+  "values": {
+    "x": 1
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "type": "radioGroup",
+  "bind": "plan",
+  "child": {
+    "type": "radio",
+    "value": "free"
+  }
+}

@@ -6,6 +6,7 @@
 use serde_json::Value;
 
 mod check_test;
+mod contract_examples_test;
 mod core_test;
 mod custom_test;
 mod example_test;
@@ -16,9 +17,11 @@ mod generated_foundation;
 mod generated_theme;
 mod generated_widgets;
 mod inventory;
+mod inventory_state;
 mod reactive_actions;
 mod reactive_ergonomics;
 mod reactive_expressions;
+mod reactive_fixtures_test;
 mod reactive_lists;
 mod reactive_network;
 
@@ -80,6 +83,25 @@ pub fn load_reactive_fixture(id: &str) -> Value {
     serde_json::from_str(&text).unwrap_or_else(|e| panic!("fixture {path} is not JSON: {e}"))
 }
 
+/// Authoring aid: with `UPDATE_REACTIVE_FIXTURES` set, a reactive fixture that does not exist yet
+/// is written from the value under test. Existing fixtures are never touched; review the new
+/// file before committing it (it becomes the expected contract).
+pub fn write_missing_reactive_fixture(id: &str, actual: &Value) {
+    if std::env::var_os("UPDATE_REACTIVE_FIXTURES").is_none() {
+        return;
+    }
+    let path = format!("{REACTIVE_FIXTURES_DIR}/{id}.json");
+    if std::path::Path::new(&path).exists() {
+        return;
+    }
+    if let Some(dir) = std::path::Path::new(&path).parent() {
+        std::fs::create_dir_all(dir).expect("create fixture directory");
+    }
+    let mut text = serde_json::to_string_pretty(actual).expect("serializes");
+    text.push('\n');
+    std::fs::write(&path, text).expect("write fixture");
+}
+
 /// Serializes `$value` and compares it with the fixture `$id` (`widgets/column`).
 macro_rules! assert_fixture {
     ($id:expr, $value:expr) => {{
@@ -100,6 +122,7 @@ pub(crate) use assert_fixture;
 macro_rules! assert_reactive_fixture {
     ($id:expr, $value:expr) => {{
         let actual = serde_json::to_value(&$value).expect("serialization failed");
+        $crate::write_missing_reactive_fixture($id, &actual);
         let expected = $crate::load_reactive_fixture($id);
         assert!(
             $crate::json_eq(&actual, &expected),

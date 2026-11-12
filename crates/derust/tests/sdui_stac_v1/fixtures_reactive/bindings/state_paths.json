@@ -1,0 +1,23 @@
+{
+  "type": "column",
+  "children": [
+    {
+      "type": "text",
+      "data": {
+        "$state": "title"
+      }
+    },
+    {
+      "type": "text",
+      "data": {
+        "$state": "user.address.city"
+      }
+    },
+    {
+      "type": "text",
+      "data": {
+        "$state": "items[0].name"
+      }
+    }
+  ]
+}

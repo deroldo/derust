@@ -1,0 +1,10 @@
+{
+  "type": "visibility",
+  "visible": {
+    "$expr": "a && b"
+  },
+  "child": {
+    "type": "text",
+    "data": "x"
+  }
+}

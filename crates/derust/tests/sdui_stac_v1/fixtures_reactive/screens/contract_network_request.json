@@ -1,0 +1,28 @@
+{
+  "type": "column",
+  "state": { "users": [], "loading": false, "failed": false },
+  "children": [
+    {
+      "type": "elevatedButton",
+      "enabled": { "$expr": "!loading" },
+      "child": { "type": "text", "data": "Load" },
+      "onPressed": {
+        "actionType": "networkRequest",
+        "url": "https://example.com/api/users",
+        "method": "get",
+        "requestKey": "users",
+        "onStart": { "actionType": "setState", "values": { "loading": true, "failed": false } },
+        "onSuccess": { "actionType": "setState", "values": { "users": { "$state": "response.body.items" } } },
+        "onError": { "actionType": "setState", "values": { "failed": true } },
+        "onFinally": { "actionType": "setState", "values": { "loading": false } }
+      }
+    },
+    {
+      "type": "elevatedButton",
+      "child": { "type": "text", "data": "Cancel" },
+      "onPressed": { "actionType": "cancelRequest", "requestKey": "users" }
+    },
+    { "type": "text", "data": "Could not load", "visible": { "$state": "failed" } },
+    { "type": "text", "data": { "$expr": "length(users) + ' users'" } }
+  ]
+}

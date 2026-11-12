@@ -1,0 +1,9 @@
+{
+  "type": "sizedBox",
+  "width": {
+    "$state": "w"
+  },
+  "height": {
+    "$expr": "base + 4"
+  }
+}

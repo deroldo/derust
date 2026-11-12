@@ -1,0 +1,7 @@
+{
+  "type": "text",
+  "visible": {
+    "$state": "ready"
+  },
+  "data": "hi"
+}
