@@ -1,0 +1,12 @@
+[workspace]
+
+[package]
+name = "derust-sdui"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+derust = { path = "../../crates/derust", features = ["sdui_stac_1"] }
+
+tokio = { version = "1.45.1", features = ["full"] }
+axum = { version = "0.8.4", default-features = true, features = ["macros", "tokio"] }

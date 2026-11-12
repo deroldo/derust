@@ -2,6 +2,24 @@
 
 All notable changes to `derust` are documented in this file.
 
+## [0.7.0]
+
+### Added
+
+- Feature `sdui_stac_1` (module `derust::sduix::stacx::v1`): typed model of the Stac `1.6.0` JSON
+  vocabulary (widgets, actions, auxiliary types and `StacTheme`) with builders, a DSL (`v1::dsl`,
+  `v1::prelude`) and tree validation (`Validate`). One feature per Stac major; not part of `default`.
+- `httpx::sdui::SduiResponse` (needs `http_server`): validates and serializes a screen once, failing with
+  a `DerustError` (500) instead of a broken response.
+- `v1/inventory.json` (coverage of every Stac component), JSON fixtures with Rust tests and a Flutter
+  harness (`tools/stac-compat/v1`) that parses the fixtures with the real Stac; GitHub Actions CI.
+- Example `examples/sdui`.
+
+### Changed
+
+- `derust` now compiles with `--no-default-features` (the `shutdown_signal`/`StatusCode` exports are
+  gated by `http_server`).
+
 ## [0.6.0]
 
 ### Breaking

@@ -1,6 +1,9 @@
 //! Typed model of the [Stac](https://github.com/StacDev/stac) JSON vocabulary.
 //!
 //! One module per Stac major (`v1`, ...), each behind its own `sdui_stac_<major>` feature.
+//!
+//! The module README below is compiled as a doctest when `http_server` is enabled.
+#![cfg_attr(feature = "http_server", doc = include_str!("README.md"))]
 
 pub mod common;
 

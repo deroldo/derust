@@ -316,7 +316,25 @@ let consumer = SqsQueueConsumer::new(&queue_url, |ctx, msg, tags| async move {
   - [prometheus](https://github.com/deroldo/derust/tree/main/crates/derust/src/metricx/registries/prometheus)
   - [statsd](https://github.com/deroldo/derust/tree/main/crates/derust/src/metricx/registries/statsd)
 - [outbox](https://github.com/deroldo/derust/tree/main/crates/derust/src/outboxx)
+- [sdui_stac_1](https://github.com/deroldo/derust/tree/main/crates/derust/src/sduix/stacx) - server-driven UI with [Stac](https://github.com/StacDev/stac): `derust::sduix::stacx::v1`, `SduiResponse`, typed widgets/actions/themes. Enable only the Stac major your frontend uses (several are supported but slow the build)
+- [sdui_stac_1](https://github.com/deroldo/derust/tree/main/crates/derust/src/sduix/stacx) - server-driven UI with [Stac](https://github.com/StacDev/stac): `derust::sduix::stacx::v1`, `SduiResponse`, typed widgets/actions/themes. Enable only the Stac major your frontend uses (several are supported but slow the build)
 - [trace](https://github.com/deroldo/derust/tree/main/crates/derust/src/tracex) (default)
+
+### Server-driven UI compatibility matrix
+
+| derust | feature | Stac |
+|---|---|---|
+| `0.7.0` | `sdui_stac_1` | `1.6.0` (tag `v1.6.0`) |
+
+See the [module README](https://github.com/deroldo/derust/tree/main/crates/derust/src/sduix/stacx).
+
+### Server-driven UI compatibility matrix
+
+| derust | feature | Stac |
+|---|---|---|
+| `0.7.0` | `sdui_stac_1` | `1.6.0` (tag `v1.6.0`) |
+
+See the [module README](https://github.com/deroldo/derust/tree/main/crates/derust/src/sduix/stacx).
 
 ## License
 This project is licensed under the MIT license.

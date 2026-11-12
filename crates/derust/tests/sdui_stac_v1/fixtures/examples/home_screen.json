@@ -1,0 +1,82 @@
+{
+  "type": "scaffold",
+  "appBar": {
+    "type": "appBar",
+    "title": {
+      "type": "text",
+      "data": "Home"
+    }
+  },
+  "body": {
+    "type": "column",
+    "mainAxisAlignment": "center",
+    "spacing": 8.0,
+    "children": [
+      {
+        "type": "container",
+        "padding": {
+          "left": 16.0,
+          "top": 16.0,
+          "right": 16.0,
+          "bottom": 16.0
+        },
+        "color": "#EEEEEE",
+        "child": {
+          "type": "row",
+          "mainAxisAlignment": "spaceBetween",
+          "children": [
+            {
+              "type": "text",
+              "data": "{{user.name}}",
+              "style": {
+                "type": "custom",
+                "fontSize": 18.0,
+                "fontWeight": "w700"
+              }
+            },
+            {
+              "type": "elevatedButton",
+              "onPressed": {
+                "actionType": "navigate",
+                "routeName": "/details",
+                "navigationStyle": "pushNamed"
+              },
+              "child": {
+                "type": "text",
+                "data": "Details"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "type": "textButton",
+        "onPressed": {
+          "actionType": "setValue",
+          "values": [
+            {
+              "key": "user.name",
+              "value": "Ada"
+            }
+          ]
+        },
+        "child": {
+          "type": "text",
+          "data": "Set name"
+        }
+      },
+      {
+        "type": "textButton",
+        "onPressed": {
+          "actionType": "networkRequest",
+          "url": "https://api.example.com/refresh",
+          "method": "post"
+        },
+        "child": {
+          "type": "text",
+          "data": "Refresh"
+        }
+      }
+    ]
+  }
+}
