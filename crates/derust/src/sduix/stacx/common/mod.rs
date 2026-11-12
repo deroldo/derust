@@ -33,4 +33,4 @@ mod validate;
 pub use custom::{CustomAction, CustomNode, CustomWidget};
 pub use dynamic::{Dyn, StateEntry, StateRef};
 pub use node::{NodeKind, StacNode};
-pub use validate::{Path, Validate, ValidationIssue};
+pub use validate::{Path, Validate, ValidationIssue, ValidationReport};

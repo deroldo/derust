@@ -15,6 +15,7 @@ mod generated_foundation;
 mod generated_theme;
 mod generated_widgets;
 mod inventory;
+mod reactive_ergonomics;
 
 /// Directory holding the JSON fixtures (shared with the Dart harness).
 pub const FIXTURES_DIR: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/tests/sdui_stac_v1/fixtures");

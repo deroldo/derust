@@ -91,6 +91,32 @@ pub trait Validate {
         self.validate_at(&Path::root("$"), &mut issues);
         issues
     }
+
+    /// Checks that depend on context, run over the serialized JSON of the screen (what the
+    /// client actually sees). The default does nothing; `v1` widgets and actions override it.
+    fn validate_serialized(&self, _json: &serde_json::Value, _report: &mut ValidationReport) {}
+}
+
+/// Outcome of the checks over the serialized screen: `errors` block the response, `warnings`
+/// are only logged.
+#[derive(Debug, Clone, PartialEq, Eq, Default, Serialize)]
+pub struct ValidationReport {
+    /// Problems that make the screen invalid.
+    pub errors: Vec<ValidationIssue>,
+    /// Suspicious but accepted constructs.
+    pub warnings: Vec<ValidationIssue>,
+}
+
+impl ValidationReport {
+    /// Empty report.
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    /// True when there are no errors (warnings do not count).
+    pub fn is_ok(&self) -> bool {
+        self.errors.is_empty()
+    }
 }
 
 impl Validate for f64 {

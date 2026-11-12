@@ -1,4 +1,5 @@
 use super::validate::{Path, Validate, ValidationIssue};
+use crate::sduix::stacx::v1::state::Binding;
 use serde::ser::{Serialize, SerializeMap, Serializer};
 use std::fmt;
 
@@ -61,6 +62,8 @@ pub enum Dyn<T> {
     Literal(T),
     /// Reference to the application state, serialized as a `{{key}}` template.
     Ref(StateRef),
+    /// Reactive binding, serialized as `{"$state": ..}` / `{"$expr": ..}`.
+    Bind(Binding),
 }
 
 impl<T> Dyn<T> {
@@ -80,6 +83,7 @@ impl<T: Serialize> Serialize for Dyn<T> {
         match self {
             Dyn::Literal(value) => value.serialize(serializer),
             Dyn::Ref(state) => state.serialize(serializer),
+            Dyn::Bind(binding) => binding.serialize(serializer),
         }
     }
 }
@@ -89,6 +93,7 @@ impl<T: Validate> Validate for Dyn<T> {
         match self {
             Dyn::Literal(value) => value.validate_at(path, issues),
             Dyn::Ref(state) => state.validate_at(path, issues),
+            Dyn::Bind(binding) => binding.validate_at(path, issues),
         }
     }
 }
@@ -108,6 +113,12 @@ impl From<String> for Dyn<String> {
 impl From<StateRef> for Dyn<String> {
     fn from(value: StateRef) -> Self {
         Dyn::Ref(value)
+    }
+}
+
+impl From<Binding> for Dyn<String> {
+    fn from(value: Binding) -> Self {
+        Dyn::Bind(value)
     }
 }
 
@@ -164,6 +175,19 @@ mod tests {
         let reference: Dyn<String> = StateRef::new("greeting").into();
         assert_eq!(serde_json::to_value(literal).unwrap(), "hello");
         assert_eq!(serde_json::to_value(reference).unwrap(), "{{greeting}}");
+    }
+
+    #[test]
+    fn dyn_bind_serializes_as_map() {
+        use crate::sduix::stacx::v1::state::StatePath;
+        let bound: Dyn<String> = Binding::from(StatePath::global("token")).into();
+        assert_eq!(
+            serde_json::to_value(&bound).unwrap(),
+            serde_json::json!({"$state": "global.token"})
+        );
+        assert!(bound.validate().is_empty());
+        let bad: Dyn<String> = Binding::from(StatePath::key("1a")).into();
+        assert_eq!(bad.validate().len(), 1);
     }
 
     #[test]

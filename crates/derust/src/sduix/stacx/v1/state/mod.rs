@@ -7,15 +7,27 @@
 //! * [`Expr`] — closed, typed AST of the expression language, printed with the minimum number
 //!   of parentheses (an unknown function or a wrong arity cannot be represented);
 //! * [`Binding`] — the `{"$state": ".."}` / `{"$expr": ".."}` JSON forms.
+//! * [`Reactive`] / [`IntoReactive`] — a property that is a literal or a binding;
+//! * [`Data`] — free-form JSON data with bindings;
+//! * [`Envelope`], [`BindKey`], [`StateBlock`], [`GlobalStateBlock`], [`GlobalEntry`], [`OnInit`]
+//!   — properties common to every widget and the state declarations.
 //!
 //! Everything here is hand written (not generated) and lives under the `sdui_stac_1` feature.
 
 mod binding;
+mod data;
+mod decl;
+mod envelope;
 mod expr;
 mod ident;
 mod path;
+mod reactive;
 
 pub use binding::Binding;
+pub use data::Data;
+pub use decl::{BindKey, GlobalEntry, GlobalStateBlock, OnInit, StateBlock};
+pub use envelope::Envelope;
 pub use expr::{BinOp, Expr, UnOp};
 pub use ident::Ident;
 pub use path::{PathSegment, Root, StatePath};
+pub use reactive::{IntoReactive, Plain, Reactive};
