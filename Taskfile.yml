@@ -31,6 +31,7 @@ tasks:
     silent: true
     cmds:
       - cargo nextest run
+      - cargo nextest run --package derust --features sdui_stac_1
 
   test:watch:
     silent: true

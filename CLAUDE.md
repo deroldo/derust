@@ -9,7 +9,7 @@ This project uses [Task](https://taskfile.dev/) for common operations:
 ```bash
 task build          # cargo build
 task build:release  # cargo build --release
-task test           # cargo nextest run
+task test           # cargo nextest run (default features, then with sdui_stac_1)
 task test:watch     # cargo watch -x "nextest run"
 task lint           # cargo fmt --all -- --check && cargo clippy -- -D warnings
 task lint:fix       # cargo fmt --all && cargo clippy
