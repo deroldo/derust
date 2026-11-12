@@ -1,0 +1,6 @@
+{
+  "actionType": "removeFromState",
+  "key": "tags",
+  "index": 1,
+  "value": "x"
+}

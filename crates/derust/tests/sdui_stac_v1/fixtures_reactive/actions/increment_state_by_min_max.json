@@ -1,0 +1,7 @@
+{
+  "actionType": "incrementState",
+  "key": "total",
+  "by": 2,
+  "min": 0,
+  "max": 6
+}

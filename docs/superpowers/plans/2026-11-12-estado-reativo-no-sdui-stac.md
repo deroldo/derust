@@ -154,12 +154,12 @@ Antes de T4-T6: confirmar (humano ou `superpowers:requesting-code-review`) o res
 
 **Arquivos:** criar `v1/state/actions.rs` (e fixtures); editar `gen_rust.py` (preencher `EXTRA_ACTIONS` no bloco `// --- T4 ---`), `v1/prelude.rs`/`dsl.rs` atalhos (`set_state(..)`, `increment_state(key)`, ...).
 
-- [ ] Structs com builder e `Serialize` manual (chave JSON exata; omitir `None`): `SetState{values: BTreeMap<String,Data>}` (`actionType:"setState"`), `IncrementState/DecrementState{key: BindKey, by, min, max: Option<Reactive<f64>>}`, `ToggleState{key}`, `ResetState{keys: Option<Vec<BindKey>>}`, `AppendState{key, value: Option<Data>}`, `RemoveFromState` (decisão 8; `index: Option<Reactive<i64>>`, `value: Option<Data>`), `ToggleItem{key, value: Option<Data>, by: Option<String>}`, `CancelRequest{request_key: String}`, `NoneAction` (`actionType:"none"`), cada uma com `condition: Option<Reactive<bool>>`.
-- [ ] `Validate`: chave vazia, `Data` filho, `Reactive` filho. Regras contextuais ficam no verificador (T7).
-- [ ] Registrar em `EXTRA_ACTIONS`; regenerar; `Action::type_name` retorna os novos tipos.
-- [ ] Fixtures em `fixtures_reactive/actions/*.json` (um por action, mais variantes com `by/min/max`, `index` binding, `values` com binding aninhado, `condition` por `Expr`).
+- [x] Structs com builder e `Serialize` manual (chave JSON exata; omitir `None`): `SetState{values: BTreeMap<String,Data>}` (`actionType:"setState"`), `IncrementState/DecrementState{key: BindKey, by, min, max: Option<Reactive<f64>>}`, `ToggleState{key}`, `ResetState{keys: Option<Vec<BindKey>>}`, `AppendState{key, value: Option<Data>}`, `RemoveFromState` (decisão 8; `index: Option<Reactive<i64>>`, `value: Option<Data>`), `ToggleItem{key, value: Option<Data>, by: Option<String>}`, `CancelRequest{request_key: String}`, `NoneAction` (`actionType:"none"`), cada uma com `condition: Option<Reactive<bool>>`.
+- [x] `Validate`: chave vazia, `Data` filho, `Reactive` filho. Regras contextuais ficam no verificador (T7).
+- [x] Registrar em `EXTRA_ACTIONS`; regenerar; `Action::type_name` retorna os novos tipos.
+- [x] Fixtures em `fixtures_reactive/actions/*.json` (um por action, mais variantes com `by/min/max`, `index` binding, `values` com binding aninhado, `condition` por `Expr`).
 
-- [ ] (estado por item) Fixtures/testes de `toggleItem` com `value` = `{$state:'item.id'}` e com `by`, e de `condition` com agregado (`length(selected) < 3`); `removeFromState` por `index` = variável do template.
+- [x] (estado por item) Fixtures/testes de `toggleItem` com `value` = `{$state:'item.id'}` e com `by`, e de `condition` com agregado (`length(selected) < 3`); `removeFromState` por `index` = variável do template.
 
 **Testes:** serialização exata de cada action contra o JSON do contrato; `RemoveFromState` não compila sem alvo (doc-test `compile_fail`); `by`, `min`, `max` ausentes não aparecem; nulos explícitos não existem para esses campos; `Action::from`; estar dentro de `MultiAction`/`on_init`.
 

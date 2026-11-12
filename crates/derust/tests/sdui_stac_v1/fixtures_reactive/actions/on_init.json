@@ -1,0 +1,18 @@
+{
+  "type": "column",
+  "state": {
+    "count": 0
+  },
+  "onInit": [
+    {
+      "actionType": "setState",
+      "values": {
+        "count": 1
+      }
+    },
+    {
+      "actionType": "incrementState",
+      "key": "count"
+    }
+  ]
+}

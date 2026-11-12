@@ -1,0 +1,8 @@
+{
+  "actionType": "removeFromState",
+  "key": "tags",
+  "value": "none",
+  "condition": {
+    "$expr": "contains(tags, 'none')"
+  }
+}

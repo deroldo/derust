@@ -27,6 +27,16 @@ pub enum Action {
     NetworkRequest(Box<NetworkRequest>),
     SetValueAction(Box<SetValueAction>),
     SnackBar(Box<SnackBar>),
+    SetState(Box<crate::sduix::stacx::v1::state::SetState>),
+    IncrementState(Box<crate::sduix::stacx::v1::state::IncrementState>),
+    DecrementState(Box<crate::sduix::stacx::v1::state::DecrementState>),
+    ToggleState(Box<crate::sduix::stacx::v1::state::ToggleState>),
+    ResetState(Box<crate::sduix::stacx::v1::state::ResetState>),
+    AppendState(Box<crate::sduix::stacx::v1::state::AppendState>),
+    RemoveFromState(Box<crate::sduix::stacx::v1::state::RemoveFromState>),
+    ToggleItem(Box<crate::sduix::stacx::v1::state::ToggleItem>),
+    CancelRequest(Box<crate::sduix::stacx::v1::state::CancelRequest>),
+    NoneAction(Box<crate::sduix::stacx::v1::state::NoneAction>),
     /// Node of a custom parser registered in the Flutter app (see [`CustomAction`]).
     Custom(CustomNode),
 }
@@ -44,6 +54,16 @@ impl Serialize for Action {
             Action::NetworkRequest(value) => value.serialize(serializer),
             Action::SetValueAction(value) => value.serialize(serializer),
             Action::SnackBar(value) => value.serialize(serializer),
+            Action::SetState(value) => value.serialize(serializer),
+            Action::IncrementState(value) => value.serialize(serializer),
+            Action::DecrementState(value) => value.serialize(serializer),
+            Action::ToggleState(value) => value.serialize(serializer),
+            Action::ResetState(value) => value.serialize(serializer),
+            Action::AppendState(value) => value.serialize(serializer),
+            Action::RemoveFromState(value) => value.serialize(serializer),
+            Action::ToggleItem(value) => value.serialize(serializer),
+            Action::CancelRequest(value) => value.serialize(serializer),
+            Action::NoneAction(value) => value.serialize(serializer),
             Action::Custom(value) => value.serialize(serializer),
         }
     }
@@ -62,6 +82,16 @@ impl Validate for Action {
             Action::NetworkRequest(value) => value.validate_at(path, issues),
             Action::SetValueAction(value) => value.validate_at(path, issues),
             Action::SnackBar(value) => value.validate_at(path, issues),
+            Action::SetState(value) => value.validate_at(path, issues),
+            Action::IncrementState(value) => value.validate_at(path, issues),
+            Action::DecrementState(value) => value.validate_at(path, issues),
+            Action::ToggleState(value) => value.validate_at(path, issues),
+            Action::ResetState(value) => value.validate_at(path, issues),
+            Action::AppendState(value) => value.validate_at(path, issues),
+            Action::RemoveFromState(value) => value.validate_at(path, issues),
+            Action::ToggleItem(value) => value.validate_at(path, issues),
+            Action::CancelRequest(value) => value.validate_at(path, issues),
+            Action::NoneAction(value) => value.validate_at(path, issues),
             Action::Custom(value) => value.validate_at(path, issues),
         }
     }
@@ -81,8 +111,78 @@ impl Action {
             Action::NetworkRequest(_) => "networkRequest",
             Action::SetValueAction(_) => "setValue",
             Action::SnackBar(_) => "showSnackBar",
+            Action::SetState(_) => "setState",
+            Action::IncrementState(_) => "incrementState",
+            Action::DecrementState(_) => "decrementState",
+            Action::ToggleState(_) => "toggleState",
+            Action::ResetState(_) => "resetState",
+            Action::AppendState(_) => "appendState",
+            Action::RemoveFromState(_) => "removeFromState",
+            Action::ToggleItem(_) => "toggleItem",
+            Action::CancelRequest(_) => "cancelRequest",
+            Action::NoneAction(_) => "none",
             Action::Custom(value) => value.type_name(),
         }
+    }
+}
+
+impl From<crate::sduix::stacx::v1::state::SetState> for Action {
+    fn from(value: crate::sduix::stacx::v1::state::SetState) -> Self {
+        Action::SetState(Box::new(value))
+    }
+}
+
+impl From<crate::sduix::stacx::v1::state::IncrementState> for Action {
+    fn from(value: crate::sduix::stacx::v1::state::IncrementState) -> Self {
+        Action::IncrementState(Box::new(value))
+    }
+}
+
+impl From<crate::sduix::stacx::v1::state::DecrementState> for Action {
+    fn from(value: crate::sduix::stacx::v1::state::DecrementState) -> Self {
+        Action::DecrementState(Box::new(value))
+    }
+}
+
+impl From<crate::sduix::stacx::v1::state::ToggleState> for Action {
+    fn from(value: crate::sduix::stacx::v1::state::ToggleState) -> Self {
+        Action::ToggleState(Box::new(value))
+    }
+}
+
+impl From<crate::sduix::stacx::v1::state::ResetState> for Action {
+    fn from(value: crate::sduix::stacx::v1::state::ResetState) -> Self {
+        Action::ResetState(Box::new(value))
+    }
+}
+
+impl From<crate::sduix::stacx::v1::state::AppendState> for Action {
+    fn from(value: crate::sduix::stacx::v1::state::AppendState) -> Self {
+        Action::AppendState(Box::new(value))
+    }
+}
+
+impl From<crate::sduix::stacx::v1::state::RemoveFromState> for Action {
+    fn from(value: crate::sduix::stacx::v1::state::RemoveFromState) -> Self {
+        Action::RemoveFromState(Box::new(value))
+    }
+}
+
+impl From<crate::sduix::stacx::v1::state::ToggleItem> for Action {
+    fn from(value: crate::sduix::stacx::v1::state::ToggleItem) -> Self {
+        Action::ToggleItem(Box::new(value))
+    }
+}
+
+impl From<crate::sduix::stacx::v1::state::CancelRequest> for Action {
+    fn from(value: crate::sduix::stacx::v1::state::CancelRequest) -> Self {
+        Action::CancelRequest(Box::new(value))
+    }
+}
+
+impl From<crate::sduix::stacx::v1::state::NoneAction> for Action {
+    fn from(value: crate::sduix::stacx::v1::state::NoneAction) -> Self {
+        Action::NoneAction(Box::new(value))
     }
 }
 

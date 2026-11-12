@@ -1,0 +1,7 @@
+{
+  "actionType": "toggleState",
+  "key": "global.flag",
+  "condition": {
+    "$expr": "!busy"
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "actionType": "appendState",
+  "key": "tags",
+  "value": {
+    "$state": "draft"
+  }
+}

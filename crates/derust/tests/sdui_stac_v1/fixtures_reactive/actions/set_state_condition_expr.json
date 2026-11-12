@@ -1,0 +1,9 @@
+{
+  "actionType": "setState",
+  "condition": {
+    "$expr": "length(draft) > 0"
+  },
+  "values": {
+    "sent": true
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "actionType": "none",
+  "condition": {
+    "$state": "ready"
+  }
+}

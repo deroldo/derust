@@ -72,7 +72,20 @@ ENVELOPE_SETTERS = ("visible", "enabled", "bind", "state", "global_state", "on_i
 
 # Hand written actions of the fork linked to the `Action` enum: (Variant, "actionType", rust path).
 # The generator adds the variant, the `Serialize` / `Validate` / `type_name` arms and the `From`.
-EXTRA_ACTIONS = []
+EXTRA_ACTIONS = [
+    # --- T4 ---
+    ("SetState", "setState", "crate::sduix::stacx::v1::state::SetState"),
+    ("IncrementState", "incrementState", "crate::sduix::stacx::v1::state::IncrementState"),
+    ("DecrementState", "decrementState", "crate::sduix::stacx::v1::state::DecrementState"),
+    ("ToggleState", "toggleState", "crate::sduix::stacx::v1::state::ToggleState"),
+    ("ResetState", "resetState", "crate::sduix::stacx::v1::state::ResetState"),
+    ("AppendState", "appendState", "crate::sduix::stacx::v1::state::AppendState"),
+    ("RemoveFromState", "removeFromState", "crate::sduix::stacx::v1::state::RemoveFromState"),
+    ("ToggleItem", "toggleItem", "crate::sduix::stacx::v1::state::ToggleItem"),
+    ("CancelRequest", "cancelRequest", "crate::sduix::stacx::v1::state::CancelRequest"),
+    ("NoneAction", "none", "crate::sduix::stacx::v1::state::NoneAction"),
+    # --- end T4 ---
+]
 
 # Pseudo types usable in FIELD_TYPE_OVERRIDES / EXTRA_FIELDS (they exist only in the fork); the
 # value is the hand written Rust type (in `v1/state`). They are not wrapped in `Reactive`.

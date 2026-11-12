@@ -1,0 +1,7 @@
+{
+  "actionType": "resetState",
+  "keys": [
+    "flag",
+    "global.theme"
+  ]
+}

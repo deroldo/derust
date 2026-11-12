@@ -1,0 +1,48 @@
+{
+  "actionType": "multiAction",
+  "sync": true,
+  "actions": [
+    {
+      "actionType": "appendState",
+      "key": "tags",
+      "value": {
+        "$state": "draft"
+      }
+    },
+    {
+      "actionType": "incrementState",
+      "key": "total",
+      "by": 2,
+      "max": 6
+    },
+    {
+      "actionType": "toggleState",
+      "key": "flag"
+    },
+    {
+      "actionType": "toggleItem",
+      "key": "tags",
+      "value": "red"
+    },
+    {
+      "actionType": "removeFromState",
+      "key": "tags",
+      "value": "none",
+      "condition": {
+        "$expr": "contains(tags, 'none')"
+      }
+    },
+    {
+      "actionType": "resetState",
+      "keys": [
+        "flag"
+      ]
+    },
+    {
+      "actionType": "setState",
+      "values": {
+        "draft": ""
+      }
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "actionType": "incrementState",
+  "key": "global.total",
+  "by": {
+    "$state": "step"
+  },
+  "min": {
+    "$expr": "floor + 1"
+  },
+  "max": {
+    "$state": "limit"
+  },
+  "condition": {
+    "$state": "enabled"
+  }
+}

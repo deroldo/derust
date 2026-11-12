@@ -9,11 +9,13 @@
 //! * [`Binding`] — the `{"$state": ".."}` / `{"$expr": ".."}` JSON forms.
 //! * [`Reactive`] / [`IntoReactive`] — a property that is a literal or a binding;
 //! * [`Data`] — free-form JSON data with bindings;
+//! * [`SetState`], [`IncrementState`], [`ToggleItem`], ... — the state actions;
 //! * [`Envelope`], [`BindKey`], [`StateBlock`], [`GlobalStateBlock`], [`GlobalEntry`], [`OnInit`]
 //!   — properties common to every widget and the state declarations.
 //!
 //! Everything here is hand written (not generated) and lives under the `sdui_stac_1` feature.
 
+mod actions;
 mod binding;
 mod data;
 mod decl;
@@ -23,6 +25,12 @@ mod ident;
 mod path;
 mod reactive;
 
+pub use actions::{
+    append_state, cancel_request, decrement_state, increment_state, none_action,
+    remove_from_state_at, remove_from_state_value, reset_state, set_state, toggle_item,
+    toggle_state, AppendState, CancelRequest, DecrementState, IncrementState, NoneAction,
+    RemoveFromState, ResetState, SetState, ToggleItem, ToggleState,
+};
 pub use binding::Binding;
 pub use data::Data;
 pub use decl::{BindKey, GlobalEntry, GlobalStateBlock, OnInit, StateBlock};

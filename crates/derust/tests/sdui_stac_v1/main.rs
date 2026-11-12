@@ -15,6 +15,7 @@ mod generated_foundation;
 mod generated_theme;
 mod generated_widgets;
 mod inventory;
+mod reactive_actions;
 mod reactive_ergonomics;
 
 /// Directory holding the JSON fixtures (shared with the Dart harness).
@@ -51,6 +52,20 @@ pub fn load_fixture(id: &str) -> Value {
     serde_json::from_str(&text).unwrap_or_else(|e| panic!("fixture {path} is not JSON: {e}"))
 }
 
+/// Directory holding the fixtures of the reactive state vocabulary (fork only; the official
+/// fixtures in `fixtures` stay untouched).
+pub const REACTIVE_FIXTURES_DIR: &str = concat!(
+    env!("CARGO_MANIFEST_DIR"),
+    "/tests/sdui_stac_v1/fixtures_reactive"
+);
+
+/// Loads a reactive fixture by id (`actions/set_state`).
+pub fn load_reactive_fixture(id: &str) -> Value {
+    let path = format!("{REACTIVE_FIXTURES_DIR}/{id}.json");
+    let text = std::fs::read_to_string(&path).unwrap_or_else(|e| panic!("fixture {path}: {e}"));
+    serde_json::from_str(&text).unwrap_or_else(|e| panic!("fixture {path} is not JSON: {e}"))
+}
+
 /// Serializes `$value` and compares it with the fixture `$id` (`widgets/column`).
 macro_rules! assert_fixture {
     ($id:expr, $value:expr) => {{
@@ -66,3 +81,19 @@ macro_rules! assert_fixture {
     }};
 }
 pub(crate) use assert_fixture;
+
+/// Like `assert_fixture!`, reading `fixtures_reactive` (`actions/set_state`).
+macro_rules! assert_reactive_fixture {
+    ($id:expr, $value:expr) => {{
+        let actual = serde_json::to_value(&$value).expect("serialization failed");
+        let expected = $crate::load_reactive_fixture($id);
+        assert!(
+            $crate::json_eq(&actual, &expected),
+            "reactive fixture `{}` differs\n actual: {}\nexpected: {}",
+            $id,
+            serde_json::to_string_pretty(&actual).unwrap(),
+            serde_json::to_string_pretty(&expected).unwrap()
+        );
+    }};
+}
+pub(crate) use assert_reactive_fixture;

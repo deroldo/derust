@@ -29,6 +29,22 @@ impl BindKey {
     }
 }
 
+impl From<&str> for BindKey {
+    /// `"global.key"` is a global key; anything else is a screen key.
+    fn from(value: &str) -> Self {
+        match value.strip_prefix("global.") {
+            Some(name) => BindKey::Global(Ident::new(name)),
+            None => BindKey::Screen(Ident::new(value)),
+        }
+    }
+}
+
+impl From<String> for BindKey {
+    fn from(value: String) -> Self {
+        BindKey::from(value.as_str())
+    }
+}
+
 impl fmt::Display for BindKey {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {

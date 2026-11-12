@@ -1,0 +1,7 @@
+{
+  "actionType": "removeFromState",
+  "key": "todos",
+  "index": {
+    "$state": "index"
+  }
+}

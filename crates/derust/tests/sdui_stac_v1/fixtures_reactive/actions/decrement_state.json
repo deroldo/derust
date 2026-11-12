@@ -1,0 +1,4 @@
+{
+  "actionType": "decrementState",
+  "key": "total"
+}

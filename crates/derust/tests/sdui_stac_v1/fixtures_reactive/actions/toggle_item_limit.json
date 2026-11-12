@@ -1,0 +1,10 @@
+{
+  "actionType": "toggleItem",
+  "key": "selected",
+  "value": {
+    "$state": "item.id"
+  },
+  "condition": {
+    "$expr": "length(selected) < 3 || contains(selected, item.id)"
+  }
+}

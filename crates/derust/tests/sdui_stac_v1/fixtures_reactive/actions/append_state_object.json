@@ -1,0 +1,13 @@
+{
+  "actionType": "appendState",
+  "key": "todos",
+  "value": {
+    "id": {
+      "$expr": "length(todos) + 1"
+    },
+    "title": {
+      "$state": "draft"
+    },
+    "done": false
+  }
+}

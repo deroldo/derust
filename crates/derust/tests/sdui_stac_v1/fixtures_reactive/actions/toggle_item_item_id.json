@@ -1,0 +1,7 @@
+{
+  "actionType": "toggleItem",
+  "key": "selected",
+  "value": {
+    "$state": "item.id"
+  }
+}

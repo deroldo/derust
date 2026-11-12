@@ -1,0 +1,18 @@
+{
+  "actionType": "setState",
+  "values": {
+    "draft": "",
+    "global.theme": "dark",
+    "user": {
+      "name": {
+        "$state": "name"
+      },
+      "tags": [
+        "a",
+        {
+          "$expr": "length(tags) + 1"
+        }
+      ]
+    }
+  }
+}
