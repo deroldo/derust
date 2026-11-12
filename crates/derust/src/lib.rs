@@ -1,4 +1,6 @@
+#[cfg(feature = "http_server")]
 use tokio::signal;
+#[cfg(feature = "http_server")]
 use tracing::info;
 
 #[cfg(feature = "env")]
@@ -31,8 +33,13 @@ pub mod databasex;
 #[cfg(feature = "growthbook")]
 pub mod growthbookx;
 
+#[cfg(feature = "http_server")]
 pub use axum::http::StatusCode;
 
+#[cfg(feature = "sdui_stac_1")]
+pub mod sduix;
+
+#[cfg(feature = "http_server")]
 pub async fn shutdown_signal() {
     let ctrl_c = async {
         signal::ctrl_c()

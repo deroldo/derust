@@ -110,6 +110,10 @@ growthbook = [
 ]
 start_test = [
 ]
+sdui_stac_1 = [
+    "dep:serde",
+    "dep:serde_json",
+]
 
 [dependencies]
 # Async runtime
