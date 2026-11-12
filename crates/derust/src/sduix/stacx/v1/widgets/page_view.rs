@@ -47,6 +47,10 @@ pub struct PageView {
     pub viewport_fraction: Option<Reactive<f64>>,
     /// The list of pages to display.
     pub children: Option<Vec<Widget>>,
+    pub items: Option<Reactive<Vec<crate::sduix::stacx::v1::state::Data>>>,
+    pub item_template: Option<Widget>,
+    pub item_name: Option<crate::sduix::stacx::v1::state::TemplateName>,
+    pub index_name: Option<crate::sduix::stacx::v1::state::TemplateName>,
 }
 
 impl PageView {
@@ -71,6 +75,10 @@ impl PageView {
             keep_page: None,
             viewport_fraction: None,
             children: None,
+            items: None,
+            item_template: None,
+            item_name: None,
+            index_name: None,
         }
     }
 
@@ -158,6 +166,39 @@ impl PageView {
         self
     }
 
+    /// Sets `items`.
+    pub fn items(
+        mut self,
+        value: impl IntoReactive<Vec<crate::sduix::stacx::v1::state::Data>>,
+    ) -> Self {
+        self.items = Some(value.into_reactive());
+        self
+    }
+
+    /// Sets `itemTemplate`.
+    pub fn item_template(mut self, value: impl Into<Widget>) -> Self {
+        self.item_template = Some(value.into());
+        self
+    }
+
+    /// Sets `as`.
+    pub fn item_name(
+        mut self,
+        value: impl Into<crate::sduix::stacx::v1::state::TemplateName>,
+    ) -> Self {
+        self.item_name = Some(value.into());
+        self
+    }
+
+    /// Sets `indexAs`.
+    pub fn index_name(
+        mut self,
+        value: impl Into<crate::sduix::stacx::v1::state::TemplateName>,
+    ) -> Self {
+        self.index_name = Some(value.into());
+        self
+    }
+
     /// Sets `visible` (envelope): a `bool`, a state path or an expression.
     pub fn visible(mut self, value: impl IntoReactive<bool>) -> Self {
         self.envelope = self.envelope.visible(value);
@@ -191,6 +232,26 @@ impl PageView {
     /// Sets `onInit` (envelope): action(s) run when the widget is first built.
     pub fn on_init(mut self, on_init: impl Into<OnInit>) -> Self {
         self.envelope = self.envelope.on_init(on_init);
+        self
+    }
+
+    /// Sets `items`, `as`, `indexAs` and `itemTemplate` from an `ItemTemplate`. `build` receives
+    /// the `ItemVars` with the effective variable names (`as` / `indexAs`, or `item` / `index`),
+    /// the only way to reference the entry. An empty name is not written (the default applies).
+    ///
+    /// Per-item state is a set of ids in a screen key (see `ItemTemplate`); `bind` does not fit
+    /// per item. `children` can coexist with the template; the template wins at runtime.
+    pub fn template(
+        mut self,
+        template: crate::sduix::stacx::v1::state::ItemTemplate,
+        build: impl FnOnce(crate::sduix::stacx::v1::state::ItemVars) -> Widget,
+    ) -> Self {
+        let vars = template.vars();
+        let (items, item_name, index_name) = template.into_parts();
+        self.items = Some(items);
+        self.item_name = item_name;
+        self.index_name = index_name;
+        self.item_template = Some(build(vars));
         self
     }
 }
@@ -242,6 +303,22 @@ impl Serialize for PageView {
         if let Some(value) = &self.children {
             map.serialize_entry("children", value)?;
         }
+        if let Some(value) = &self.items {
+            map.serialize_entry("items", value)?;
+        }
+        if let Some(value) = &self.item_template {
+            map.serialize_entry("itemTemplate", value)?;
+        }
+        if let Some(value) = &self.item_name {
+            if !value.is_empty() {
+                map.serialize_entry("as", value)?;
+            }
+        }
+        if let Some(value) = &self.index_name {
+            if !value.is_empty() {
+                map.serialize_entry("indexAs", value)?;
+            }
+        }
         map.end()
     }
 }
@@ -286,6 +363,11 @@ impl Validate for PageView {
         self.viewport_fraction
             .validate_at(&path.key("viewportFraction"), issues);
         self.children.validate_at(&path.key("children"), issues);
+        self.items.validate_at(&path.key("items"), issues);
+        self.item_template
+            .validate_at(&path.key("itemTemplate"), issues);
+        self.item_name.validate_at(&path.key("as"), issues);
+        self.index_name.validate_at(&path.key("indexAs"), issues);
     }
 }
 

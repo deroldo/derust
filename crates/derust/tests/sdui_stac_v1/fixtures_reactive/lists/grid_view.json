@@ -1,0 +1,13 @@
+{
+  "type": "gridView",
+  "items": {
+    "$state": "photos"
+  },
+  "as": "photo",
+  "itemTemplate": {
+    "type": "text",
+    "data": {
+      "$state": "photo.title"
+    }
+  }
+}

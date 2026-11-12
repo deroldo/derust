@@ -1,0 +1,37 @@
+{
+  "type": "listView",
+  "items": {
+    "$state": "rows"
+  },
+  "as": "row",
+  "indexAs": "n",
+  "itemTemplate": {
+    "type": "listTile",
+    "title": {
+      "type": "text",
+      "data": {
+        "$state": "row.name"
+      }
+    },
+    "subtitle": {
+      "type": "text",
+      "data": {
+        "$expr": "n + 1"
+      }
+    },
+    "trailing": {
+      "type": "textButton",
+      "child": {
+        "type": "text",
+        "data": "x"
+      },
+      "onPressed": {
+        "actionType": "removeFromState",
+        "key": "rows",
+        "index": {
+          "$state": "n"
+        }
+      }
+    }
+  }
+}

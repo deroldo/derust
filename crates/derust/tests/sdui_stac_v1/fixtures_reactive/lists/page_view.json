@@ -1,0 +1,14 @@
+{
+  "type": "pageView",
+  "items": {
+    "$state": "slides"
+  },
+  "as": "slide",
+  "indexAs": "p",
+  "itemTemplate": {
+    "type": "text",
+    "data": {
+      "$state": "slide.title"
+    }
+  }
+}

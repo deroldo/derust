@@ -1,0 +1,17 @@
+{
+  "type": "listView",
+  "items": [
+    {
+      "name": "a"
+    },
+    {
+      "name": "b"
+    }
+  ],
+  "itemTemplate": {
+    "type": "text",
+    "data": {
+      "$state": "item.name"
+    }
+  }
+}

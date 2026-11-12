@@ -1,0 +1,34 @@
+{
+  "type": "listView",
+  "items": {
+    "$state": "groups"
+  },
+  "as": "group",
+  "indexAs": "g",
+  "itemTemplate": {
+    "type": "column",
+    "children": [
+      {
+        "type": "text",
+        "data": {
+          "$state": "group.title"
+        }
+      },
+      {
+        "type": "listView",
+        "shrinkWrap": true,
+        "items": {
+          "$state": "group.entries"
+        },
+        "as": "entry",
+        "indexAs": "e",
+        "itemTemplate": {
+          "type": "text",
+          "data": {
+            "$expr": "group.title + ' / ' + entry.name + ' #' + (g + 1) + '.' + (e + 1)"
+          }
+        }
+      }
+    ]
+  }
+}

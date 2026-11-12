@@ -1,0 +1,12 @@
+{
+  "type": "listView",
+  "items": {
+    "$state": "todos"
+  },
+  "itemTemplate": {
+    "type": "text",
+    "data": {
+      "$state": "item.name"
+    }
+  }
+}

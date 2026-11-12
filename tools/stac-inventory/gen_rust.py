@@ -72,6 +72,17 @@ EXTRA_FIELDS = {
     ],
     # --- end T5 ---
 }
+# --- T6 --- (list templates; fork vocabulary). Entries are `(json, type, "fork", options)`; the
+# options may rename the Rust field (`ident`) and drop the key when the text is empty (`skip_empty`).
+TEMPLATE_WIDGETS = ("StacListView", "StacGridView", "StacPageView", "StacSliverList", "StacSliverGrid")
+for _w in TEMPLATE_WIDGETS:
+    EXTRA_FIELDS[_w] = [
+        ("items", "Reactive<List<Data>>?", "fork"),
+        ("itemTemplate", "StacWidget?", "fork"),
+        ("as", "TemplateName?", "fork", {"ident": "item_name", "skip_empty": True}),
+        ("indexAs", "TemplateName?", "fork", {"ident": "index_name", "skip_empty": True}),
+    ]
+# --- end T6 ---
 
 # Native fields that collide with a property of the reactive envelope (`visible` / `enabled`, see
 # `v1/state/envelope.rs`). The field is removed from the struct; the envelope setter of the same
@@ -111,8 +122,32 @@ PSEUDO_TYPES = {
     "StringList": "crate::sduix::stacx::v1::state::StringList",
     "DataMap": "std::collections::BTreeMap<String, crate::sduix::stacx::v1::state::Data>",
     "BindKeys": "Vec<crate::sduix::stacx::v1::state::BindKey>",
-    "ItemTemplate": "crate::sduix::stacx::v1::state::ItemTemplate",
+    "TemplateName": "crate::sduix::stacx::v1::state::TemplateName",
 }
+
+# --- T6 --- (high level setter of the list widgets, see `v1/state/template.rs`)
+TEMPLATE_METHOD_RS = """
+    /// Sets `items`, `as`, `indexAs` and `itemTemplate` from an `ItemTemplate`. `build` receives
+    /// the `ItemVars` with the effective variable names (`as` / `indexAs`, or `item` / `index`),
+    /// the only way to reference the entry. An empty name is not written (the default applies).
+    ///
+    /// Per-item state is a set of ids in a screen key (see `ItemTemplate`); `bind` does not fit
+    /// per item. `children` can coexist with the template; the template wins at runtime.
+    pub fn template(
+        mut self,
+        template: crate::sduix::stacx::v1::state::ItemTemplate,
+        build: impl FnOnce(crate::sduix::stacx::v1::state::ItemVars) -> Widget,
+    ) -> Self {
+        let vars = template.vars();
+        let (items, item_name, index_name) = template.into_parts();
+        self.items = Some(items);
+        self.item_name = item_name;
+        self.index_name = index_name;
+        self.item_template = Some(build(vars));
+        self
+    }
+"""
+# --- end T6 ---
 
 ENVELOPE_SETTERS_RS = """
     /// Sets `visible` (envelope): a `bool`, a state path or an expression.
@@ -272,8 +307,12 @@ class Gen:
                 fields.append(mf)
             for entry in EXTRA_FIELDS.get(name, []):
                 fname, ftype = entry[0], entry[1]
+                opts = entry[3] if len(entry) > 3 else {}
                 mf = self.make_field(name, fname, ftype, False, [], True, False,
                                      fork=len(entry) > 2 and entry[2] == "fork")
+                if "ident" in opts:
+                    mf["ident"] = opts["ident"]
+                mf["skip_empty"] = bool(opts.get("skip_empty"))
                 fields.append(mf)
                 fields_all.append(mf)
             keys = [k for k in c["json_keys"] if k not in ("type", "actionType")
@@ -590,6 +629,8 @@ class Gen:
                        % (f["ident"], self.setter_param(f), f["ident"], val))
         if has_env:
             out.append(ENVELOPE_SETTERS_RS)
+        if comp["dart"] in TEMPLATE_WIDGETS:
+            out.append(TEMPLATE_METHOD_RS)
         out.append("}\n\n")
         # Serialize
         out.append("impl Serialize for %s {\n" % r)
@@ -600,7 +641,11 @@ class Gen:
         if has_env:
             out.append("        self.envelope.serialize_into(&mut map)?;\n")
         for f in comp["fields"]:
-            if f["opt"]:
+            if f["opt"] and f.get("skip_empty"):
+                out.append("        if let Some(value) = &self.%s {\n            if !value.is_empty() {\n"
+                           "                map.serialize_entry(\"%s\", value)?;\n            }\n        }\n"
+                           % (f["ident"], f["json"]))
+            elif f["opt"]:
                 out.append("        if let Some(value) = &self.%s {\n            map.serialize_entry(\"%s\", value)?;\n"
                            "        }\n" % (f["ident"], f["json"]))
             else:

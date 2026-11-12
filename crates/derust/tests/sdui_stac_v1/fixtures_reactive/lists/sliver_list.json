@@ -1,0 +1,12 @@
+{
+  "type": "sliverList",
+  "items": {
+    "$state": "rows"
+  },
+  "itemTemplate": {
+    "type": "text",
+    "data": {
+      "$state": "item.name"
+    }
+  }
+}

@@ -15,8 +15,9 @@ pub use super::state::{
     remove_from_state_at, remove_from_state_value, reset_state, set_state, toggle_item,
     toggle_state, Actions, AppendState, BinOp, BindKey, Binding, CancelRequest, Data,
     DecrementState, Envelope, Expr, GlobalEntry, GlobalStateBlock, Ident, IncrementState,
-    IntoReactive, NoneAction, OnInit, PathSegment, Plain, Reactive, RemoveFromState, ResetState,
-    Root, SetState, StateBlock, StatePath, ToggleItem, ToggleState, UnOp,
+    IntoReactive, ItemTemplate, ItemVars, NoneAction, OnInit, PathSegment, Plain, Reactive,
+    RemoveFromState, ResetState, Root, SetState, StateBlock, StatePath, ToggleItem, ToggleState,
+    UnOp,
 };
 pub use super::theme::*;
 pub use super::widgets::*;

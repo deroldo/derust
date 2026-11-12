@@ -10,6 +10,7 @@
 //! * [`Reactive`] / [`IntoReactive`] — a property that is a literal or a binding;
 //! * [`Data`] — free-form JSON data with bindings;
 //! * [`SetState`], [`IncrementState`], [`ToggleItem`], ... — the state actions;
+//! * [`ItemTemplate`], [`ItemVars`] — list templates (`items`, `itemTemplate`, `as`, `indexAs`);
 //! * [`Envelope`], [`BindKey`], [`StateBlock`], [`GlobalStateBlock`], [`GlobalEntry`], [`OnInit`]
 //!   — properties common to every widget and the state declarations.
 //!
@@ -24,6 +25,7 @@ mod expr;
 mod ident;
 mod path;
 mod reactive;
+mod template;
 
 pub use actions::{
     append_state, cancel_request, decrement_state, increment_state, none_action,
@@ -39,3 +41,4 @@ pub use expr::{BinOp, Expr, UnOp};
 pub use ident::Ident;
 pub use path::{PathSegment, Root, StatePath};
 pub use reactive::{IntoReactive, Plain, Reactive};
+pub use template::{ItemTemplate, ItemVars, TemplateName};

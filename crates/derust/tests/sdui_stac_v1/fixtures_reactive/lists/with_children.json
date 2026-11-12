@@ -1,0 +1,18 @@
+{
+  "type": "listView",
+  "children": [
+    {
+      "type": "text",
+      "data": "fallback"
+    }
+  ],
+  "items": {
+    "$state": "todos"
+  },
+  "itemTemplate": {
+    "type": "text",
+    "data": {
+      "$state": "item.name"
+    }
+  }
+}

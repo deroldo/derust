@@ -190,11 +190,11 @@ Antes de T4-T6: confirmar (humano ou `superpowers:requesting-code-review`) o res
 
 **Arquivos:** `gen_rust.py` (bloco `// --- T6 ---`: `EXTRA_FIELDS` + setter de alto nível); `v1/state/template.rs` (`ItemTemplate`, `ItemVars`); fixtures `fixtures_reactive/lists/*.json`.
 
-- [ ] Campos `items`, `item_template`, `item_name` (`as`), `index_name` (`indexAs`) nos cinco widgets.
-- [ ] `ItemTemplate::new(items: impl IntoReactive<Vec<Data>>)`, `.item_as(..)`, `.index_as(..)`; método `template(self, tpl, |vars: ItemVars| -> Widget)` nos cinco; `ItemVars::item()`/`index()` devolvem `StatePath` com o nome efetivo (vazio -> default); `ItemVars` expõe também `item_field("name")` como atalho.
-- [ ] `Validate`: `as`/`indexAs` não vazios têm que ser `Ident` válidos (texto vazio é aceito pelo contrato e vira default; emitir a chave só quando preenchida).
+- [x] Campos `items`, `item_template`, `item_name` (`as`), `index_name` (`indexAs`) nos cinco widgets.
+- [x] `ItemTemplate::new(items: impl IntoReactive<Vec<Data>>)`, `.item_as(..)`, `.index_as(..)`; método `template(self, tpl, |vars: ItemVars| -> Widget)` nos cinco; `ItemVars::item()`/`index()` devolvem `StatePath` com o nome efetivo (vazio -> default); `ItemVars` expõe também `item_field("name")` como atalho.
+- [x] `Validate`: `as`/`indexAs` não vazios têm que ser `Ident` válidos (texto vazio é aceito pelo contrato e vira default; emitir a chave só quando preenchida).
 
-- [ ] (estado por item) `ItemVars`: `item_field("id")`, `in_list(list: StatePath) -> Expr` (`contains(list, item.id)`/`contains_by`), `count(list) -> Expr` (`length(list)`); documentar que estado por item = conjunto de ids em chave de tela (seção "Estado por item de lista").
+- [x] (estado por item) `ItemVars`: `item_field("id")`, `in_list(list: StatePath) -> Expr` (`contains(list, item.id)`/`contains_by`), `count(list) -> Expr` (`length(list)`); documentar que estado por item = conjunto de ids em chave de tela (seção "Estado por item de lista").
 
 **Testes:** exemplo "lista" do contrato (com `as: todo`, `indexAs: i`, `removeFromState` por `index: {"$state":"i"}` e `(i + 1) + '. ' + todo.name`); nomes default; renomeação mantém as referências; listas aninhadas com nomes distintos; `itemTemplate` junto de `children` serializa os dois; `items` literal e por binding.
 

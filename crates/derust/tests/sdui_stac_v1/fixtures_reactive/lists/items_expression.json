@@ -1,0 +1,12 @@
+{
+  "type": "listView",
+  "items": {
+    "$expr": "filtered"
+  },
+  "itemTemplate": {
+    "type": "text",
+    "data": {
+      "$state": "item.name"
+    }
+  }
+}

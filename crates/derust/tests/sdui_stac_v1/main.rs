@@ -17,6 +17,7 @@ mod generated_widgets;
 mod inventory;
 mod reactive_actions;
 mod reactive_ergonomics;
+mod reactive_lists;
 mod reactive_network;
 
 /// Directory holding the JSON fixtures (shared with the Dart harness).

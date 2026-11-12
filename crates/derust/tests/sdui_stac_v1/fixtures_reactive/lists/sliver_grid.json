@@ -1,0 +1,13 @@
+{
+  "type": "sliverGrid",
+  "items": {
+    "$state": "rows"
+  },
+  "as": "cell",
+  "itemTemplate": {
+    "type": "text",
+    "data": {
+      "$state": "cell.name"
+    }
+  }
+}

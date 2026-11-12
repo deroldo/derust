@@ -1,0 +1,65 @@
+{
+  "type": "column",
+  "state": {
+    "options": [
+      {
+        "id": 1,
+        "name": "One"
+      },
+      {
+        "id": 2,
+        "name": "Two"
+      },
+      {
+        "id": 3,
+        "name": "Three"
+      },
+      {
+        "id": 4,
+        "name": "Four"
+      }
+    ],
+    "selected": []
+  },
+  "children": [
+    {
+      "type": "text",
+      "data": {
+        "$expr": "length(selected) + ' of 3 selected'"
+      }
+    },
+    {
+      "type": "listView",
+      "shrinkWrap": true,
+      "items": {
+        "$state": "options"
+      },
+      "as": "option",
+      "itemTemplate": {
+        "type": "listTile",
+        "title": {
+          "type": "text",
+          "data": {
+            "$state": "option.name"
+          }
+        },
+        "trailing": {
+          "type": "checkBox",
+          "value": {
+            "$expr": "contains(selected, option.id)"
+          },
+          "enabled": {
+            "$expr": "length(selected) < 3 || contains(selected, option.id)"
+          },
+          "onChanged": {
+            "actionType": "toggleItem",
+            "key": "selected",
+            "value": {
+              "$state": "option.id"
+            }
+          }
+        }
+      }
+    }
+  ]
+}
