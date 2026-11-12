@@ -18,6 +18,7 @@ mod generated_widgets;
 mod inventory;
 mod reactive_actions;
 mod reactive_ergonomics;
+mod reactive_expressions;
 mod reactive_lists;
 mod reactive_network;
 

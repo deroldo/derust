@@ -1,0 +1,54 @@
+[
+  {
+    "source": "a + b",
+    "sexp": "(+ a b)"
+  },
+  {
+    "source": "a - b",
+    "sexp": "(- a b)"
+  },
+  {
+    "source": "a * b",
+    "sexp": "(* a b)"
+  },
+  {
+    "source": "a / b",
+    "sexp": "(/ a b)"
+  },
+  {
+    "source": "a % b",
+    "sexp": "(% a b)"
+  },
+  {
+    "source": "a + b * c",
+    "sexp": "(+ a (* b c))"
+  },
+  {
+    "source": "(a + b) * c",
+    "sexp": "(* (+ a b) c)"
+  },
+  {
+    "source": "a - (b - c)",
+    "sexp": "(- a (- b c))"
+  },
+  {
+    "source": "a - b - c",
+    "sexp": "(- (- a b) c)"
+  },
+  {
+    "source": "a / (b * c)",
+    "sexp": "(/ a (* b c))"
+  },
+  {
+    "source": "a * b % c",
+    "sexp": "(% (* a b) c)"
+  },
+  {
+    "source": "price * qty",
+    "sexp": "(* price qty)"
+  },
+  {
+    "source": "'Total: ' + price * qty",
+    "sexp": "(+ \"Total: \" (* price qty))"
+  }
+]

@@ -1,0 +1,50 @@
+[
+  {
+    "source": "length(tags)",
+    "sexp": "(call length tags)"
+  },
+  {
+    "source": "length(trim(name))",
+    "sexp": "(call length (call trim name))"
+  },
+  {
+    "source": "trim(name)",
+    "sexp": "(call trim name)"
+  },
+  {
+    "source": "trim('  x ')",
+    "sexp": "(call trim \"  x \")"
+  },
+  {
+    "source": "length(tags) + ' tags'",
+    "sexp": "(+ (call length tags) \" tags\")"
+  },
+  {
+    "source": "length(tags) > 0",
+    "sexp": "(> (call length tags) 0)"
+  },
+  {
+    "source": "contains(tags, 'red')",
+    "sexp": "(call contains tags \"red\")"
+  },
+  {
+    "source": "contains(selected, item.id)",
+    "sexp": "(call contains selected (. item id))"
+  },
+  {
+    "source": "contains(selected, item, 'id')",
+    "sexp": "(call contains selected item \"id\")"
+  },
+  {
+    "source": "contains(selected, item, 'it\\'s')",
+    "sexp": "(call contains selected item \"it's\")"
+  },
+  {
+    "source": "!contains(tags, x)",
+    "sexp": "(not (call contains tags x))"
+  },
+  {
+    "source": "contains(tags, x) && length(tags) < 3",
+    "sexp": "(&& (call contains tags x) (< (call length tags) 3))"
+  }
+]

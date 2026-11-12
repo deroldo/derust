@@ -45,3 +45,22 @@ jobs:
           cache: true
       - run: flutter pub get
       - run: flutter test
+
+  stac-compat-v1-reactive:
+    # Checks the reactive-state fixtures and the expression dump against the derust-stac fork
+    # (branch `estado_compartilhado_reativo`). The fork is NOT pinned (the `ref` in the pubspec is
+    # a branch; it is the single place to pin, see tools/stac-compat/v1-reactive/README.md), so a
+    # failure here may come from the fork moving. Allowed to fail until a pin is decided.
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    defaults:
+      run:
+        working-directory: tools/stac-compat/v1-reactive
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: flutter test

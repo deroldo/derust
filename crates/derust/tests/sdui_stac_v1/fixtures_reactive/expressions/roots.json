@@ -1,0 +1,46 @@
+[
+  {
+    "source": "total",
+    "sexp": "total"
+  },
+  {
+    "source": "global.token",
+    "sexp": "(. global token)"
+  },
+  {
+    "source": "params",
+    "sexp": "params"
+  },
+  {
+    "source": "params.name",
+    "sexp": "(. params name)"
+  },
+  {
+    "source": "result",
+    "sexp": "result"
+  },
+  {
+    "source": "result.qty",
+    "sexp": "(. result qty)"
+  },
+  {
+    "source": "response.body.items",
+    "sexp": "(. (. response body) items)"
+  },
+  {
+    "source": "response.body.items[0]",
+    "sexp": "(idx (. (. response body) items) 0)"
+  },
+  {
+    "source": "event.value",
+    "sexp": "(. event value)"
+  },
+  {
+    "source": "item.id",
+    "sexp": "(. item id)"
+  },
+  {
+    "source": "index",
+    "sexp": "index"
+  }
+]

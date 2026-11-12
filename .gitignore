@@ -14,3 +14,4 @@
 /tools/stac-compat/**/pubspec.lock
 /tools/stac-compat/**/.flutter-plugins*
 /tools/stac-compat/**/build
+/tools/stac-compat/**/pubspec_overrides.yaml

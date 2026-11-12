@@ -1,0 +1,66 @@
+[
+  {
+    "source": "0",
+    "sexp": "0"
+  },
+  {
+    "source": "42",
+    "sexp": "42"
+  },
+  {
+    "source": "1.5",
+    "sexp": "1.5"
+  },
+  {
+    "source": "0.25",
+    "sexp": "0.25"
+  },
+  {
+    "source": "3",
+    "sexp": "3"
+  },
+  {
+    "source": "-5",
+    "sexp": "(neg 5)"
+  },
+  {
+    "source": "-2.5",
+    "sexp": "(neg 2.5)"
+  },
+  {
+    "source": "'hello'",
+    "sexp": "\"hello\""
+  },
+  {
+    "source": "''",
+    "sexp": "\"\""
+  },
+  {
+    "source": "'it\\'s'",
+    "sexp": "\"it's\""
+  },
+  {
+    "source": "'say \"hi\"'",
+    "sexp": "\"say \\\"hi\\\"\""
+  },
+  {
+    "source": "'a\\\\b'",
+    "sexp": "\"a\\\\b\""
+  },
+  {
+    "source": "'line\\nbreak\\ttab\\rcr'",
+    "sexp": "\"line\\nbreak\\ttab\\rcr\""
+  },
+  {
+    "source": "true",
+    "sexp": "true"
+  },
+  {
+    "source": "false",
+    "sexp": "false"
+  },
+  {
+    "source": "null",
+    "sexp": "null"
+  }
+]

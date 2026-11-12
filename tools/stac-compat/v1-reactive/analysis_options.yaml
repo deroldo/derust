@@ -1,0 +1,4 @@
+analyzer:
+  exclude:
+    - test/fixture_models.g.dart
+    - build/**

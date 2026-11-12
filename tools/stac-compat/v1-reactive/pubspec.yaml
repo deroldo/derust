@@ -1,0 +1,41 @@
+name: stac_compat_v1_reactive
+description: Checks the derust reactive-state fixtures against the derust-stac fork.
+publish_to: none
+
+environment:
+  sdk: ^3.12.0
+  flutter: ">=3.44.0"
+
+# THE ONLY PLACE TO PIN THE FORK: the `ref` below (repeated in `dependency_overrides`, because
+# the packages of the monorepo must come from the same ref). Today it is a branch, i.e. not
+# pinned: replace it with a tag or a commit hash once the project decides how to version the
+# fork.
+dependencies:
+  flutter:
+    sdk: flutter
+  stac:
+    git:
+      url: https://github.com/deroldo/derust-stac
+      ref: estado_compartilhado_reativo
+      path: packages/stac
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+dependency_overrides:
+  stac_core:
+    git:
+      url: https://github.com/deroldo/derust-stac
+      ref: estado_compartilhado_reativo
+      path: packages/stac_core
+  stac_framework:
+    git:
+      url: https://github.com/deroldo/derust-stac
+      ref: estado_compartilhado_reativo
+      path: packages/stac_framework
+  stac_logger:
+    git:
+      url: https://github.com/deroldo/derust-stac
+      ref: estado_compartilhado_reativo
+      path: packages/stac_logger

@@ -1,0 +1,34 @@
+[
+  {
+    "source": "a && b",
+    "sexp": "(&& a b)"
+  },
+  {
+    "source": "a || b",
+    "sexp": "(|| a b)"
+  },
+  {
+    "source": "(a || b) && c",
+    "sexp": "(&& (|| a b) c)"
+  },
+  {
+    "source": "a && b || c",
+    "sexp": "(|| (&& a b) c)"
+  },
+  {
+    "source": "a || b && c",
+    "sexp": "(|| a (&& b c))"
+  },
+  {
+    "source": "a && (b || c)",
+    "sexp": "(&& a (|| b c))"
+  },
+  {
+    "source": "a == b && c != d",
+    "sexp": "(&& (== a b) (!= c d))"
+  },
+  {
+    "source": "accepted && length(trim(name)) >= 3",
+    "sexp": "(&& accepted (>= (call length (call trim name)) 3))"
+  }
+]

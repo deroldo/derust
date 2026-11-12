@@ -1,0 +1,30 @@
+[
+  {
+    "source": "(a + b)",
+    "sexp": "(+ a b)"
+  },
+  {
+    "source": "(a + b) * c",
+    "sexp": "(* (+ a b) c)"
+  },
+  {
+    "source": "a * (b + c)",
+    "sexp": "(* a (+ b c))"
+  },
+  {
+    "source": "(a)",
+    "sexp": "a"
+  },
+  {
+    "source": "((a + b))",
+    "sexp": "(+ a b)"
+  },
+  {
+    "source": "(a ? b : c) + 1",
+    "sexp": "(+ (? a b c) 1)"
+  },
+  {
+    "source": "(i + 1) + '. '",
+    "sexp": "(+ (+ i 1) \". \")"
+  }
+]

@@ -1,0 +1,30 @@
+[
+  {
+    "source": "a < b",
+    "sexp": "(< a b)"
+  },
+  {
+    "source": "a <= b",
+    "sexp": "(<= a b)"
+  },
+  {
+    "source": "a > b",
+    "sexp": "(> a b)"
+  },
+  {
+    "source": "a >= b",
+    "sexp": "(>= a b)"
+  },
+  {
+    "source": "a + 1 < b * 2",
+    "sexp": "(< (+ a 1) (* b 2))"
+  },
+  {
+    "source": "a < b < c",
+    "sexp": "(< (< a b) c)"
+  },
+  {
+    "source": "a < (b < c)",
+    "sexp": "(< a (< b c))"
+  }
+]

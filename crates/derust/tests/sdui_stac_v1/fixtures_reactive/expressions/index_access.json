@@ -1,0 +1,38 @@
+[
+  {
+    "source": "items[0]",
+    "sexp": "(idx items 0)"
+  },
+  {
+    "source": "items[3].name",
+    "sexp": "(. (idx items 3) name)"
+  },
+  {
+    "source": "grid[1][2]",
+    "sexp": "(idx (idx grid 1) 2)"
+  },
+  {
+    "source": "items[i]",
+    "sexp": "(idx items i)"
+  },
+  {
+    "source": "items[i + 1]",
+    "sexp": "(idx items (+ i 1))"
+  },
+  {
+    "source": "items[0].id",
+    "sexp": "(. (idx items 0) id)"
+  },
+  {
+    "source": "items[i].name",
+    "sexp": "(. (idx items i) name)"
+  },
+  {
+    "source": "items[a ? 0 : 1]",
+    "sexp": "(idx items (? a 0 1))"
+  },
+  {
+    "source": "global.list[0]",
+    "sexp": "(idx (. global list) 0)"
+  }
+]

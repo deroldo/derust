@@ -1,0 +1,34 @@
+[
+  {
+    "source": "user.name",
+    "sexp": "(. user name)"
+  },
+  {
+    "source": "user.address.city",
+    "sexp": "(. (. user address) city)"
+  },
+  {
+    "source": "user.name.first",
+    "sexp": "(. (. user name) first)"
+  },
+  {
+    "source": "contains(a, b).length",
+    "sexp": "(. (call contains a b) length)"
+  },
+  {
+    "source": "(a + b).x",
+    "sexp": "(. (+ a b) x)"
+  },
+  {
+    "source": "(1).x",
+    "sexp": "(. 1 x)"
+  },
+  {
+    "source": "'t'.length",
+    "sexp": "(. \"t\" length)"
+  },
+  {
+    "source": "global.user.name",
+    "sexp": "(. (. global user) name)"
+  }
+]

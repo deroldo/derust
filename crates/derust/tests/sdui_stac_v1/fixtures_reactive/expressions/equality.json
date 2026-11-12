@@ -1,0 +1,30 @@
+[
+  {
+    "source": "a == b",
+    "sexp": "(== a b)"
+  },
+  {
+    "source": "a != b",
+    "sexp": "(!= a b)"
+  },
+  {
+    "source": "a < b == c > d",
+    "sexp": "(== (< a b) (> c d))"
+  },
+  {
+    "source": "a == b != c",
+    "sexp": "(!= (== a b) c)"
+  },
+  {
+    "source": "name == 'Ana'",
+    "sexp": "(== name \"Ana\")"
+  },
+  {
+    "source": "x != null",
+    "sexp": "(!= x null)"
+  },
+  {
+    "source": "flag == true",
+    "sexp": "(== flag true)"
+  }
+]

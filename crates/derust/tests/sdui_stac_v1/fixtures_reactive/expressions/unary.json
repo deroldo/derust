@@ -1,0 +1,34 @@
+[
+  {
+    "source": "!a",
+    "sexp": "(not a)"
+  },
+  {
+    "source": "-a",
+    "sexp": "(neg a)"
+  },
+  {
+    "source": "- -a",
+    "sexp": "(neg (neg a))"
+  },
+  {
+    "source": "! !a",
+    "sexp": "(not (not a))"
+  },
+  {
+    "source": "-(a + b)",
+    "sexp": "(neg (+ a b))"
+  },
+  {
+    "source": "!(a && b)",
+    "sexp": "(not (&& a b))"
+  },
+  {
+    "source": "-a * b",
+    "sexp": "(* (neg a) b)"
+  },
+  {
+    "source": "!a && b",
+    "sexp": "(&& (not a) b)"
+  }
+]
