@@ -67,7 +67,8 @@ A complete application lives in [`examples/sdui`](../../../../../examples/sdui).
 * Types: one struct per Stac component (`Column`, `NavigateAction`, `EdgeInsets`, `StacTheme`...), with
   `Type::new(<required fields>)` and chained setters (`.padding(..)`). Unset optional fields are omitted
   from the JSON (the Stac client applies its own defaults).
-* `Widget` and `Action` are closed enums (`type` / `actionType` discriminators); every struct converts
+* `Widget` and `Action` are enums of the Stac components (`type` / `actionType` discriminators) plus a
+  `Custom` variant for the application's own parsers (see [Extending](#extending)); every struct converts
   with `Widget::from(..)` / `Action::from(..)`, and setters that take a widget/action accept the struct
   directly (`.on_pressed(navigate())`).
 * `v1::dsl` (reexported by `v1::prelude`): shortcuts such as `column()`, `text("..")`, `navigate()`.
@@ -79,6 +80,105 @@ A complete application lives in [`examples/sdui`](../../../../../examples/sdui).
 * `httpx::sdui::SduiResponse<T>`: `SduiResponse::try_new(status, screen, tags)` validates and serializes
   once; failures become a `DerustError` (500) instead of a broken response. `Content-Type:
   application/json`, `x-trace-id` tag and `with_headers` behave like `JsonResponse`.
+
+## Extending
+
+### Reusable compositions
+
+A screen template (standard header/footer, a design system card...) made of Stac widgets is plain Rust:
+implement `From<YourType> for Widget` and use it anywhere a widget is accepted. The JSON contains only
+standard Stac widgets, so the Flutter app needs nothing.
+
+```rust
+use derust::sduix::stacx::v1::prelude::*;
+
+pub struct StandardScreen {
+    title: String,
+    body: Widget,
+}
+
+impl StandardScreen {
+    pub fn new(title: impl Into<String>, body: impl Into<Widget>) -> Self {
+        Self { title: title.into(), body: body.into() }
+    }
+}
+
+impl From<StandardScreen> for Widget {
+    fn from(screen: StandardScreen) -> Self {
+        Widget::from(
+            scaffold()
+                .app_bar(app_bar().title(text(screen.title)))
+                .body(screen.body),
+        )
+    }
+}
+
+let screen = Widget::from(StandardScreen::new("Home", text("hello")));
+assert_eq!(serde_json::to_value(&screen).unwrap()["appBar"]["type"], "appBar");
+```
+
+### Custom widgets and actions
+
+When the Flutter app registers its own parsers (`Stac.initialize(parsers: [..], actionParsers: [..])`),
+the server emits them through `CustomWidget` / `CustomAction`. The struct serializes its fields (as a
+JSON object, without the discriminator) and validates itself, including any standard widget it holds;
+derust adds `type` / `actionType`. A field clashing with the discriminator, or a value that does not
+serialize as an object, is a validation issue (so `SduiResponse::try_new` fails with a 500).
+
+```rust
+use derust::sduix::stacx::v1::prelude::*;
+use serde::Serialize;
+
+/// Rendered by a `stateText` parser registered in the app.
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct StateText {
+    state_key: String,
+}
+
+impl Validate for StateText {
+    fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
+        if self.state_key.is_empty() {
+            issues.push(ValidationIssue::new(&path.key("stateKey"), "must not be empty"));
+        }
+    }
+}
+
+impl CustomWidget for StateText {
+    const TYPE_NAME: &'static str = "stateText";
+}
+
+/// Executed by a `setState` action parser registered in the app.
+#[derive(Debug, Serialize)]
+struct SetState {
+    key: String,
+    value: String,
+}
+
+impl Validate for SetState {
+    fn validate_at(&self, _path: &Path<'_>, _issues: &mut Vec<ValidationIssue>) {}
+}
+
+impl CustomAction for SetState {
+    const ACTION_TYPE: &'static str = "setState";
+}
+
+let screen = Widget::from(column().children([
+    Widget::from(StateText { state_key: "user.name".into() }),
+    Widget::from(
+        text_button()
+            .on_pressed(SetState { key: "user.name".into(), value: "Ada".into() })
+            .child(text("Set name")),
+    ),
+]));
+let json = serde_json::to_value(&screen).unwrap();
+assert_eq!(json["children"][0], serde_json::json!({"type": "stateText", "stateKey": "user.name"}));
+assert_eq!(json["children"][1]["onPressed"]["actionType"], "setState");
+assert!(screen.validate().is_empty());
+```
+
+Custom nodes are not part of Stac, so they are outside `inventory.json`, the fixtures and the Flutter
+compatibility harness: their contract with the app's parser is the application's responsibility.
 
 ## Coverage (`v1/inventory.json`)
 

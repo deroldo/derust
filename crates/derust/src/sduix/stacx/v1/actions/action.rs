@@ -11,7 +11,7 @@ use crate::sduix::stacx::common::*;
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
-/// Any Stac action (closed set, discriminated by `actionType`).
+/// Any Stac action (discriminated by `actionType`), or a [`CustomAction`] of the app.
 #[derive(Debug, Clone, PartialEq)]
 pub enum Action {
     DelayAction(Box<DelayAction>),
@@ -24,6 +24,8 @@ pub enum Action {
     NetworkRequest(Box<NetworkRequest>),
     SetValueAction(Box<SetValueAction>),
     SnackBar(Box<SnackBar>),
+    /// Node of a custom parser registered in the Flutter app (see [`CustomAction`]).
+    Custom(CustomNode),
 }
 
 impl Serialize for Action {
@@ -39,6 +41,7 @@ impl Serialize for Action {
             Action::NetworkRequest(value) => value.serialize(serializer),
             Action::SetValueAction(value) => value.serialize(serializer),
             Action::SnackBar(value) => value.serialize(serializer),
+            Action::Custom(value) => value.serialize(serializer),
         }
     }
 }
@@ -56,6 +59,7 @@ impl Validate for Action {
             Action::NetworkRequest(value) => value.validate_at(path, issues),
             Action::SetValueAction(value) => value.validate_at(path, issues),
             Action::SnackBar(value) => value.validate_at(path, issues),
+            Action::Custom(value) => value.validate_at(path, issues),
         }
     }
 }
@@ -74,6 +78,13 @@ impl Action {
             Action::NetworkRequest(_) => "networkRequest",
             Action::SetValueAction(_) => "setValue",
             Action::SnackBar(_) => "showSnackBar",
+            Action::Custom(value) => value.type_name(),
         }
+    }
+}
+
+impl<T: CustomAction> From<T> for Action {
+    fn from(value: T) -> Self {
+        Action::Custom(CustomNode::action(value))
     }
 }

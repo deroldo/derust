@@ -439,27 +439,37 @@ class Gen:
         out.append("        }\n    }\n}\n")
         return "".join(out)
 
-    def emit_poly_enum(self, rust, tag_key, members, doc):
-        """members: list of (variant, json_value)."""
+    def emit_poly_enum(self, rust, tag_key, members, doc, custom=None):
+        """members: list of (variant, json_value); custom: (trait, constructor) adds a `Custom`
+        variant holding application defined nodes (see `common/custom.rs`)."""
         out = [self.header(), doc, "#[derive(Debug, Clone, PartialEq)]\npub enum %s {\n" % rust]
         for v, _ in members:
             out.append("    %s(Box<%s>),\n" % (v, v))
+        if custom:
+            out.append("    /// Node of a custom parser registered in the Flutter app (see [`%s`]).\n"
+                       "    Custom(CustomNode),\n" % custom[0])
         out.append("}\n\n")
+        extra = ["Custom"] if custom else []
         out.append("impl Serialize for %s {\n    fn serialize<S: Serializer>(&self, serializer: S) -> "
                    "Result<S::Ok, S::Error> {\n        match self {\n" % rust)
-        for v, _ in members:
+        for v in [m[0] for m in members] + extra:
             out.append("            %s::%s(value) => value.serialize(serializer),\n" % (rust, v))
         out.append("        }\n    }\n}\n\n")
         out.append("impl Validate for %s {\n    fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {\n"
                    "        match self {\n" % rust)
-        for v, _ in members:
+        for v in [m[0] for m in members] + extra:
             out.append("            %s::%s(value) => value.validate_at(path, issues),\n" % (rust, v))
         out.append("        }\n    }\n}\n\n")
         out.append("impl %s {\n    /// Value of the `%s` discriminator of the wrapped node.\n"
                    "    pub fn type_name(&self) -> &'static str {\n        match self {\n" % (rust, tag_key))
         for v, j in members:
             out.append("            %s::%s(_) => \"%s\",\n" % (rust, v, j))
+        if custom:
+            out.append("            %s::Custom(value) => value.type_name(),\n" % rust)
         out.append("        }\n    }\n}\n")
+        if custom:
+            out.append("\nimpl<T: %s> From<T> for %s {\n    fn from(value: T) -> Self {\n"
+                       "        %s::Custom(CustomNode::%s(value))\n    }\n}\n" % (custom[0], rust, rust, custom[1]))
         return "".join(out)
 
     # ------------------------------------------------------------------ layout
@@ -501,11 +511,13 @@ class Gen:
         styles = sorted((c for c in self.comps.values() if c.get("variant_of") == "TextStyle"), key=lambda c: c["rust"])
         self.write(os.path.join(self.v1, "widgets", "widget.rs"), self.emit_poly_enum(
             "Widget", "type", [(c["rust"], c["disc"][1]) for c in widgets],
-            "/// Any Stac widget (closed set, discriminated by `type`).\n"))
+            "/// Any Stac widget (discriminated by `type`), or a [`CustomWidget`] of the app.\n",
+            custom=("CustomWidget", "widget")))
         modules[("widgets", None)].append(("widget", "Widget"))
         self.write(os.path.join(self.v1, "actions", "action.rs"), self.emit_poly_enum(
             "Action", "actionType", [(c["rust"], c["disc"][1]) for c in actions],
-            "/// Any Stac action (closed set, discriminated by `actionType`).\n"))
+            "/// Any Stac action (discriminated by `actionType`), or a [`CustomAction`] of the app.\n",
+            custom=("CustomAction", "action")))
         modules[("actions", None)].append(("action", "Action"))
         self.write(os.path.join(self.v1, "foundation", "borders", "shape_border.rs"), self.emit_poly_enum(
             "ShapeBorder", "type", [(c["rust"], c["disc"][1]) for c in shapes],

@@ -12,4 +12,7 @@ pub use super::dsl::*;
 pub use super::foundation::*;
 pub use super::theme::*;
 pub use super::widgets::*;
-pub use crate::sduix::stacx::common::{Dyn, StateEntry, StateRef, Validate, ValidationIssue};
+pub use crate::sduix::stacx::common::{
+    CustomAction, CustomNode, CustomWidget, Dyn, Path, StateEntry, StateRef, Validate,
+    ValidationIssue,
+};

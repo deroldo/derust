@@ -13,6 +13,9 @@ All notable changes to `derust` are documented in this file.
   a `DerustError` (500) instead of a broken response.
 - `v1/inventory.json` (coverage of every Stac component), JSON fixtures with Rust tests and a Flutter
   harness (`tools/stac-compat/v1`) that parses the fixtures with the real Stac; GitHub Actions CI.
+- Extension points for applications: reusable compositions via `From<YourType> for Widget`, and custom
+  widgets/actions of parsers registered in the Flutter app via `CustomWidget` / `CustomAction` (the
+  `Custom` variant of `Widget` / `Action`).
 - Example `examples/sdui`.
 
 ### Changed

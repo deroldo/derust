@@ -21,11 +21,16 @@
 //!   fail on malformed values), so [`Validate`] checks what is checkable without guessing:
 //!   finite numbers, well formed state references and the few `assert`s found in the
 //!   Dart models.
+//! * The Flutter app can register its own parsers (`Stac.initialize(parsers:, actionParsers:)`);
+//!   [`CustomWidget`] / [`CustomAction`] let the server emit such nodes through the `Custom`
+//!   variant of the `Widget` / `Action` enums.
 
+mod custom;
 mod dynamic;
 mod node;
 mod validate;
 
+pub use custom::{CustomAction, CustomNode, CustomWidget};
 pub use dynamic::{Dyn, StateEntry, StateRef};
 pub use node::{NodeKind, StacNode};
 pub use validate::{Path, Validate, ValidationIssue};

@@ -11,7 +11,7 @@ use crate::sduix::stacx::common::*;
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
-/// Any Stac widget (closed set, discriminated by `type`).
+/// Any Stac widget (discriminated by `type`), or a [`CustomWidget`] of the app.
 #[derive(Debug, Clone, PartialEq)]
 pub enum Widget {
     AlertDialog(Box<AlertDialog>),
@@ -110,6 +110,8 @@ pub enum Widget {
     VerticalDivider(Box<VerticalDivider>),
     Visibility(Box<Visibility>),
     Wrap(Box<Wrap>),
+    /// Node of a custom parser registered in the Flutter app (see [`CustomWidget`]).
+    Custom(CustomNode),
 }
 
 impl Serialize for Widget {
@@ -211,6 +213,7 @@ impl Serialize for Widget {
             Widget::VerticalDivider(value) => value.serialize(serializer),
             Widget::Visibility(value) => value.serialize(serializer),
             Widget::Wrap(value) => value.serialize(serializer),
+            Widget::Custom(value) => value.serialize(serializer),
         }
     }
 }
@@ -314,6 +317,7 @@ impl Validate for Widget {
             Widget::VerticalDivider(value) => value.validate_at(path, issues),
             Widget::Visibility(value) => value.validate_at(path, issues),
             Widget::Wrap(value) => value.validate_at(path, issues),
+            Widget::Custom(value) => value.validate_at(path, issues),
         }
     }
 }
@@ -418,6 +422,13 @@ impl Widget {
             Widget::VerticalDivider(_) => "verticalDivider",
             Widget::Visibility(_) => "visibility",
             Widget::Wrap(_) => "wrap",
+            Widget::Custom(value) => value.type_name(),
         }
+    }
+}
+
+impl<T: CustomWidget> From<T> for Widget {
+    fn from(value: T) -> Self {
+        Widget::Custom(CustomNode::widget(value))
     }
 }
