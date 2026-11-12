@@ -180,6 +180,15 @@ assert!(screen.validate().is_empty());
 Custom nodes are not part of Stac, so they are outside `inventory.json`, the fixtures and the Flutter
 compatibility harness: their contract with the app's parser is the application's responsibility.
 
+### The `derust-stac` fork
+
+[`deroldo/derust-stac`](https://github.com/deroldo/derust-stac) is the project's fork of Stac. It is
+where Dart parsers that derust relies on but Stac does not ship (for instance a widget that rebuilds
+when client state changes) are maintained, so they can be reused by every app instead of being written
+in each one. The typed model in this module is still generated from, and checked against, the official
+Stac (see the [compatibility matrix](#compatibility-matrix)); nodes provided by the fork reach the
+server through `CustomWidget` / `CustomAction`.
+
 ## Coverage (`v1/inventory.json`)
 
 Every class and enum of `packages/stac_core` at `v1.6.0` is listed with a `status`:

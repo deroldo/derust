@@ -30,3 +30,8 @@ Both steps are deterministic and idempotent (running them twice leaves no diff).
 
 Hand written exceptions are listed at the top of `gen_rust.py` (`SKIP_CLASSES`, `FIELD_TYPE_OVERRIDES`,
 `EXTRA_FIELDS`, `NESTED_ONLY_ACTIONS`) and in `custom_checks` (validation rules taken from Dart `assert`s).
+
+The source is always the official Stac (`StacDev/stac`). The project's fork
+[`deroldo/derust-stac`](https://github.com/deroldo/derust-stac) holds extra Dart parsers used with derust;
+those are not Stac components, so they are not part of the inventory, the generated model or the
+fixtures (the server emits them through `CustomWidget` / `CustomAction`).

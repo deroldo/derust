@@ -26,3 +26,8 @@ used because it swallows parse errors and would let invalid fixtures pass.
 
 One directory per Stac major (`v2` in the future) and one CI job per major
 (`.github/workflows/ci.yml`).
+
+The harness pins the official Stac on purpose: it proves compatibility with what apps get from
+pub.dev / `StacDev/stac`. Parsers from the project's fork
+[`deroldo/derust-stac`](https://github.com/deroldo/derust-stac) are extensions outside the Stac vocabulary
+and are not checked here.
