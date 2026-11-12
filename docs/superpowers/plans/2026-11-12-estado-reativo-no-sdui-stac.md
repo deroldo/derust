@@ -291,11 +291,13 @@ Antes de T4-T6: confirmar (humano ou `superpowers:requesting-code-review`) o res
 
 **Contexto:** escopo item 11. Depende de T8, T9b e T10. Seguir `examples/sdui` (workspace próprio, `derust = { path = "../../crates/derust", features = ["sdui_stac_1"] }`, handler `async fn(State<AppContext<_>>) -> Result<SduiResponse<Widget>, DerustError>` com `DerustTags`).
 
-- [ ] Telas, só com tipos Rust: **formulário** (`textField` + `checkBox` com `bind`, texto de erro com `visible` por `Expr` tipada `length(trim(name)) < 3`, botão com `enabled` por expressão, `onPressed` com `setState` condicional); **lista** com adição (`appendState`) e remoção (`removeFromState` por `index`) usando `ListView::template`; **`networkRequest`** com `onStart/onSuccess/onError/onFinally`, `requestKey` e `cancelRequest`; **navegação** com `params`, `onResult`/`onCancel` e `navigationStyle: pop` com `result`. Uma rota que devolve erro de validação (500 pelo caminho padrão).
-- [ ] A função que monta cada tela fica em `screen.rs` e é compilada também pelo teste `crates/derust/tests/sdui_stac_v1/example_reactive_test.rs` (como `example_test.rs` faz) contra `fixtures_reactive/screens/example_*.json`, aceitos pelo harness (T9b).
-- [ ] `curl` manual: 200 com JSON e `content-type`; rota inválida -> 500 com mensagem que localiza o problema.
+- [x] Telas, só com tipos Rust: **formulário** (`textField` + `checkBox` com `bind`, texto de erro com `visible` por `Expr` tipada `length(trim(name)) < 3`, botão com `enabled` por expressão, `onPressed` com `setState` condicional); **lista** com adição (`appendState`) e remoção (`removeFromState` por `index`) usando `ListView::template`; **`networkRequest`** com `onStart/onSuccess/onError/onFinally`, `requestKey` e `cancelRequest`; **navegação** com `params`, `onResult`/`onCancel` e `navigationStyle: pop` com `result`. Uma rota que devolve erro de validação (500 pelo caminho padrão).
+- [x] A função que monta cada tela fica em `screen.rs` e é compilada também pelo teste `crates/derust/tests/sdui_stac_v1/example_reactive_test.rs` (como `example_test.rs` faz) contra `fixtures_reactive/screens/example_*.json`, aceitos pelo harness (T9b).
+- [x] `curl` manual: 200 com JSON e `content-type`; rota inválida -> 500 com mensagem que localiza o problema.
 
 **Testes/verificação:** `cd examples/sdui_reactive && cargo build`; `cargo clippy` no exemplo; testes da crate verdes; `curl` documentado no README do exemplo (se houver).
+
+**Notas de execução (T11):** telas `form_screen`, `list_screen`, `network_screen`, `navigation_screen` e `invalid_screen` em `examples/sdui_reactive/src/screen.rs`; rotas `/screens/{form,list,network,navigation,invalid}`. Fixtures `screens/example_{form,list,network,navigation}.json` aceitos pelo harness (485 testes verdes). `curl` real: 200 + `content-type: application/json` nas quatro; `/screens/invalid` devolve 500 com corpo VAZIO (a `DerustError` é `without_body`); a mensagem que localiza o problema fica no erro (testada em `sdui.rs` e em `example_reactive_test.rs`), e nenhum log apareceu no stdout local do exemplo.
 
 **Revisão:** o exemplo não escreve JSON nem expressão em texto; usa só `derust::sduix::stacx::v1::prelude`.
 

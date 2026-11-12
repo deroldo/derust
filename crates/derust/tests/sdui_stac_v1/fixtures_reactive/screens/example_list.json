@@ -1,0 +1,106 @@
+{
+  "type": "scaffold",
+  "appBar": {
+    "type": "appBar",
+    "title": {
+      "type": "text",
+      "data": "Todos"
+    }
+  },
+  "body": {
+    "type": "column",
+    "state": {
+      "draft": "",
+      "nextId": 2,
+      "todos": [
+        {
+          "id": 1,
+          "name": "Buy milk"
+        }
+      ]
+    },
+    "children": [
+      {
+        "type": "textField",
+        "bind": "draft"
+      },
+      {
+        "type": "elevatedButton",
+        "onPressed": {
+          "actionType": "multiAction",
+          "actions": [
+            {
+              "actionType": "appendState",
+              "condition": {
+                "$expr": "length(trim(draft)) > 0"
+              },
+              "key": "todos",
+              "value": {
+                "id": {
+                  "$state": "nextId"
+                },
+                "name": {
+                  "$state": "draft"
+                }
+              }
+            },
+            {
+              "actionType": "incrementState",
+              "key": "nextId"
+            },
+            {
+              "actionType": "setState",
+              "values": {
+                "draft": ""
+              }
+            }
+          ],
+          "sync": true
+        },
+        "child": {
+          "type": "text",
+          "data": "Add"
+        }
+      },
+      {
+        "type": "text",
+        "visible": {
+          "$expr": "length(todos) == 0"
+        },
+        "data": "Nothing to do"
+      },
+      {
+        "type": "listView",
+        "shrinkWrap": true,
+        "items": {
+          "$state": "todos"
+        },
+        "itemTemplate": {
+          "type": "listTile",
+          "title": {
+            "type": "text",
+            "data": {
+              "$expr": "(i + 1) + '. ' + todo.name"
+            }
+          },
+          "trailing": {
+            "type": "textButton",
+            "onPressed": {
+              "actionType": "removeFromState",
+              "key": "todos",
+              "index": {
+                "$state": "i"
+              }
+            },
+            "child": {
+              "type": "text",
+              "data": "Done"
+            }
+          }
+        },
+        "as": "todo",
+        "indexAs": "i"
+      }
+    ]
+  }
+}

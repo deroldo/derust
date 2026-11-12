@@ -1,0 +1,85 @@
+{
+  "type": "column",
+  "state": {
+    "cancelled": false,
+    "picked": [],
+    "product": "Coffee"
+  },
+  "children": [
+    {
+      "type": "elevatedButton",
+      "onPressed": {
+        "actionType": "navigate",
+        "widgetJson": {
+          "type": "column",
+          "state": {
+            "qty": 1
+          },
+          "children": [
+            {
+              "type": "text",
+              "data": {
+                "$expr": "'Buy ' + params.name"
+              }
+            },
+            {
+              "type": "elevatedButton",
+              "onPressed": {
+                "actionType": "navigate",
+                "navigationStyle": "pop",
+                "result": {
+                  "name": {
+                    "$state": "params.name"
+                  },
+                  "qty": {
+                    "$state": "qty"
+                  }
+                }
+              },
+              "child": {
+                "type": "text",
+                "data": "Confirm"
+              }
+            }
+          ]
+        },
+        "navigationStyle": "push",
+        "params": {
+          "name": {
+            "$state": "product"
+          }
+        },
+        "onResult": {
+          "actionType": "appendState",
+          "key": "picked",
+          "value": {
+            "$state": "result"
+          }
+        },
+        "onCancel": {
+          "actionType": "setState",
+          "values": {
+            "cancelled": true
+          }
+        }
+      },
+      "child": {
+        "type": "text",
+        "data": "Choose"
+      }
+    },
+    {
+      "type": "text",
+      "data": {
+        "$expr": "length(picked) + ' picked'"
+      }
+    },
+    {
+      "type": "text",
+      "visible": {
+        "$state": "cancelled"
+      },
+      "data": "Cancelled"
+    }
+  ]
+}

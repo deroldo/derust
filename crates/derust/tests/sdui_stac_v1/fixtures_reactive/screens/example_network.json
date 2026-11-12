@@ -1,0 +1,90 @@
+{
+  "type": "scaffold",
+  "appBar": {
+    "type": "appBar",
+    "title": {
+      "type": "text",
+      "data": "Users"
+    }
+  },
+  "body": {
+    "type": "column",
+    "state": {
+      "failed": false,
+      "loading": false,
+      "users": []
+    },
+    "children": [
+      {
+        "type": "elevatedButton",
+        "enabled": {
+          "$expr": "!loading"
+        },
+        "onPressed": {
+          "actionType": "networkRequest",
+          "url": "https://api.example.com/users",
+          "method": "get",
+          "onStart": {
+            "actionType": "setState",
+            "values": {
+              "failed": false,
+              "loading": true
+            }
+          },
+          "onSuccess": {
+            "actionType": "setState",
+            "values": {
+              "users": {
+                "$state": "response.body.items"
+              }
+            }
+          },
+          "onError": {
+            "actionType": "setState",
+            "values": {
+              "failed": true
+            }
+          },
+          "onFinally": {
+            "actionType": "setState",
+            "values": {
+              "loading": false
+            }
+          },
+          "requestKey": "users"
+        },
+        "child": {
+          "type": "text",
+          "data": "Load"
+        }
+      },
+      {
+        "type": "elevatedButton",
+        "enabled": {
+          "$state": "loading"
+        },
+        "onPressed": {
+          "actionType": "cancelRequest",
+          "requestKey": "users"
+        },
+        "child": {
+          "type": "text",
+          "data": "Cancel"
+        }
+      },
+      {
+        "type": "text",
+        "visible": {
+          "$state": "failed"
+        },
+        "data": "Could not load"
+      },
+      {
+        "type": "text",
+        "data": {
+          "$expr": "length(users) + ' users'"
+        }
+      }
+    ]
+  }
+}

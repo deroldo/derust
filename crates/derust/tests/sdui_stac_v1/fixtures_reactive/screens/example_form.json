@@ -1,0 +1,61 @@
+{
+  "type": "scaffold",
+  "appBar": {
+    "type": "appBar",
+    "title": {
+      "type": "text",
+      "data": "Form"
+    }
+  },
+  "body": {
+    "type": "column",
+    "state": {
+      "accepted": false,
+      "name": "",
+      "saved": false
+    },
+    "children": [
+      {
+        "type": "textField",
+        "bind": "name"
+      },
+      {
+        "type": "checkBox",
+        "bind": "accepted"
+      },
+      {
+        "type": "text",
+        "visible": {
+          "$expr": "length(trim(name)) < 3"
+        },
+        "data": "Name is too short"
+      },
+      {
+        "type": "elevatedButton",
+        "enabled": {
+          "$expr": "accepted && !(length(trim(name)) < 3)"
+        },
+        "onPressed": {
+          "actionType": "setState",
+          "condition": {
+            "$expr": "!saved"
+          },
+          "values": {
+            "saved": true
+          }
+        },
+        "child": {
+          "type": "text",
+          "data": "Save"
+        }
+      },
+      {
+        "type": "text",
+        "visible": {
+          "$state": "saved"
+        },
+        "data": "Saved"
+      }
+    ]
+  }
+}

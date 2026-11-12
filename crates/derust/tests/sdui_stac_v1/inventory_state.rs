@@ -9,13 +9,14 @@ use std::collections::HashSet;
 pub const INVENTORY_STATE: &str = include_str!("../../src/sduix/stacx/v1/inventory_state.json");
 
 /// Test sources whose `assert_reactive_fixture!("<id>", ..)` calls count as using a fixture.
-const SOURCES: [&str; 6] = [
+const SOURCES: [&str; 7] = [
     include_str!("reactive_actions.rs"),
     include_str!("reactive_lists.rs"),
     include_str!("reactive_network.rs"),
     include_str!("reactive_fixtures_test.rs"),
     include_str!("contract_examples_test.rs"),
     include_str!("reactive_ergonomics.rs"),
+    include_str!("example_reactive_test.rs"),
 ];
 
 pub fn state_items() -> Vec<Value> {
