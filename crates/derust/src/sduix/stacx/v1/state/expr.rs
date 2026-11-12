@@ -634,8 +634,66 @@ fn without_groups(expr: &Expr) -> &Expr {
     current
 }
 
+/// Deepest expression tree accepted. Printing, validating and dropping an expression are
+/// recursive, so a tree coming from outside could overflow the stack.
+pub const MAX_EXPR_DEPTH: usize = 128;
+
+impl Expr {
+    /// Whether the tree is deeper than `limit` levels (explicit stack, no recursion).
+    fn deeper_than(&self, limit: usize) -> bool {
+        let mut stack: Vec<(&Expr, usize)> = vec![(self, 1)];
+        while let Some((expr, depth)) = stack.pop() {
+            if depth > limit {
+                return true;
+            }
+            let next = depth + 1;
+            match expr {
+                Expr::Num(_)
+                | Expr::Int(_)
+                | Expr::Text(_)
+                | Expr::Bool(_)
+                | Expr::Null
+                | Expr::Ref(_) => {}
+                Expr::Field(a, _)
+                | Expr::Unary(_, a)
+                | Expr::Group(a)
+                | Expr::Length(a)
+                | Expr::Trim(a) => stack.push((a, next)),
+                Expr::Index(a, b)
+                | Expr::Binary(_, a, b)
+                | Expr::Contains { list: a, value: b }
+                | Expr::ContainsBy {
+                    list: a, object: b, ..
+                } => {
+                    stack.push((a, next));
+                    stack.push((b, next));
+                }
+                Expr::Ternary(a, b, c) => {
+                    stack.push((a, next));
+                    stack.push((b, next));
+                    stack.push((c, next));
+                }
+            }
+        }
+        false
+    }
+}
+
 impl Validate for Expr {
     fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
+        if self.deeper_than(MAX_EXPR_DEPTH) {
+            issues.push(ValidationIssue::new(
+                path,
+                format!("expression is nested deeper than {MAX_EXPR_DEPTH} levels"),
+            ));
+            return;
+        }
+        self.validate_inner(path, issues);
+    }
+}
+
+impl Expr {
+    fn validate_inner(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
         match self {
             Expr::Num(x) => {
                 if !x.is_finite() {
@@ -661,13 +719,13 @@ impl Validate for Expr {
             Expr::Text(_) | Expr::Bool(_) | Expr::Null => {}
             Expr::Ref(state_path) => state_path.validate_at(path, issues),
             Expr::Field(base, name) => {
-                base.validate_at(&path.key("base"), issues);
+                base.validate_inner(&path.key("base"), issues);
                 name.validate_at(&path.key("field"), issues);
             }
             Expr::Index(base, index) => {
-                base.validate_at(&path.key("base"), issues);
+                base.validate_inner(&path.key("base"), issues);
                 let index_path = path.key("index");
-                index.validate_at(&index_path, issues);
+                index.validate_inner(&index_path, issues);
                 match without_groups(index) {
                     Expr::Binary(BinOp::Div, ..) => issues.push(ValidationIssue::new(
                         &index_path,
@@ -682,26 +740,26 @@ impl Validate for Expr {
                     _ => {}
                 }
             }
-            Expr::Unary(_, operand) => operand.validate_at(&path.key("operand"), issues),
+            Expr::Unary(_, operand) => operand.validate_inner(&path.key("operand"), issues),
             Expr::Binary(_, left, right) => {
-                left.validate_at(&path.key("left"), issues);
-                right.validate_at(&path.key("right"), issues);
+                left.validate_inner(&path.key("left"), issues);
+                right.validate_inner(&path.key("right"), issues);
             }
             Expr::Ternary(condition, when_true, when_false) => {
-                condition.validate_at(&path.key("condition"), issues);
-                when_true.validate_at(&path.key("when_true"), issues);
-                when_false.validate_at(&path.key("when_false"), issues);
+                condition.validate_inner(&path.key("condition"), issues);
+                when_true.validate_inner(&path.key("when_true"), issues);
+                when_false.validate_inner(&path.key("when_false"), issues);
             }
             Expr::Group(inner) | Expr::Length(inner) | Expr::Trim(inner) => {
-                inner.validate_at(&path.key("value"), issues)
+                inner.validate_inner(&path.key("value"), issues)
             }
             Expr::Contains { list, value } => {
-                list.validate_at(&path.key("list"), issues);
-                value.validate_at(&path.key("value"), issues);
+                list.validate_inner(&path.key("list"), issues);
+                value.validate_inner(&path.key("value"), issues);
             }
             Expr::ContainsBy { list, object, .. } => {
-                list.validate_at(&path.key("list"), issues);
-                object.validate_at(&path.key("object"), issues);
+                list.validate_inner(&path.key("list"), issues);
+                object.validate_inner(&path.key("object"), issues);
             }
         }
     }

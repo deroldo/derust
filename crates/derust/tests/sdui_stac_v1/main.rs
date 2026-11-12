@@ -5,6 +5,7 @@
 
 use serde_json::Value;
 
+mod check_test;
 mod core_test;
 mod custom_test;
 mod example_test;

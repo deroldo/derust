@@ -717,7 +717,7 @@ class Gen:
         out.append("        }\n    }\n}\n\nimpl Plain for %s {}\n" % comp["rust"])
         return "".join(out)
 
-    def emit_poly_enum(self, rust, tag_key, members, doc, custom=None, extras=()):
+    def emit_poly_enum(self, rust, tag_key, members, doc, custom=None, extras=(), contextual=False):
         """members: list of (variant, json_value); custom: (trait, constructor) adds a `Custom`
         variant holding application defined nodes (see `common/custom.rs`); extras: hand written
         nodes of the fork, (variant, json_value, rust path)."""
@@ -739,7 +739,15 @@ class Gen:
                    "        match self {\n" % rust)
         for v in [m[0] for m in allm] + extra:
             out.append("            %s::%s(value) => value.validate_at(path, issues),\n" % (rust, v))
-        out.append("        }\n    }\n}\n\n")
+        out.append("        }\n    }\n")
+        if contextual:
+            # --- T7 --- context dependent checks over the serialized screen
+            out.append("\n    fn validate_serialized(&self, json: &serde_json::Value, report: &mut ValidationReport) {\n"
+                       "        let found = crate::sduix::stacx::v1::state::check_screen(json);\n"
+                       "        report.errors.extend(found.errors);\n"
+                       "        report.warnings.extend(found.warnings);\n"
+                       "    }\n")
+        out.append("}\n\n")
         out.append("impl %s {\n    /// Value of the `%s` discriminator of the wrapped node.\n"
                    "    pub fn type_name(&self) -> &'static str {\n        match self {\n" % (rust, tag_key))
         for v, j, _ in allm:
@@ -800,12 +808,12 @@ class Gen:
         self.write(os.path.join(self.v1, "widgets", "widget.rs"), self.emit_poly_enum(
             "Widget", "type", [(c["rust"], c["disc"][1]) for c in widgets],
             "/// Any Stac widget (discriminated by `type`), or a [`CustomWidget`] of the app.\n",
-            custom=("CustomWidget", "widget")))
+            custom=("CustomWidget", "widget"), contextual=True))
         modules[("widgets", None)].append(("widget", "Widget"))
         self.write(os.path.join(self.v1, "actions", "action.rs"), self.emit_poly_enum(
             "Action", "actionType", [(c["rust"], c["disc"][1]) for c in actions],
             "/// Any Stac action (discriminated by `actionType`), or a [`CustomAction`] of the app.\n",
-            custom=("CustomAction", "action"), extras=EXTRA_ACTIONS))
+            custom=("CustomAction", "action"), extras=EXTRA_ACTIONS, contextual=True))
         modules[("actions", None)].append(("action", "Action"))
         self.write(os.path.join(self.v1, "foundation", "borders", "shape_border.rs"), self.emit_poly_enum(
             "ShapeBorder", "type", [(c["rust"], c["disc"][1]) for c in shapes],

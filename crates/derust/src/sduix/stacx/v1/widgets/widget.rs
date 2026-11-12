@@ -323,6 +323,12 @@ impl Validate for Widget {
             Widget::Custom(value) => value.validate_at(path, issues),
         }
     }
+
+    fn validate_serialized(&self, json: &serde_json::Value, report: &mut ValidationReport) {
+        let found = crate::sduix::stacx::v1::state::check_screen(json);
+        report.errors.extend(found.errors);
+        report.warnings.extend(found.warnings);
+    }
 }
 
 impl Widget {

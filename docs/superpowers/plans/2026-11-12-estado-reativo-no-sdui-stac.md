@@ -206,14 +206,14 @@ Antes de T4-T6: confirmar (humano ou `superpowers:requesting-code-review`) o res
 
 **Contexto:** decisões 11, 12. Depende de T2 (pode ser desenvolvida sobre JSON escrito à mão) e integra após T4-T6. Arquivo único novo `v1/state/check.rs` + `crates/derust/tests/sdui_stac_v1/check_test.rs`. A tela de entrada é um `serde_json::Value`.
 
-- [ ] Estruturas: `Scope`, `Keys::{Known(HashSet), Opaque}`, conjuntos de variáveis ativas, `Report`.
-- [ ] Pré-passada: coletar chaves `secure` de todos os `globalState` da resposta (declaração-objeto com `secure:true`).
-- [ ] Passada principal recursiva com `Path`: reconhecer widget (`type` texto) e action (`actionType` texto); abrir escopo em `state/globalState/onInit`; aplicar as regras da decisão 12 (erros e avisos); propagar variáveis por posição (`itemTemplate` dos cinco widgets com `as`/`indexAs`, `onSuccess/onError/onFinally`, `onResult`, `onChanged/onSelected`); `Opaque` nos destinos/overlays.
-- [ ] Varredor de nomes de `$expr` (decisão 12) e raiz de `$state`.
-- [ ] Tabela de `bind`: widgets suportados e propriedade de valor (`checkBox/switch/slider: value`, `radioGroup: groupValue`, `textField/textFormField: initialValue`, `dropdownMenu: initialSelection`); `radio` com mensagem própria.
-- [ ] Expor `pub fn check_screen(json: &Value) -> ValidationReport` e ligar em `Widget`/`Action` de `v1` (`validate_serialized`), via gerador (`gen_rust.py`, bloco `// --- T7 ---`) ou impl à mão se o enum for hand-written.
+- [x] Estruturas: `Scope`, `Keys::{Known(HashSet), Opaque}`, conjuntos de variáveis ativas, `Report`.
+- [x] Pré-passada: coletar chaves `secure` de todos os `globalState` da resposta (declaração-objeto com `secure:true`).
+- [x] Passada principal recursiva com `Path`: reconhecer widget (`type` texto) e action (`actionType` texto); abrir escopo em `state/globalState/onInit`; aplicar as regras da decisão 12 (erros e avisos); propagar variáveis por posição (`itemTemplate` dos cinco widgets com `as`/`indexAs`, `onSuccess/onError/onFinally`, `onResult`, `onChanged/onSelected`); `Opaque` nos destinos/overlays.
+- [x] Varredor de nomes de `$expr` (decisão 12) e raiz de `$state`.
+- [x] Tabela de `bind`: widgets suportados e propriedade de valor (`checkBox/switch/slider: value`, `radioGroup: groupValue`, `textField/textFormField: initialValue`, `dropdownMenu: initialSelection`); `radio` com mensagem própria.
+- [x] Expor `pub fn check_screen(json: &Value) -> ValidationReport` e ligar em `Widget`/`Action` de `v1` (`validate_serialized`), via gerador (`gen_rust.py`, bloco `// --- T7 ---`) ou impl à mão se o enum for hand-written.
 
-- [ ] (estado por item) Regras da seção "Estado por item de lista": escrita em chave local (`item/index/as/indexAs`) = erro, template com `state` próprio = aviso, sombreamento entre templates aninhados = aviso, escopo externo herdado pelo template.
+- [x] (estado por item) Regras da seção "Estado por item de lista": escrita em chave local (`item/index/as/indexAs`) = erro, template com `state` próprio = aviso, sombreamento entre templates aninhados = aviso, escopo externo herdado pelo template.
 
 **Testes (um por regra, positivo e negativo):** cada item de erro da decisão 12 com a mensagem esperada e o caminho; telas válidas (os 6 exemplos do contrato) -> sem erro e sem aviso; falsos positivos: `state` aninhado que **não** encadeia (escrever em chave do externo dentro do interno -> erro), escrita em `global.x` nunca acusada, `resetState` com chave não declarada ignorada, `params` livre, `item` com chave de tela homônima declarada, destino de `navigate.widgetJson` e `showDialog` opacos, tela raiz sem `state` opaca; `response` em `onStart` -> erro e em `onSuccess` -> ok; `event` em `onChanged` -> ok, em `onPressed` -> erro; `result` em `onCancel` -> erro; leitura de chave não declarada -> só aviso; varredor: `'item' + x`, `a.item`, `item(`, `true`, strings com aspas escapadas; mensagens **não contêm valores** (teste com `secure` cujo `initial` é um texto marcador e assert de que o marcador não aparece em nenhuma mensagem).
 

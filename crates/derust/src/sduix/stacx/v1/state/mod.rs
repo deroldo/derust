@@ -14,10 +14,13 @@
 //! * [`Envelope`], [`BindKey`], [`StateBlock`], [`GlobalStateBlock`], [`GlobalEntry`], [`OnInit`]
 //!   — properties common to every widget and the state declarations.
 //!
+//! * [`check_screen`] — contextual checks over the serialized JSON of a screen.
+//!
 //! Everything here is hand written (not generated) and lives under the `sdui_stac_1` feature.
 
 mod actions;
 mod binding;
+mod check;
 mod data;
 mod decl;
 mod envelope;
@@ -34,6 +37,7 @@ pub use actions::{
     RemoveFromState, ResetState, SetState, ToggleItem, ToggleState,
 };
 pub use binding::Binding;
+pub use check::{check_screen, MAX_CHECK_DEPTH};
 pub use data::Data;
 pub use decl::{BindKey, GlobalEntry, GlobalStateBlock, OnInit, StateBlock};
 pub use envelope::Envelope;
