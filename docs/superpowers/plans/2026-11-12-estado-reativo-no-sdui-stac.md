@@ -90,13 +90,13 @@ T4,T5,T6 ──> T10 (fixtures, inventário, exemplos do contrato) ──> T9b (
 
 **Arquivos (criar):** `v1/state/{mod,ident,path,expr,binding}.rs`; registrar `pub mod state;` em `v1/mod.rs`; testes unitários nos próprios arquivos e `crates/derust/tests/sdui_stac_v1/expr_test.rs` (declarar em `tests/sdui_stac_v1/main.rs`).
 
-- [ ] `Ident` (`new` não falha; `Validate` aplica `IDENT` e rejeita `true/false/null`), `StatePath` (+ `Root`, segmentos), `Display` do caminho (`global.token`, `user.name`, `items[0]`, `params.name`, `response.body.items`).
-- [ ] `Expr` completo (todas as variantes da decisão 2), açúcar de operadores, `From`s, `Validate` (números, inteiros >= 2^63, índice fracionário/`Div`, `Ident`s embutidos, recursivo com `Path`).
-- [ ] `Expr::to_source()` / `Display` segundo as regras de impressão (nível, associatividade, `Group`, unário duplo, base de postfix, literal numérico) e `Expr::sexp()` canônico (notação S estável; documentar o formato no doc do método).
-- [ ] `Binding` (`State(StatePath)` | `Expr(Expr)`), `Serialize` como mapa de uma chave.
-- [ ] Teste-oráculo da decisão 13: parser de referência **dentro de `expr_test.rs`** (tokenizer + descida recursiva da gramática do contrato) + gerador pseudoaleatório determinístico (mín. 5000 árvores, profundidade até 8) verificando `parse(to_source(e)) == e` e que a segunda impressão é idêntica; teste do varredor de nomes (posteriormente em T7) não é desta tarefa.
+- [x] `Ident` (`new` não falha; `Validate` aplica `IDENT` e rejeita `true/false/null`), `StatePath` (+ `Root`, segmentos), `Display` do caminho (`global.token`, `user.name`, `items[0]`, `params.name`, `response.body.items`).
+- [x] `Expr` completo (todas as variantes da decisão 2), açúcar de operadores, `From`s, `Validate` (números, inteiros >= 2^63, índice fracionário/`Div`, `Ident`s embutidos, recursivo com `Path`).
+- [x] `Expr::to_source()` / `Display` segundo as regras de impressão (nível, associatividade, `Group`, unário duplo, base de postfix, literal numérico) e `Expr::sexp()` canônico (notação S estável; documentar o formato no doc do método).
+- [x] `Binding` (`State(StatePath)` | `Expr(Expr)`), `Serialize` como mapa de uma chave.
+- [x] Teste-oráculo da decisão 13: parser de referência **dentro de `expr_test.rs`** (tokenizer + descida recursiva da gramática do contrato) + gerador pseudoaleatório determinístico (mín. 5000 árvores, profundidade até 8) verificando `parse(to_source(e)) == e` e que a segunda impressão é idêntica; teste do varredor de nomes (posteriormente em T7) não é desta tarefa.
 
-- [ ] (estado por item) Testes extras de `Expr`/`StatePath`: `item.id`, `todo.name`, `i`, `contains(selected, item.id)`, `contains(selected, item, 'id')`, `length(selected) < 3 || contains(selected, item.id)` (precedência de `||` vs `<`).
+- [x] (estado por item) Testes extras de `Expr`/`StatePath`: `item.id`, `todo.name`, `i`, `contains(selected, item.id)`, `contains(selected, item, 'id')`, `length(selected) < 3 || contains(selected, item.id)` (precedência de `||` vs `<`).
 
 **Testes (casos manuais obrigatórios):** `(a + b) * c`; `a + b * c`; `a - (b - c)` vs `a - b - c`; `a / (b * c)`; `-(a + b)`, `- -x`, `!(a && b)`, `!a == b` vs `!(a == b)`; ternário aninhado nos três lugares (`a ? b : c ? d : e` à direita; `(a ? b : c) ? d : e` com parênteses na condição); `(a || b) && c`; `(a + b).x`, `(1).x`, `items[n + 1]`, `items[n / 2]` -> `Validate` erro; funções aninhadas `length(trim(name)) < 3`; `contains(tags, 'none')`, `contains(list, obj, 'id')`; `Expr::num(-1.5)` -> `-1.5`; `2.0` -> `2`; `0.1`; `1e21` (imprime dígitos, mas inteiro >= 2^63 -> erro); `NaN`/`inf` -> erro; texto com `'`, `"`, `\`, `\n`, `\t`, `\r`, vazio, unicode (`'a\'b\\c'`, `''`); caminhos com `global.`; raízes inválidas (`user-name`, `1abc`, `é`, `true`) -> erro com caminho.
 

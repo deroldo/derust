@@ -8,6 +8,7 @@ use serde_json::Value;
 mod core_test;
 mod custom_test;
 mod example_test;
+mod expr_test;
 mod fixtures_test;
 mod generated_actions;
 mod generated_foundation;

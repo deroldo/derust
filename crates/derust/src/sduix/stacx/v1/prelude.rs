@@ -10,6 +10,7 @@
 pub use super::actions::*;
 pub use super::dsl::*;
 pub use super::foundation::*;
+pub use super::state::{BinOp, Binding, Expr, Ident, PathSegment, Root, StatePath, UnOp};
 pub use super::theme::*;
 pub use super::widgets::*;
 pub use crate::sduix::stacx::common::{
