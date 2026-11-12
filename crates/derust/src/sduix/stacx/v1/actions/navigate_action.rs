@@ -30,9 +30,12 @@ pub struct NavigateAction {
     /// How navigation should be performed.
     pub navigation_style: Option<Reactive<NavigationStyle>>,
     /// A result to pass back when popping.
-    pub result: Option<Reactive<serde_json::Map<String, serde_json::Value>>>,
+    pub result: Option<crate::sduix::stacx::v1::state::Data>,
     /// Arguments to pass to the new route.
-    pub arguments: Option<Reactive<serde_json::Map<String, serde_json::Value>>>,
+    pub arguments: Option<crate::sduix::stacx::v1::state::Data>,
+    pub params: Option<std::collections::BTreeMap<String, crate::sduix::stacx::v1::state::Data>>,
+    pub on_result: Option<Action>,
+    pub on_cancel: Option<Action>,
 }
 
 impl NavigateAction {
@@ -50,6 +53,9 @@ impl NavigateAction {
             navigation_style: None,
             result: None,
             arguments: None,
+            params: None,
+            on_result: None,
+            on_cancel: None,
         }
     }
 
@@ -90,20 +96,35 @@ impl NavigateAction {
     }
 
     /// A result to pass back when popping.
-    pub fn result(
-        mut self,
-        value: impl IntoReactive<serde_json::Map<String, serde_json::Value>>,
-    ) -> Self {
-        self.result = Some(value.into_reactive());
+    pub fn result(mut self, value: impl Into<crate::sduix::stacx::v1::state::Data>) -> Self {
+        self.result = Some(value.into());
         self
     }
 
     /// Arguments to pass to the new route.
-    pub fn arguments(
+    pub fn arguments(mut self, value: impl Into<crate::sduix::stacx::v1::state::Data>) -> Self {
+        self.arguments = Some(value.into());
+        self
+    }
+
+    /// Sets `params`.
+    pub fn params(
         mut self,
-        value: impl IntoReactive<serde_json::Map<String, serde_json::Value>>,
+        value: impl Into<std::collections::BTreeMap<String, crate::sduix::stacx::v1::state::Data>>,
     ) -> Self {
-        self.arguments = Some(value.into_reactive());
+        self.params = Some(value.into());
+        self
+    }
+
+    /// Sets `onResult`.
+    pub fn on_result(mut self, value: impl Into<Action>) -> Self {
+        self.on_result = Some(value.into());
+        self
+    }
+
+    /// Sets `onCancel`.
+    pub fn on_cancel(mut self, value: impl Into<Action>) -> Self {
+        self.on_cancel = Some(value.into());
         self
     }
 }
@@ -136,6 +157,15 @@ impl Serialize for NavigateAction {
         if let Some(value) = &self.arguments {
             map.serialize_entry("arguments", value)?;
         }
+        if let Some(value) = &self.params {
+            map.serialize_entry("params", value)?;
+        }
+        if let Some(value) = &self.on_result {
+            map.serialize_entry("onResult", value)?;
+        }
+        if let Some(value) = &self.on_cancel {
+            map.serialize_entry("onCancel", value)?;
+        }
         map.end()
     }
 }
@@ -151,11 +181,36 @@ impl Validate for NavigateAction {
         if let Some(value) = &self.navigation_style {
             value.validate_binding_at(&path.key("navigationStyle"), issues);
         }
-        if let Some(value) = &self.result {
-            value.validate_binding_at(&path.key("result"), issues);
+        self.result.validate_at(&path.key("result"), issues);
+        self.arguments.validate_at(&path.key("arguments"), issues);
+        self.params.validate_at(&path.key("params"), issues);
+        self.on_result.validate_at(&path.key("onResult"), issues);
+        self.on_cancel.validate_at(&path.key("onCancel"), issues);
+        if self.on_result.is_some() && self.on_cancel.is_some() {
+            issues.push(ValidationIssue::new(
+                path,
+                "onResult and onCancel are mutually exclusive",
+            ));
         }
-        if let Some(value) = &self.arguments {
-            value.validate_binding_at(&path.key("arguments"), issues);
+        if self.result.is_some() {
+            // no navigationStyle counts as push
+            let allows_result = match &self.navigation_style {
+                None => false,
+                Some(Reactive::Value(style)) => matches!(
+                    style,
+                    NavigationStyle::Pop
+                        | NavigationStyle::PushReplacement
+                        | NavigationStyle::PushReplacementNamed
+                ),
+                // the style is only known at runtime
+                Some(Reactive::Bind(_)) => true,
+            };
+            if !allows_result {
+                issues.push(ValidationIssue::new(
+                    &path.key("result"),
+                    "result requires navigationStyle pop, pushReplacement or pushReplacementNamed",
+                ));
+            }
         }
     }
 }

@@ -1,0 +1,23 @@
+{
+  "actionType": "navigate",
+  "navigationStyle": "push",
+  "params": { "name": { "$state": "product" } },
+  "widgetJson": {
+    "type": "column",
+    "state": { "qty": 1 },
+    "children": [
+      { "type": "text", "data": { "$expr": "'Buy ' + params.name" } },
+      {
+        "type": "elevatedButton",
+        "child": { "type": "text", "data": "Confirm" },
+        "onPressed": {
+          "actionType": "navigate",
+          "navigationStyle": "pop",
+          "result": { "name": { "$state": "params.name" }, "qty": { "$state": "qty" } }
+        }
+      }
+    ]
+  },
+  "onResult": { "actionType": "appendState", "key": "picked", "value": { "$state": "result" } },
+  "onCancel": { "actionType": "none" }
+}

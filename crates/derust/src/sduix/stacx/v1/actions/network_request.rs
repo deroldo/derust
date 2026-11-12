@@ -24,15 +24,22 @@ pub struct NetworkRequest {
     /// The HTTP method to use. Defaults to \[Method.get\].
     pub method: Option<Reactive<Method>>,
     /// Optional key-value pairs appended to the URL as query parameters.
-    pub query_parameters: Option<Reactive<serde_json::Map<String, serde_json::Value>>>,
+    pub query_parameters:
+        Option<std::collections::BTreeMap<String, crate::sduix::stacx::v1::state::Data>>,
     /// Optional request headers.
-    pub headers: Option<Reactive<serde_json::Map<String, serde_json::Value>>>,
+    pub headers: Option<std::collections::BTreeMap<String, crate::sduix::stacx::v1::state::Data>>,
     /// The Content-Type header value (e.g., `application/json`).
     pub content_type: Option<Dyn<String>>,
     /// The request payload. Can be a map, list, string, or bytes depending on encoder.
-    pub body: Option<Reactive<serde_json::Value>>,
+    pub body: Option<crate::sduix::stacx::v1::state::Data>,
     /// List of conditional results that map a response status code to an action.
     pub results: Option<Reactive<Vec<NetworkResult>>>,
+    pub on_start: Option<crate::sduix::stacx::v1::state::Actions>,
+    pub on_success: Option<crate::sduix::stacx::v1::state::Actions>,
+    pub on_error: Option<crate::sduix::stacx::v1::state::Actions>,
+    pub on_finally: Option<crate::sduix::stacx::v1::state::Actions>,
+    pub request_key: Option<Dyn<String>>,
+    pub body_from_state: Option<Vec<crate::sduix::stacx::v1::state::BindKey>>,
 }
 
 impl NetworkRequest {
@@ -50,6 +57,12 @@ impl NetworkRequest {
             content_type: None,
             body: None,
             results: None,
+            on_start: None,
+            on_success: None,
+            on_error: None,
+            on_finally: None,
+            request_key: None,
+            body_from_state: None,
         }
     }
 
@@ -74,18 +87,18 @@ impl NetworkRequest {
     /// Optional key-value pairs appended to the URL as query parameters.
     pub fn query_parameters(
         mut self,
-        value: impl IntoReactive<serde_json::Map<String, serde_json::Value>>,
+        value: impl Into<std::collections::BTreeMap<String, crate::sduix::stacx::v1::state::Data>>,
     ) -> Self {
-        self.query_parameters = Some(value.into_reactive());
+        self.query_parameters = Some(value.into());
         self
     }
 
     /// Optional request headers.
     pub fn headers(
         mut self,
-        value: impl IntoReactive<serde_json::Map<String, serde_json::Value>>,
+        value: impl Into<std::collections::BTreeMap<String, crate::sduix::stacx::v1::state::Data>>,
     ) -> Self {
-        self.headers = Some(value.into_reactive());
+        self.headers = Some(value.into());
         self
     }
 
@@ -96,14 +109,53 @@ impl NetworkRequest {
     }
 
     /// The request payload. Can be a map, list, string, or bytes depending on encoder.
-    pub fn body(mut self, value: impl IntoReactive<serde_json::Value>) -> Self {
-        self.body = Some(value.into_reactive());
+    pub fn body(mut self, value: impl Into<crate::sduix::stacx::v1::state::Data>) -> Self {
+        self.body = Some(value.into());
         self
     }
 
     /// List of conditional results that map a response status code to an action.
     pub fn results(mut self, value: impl IntoReactive<Vec<NetworkResult>>) -> Self {
         self.results = Some(value.into_reactive());
+        self
+    }
+
+    /// Sets `onStart`.
+    pub fn on_start(mut self, value: impl Into<crate::sduix::stacx::v1::state::Actions>) -> Self {
+        self.on_start = Some(value.into());
+        self
+    }
+
+    /// Sets `onSuccess`.
+    pub fn on_success(mut self, value: impl Into<crate::sduix::stacx::v1::state::Actions>) -> Self {
+        self.on_success = Some(value.into());
+        self
+    }
+
+    /// Sets `onError`.
+    pub fn on_error(mut self, value: impl Into<crate::sduix::stacx::v1::state::Actions>) -> Self {
+        self.on_error = Some(value.into());
+        self
+    }
+
+    /// Sets `onFinally`.
+    pub fn on_finally(mut self, value: impl Into<crate::sduix::stacx::v1::state::Actions>) -> Self {
+        self.on_finally = Some(value.into());
+        self
+    }
+
+    /// Sets `requestKey`.
+    pub fn request_key(mut self, value: impl Into<Dyn<String>>) -> Self {
+        self.request_key = Some(value.into());
+        self
+    }
+
+    /// Sets `bodyFromState`.
+    pub fn body_from_state(
+        mut self,
+        value: impl Into<Vec<crate::sduix::stacx::v1::state::BindKey>>,
+    ) -> Self {
+        self.body_from_state = Some(value.into());
         self
     }
 }
@@ -134,6 +186,24 @@ impl Serialize for NetworkRequest {
         if let Some(value) = &self.results {
             map.serialize_entry("results", value)?;
         }
+        if let Some(value) = &self.on_start {
+            map.serialize_entry("onStart", value)?;
+        }
+        if let Some(value) = &self.on_success {
+            map.serialize_entry("onSuccess", value)?;
+        }
+        if let Some(value) = &self.on_error {
+            map.serialize_entry("onError", value)?;
+        }
+        if let Some(value) = &self.on_finally {
+            map.serialize_entry("onFinally", value)?;
+        }
+        if let Some(value) = &self.request_key {
+            map.serialize_entry("requestKey", value)?;
+        }
+        if let Some(value) = &self.body_from_state {
+            map.serialize_entry("bodyFromState", value)?;
+        }
         map.end()
     }
 }
@@ -145,18 +215,21 @@ impl Validate for NetworkRequest {
         if let Some(value) = &self.method {
             value.validate_binding_at(&path.key("method"), issues);
         }
-        if let Some(value) = &self.query_parameters {
-            value.validate_binding_at(&path.key("queryParameters"), issues);
-        }
-        if let Some(value) = &self.headers {
-            value.validate_binding_at(&path.key("headers"), issues);
-        }
+        self.query_parameters
+            .validate_at(&path.key("queryParameters"), issues);
+        self.headers.validate_at(&path.key("headers"), issues);
         self.content_type
             .validate_at(&path.key("contentType"), issues);
-        if let Some(value) = &self.body {
-            value.validate_binding_at(&path.key("body"), issues);
-        }
+        self.body.validate_at(&path.key("body"), issues);
         self.results.validate_at(&path.key("results"), issues);
+        self.on_start.validate_at(&path.key("onStart"), issues);
+        self.on_success.validate_at(&path.key("onSuccess"), issues);
+        self.on_error.validate_at(&path.key("onError"), issues);
+        self.on_finally.validate_at(&path.key("onFinally"), issues);
+        self.request_key
+            .validate_at(&path.key("requestKey"), issues);
+        self.body_from_state
+            .validate_at(&path.key("bodyFromState"), issues);
     }
 }
 

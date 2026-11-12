@@ -1,0 +1,14 @@
+{
+  "actionType": "networkRequest",
+  "url": "https://example.com/api/save",
+  "method": "post",
+  "onStart": [
+    { "actionType": "setState", "values": { "step": 1 } },
+    { "actionType": "toggleState", "key": "busy" },
+    { "actionType": "setState", "values": { "step": 3 } }
+  ],
+  "onSuccess": [
+    { "actionType": "incrementState", "key": "saved" },
+    { "actionType": "none" }
+  ]
+}

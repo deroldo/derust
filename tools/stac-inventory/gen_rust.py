@@ -49,12 +49,28 @@ FIELD_TYPE_OVERRIDES = {
     ("StacTextSpan", "onTap"): "StacAction?",
     ("StacSetValueAction", "values"): "List<StateEntry>?",
     ("StacSetValue", "values"): "List<StateEntry>",
+    # --- T5 --- (official fields whose Rust type is the reactive `Data`; they stay in the official fixtures)
+    ("StacNetworkRequest", "body"): "Data?",
+    ("StacNetworkRequest", "headers"): "DataMap?",
+    ("StacNetworkRequest", "queryParameters"): "DataMap?",
+    ("StacNavigateAction", "result"): "Data?",
+    ("StacNavigateAction", "arguments"): "Data?",
+    # --- end T5 ---
 }
 EXTRA_FIELDS = {
     "StacRoundedRectangleBorder": [("side", "StacBorderSide?")],
     "StacCircleBorder": [("side", "StacBorderSide?")],
     "StacContinuousRectangleBorder": [("side", "StacBorderSide?")],
     "StacBeveledRectangleBorder": [("side", "StacBorderSide?")],
+    # --- T5 --- (fork vocabulary: never part of the official fixtures)
+    "StacNetworkRequest": [
+        ("onStart", "Actions?"), ("onSuccess", "Actions?"), ("onError", "Actions?"), ("onFinally", "Actions?"),
+        ("requestKey", "String?", "fork"), ("bodyFromState", "BindKeys?"),
+    ],
+    "StacNavigateAction": [
+        ("params", "DataMap?"), ("onResult", "StacAction?", "fork"), ("onCancel", "StacAction?", "fork"),
+    ],
+    # --- end T5 ---
 }
 
 # Native fields that collide with a property of the reactive envelope (`visible` / `enabled`, see
@@ -93,6 +109,8 @@ PSEUDO_TYPES = {
     "Data": "crate::sduix::stacx::v1::state::Data",
     "Actions": "crate::sduix::stacx::v1::state::Actions",
     "StringList": "crate::sduix::stacx::v1::state::StringList",
+    "DataMap": "std::collections::BTreeMap<String, crate::sduix::stacx::v1::state::Data>",
+    "BindKeys": "Vec<crate::sduix::stacx::v1::state::BindKey>",
     "ItemTemplate": "crate::sduix::stacx::v1::state::ItemTemplate",
 }
 
@@ -176,6 +194,32 @@ def parse_type(t):
     if core in ("String", "double", "int", "bool"):
         return ("prim", core), nullable
     return ("named", core), nullable
+
+
+NAVIGATE_CHECKS = (
+    "        if self.on_result.is_some() && self.on_cancel.is_some() {\n"
+    "            issues.push(ValidationIssue::new(\n"
+    "                path,\n"
+    "                \"onResult and onCancel are mutually exclusive\",\n"
+    "            ));\n        }\n"
+    "        if self.result.is_some() {\n"
+    "            // no navigationStyle counts as push\n"
+    "            let allows_result = match &self.navigation_style {\n"
+    "                None => false,\n"
+    "                Some(Reactive::Value(style)) => matches!(\n"
+    "                    style,\n"
+    "                    NavigationStyle::Pop\n"
+    "                        | NavigationStyle::PushReplacement\n"
+    "                        | NavigationStyle::PushReplacementNamed\n"
+    "                ),\n"
+    "                // the style is only known at runtime\n"
+    "                Some(Reactive::Bind(_)) => true,\n"
+    "            };\n"
+    "            if !allows_result {\n"
+    "                issues.push(ValidationIssue::new(\n"
+    "                    &path.key(\"result\"),\n"
+    "                    \"result requires navigationStyle pop, pushReplacement or pushReplacementNamed\",\n"
+    "                ));\n            }\n        }\n")
 
 
 class Gen:
@@ -384,6 +428,7 @@ class Gen:
         return None
 
     def make_field(self, cls, name, dart_type, required, doc, nullable, has_default, fork=False):
+        official_ast = parse_type(dart_type)[0]
         dart_type = FIELD_OVERRIDES_TYPE(cls, name, dart_type)
         ast, nullable_t = parse_type(dart_type)
         nullable = nullable_t
@@ -391,12 +436,14 @@ class Gen:
         rid = ident(name)
         if rid in RESERVED_METHODS:
             raise SystemExit("field %s.%s collides with an inherent method" % (cls, name))
-        fork = fork or ast[0] in ("pseudo", "reactive")
+        # an official field retyped to a pseudo type (FIELD_TYPE_OVERRIDES) is not fork vocabulary
+        overridden = (cls, name) in FIELD_TYPE_OVERRIDES
+        fork = fork or (ast[0] in ("pseudo", "reactive") and not overridden)
         if fork and not opt:
             raise SystemExit("field %s.%s of the fork vocabulary must be optional" % (cls, name))
         return {"json": name, "ident": rid, "ast": ast, "opt": opt, "required": required and not nullable,
                 "doc": clean_doc(doc, strip_type=True), "dart_type": dart_type, "fork": fork,
-                "react": self.wants_reactive(ast), "validate_always": False}
+                "official_ast": official_ast if (cls, name) in FIELD_TYPE_OVERRIDES and ast[0] == "pseudo" else None, "react": self.wants_reactive(ast), "validate_always": False}
 
     def condition_field(self):
         """`condition` added to every registered action (envelope of actions, see decision 7)."""
@@ -607,6 +654,8 @@ class Gen:
                     "            if *max_count <= 0 {\n"
                     "                issues.push(ValidationIssue::new(&path.key(\"maxCount\"), "
                     "\"maxCount must be positive\"));\n            }\n        }\n")
+        if comp["dart"] == "StacNavigateAction":
+            return NAVIGATE_CHECKS
         return ""
 
     def emit_enum(self, comp):

@@ -173,10 +173,10 @@ Antes de T4-T6: confirmar (humano ou `superpowers:requesting-code-review`) o res
 
 **Arquivos:** `gen_rust.py` (bloco `// --- T5 ---`: `FIELD_TYPE_OVERRIDES`/`EXTRA_FIELDS` para `StacNetworkRequest` e `StacNavigateAction`); tipos à mão `Actions` em `v1/state/actions.rs`; regenerar; fixtures `fixtures_reactive/actions/network_request_*.json`, `navigate_*.json`.
 
-- [ ] `NetworkRequest`: `body/headers/query_parameters` -> `Data`/`BTreeMap<String,Data>`; novos `on_start/on_success/on_error/on_finally: Option<Actions>`, `request_key`, `body_from_state: Option<Vec<BindKey>>`; manter `url`/`content_type` como `Dyn<String>`.
-- [ ] `NavigateAction`: `result: Option<Data>` (substitui o `Option<Map>`), `params`, `arguments` (`Data`), `on_result`, `on_cancel`; `Validate` (decisão 11: `on_result`+`on_cancel`; `result` com estilo inválido).
-- [ ] `Actions` = `One(Box<Action>)` | `Many(Vec<Action>)`, `From<Action>`, `From<Vec<_>>`; serializa objeto ou lista na ordem dada.
-- [ ] Atualizar `NetworkResult`/uso de `NetworkRequest` aninhado em `navigate.request` sem quebrar os fixtures oficiais.
+- [x] `NetworkRequest`: `body/headers/query_parameters` -> `Data`/`BTreeMap<String,Data>`; novos `on_start/on_success/on_error/on_finally: Option<Actions>`, `request_key`, `body_from_state: Option<Vec<BindKey>>`; manter `url`/`content_type` como `Dyn<String>`.
+- [x] `NavigateAction`: `result: Option<Data>` (substitui o `Option<Map>`), `params`, `arguments` (`Data`), `on_result`, `on_cancel`; `Validate` (decisão 11: `on_result`+`on_cancel`; `result` com estilo inválido).
+- [x] `Actions` = `One(Box<Action>)` | `Many(Vec<Action>)`, `From<Action>`, `From<Vec<_>>`; serializa objeto ou lista na ordem dada.
+- [x] Atualizar `NetworkResult`/uso de `NetworkRequest` aninhado em `navigate.request` sem quebrar os fixtures oficiais.
 
 **Testes:** JSON dos exemplos "networkRequest" e "navigate" do contrato; `result` ausente vs `result: null` (dois fixtures); lista de callbacks preserva ordem; `onResult`+`onCancel` -> `Validate` erro; `result` com `Push`/sem estilo -> erro, com `Pop`/`PushReplacement`/`PushReplacementNamed` -> ok; `body` com binding aninhado profundo; `body` literal com forma de binding -> erro; `body_from_state` com `global.token`.
 

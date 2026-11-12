@@ -1,0 +1,6 @@
+{
+  "actionType": "navigate",
+  "routeName": "/pick",
+  "params": { "a": 1 },
+  "onCancel": { "actionType": "none" }
+}

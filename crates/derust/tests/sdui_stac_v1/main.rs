@@ -17,6 +17,7 @@ mod generated_widgets;
 mod inventory;
 mod reactive_actions;
 mod reactive_ergonomics;
+mod reactive_network;
 
 /// Directory holding the JSON fixtures (shared with the Dart harness).
 pub const FIXTURES_DIR: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/tests/sdui_stac_v1/fixtures");
@@ -27,6 +28,16 @@ pub fn json_map(value: Value) -> serde_json::Map<String, Value> {
         Value::Object(map) => map,
         other => panic!("expected a JSON object, got {other}"),
     }
+}
+
+/// Converts a JSON object into the `BTreeMap<String, Data>` used by the reactive model.
+pub fn data_map(
+    value: Value,
+) -> std::collections::BTreeMap<String, derust::sduix::stacx::v1::state::Data> {
+    json_map(value)
+        .into_iter()
+        .map(|(key, value)| (key, value.into()))
+        .collect()
 }
 
 /// Equality that treats `8` and `8.0` as the same number (Dart `double`s print either way).

@@ -1,0 +1,12 @@
+{
+  "actionType": "networkRequest",
+  "url": "https://example.com/api/orders",
+  "method": "post",
+  "headers": { "X-Trace": { "$state": "trace" } },
+  "queryParameters": { "page": { "$expr": "page + 1" } },
+  "body": {
+    "user": { "name": { "$state": "user.name" }, "tags": ["a", { "$state": "tags[0]" }] },
+    "total": { "$expr": "price * qty" },
+    "note": "plain"
+  }
+}

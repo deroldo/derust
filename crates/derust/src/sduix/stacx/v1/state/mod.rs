@@ -28,7 +28,7 @@ mod reactive;
 pub use actions::{
     append_state, cancel_request, decrement_state, increment_state, none_action,
     remove_from_state_at, remove_from_state_value, reset_state, set_state, toggle_item,
-    toggle_state, AppendState, CancelRequest, DecrementState, IncrementState, NoneAction,
+    toggle_state, Actions, AppendState, CancelRequest, DecrementState, IncrementState, NoneAction,
     RemoveFromState, ResetState, SetState, ToggleItem, ToggleState,
 };
 pub use binding::Binding;

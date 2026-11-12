@@ -10,8 +10,52 @@ use super::data::Data;
 use super::decl::BindKey;
 use super::reactive::{IntoReactive, Plain, Reactive};
 use crate::sduix::stacx::common::{NodeKind, Path, StacNode, Validate, ValidationIssue};
+use crate::sduix::stacx::v1::actions::Action;
 use serde::ser::{Serialize, SerializeMap, Serializer};
 use std::collections::BTreeMap;
+
+/// Callbacks of a `networkRequest` (`onStart`, `onSuccess`, `onError`, `onFinally`): one action
+/// or a list. A list runs in order, each action awaited; it serializes as a JSON array in the
+/// order given.
+#[derive(Debug, Clone, PartialEq)]
+pub enum Actions {
+    /// A single action (serialized as an object).
+    One(Box<Action>),
+    /// Several actions, in order (serialized as an array).
+    Many(Vec<Action>),
+}
+
+impl From<Action> for Actions {
+    fn from(value: Action) -> Self {
+        Actions::One(Box::new(value))
+    }
+}
+
+impl From<Vec<Action>> for Actions {
+    fn from(value: Vec<Action>) -> Self {
+        Actions::Many(value)
+    }
+}
+
+impl Serialize for Actions {
+    fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        match self {
+            Actions::One(action) => action.serialize(serializer),
+            Actions::Many(actions) => actions.serialize(serializer),
+        }
+    }
+}
+
+impl Validate for Actions {
+    fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
+        match self {
+            Actions::One(action) => action.validate_at(path, issues),
+            Actions::Many(actions) => actions.validate_at(path, issues),
+        }
+    }
+}
+
+impl Plain for Actions {}
 
 /// Common parts of every state action: the `condition` setter, `StacNode` and `Plain`.
 macro_rules! action_common {

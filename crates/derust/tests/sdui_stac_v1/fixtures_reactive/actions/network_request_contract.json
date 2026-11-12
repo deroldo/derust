@@ -1,0 +1,10 @@
+{
+  "actionType": "networkRequest",
+  "url": "https://example.com/api/users",
+  "method": "get",
+  "requestKey": "users",
+  "onStart": { "actionType": "setState", "values": { "loading": true, "failed": false } },
+  "onSuccess": { "actionType": "setState", "values": { "users": { "$state": "response.body.items" } } },
+  "onError": { "actionType": "setState", "values": { "failed": true } },
+  "onFinally": { "actionType": "setState", "values": { "loading": false } }
+}

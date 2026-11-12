@@ -1,0 +1,7 @@
+{
+  "actionType": "navigate",
+  "navigationStyle": "push",
+  "routeName": "/pick",
+  "arguments": { "id": { "$state": "id" } },
+  "onResult": { "actionType": "setState", "values": { "picked": { "$state": "result" } } }
+}
