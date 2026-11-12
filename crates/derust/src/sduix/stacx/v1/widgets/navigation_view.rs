@@ -8,12 +8,17 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
 /// A Stac widget that displays one of its `children` based on the active index provided by a `NavigationScope` (established by a \[StacDefaultNavigationController\]).
 #[derive(Debug, Clone, PartialEq)]
 pub struct NavigationView {
+    /// Properties common to every widget (`visible`, `enabled`, `bind`, `state`, `globalState`, `onInit`).
+    pub envelope: Envelope,
     /// The list of pages that can be displayed.
     pub children: Vec<Widget>,
 }
@@ -25,6 +30,7 @@ impl NavigationView {
     /// Creates the model with only its required fields set.
     pub fn new(children: impl IntoIterator<Item = impl Into<Widget>>) -> Self {
         Self {
+            envelope: Envelope::new(),
             children: children.into_iter().map(Into::into).collect(),
         }
     }
@@ -34,12 +40,49 @@ impl NavigationView {
         self.children = value.into_iter().map(Into::into).collect();
         self
     }
+
+    /// Sets `visible` (envelope): a `bool`, a state path or an expression.
+    pub fn visible(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.visible(value);
+        self
+    }
+
+    /// Sets `enabled` (envelope): a `bool`, a state path or an expression.
+    pub fn enabled(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.enabled(value);
+        self
+    }
+
+    /// Sets `bind` (envelope): the state key the widget reads and writes.
+    pub fn bind(mut self, key: BindKey) -> Self {
+        self.envelope = self.envelope.bind(key);
+        self
+    }
+
+    /// Sets `state` (envelope): the screen state declared by this widget.
+    pub fn state(mut self, block: StateBlock) -> Self {
+        self.envelope = self.envelope.state(block);
+        self
+    }
+
+    /// Sets `globalState` (envelope): the global state declared by this widget.
+    pub fn global_state(mut self, block: GlobalStateBlock) -> Self {
+        self.envelope = self.envelope.global_state(block);
+        self
+    }
+
+    /// Sets `onInit` (envelope): action(s) run when the widget is first built.
+    pub fn on_init(mut self, on_init: impl Into<OnInit>) -> Self {
+        self.envelope = self.envelope.on_init(on_init);
+        self
+    }
 }
 
 impl Serialize for NavigationView {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         let mut map = serializer.serialize_map(None)?;
         map.serialize_entry("type", "navigationView")?;
+        self.envelope.serialize_into(&mut map)?;
         map.serialize_entry("children", &self.children)?;
         map.end()
     }
@@ -47,6 +90,7 @@ impl Serialize for NavigationView {
 
 impl Validate for NavigationView {
     fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
+        self.envelope.validate_at(path, issues);
         self.children.validate_at(&path.key("children"), issues);
     }
 }
@@ -55,6 +99,8 @@ impl StacNode for NavigationView {
     const KIND: NodeKind = NodeKind::Widget;
     const TYPE_NAME: &'static str = "navigationView";
 }
+
+impl Plain for NavigationView {}
 
 impl From<NavigationView> for Widget {
     fn from(value: NavigationView) -> Self {

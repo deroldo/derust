@@ -53,7 +53,8 @@ fn aspect_ratio() {
     assert_fixture!(
         "widgets/aspect_ratio",
         Widget::from(
-            AspectRatio::new(1.7778).child(Widget::from(Container::new().color("#FF0000")))
+            AspectRatio::new(1.7778)
+                .child(Widget::from(Container::new().color(Color::from("#FF0000"))))
         )
     );
 }
@@ -82,7 +83,9 @@ fn backdrop_filter() {
                     .sigma_x(10.0)
                     .sigma_y(10.0)
             )
-            .child(Widget::from(Container::new().color("#33FFFFFF")))
+            .child(Widget::from(
+                Container::new().color(Color::from("#33FFFFFF"))
+            ))
         )
     );
 }
@@ -148,9 +151,9 @@ fn card() {
         "widgets/card",
         Widget::from(
             Card::new()
-                .color("#FF0000")
-                .shadow_color("#FF0000")
-                .surface_tint_color("#FF0000")
+                .color(Color::from("#FF0000"))
+                .shadow_color(Color::from("#FF0000"))
+                .surface_tint_color(Color::from("#FF0000"))
                 .elevation(1.5)
                 .shape(ShapeBorder::from(CircleBorder::new()))
                 .border_on_foreground(true)
@@ -170,9 +173,9 @@ fn carousel_view() {
             CarouselView::new()
                 .carousel_type(CarouselViewType::Regular)
                 .padding(EdgeInsets::new().left(1.5).top(1.5).right(1.5).bottom(1.5))
-                .background_color("#FF0000")
+                .background_color(Color::from("#FF0000"))
                 .elevation(1.5)
-                .overlay_color("#FF0000")
+                .overlay_color(Color::from("#FF0000"))
                 .item_snapping(true)
                 .shrink_extent(1.5)
                 .scroll_direction(Axis::Horizontal)
@@ -205,12 +208,12 @@ fn check_box() {
                 .tristate(true)
                 .on_changed(Action::from(NavigateAction::new().route_name("/sample")))
                 .mouse_cursor(MouseCursor::None)
-                .active_color("#FF0000")
-                .fill_color("#FF0000")
-                .check_color("#FF0000")
-                .focus_color("#FF0000")
-                .hover_color("#FF0000")
-                .overlay_color("#FF0000")
+                .active_color(Color::from("#FF0000"))
+                .fill_color(Color::from("#FF0000"))
+                .check_color(Color::from("#FF0000"))
+                .focus_color(Color::from("#FF0000"))
+                .hover_color(Color::from("#FF0000"))
+                .overlay_color(Color::from("#FF0000"))
                 .splash_radius(1.5)
                 .material_tap_target_size(MaterialTapTargetSize::Padded)
                 .autofocus(true)
@@ -234,7 +237,7 @@ fn chip() {
                 .delete_button_tooltip_message("sample")
                 .side(
                     BorderSide::new()
-                        .color("#FF0000")
+                        .color(Color::from("#FF0000"))
                         .width(1.5)
                         .stroke_align(1.5)
                         .border_style(BorderStyle::None)
@@ -274,8 +277,8 @@ fn circle_avatar() {
         "widgets/circle_avatar",
         Widget::from(
             CircleAvatar::new()
-                .background_color("blue")
-                .foreground_color("white")
+                .background_color(Color::from("blue"))
+                .foreground_color(Color::from("white"))
                 .radius(24.0)
                 .child(Widget::from(Text::new("AB")))
         )
@@ -289,7 +292,7 @@ fn circular_progress_indicator() {
         Widget::from(
             CircularProgressIndicator::new()
                 .value(0.5)
-                .color("#2196F3")
+                .color(Color::from("#2196F3"))
                 .stroke_width(4.0)
         )
     );
@@ -302,7 +305,7 @@ fn clip_oval() {
         Widget::from(
             ClipOval::new()
                 .clip_behavior(Clip::AntiAlias)
-                .child(Widget::from(Container::new().color("#2196F3")))
+                .child(Widget::from(Container::new().color(Color::from("#2196F3"))))
         )
     );
 }
@@ -315,7 +318,7 @@ fn clip_r_rect() {
             ClipRRect::new()
                 .border_radius(BorderRadius::new().top_left(12.0).top_right(12.0))
                 .clip_behavior(Clip::AntiAlias)
-                .child(Widget::from(Container::new().color("#FF0000")))
+                .child(Widget::from(Container::new().color(Color::from("#FF0000"))))
         )
     );
 }
@@ -324,7 +327,9 @@ fn clip_r_rect() {
 fn colored_box() {
     assert_fixture!(
         "widgets/colored_box",
-        Widget::from(ColoredBox::new("#FF2196F3").child(Widget::from(Text::new("Hello"))))
+        Widget::from(
+            ColoredBox::new(Color::from("#FF2196F3")).child(Widget::from(Text::new("Hello")))
+        )
     );
 }
 
@@ -366,10 +371,10 @@ fn container() {
             Container::new()
                 .alignment(Alignment::TopLeft)
                 .padding(EdgeInsets::new().left(1.5).top(1.5).right(1.5).bottom(1.5))
-                .color("#FF0000")
+                .color(Color::from("#FF0000"))
                 .decoration(
                     BoxDecoration::new()
-                        .color("#FF0000")
+                        .color(Color::from("#FF0000"))
                         .image(DecorationImage::new("sample"))
                         .border(Border::new())
                         .border_radius(BorderRadius::new())
@@ -380,7 +385,7 @@ fn container() {
                 )
                 .foreground_decoration(
                     BoxDecoration::new()
-                        .color("#FF0000")
+                        .color(Color::from("#FF0000"))
                         .image(DecorationImage::new("sample"))
                         .border(Border::new())
                         .border_radius(BorderRadius::new())
@@ -468,7 +473,7 @@ fn divider() {
                 .thickness(1.5)
                 .indent(1.5)
                 .end_indent(1.5)
-                .color("#FF0000")
+                .color(Color::from("#FF0000"))
         )
     );
 }
@@ -479,10 +484,10 @@ fn drawer() {
         "widgets/drawer",
         Widget::from(
             Drawer::new()
-                .background_color("#FF0000")
+                .background_color(Color::from("#FF0000"))
                 .elevation(1.5)
-                .shadow_color("#FF0000")
-                .surface_tint_color("#FF0000")
+                .shadow_color(Color::from("#FF0000"))
+                .surface_tint_color(Color::from("#FF0000"))
                 .shape(ShapeBorder::from(CircleBorder::new()))
                 .width(1.5)
                 .child(Widget::from(Text::new("sample")))
@@ -550,17 +555,17 @@ fn elevated_button() {
                 .on_focus_change(Action::from(NavigateAction::new().route_name("/sample")))
                 .style(
                     ButtonStyle::new()
-                        .foreground_color("#FF0000")
-                        .background_color("#FF0000")
-                        .disabled_foreground_color("#FF0000")
-                        .disabled_background_color("#FF0000")
-                        .shadow_color("#FF0000")
-                        .surface_tint_color("#FF0000")
-                        .icon_color("#FF0000")
+                        .foreground_color(Color::from("#FF0000"))
+                        .background_color(Color::from("#FF0000"))
+                        .disabled_foreground_color(Color::from("#FF0000"))
+                        .disabled_background_color(Color::from("#FF0000"))
+                        .shadow_color(Color::from("#FF0000"))
+                        .surface_tint_color(Color::from("#FF0000"))
+                        .icon_color(Color::from("#FF0000"))
                         .icon_size(1.5)
                         .icon_alignment(IconAlignment::Start)
-                        .disabled_icon_color("#FF0000")
-                        .overlay_color("#FF0000")
+                        .disabled_icon_color(Color::from("#FF0000"))
+                        .overlay_color(Color::from("#FF0000"))
                         .elevation(1.5)
                         .text_style(TextStyle::from(CustomTextStyle::new().font_size(14.0)))
                         .padding(EdgeInsets::new())
@@ -608,17 +613,17 @@ fn filled_button() {
                 .on_focus_change(Action::from(NavigateAction::new().route_name("/sample")))
                 .style(
                     ButtonStyle::new()
-                        .foreground_color("#FF0000")
-                        .background_color("#FF0000")
-                        .disabled_foreground_color("#FF0000")
-                        .disabled_background_color("#FF0000")
-                        .shadow_color("#FF0000")
-                        .surface_tint_color("#FF0000")
-                        .icon_color("#FF0000")
+                        .foreground_color(Color::from("#FF0000"))
+                        .background_color(Color::from("#FF0000"))
+                        .disabled_foreground_color(Color::from("#FF0000"))
+                        .disabled_background_color(Color::from("#FF0000"))
+                        .shadow_color(Color::from("#FF0000"))
+                        .surface_tint_color(Color::from("#FF0000"))
+                        .icon_color(Color::from("#FF0000"))
                         .icon_size(1.5)
                         .icon_alignment(IconAlignment::Start)
-                        .disabled_icon_color("#FF0000")
-                        .overlay_color("#FF0000")
+                        .disabled_icon_color(Color::from("#FF0000"))
+                        .overlay_color(Color::from("#FF0000"))
                         .elevation(1.5)
                         .text_style(TextStyle::from(CustomTextStyle::new().font_size(14.0)))
                         .padding(EdgeInsets::new())
@@ -723,7 +728,7 @@ fn fractionally_sized_box() {
                 .width_factor(0.8)
                 .height_factor(0.6)
                 .alignment(Alignment::Center)
-                .child(Widget::from(Container::new().color("#FF0000")))
+                .child(Widget::from(Container::new().color(Color::from("#FF0000"))))
         )
     );
 }
@@ -921,17 +926,17 @@ fn icon_button() {
                 )
                 .style(
                     ButtonStyle::new()
-                        .foreground_color("#FF0000")
-                        .background_color("#FF0000")
-                        .disabled_foreground_color("#FF0000")
-                        .disabled_background_color("#FF0000")
-                        .shadow_color("#FF0000")
-                        .surface_tint_color("#FF0000")
-                        .icon_color("#FF0000")
+                        .foreground_color(Color::from("#FF0000"))
+                        .background_color(Color::from("#FF0000"))
+                        .disabled_foreground_color(Color::from("#FF0000"))
+                        .disabled_background_color(Color::from("#FF0000"))
+                        .shadow_color(Color::from("#FF0000"))
+                        .surface_tint_color(Color::from("#FF0000"))
+                        .icon_color(Color::from("#FF0000"))
                         .icon_size(1.5)
                         .icon_alignment(IconAlignment::Start)
-                        .disabled_icon_color("#FF0000")
-                        .overlay_color("#FF0000")
+                        .disabled_icon_color(Color::from("#FF0000"))
+                        .overlay_color(Color::from("#FF0000"))
                         .elevation(1.5)
                         .text_style(TextStyle::from(CustomTextStyle::new().font_size(14.0)))
                         .padding(EdgeInsets::new())
@@ -988,11 +993,11 @@ fn ink_well() {
                 .on_highlight_changed(Action::from(NavigateAction::new().route_name("/sample")))
                 .on_hover(Action::from(NavigateAction::new().route_name("/sample")))
                 .mouse_cursor(MouseCursor::None)
-                .focus_color("#FF0000")
-                .hover_color("#FF0000")
-                .highlight_color("#FF0000")
-                .overlay_color("#FF0000")
-                .splash_color("#FF0000")
+                .focus_color(Color::from("#FF0000"))
+                .hover_color(Color::from("#FF0000"))
+                .highlight_color(Color::from("#FF0000"))
+                .overlay_color(Color::from("#FF0000"))
+                .splash_color(Color::from("#FF0000"))
                 .radius(1.5)
                 .border_radius(
                     BorderRadius::new()
@@ -1029,8 +1034,13 @@ fn intrinsic_height() {
                 Row::new()
                     .cross_axis_alignment(CrossAxisAlignment::Stretch)
                     .children(vec![
-                        Widget::from(Container::new().color("#FF0000").width(100.0)),
-                        Widget::from(Container::new().color("#0000FF").width(100.0).height(150.0))
+                        Widget::from(Container::new().color(Color::from("#FF0000")).width(100.0)),
+                        Widget::from(
+                            Container::new()
+                                .color(Color::from("#0000FF"))
+                                .width(100.0)
+                                .height(150.0)
+                        )
                     ])
             ))
         )
@@ -1074,7 +1084,7 @@ fn linear_progress_indicator() {
         Widget::from(
             LinearProgressIndicator::new()
                 .value(0.5)
-                .color("#2196F3")
+                .color(Color::from("#2196F3"))
                 .min_height(4.0)
         )
     );
@@ -1206,17 +1216,17 @@ fn outlined_button() {
                 .on_focus_change(Action::from(NavigateAction::new().route_name("/sample")))
                 .style(
                     ButtonStyle::new()
-                        .foreground_color("#FF0000")
-                        .background_color("#FF0000")
-                        .disabled_foreground_color("#FF0000")
-                        .disabled_background_color("#FF0000")
-                        .shadow_color("#FF0000")
-                        .surface_tint_color("#FF0000")
-                        .icon_color("#FF0000")
+                        .foreground_color(Color::from("#FF0000"))
+                        .background_color(Color::from("#FF0000"))
+                        .disabled_foreground_color(Color::from("#FF0000"))
+                        .disabled_background_color(Color::from("#FF0000"))
+                        .shadow_color(Color::from("#FF0000"))
+                        .surface_tint_color(Color::from("#FF0000"))
+                        .icon_color(Color::from("#FF0000"))
                         .icon_size(1.5)
                         .icon_alignment(IconAlignment::Start)
-                        .disabled_icon_color("#FF0000")
-                        .overlay_color("#FF0000")
+                        .disabled_icon_color(Color::from("#FF0000"))
+                        .overlay_color(Color::from("#FF0000"))
                         .elevation(1.5)
                         .text_style(TextStyle::from(CustomTextStyle::new().font_size(14.0)))
                         .padding(EdgeInsets::new())
@@ -1268,8 +1278,8 @@ fn page_view() {
                 .keep_page(true)
                 .viewport_fraction(1.0)
                 .children(vec![
-                    Widget::from(Container::new().color("#FF0000")),
-                    Widget::from(Container::new().color("#00FF00"))
+                    Widget::from(Container::new().color(Color::from("#FF0000"))),
+                    Widget::from(Container::new().color(Color::from("#00FF00")))
                 ])
         )
     );
@@ -1310,7 +1320,7 @@ fn radio() {
                 .radio_type(RadioType::Material)
                 .value(serde_json::json!("a"))
                 .group_id("letter")
-                .active_color("#2196F3")
+                .active_color(Color::from("#2196F3"))
         )
     );
 }
@@ -1341,8 +1351,8 @@ fn refresh_indicator() {
                 .on_refresh(Action::from(NavigateAction::new().route_name("/sample")))
                 .displacement(1.5)
                 .edge_offset(1.5)
-                .color("#FF0000")
-                .background_color("#FF0000")
+                .color(Color::from("#FF0000"))
+                .background_color(Color::from("#FF0000"))
                 .semantics_label("sample")
                 .semantics_value("sample")
                 .stroke_width(1.5)
@@ -1404,7 +1414,9 @@ fn selectable_text() {
         Widget::from(
             SelectableText::new("Hello World")
                 .style(TextStyle::from(
-                    CustomTextStyle::new().font_size(20.0).color("#FF0000")
+                    CustomTextStyle::new()
+                        .font_size(20.0)
+                        .color(Color::from("#FF0000"))
                 ))
                 .show_cursor(true)
         )
@@ -1468,7 +1480,7 @@ fn slider() {
                 .id("volume")
                 .min(0.0)
                 .max(1.0)
-                .active_color("#2196F3")
+                .active_color(Color::from("#2196F3"))
         )
     );
 }
@@ -1484,7 +1496,7 @@ fn sliver_app_bar() {
                 .expanded_height(200.0)
                 .flexible_space(Widget::from(
                     Container::new()
-                        .color("blue")
+                        .color(Color::from("blue"))
                         .child(Widget::from(Text::new("Header")))
                 ))
         )
@@ -1517,26 +1529,30 @@ fn sliver_grid() {
                 .child_aspect_ratio(1.0)
                 .children(vec![
                     Widget::from(
-                        Container::new().color("#4CAF50").child(Widget::from(
-                            Center::new().child(Widget::from(
-                                Text::new("Grid Item 1").style(TextStyle::from(
-                                    CustomTextStyle::new()
-                                        .color("#FFFFFF")
-                                        .font_weight(FontWeight::Bold)
+                        Container::new()
+                            .color(Color::from("#4CAF50"))
+                            .child(Widget::from(
+                                Center::new().child(Widget::from(
+                                    Text::new("Grid Item 1").style(TextStyle::from(
+                                        CustomTextStyle::new()
+                                            .color(Color::from("#FFFFFF"))
+                                            .font_weight(FontWeight::Bold)
+                                    ))
                                 ))
                             ))
-                        ))
                     ),
                     Widget::from(
-                        Container::new().color("#4CAF50").child(Widget::from(
-                            Center::new().child(Widget::from(
-                                Text::new("Grid Item 2").style(TextStyle::from(
-                                    CustomTextStyle::new()
-                                        .color("#FFFFFF")
-                                        .font_weight(FontWeight::Bold)
+                        Container::new()
+                            .color(Color::from("#4CAF50"))
+                            .child(Widget::from(
+                                Center::new().child(Widget::from(
+                                    Text::new("Grid Item 2").style(TextStyle::from(
+                                        CustomTextStyle::new()
+                                            .color(Color::from("#FFFFFF"))
+                                            .font_weight(FontWeight::Bold)
+                                    ))
                                 ))
                             ))
-                        ))
                     )
                 ])
         )
@@ -1551,7 +1567,7 @@ fn sliver_list() {
                 Widget::from(
                     Container::new()
                         .height(80.0)
-                        .color("primary")
+                        .color(Color::from("primary"))
                         .child(Widget::from(
                             Center::new().child(Widget::from(Text::new("List Item 1")))
                         ))
@@ -1559,7 +1575,7 @@ fn sliver_list() {
                 Widget::from(
                     Container::new()
                         .height(80.0)
-                        .color("secondary")
+                        .color(Color::from("secondary"))
                         .child(Widget::from(
                             Center::new().child(Widget::from(Text::new("List Item 2")))
                         ))
@@ -1567,7 +1583,7 @@ fn sliver_list() {
                 Widget::from(
                     Container::new()
                         .height(80.0)
-                        .color("success")
+                        .color(Color::from("success"))
                         .child(Widget::from(
                             Center::new().child(Widget::from(Text::new("List Item 3")))
                         ))
@@ -1600,13 +1616,13 @@ fn sliver_padding() {
                 SliverToBoxAdapter::new().child(Widget::from(
                     Container::new()
                         .height(150.0)
-                        .color("#4CAF50")
+                        .color(Color::from("#4CAF50"))
                         .child(Widget::from(
                             Center::new().child(Widget::from(
                                 Text::new("I am a Box inside a SliverPadding!").style(
                                     TextStyle::from(
                                         CustomTextStyle::new()
-                                            .color("#FFFFFF")
+                                            .color(Color::from("#FFFFFF"))
                                             .font_weight(FontWeight::Bold)
                                     )
                                 )
@@ -1661,10 +1677,12 @@ fn spacer() {
 fn stack() {
     assert_fixture!(
         "widgets/stack",
-        Widget::from(Stack::new().alignment(Alignment::Center).children(vec![
-            Widget::from(Container::new().color("#EEEEEE").width(200.0).height(200.0)),
-            Widget::from(Text::new("On top"))
-        ]))
+        Widget::from(Stack::new().alignment(Alignment::Center).children(
+            vec![Widget::from(Container::new()
+        .color(Color::from("#EEEEEE"))
+        .width(200.0)
+        .height(200.0)), Widget::from(Text::new("On top"))]
+        ))
     );
 }
 
@@ -1678,21 +1696,21 @@ fn switch() {
                 .value(true)
                 .on_changed(Action::from(NavigateAction::new().route_name("/sample")))
                 .autofocus(true)
-                .active_thumb_color("#FF0000")
-                .active_track_color("#FF0000")
-                .focus_color("#FF0000")
-                .hover_color("#FF0000")
-                .inactive_thumb_color("#FF0000")
-                .inactive_track_color("#FF0000")
-                .on_label_color("#FF0000")
-                .off_label_color("#FF0000")
+                .active_thumb_color(Color::from("#FF0000"))
+                .active_track_color(Color::from("#FF0000"))
+                .focus_color(Color::from("#FF0000"))
+                .hover_color(Color::from("#FF0000"))
+                .inactive_thumb_color(Color::from("#FF0000"))
+                .inactive_track_color(Color::from("#FF0000"))
+                .on_label_color(Color::from("#FF0000"))
+                .off_label_color(Color::from("#FF0000"))
                 .splash_radius(1.5)
                 .drag_start_behavior(DragStartBehavior::Down)
-                .overlay_color("#FF0000")
-                .thumb_color("#FF0000")
-                .track_color("#FF0000")
+                .overlay_color(Color::from("#FF0000"))
+                .thumb_color(Color::from("#FF0000"))
+                .track_color(Color::from("#FF0000"))
                 .material_tap_target_size(MaterialTapTargetSize::Padded)
-                .track_outline_color("#FF0000")
+                .track_outline_color(Color::from("#FF0000"))
                 .track_outline_width(1.5)
                 .thumb_icon(Widget::from(Text::new("sample")))
                 .inactive_thumb_image("sample")
@@ -1800,7 +1818,7 @@ fn table_row() {
         TableRow::new()
             .decoration(
                 BoxDecoration::new()
-                    .color("#FF0000")
+                    .color(Color::from("#FF0000"))
                     .image(DecorationImage::new("sample"))
                     .border(Border::new())
                     .border_radius(BorderRadius::new())
@@ -1822,7 +1840,7 @@ fn text() {
                 .style(TextStyle::from(ThemeTextStyle::new(
                     MaterialTextStyle::BodyMedium
                 )))
-                .copy_with_style(CustomTextStyle::new().color("#FF2196F3"))
+                .copy_with_style(CustomTextStyle::new().color(Color::from("#FF2196F3")))
         )
     );
 }
@@ -1839,17 +1857,17 @@ fn text_button() {
                 .on_focus_change(Action::from(NavigateAction::new().route_name("/sample")))
                 .style(
                     ButtonStyle::new()
-                        .foreground_color("#FF0000")
-                        .background_color("#FF0000")
-                        .disabled_foreground_color("#FF0000")
-                        .disabled_background_color("#FF0000")
-                        .shadow_color("#FF0000")
-                        .surface_tint_color("#FF0000")
-                        .icon_color("#FF0000")
+                        .foreground_color(Color::from("#FF0000"))
+                        .background_color(Color::from("#FF0000"))
+                        .disabled_foreground_color(Color::from("#FF0000"))
+                        .disabled_background_color(Color::from("#FF0000"))
+                        .shadow_color(Color::from("#FF0000"))
+                        .surface_tint_color(Color::from("#FF0000"))
+                        .icon_color(Color::from("#FF0000"))
                         .icon_size(1.5)
                         .icon_alignment(IconAlignment::Start)
-                        .disabled_icon_color("#FF0000")
-                        .overlay_color("#FF0000")
+                        .disabled_icon_color(Color::from("#FF0000"))
+                        .overlay_color(Color::from("#FF0000"))
                         .elevation(1.5)
                         .text_style(TextStyle::from(CustomTextStyle::new().font_size(14.0)))
                         .padding(EdgeInsets::new())
@@ -1931,7 +1949,7 @@ fn vertical_divider() {
                 .thickness(1.5)
                 .indent(1.5)
                 .end_indent(1.5)
-                .color("#FF0000")
+                .color(Color::from("#FF0000"))
         )
     );
 }

@@ -3,6 +3,7 @@
 
 #![allow(unused_imports, clippy::too_many_arguments)]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::IntoReactive;
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 
 /// Shortcut for [`AlertDialog::new`].
@@ -21,17 +22,17 @@ pub fn app_bar() -> AppBar {
 }
 
 /// Shortcut for [`AspectRatio::new`].
-pub fn aspect_ratio(aspect_ratio: impl Into<f64>) -> AspectRatio {
+pub fn aspect_ratio(aspect_ratio: impl IntoReactive<f64>) -> AspectRatio {
     AspectRatio::new(aspect_ratio)
 }
 
 /// Shortcut for [`AutoComplete::new`].
-pub fn auto_complete(options: impl IntoIterator<Item = impl Into<String>>) -> AutoComplete {
+pub fn auto_complete(options: impl IntoReactive<Vec<String>>) -> AutoComplete {
     AutoComplete::new(options)
 }
 
 /// Shortcut for [`BackdropFilter::new`].
-pub fn backdrop_filter(filter: impl Into<ImageFilter>) -> BackdropFilter {
+pub fn backdrop_filter(filter: impl IntoReactive<ImageFilter>) -> BackdropFilter {
     BackdropFilter::new(filter)
 }
 
@@ -42,7 +43,7 @@ pub fn badge() -> Badge {
 
 /// Shortcut for [`BottomNavigationBar::new`].
 pub fn bottom_navigation_bar(
-    items: impl IntoIterator<Item = impl Into<BottomNavigationBarItem>>,
+    items: impl IntoReactive<Vec<BottomNavigationBarItem>>,
 ) -> BottomNavigationBar {
     BottomNavigationBar::new(items)
 }
@@ -100,7 +101,7 @@ pub fn clip_r_rect() -> ClipRRect {
 }
 
 /// Shortcut for [`ColoredBox::new`].
-pub fn colored_box(color: impl Into<Color>) -> ColoredBox {
+pub fn colored_box(color: impl IntoReactive<Color>) -> ColoredBox {
     ColoredBox::new(color)
 }
 
@@ -126,7 +127,7 @@ pub fn custom_scroll_view() -> CustomScrollView {
 
 /// Shortcut for [`DefaultBottomNavigationController::new`].
 pub fn default_bottom_navigation_controller(
-    length: impl Into<i64>,
+    length: impl IntoReactive<i64>,
     child: impl Into<Widget>,
 ) -> DefaultBottomNavigationController {
     DefaultBottomNavigationController::new(length, child)
@@ -134,7 +135,7 @@ pub fn default_bottom_navigation_controller(
 
 /// Shortcut for [`DefaultNavigationController::new`].
 pub fn default_navigation_controller(
-    length: impl Into<i64>,
+    length: impl IntoReactive<i64>,
     child: impl Into<Widget>,
 ) -> DefaultNavigationController {
     DefaultNavigationController::new(length, child)
@@ -142,7 +143,7 @@ pub fn default_navigation_controller(
 
 /// Shortcut for [`DefaultTabController::new`].
 pub fn default_tab_controller(
-    length: impl Into<i64>,
+    length: impl IntoReactive<i64>,
     child: impl Into<Widget>,
 ) -> DefaultTabController {
     DefaultTabController::new(length, child)
@@ -164,7 +165,7 @@ pub fn dropdown_menu() -> DropdownMenu {
 }
 
 /// Shortcut for [`DynamicView::new`].
-pub fn dynamic_view(request: impl Into<NetworkRequest>) -> DynamicView {
+pub fn dynamic_view(request: impl IntoReactive<NetworkRequest>) -> DynamicView {
     DynamicView::new(request)
 }
 
@@ -219,7 +220,7 @@ pub fn grid_view() -> GridView {
 }
 
 /// Shortcut for [`Hero::new`].
-pub fn hero(tag: impl Into<serde_json::Value>, child: impl Into<Widget>) -> Hero {
+pub fn hero(tag: impl IntoReactive<serde_json::Value>, child: impl Into<Widget>) -> Hero {
     Hero::new(tag, child)
 }
 
@@ -275,7 +276,7 @@ pub fn list_view() -> ListView {
 
 /// Shortcut for [`NavigationBar::new`].
 pub fn navigation_bar(
-    destinations: impl IntoIterator<Item = impl Into<NavigationDestination>>,
+    destinations: impl IntoReactive<Vec<NavigationDestination>>,
 ) -> NavigationBar {
     NavigationBar::new(destinations)
 }
@@ -286,12 +287,12 @@ pub fn navigation_view(children: impl IntoIterator<Item = impl Into<Widget>>) ->
 }
 
 /// Shortcut for [`NetworkWidget::new`].
-pub fn network_widget(request: impl Into<NetworkRequest>) -> NetworkWidget {
+pub fn network_widget(request: impl IntoReactive<NetworkRequest>) -> NetworkWidget {
     NetworkWidget::new(request)
 }
 
 /// Shortcut for [`Opacity::new`].
-pub fn opacity(opacity: impl Into<f64>) -> Opacity {
+pub fn opacity(opacity: impl IntoReactive<f64>) -> Opacity {
     Opacity::new(opacity)
 }
 
@@ -371,7 +372,7 @@ pub fn sized_box() -> SizedBox {
 }
 
 /// Shortcut for [`Slider::new`].
-pub fn slider(value: impl Into<f64>) -> Slider {
+pub fn slider(value: impl IntoReactive<f64>) -> Slider {
     Slider::new(value)
 }
 
@@ -396,12 +397,15 @@ pub fn sliver_list() -> SliverList {
 }
 
 /// Shortcut for [`SliverOpacity::new`].
-pub fn sliver_opacity(opacity: impl Into<f64>) -> SliverOpacity {
+pub fn sliver_opacity(opacity: impl IntoReactive<f64>) -> SliverOpacity {
     SliverOpacity::new(opacity)
 }
 
 /// Shortcut for [`SliverPadding::new`].
-pub fn sliver_padding(padding: impl Into<EdgeInsets>, sliver: impl Into<Widget>) -> SliverPadding {
+pub fn sliver_padding(
+    padding: impl IntoReactive<EdgeInsets>,
+    sliver: impl Into<Widget>,
+) -> SliverPadding {
     SliverPadding::new(padding, sliver)
 }
 

@@ -8,6 +8,9 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
@@ -19,7 +22,7 @@ pub struct FormFieldValidator {
     /// Error message to display when validation fails.
     pub message: Option<Dyn<String>>,
     /// Arguments for parameterized rules (e.g. `min`/`max` for `isLength`, `fieldId` for `compare`). Ignored by rules that take no arguments.
-    pub options: Option<serde_json::Map<String, serde_json::Value>>,
+    pub options: Option<Reactive<serde_json::Map<String, serde_json::Value>>>,
 }
 
 impl FormFieldValidator {
@@ -45,8 +48,11 @@ impl FormFieldValidator {
     }
 
     /// Arguments for parameterized rules (e.g. `min`/`max` for `isLength`, `fieldId` for `compare`). Ignored by rules that take no arguments.
-    pub fn options(mut self, value: impl Into<serde_json::Map<String, serde_json::Value>>) -> Self {
-        self.options = Some(value.into());
+    pub fn options(
+        mut self,
+        value: impl IntoReactive<serde_json::Map<String, serde_json::Value>>,
+    ) -> Self {
+        self.options = Some(value.into_reactive());
         self
     }
 }
@@ -69,5 +75,10 @@ impl Validate for FormFieldValidator {
     fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
         self.rule.validate_at(&path.key("rule"), issues);
         self.message.validate_at(&path.key("message"), issues);
+        if let Some(value) = &self.options {
+            value.validate_binding_at(&path.key("options"), issues);
+        }
     }
 }
+
+impl Plain for FormFieldValidator {}

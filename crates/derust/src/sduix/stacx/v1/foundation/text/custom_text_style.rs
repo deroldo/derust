@@ -8,6 +8,9 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
@@ -15,44 +18,44 @@ use serde::ser::{Serialize, SerializeMap, Serializer};
 #[derive(Debug, Clone, PartialEq)]
 pub struct CustomTextStyle {
     /// Whether to inherit styling from the ambient `DefaultTextStyle`.
-    pub inherit: Option<bool>,
+    pub inherit: Option<Reactive<bool>>,
     /// Text color.
-    pub color: Option<Color>,
+    pub color: Option<Reactive<Color>>,
     /// Background color behind the text.
-    pub background_color: Option<Color>,
+    pub background_color: Option<Reactive<Color>>,
     /// Font size in logical pixels.
-    pub font_size: Option<f64>,
+    pub font_size: Option<Reactive<f64>>,
     /// Font weight.
-    pub font_weight: Option<FontWeight>,
+    pub font_weight: Option<Reactive<FontWeight>>,
     /// Font style (normal/italic).
-    pub font_style: Option<FontStyle>,
+    pub font_style: Option<Reactive<FontStyle>>,
     /// Spacing between letters.
-    pub letter_spacing: Option<f64>,
+    pub letter_spacing: Option<Reactive<f64>>,
     /// Spacing between words.
-    pub word_spacing: Option<f64>,
+    pub word_spacing: Option<Reactive<f64>>,
     /// The baseline to align against.
-    pub text_baseline: Option<TextBaseline>,
+    pub text_baseline: Option<Reactive<TextBaseline>>,
     /// The height of this text span, as a multiple of font size.
-    pub height: Option<f64>,
+    pub height: Option<Reactive<f64>>,
     /// Strategy for distributing the leading (space above a line).
-    pub leading_distribution: Option<TextLeadingDistribution>,
-    pub decoration: Option<TextDecorationLine>,
+    pub leading_distribution: Option<Reactive<TextLeadingDistribution>>,
+    pub decoration: Option<Reactive<TextDecorationLine>>,
     /// Color for text decorations (underline, overline, etc.).
-    pub decoration_color: Option<Color>,
+    pub decoration_color: Option<Reactive<Color>>,
     /// Style of text decorations (solid, dotted, dashed, etc.).
-    pub decoration_style: Option<TextDecorationStyle>,
+    pub decoration_style: Option<Reactive<TextDecorationStyle>>,
     /// Thickness of text decorations in logical pixels.
-    pub decoration_thickness: Option<f64>,
+    pub decoration_thickness: Option<Reactive<f64>>,
     /// Optional label used for debugging.
     pub debug_label: Option<Dyn<String>>,
     /// The name of the font family to use.
     pub font_family: Option<Dyn<String>>,
     /// Fallback font families to try if \[fontFamily\] is unavailable.
-    pub font_family_fallback: Option<Vec<String>>,
+    pub font_family_fallback: Option<Reactive<Vec<String>>>,
     /// Optional package name for bundled fonts.
     pub package: Option<Dyn<String>>,
     /// How visual overflow should be handled.
-    pub overflow: Option<TextOverflow>,
+    pub overflow: Option<Reactive<TextOverflow>>,
 }
 
 impl CustomTextStyle {
@@ -86,92 +89,95 @@ impl CustomTextStyle {
     }
 
     /// Whether to inherit styling from the ambient `DefaultTextStyle`.
-    pub fn inherit(mut self, value: bool) -> Self {
-        self.inherit = Some(value);
+    pub fn inherit(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.inherit = Some(value.into_reactive());
         self
     }
 
     /// Text color.
-    pub fn color(mut self, value: impl Into<Color>) -> Self {
-        self.color = Some(value.into());
+    pub fn color(mut self, value: impl IntoReactive<Color>) -> Self {
+        self.color = Some(value.into_reactive());
         self
     }
 
     /// Background color behind the text.
-    pub fn background_color(mut self, value: impl Into<Color>) -> Self {
-        self.background_color = Some(value.into());
+    pub fn background_color(mut self, value: impl IntoReactive<Color>) -> Self {
+        self.background_color = Some(value.into_reactive());
         self
     }
 
     /// Font size in logical pixels.
-    pub fn font_size(mut self, value: impl Into<f64>) -> Self {
-        self.font_size = Some(value.into());
+    pub fn font_size(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.font_size = Some(value.into_reactive());
         self
     }
 
     /// Font weight.
-    pub fn font_weight(mut self, value: impl Into<FontWeight>) -> Self {
-        self.font_weight = Some(value.into());
+    pub fn font_weight(mut self, value: impl IntoReactive<FontWeight>) -> Self {
+        self.font_weight = Some(value.into_reactive());
         self
     }
 
     /// Font style (normal/italic).
-    pub fn font_style(mut self, value: impl Into<FontStyle>) -> Self {
-        self.font_style = Some(value.into());
+    pub fn font_style(mut self, value: impl IntoReactive<FontStyle>) -> Self {
+        self.font_style = Some(value.into_reactive());
         self
     }
 
     /// Spacing between letters.
-    pub fn letter_spacing(mut self, value: impl Into<f64>) -> Self {
-        self.letter_spacing = Some(value.into());
+    pub fn letter_spacing(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.letter_spacing = Some(value.into_reactive());
         self
     }
 
     /// Spacing between words.
-    pub fn word_spacing(mut self, value: impl Into<f64>) -> Self {
-        self.word_spacing = Some(value.into());
+    pub fn word_spacing(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.word_spacing = Some(value.into_reactive());
         self
     }
 
     /// The baseline to align against.
-    pub fn text_baseline(mut self, value: impl Into<TextBaseline>) -> Self {
-        self.text_baseline = Some(value.into());
+    pub fn text_baseline(mut self, value: impl IntoReactive<TextBaseline>) -> Self {
+        self.text_baseline = Some(value.into_reactive());
         self
     }
 
     /// The height of this text span, as a multiple of font size.
-    pub fn height(mut self, value: impl Into<f64>) -> Self {
-        self.height = Some(value.into());
+    pub fn height(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.height = Some(value.into_reactive());
         self
     }
 
     /// Strategy for distributing the leading (space above a line).
-    pub fn leading_distribution(mut self, value: impl Into<TextLeadingDistribution>) -> Self {
-        self.leading_distribution = Some(value.into());
+    pub fn leading_distribution(
+        mut self,
+        value: impl IntoReactive<TextLeadingDistribution>,
+    ) -> Self {
+        self.leading_distribution = Some(value.into_reactive());
         self
     }
 
     /// Sets `decoration`.
-    pub fn decoration(mut self, value: impl Into<TextDecorationLine>) -> Self {
-        self.decoration = Some(value.into());
+    pub fn decoration(mut self, value: impl IntoReactive<TextDecorationLine>) -> Self {
+        self.decoration = Some(value.into_reactive());
         self
     }
 
     /// Color for text decorations (underline, overline, etc.).
-    pub fn decoration_color(mut self, value: impl Into<Color>) -> Self {
-        self.decoration_color = Some(value.into());
+    pub fn decoration_color(mut self, value: impl IntoReactive<Color>) -> Self {
+        self.decoration_color = Some(value.into_reactive());
         self
     }
 
     /// Style of text decorations (solid, dotted, dashed, etc.).
-    pub fn decoration_style(mut self, value: impl Into<TextDecorationStyle>) -> Self {
-        self.decoration_style = Some(value.into());
+    pub fn decoration_style(mut self, value: impl IntoReactive<TextDecorationStyle>) -> Self {
+        self.decoration_style = Some(value.into_reactive());
         self
     }
 
     /// Thickness of text decorations in logical pixels.
-    pub fn decoration_thickness(mut self, value: impl Into<f64>) -> Self {
-        self.decoration_thickness = Some(value.into());
+    pub fn decoration_thickness(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.decoration_thickness = Some(value.into_reactive());
         self
     }
 
@@ -188,11 +194,8 @@ impl CustomTextStyle {
     }
 
     /// Fallback font families to try if \[fontFamily\] is unavailable.
-    pub fn font_family_fallback(
-        mut self,
-        value: impl IntoIterator<Item = impl Into<String>>,
-    ) -> Self {
-        self.font_family_fallback = Some(value.into_iter().map(Into::into).collect());
+    pub fn font_family_fallback(mut self, value: impl IntoReactive<Vec<String>>) -> Self {
+        self.font_family_fallback = Some(value.into_reactive());
         self
     }
 
@@ -203,8 +206,8 @@ impl CustomTextStyle {
     }
 
     /// How visual overflow should be handled.
-    pub fn overflow(mut self, value: impl Into<TextOverflow>) -> Self {
-        self.overflow = Some(value.into());
+    pub fn overflow(mut self, value: impl IntoReactive<TextOverflow>) -> Self {
+        self.overflow = Some(value.into_reactive());
         self
     }
 }
@@ -279,29 +282,64 @@ impl Serialize for CustomTextStyle {
 
 impl Validate for CustomTextStyle {
     fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
+        if let Some(value) = &self.inherit {
+            value.validate_binding_at(&path.key("inherit"), issues);
+        }
         self.color.validate_at(&path.key("color"), issues);
         self.background_color
             .validate_at(&path.key("backgroundColor"), issues);
         self.font_size.validate_at(&path.key("fontSize"), issues);
+        if let Some(value) = &self.font_weight {
+            value.validate_binding_at(&path.key("fontWeight"), issues);
+        }
+        if let Some(value) = &self.font_style {
+            value.validate_binding_at(&path.key("fontStyle"), issues);
+        }
         self.letter_spacing
             .validate_at(&path.key("letterSpacing"), issues);
         self.word_spacing
             .validate_at(&path.key("wordSpacing"), issues);
+        if let Some(value) = &self.text_baseline {
+            value.validate_binding_at(&path.key("textBaseline"), issues);
+        }
         self.height.validate_at(&path.key("height"), issues);
+        if let Some(value) = &self.leading_distribution {
+            value.validate_binding_at(&path.key("leadingDistribution"), issues);
+        }
+        if let Some(value) = &self.decoration {
+            value.validate_binding_at(&path.key("decoration"), issues);
+        }
         self.decoration_color
             .validate_at(&path.key("decorationColor"), issues);
+        if let Some(value) = &self.decoration_style {
+            value.validate_binding_at(&path.key("decorationStyle"), issues);
+        }
         self.decoration_thickness
             .validate_at(&path.key("decorationThickness"), issues);
         self.debug_label
             .validate_at(&path.key("debugLabel"), issues);
         self.font_family
             .validate_at(&path.key("fontFamily"), issues);
+        if let Some(value) = &self.font_family_fallback {
+            value.validate_binding_at(&path.key("fontFamilyFallback"), issues);
+        }
         self.package.validate_at(&path.key("package"), issues);
+        if let Some(value) = &self.overflow {
+            value.validate_binding_at(&path.key("overflow"), issues);
+        }
     }
 }
+
+impl Plain for CustomTextStyle {}
 
 impl From<CustomTextStyle> for TextStyle {
     fn from(value: CustomTextStyle) -> Self {
         TextStyle::CustomTextStyle(Box::new(value))
+    }
+}
+
+impl IntoReactive<TextStyle> for CustomTextStyle {
+    fn into_reactive(self) -> Reactive<TextStyle> {
+        Reactive::Value(TextStyle::from(self))
     }
 }

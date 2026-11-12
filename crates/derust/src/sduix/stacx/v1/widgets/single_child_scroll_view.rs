@@ -8,29 +8,34 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
 /// A Stac model for a box in which a single widget can be scrolled.
 #[derive(Debug, Clone, PartialEq)]
 pub struct SingleChildScrollView {
+    /// Properties common to every widget (`visible`, `enabled`, `bind`, `state`, `globalState`, `onInit`).
+    pub envelope: Envelope,
     /// The axis along which the scroll view scrolls.
-    pub scroll_direction: Option<Axis>,
+    pub scroll_direction: Option<Reactive<Axis>>,
     /// Whether the scroll view scrolls in the reading direction.
-    pub reverse: Option<bool>,
+    pub reverse: Option<Reactive<bool>>,
     /// The amount of space by which to inset the child.
-    pub padding: Option<EdgeInsets>,
+    pub padding: Option<Reactive<EdgeInsets>>,
     /// Whether this is the primary scroll view associated with the parent \[PrimaryScrollController\].
-    pub primary: Option<bool>,
+    pub primary: Option<Reactive<bool>>,
     /// How the scroll view should respond to user input.
-    pub physics: Option<ScrollPhysics>,
+    pub physics: Option<Reactive<ScrollPhysics>>,
     /// The widget that scrolls.
     pub child: Option<Widget>,
     /// Determines the way that drag start behavior is handled.
-    pub drag_start_behavior: Option<DragStartBehavior>,
-    pub clip_behavior: Option<Clip>,
+    pub drag_start_behavior: Option<Reactive<DragStartBehavior>>,
+    pub clip_behavior: Option<Reactive<Clip>>,
     pub restoration_id: Option<Dyn<String>>,
-    pub keyboard_dismiss_behavior: Option<ScrollViewKeyboardDismissBehavior>,
+    pub keyboard_dismiss_behavior: Option<Reactive<ScrollViewKeyboardDismissBehavior>>,
 }
 
 impl SingleChildScrollView {
@@ -40,6 +45,7 @@ impl SingleChildScrollView {
     /// Creates the model with only its required fields set.
     pub fn new() -> Self {
         Self {
+            envelope: Envelope::new(),
             scroll_direction: None,
             reverse: None,
             padding: None,
@@ -54,32 +60,32 @@ impl SingleChildScrollView {
     }
 
     /// The axis along which the scroll view scrolls.
-    pub fn scroll_direction(mut self, value: impl Into<Axis>) -> Self {
-        self.scroll_direction = Some(value.into());
+    pub fn scroll_direction(mut self, value: impl IntoReactive<Axis>) -> Self {
+        self.scroll_direction = Some(value.into_reactive());
         self
     }
 
     /// Whether the scroll view scrolls in the reading direction.
-    pub fn reverse(mut self, value: bool) -> Self {
-        self.reverse = Some(value);
+    pub fn reverse(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.reverse = Some(value.into_reactive());
         self
     }
 
     /// The amount of space by which to inset the child.
-    pub fn padding(mut self, value: impl Into<EdgeInsets>) -> Self {
-        self.padding = Some(value.into());
+    pub fn padding(mut self, value: impl IntoReactive<EdgeInsets>) -> Self {
+        self.padding = Some(value.into_reactive());
         self
     }
 
     /// Whether this is the primary scroll view associated with the parent \[PrimaryScrollController\].
-    pub fn primary(mut self, value: bool) -> Self {
-        self.primary = Some(value);
+    pub fn primary(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.primary = Some(value.into_reactive());
         self
     }
 
     /// How the scroll view should respond to user input.
-    pub fn physics(mut self, value: impl Into<ScrollPhysics>) -> Self {
-        self.physics = Some(value.into());
+    pub fn physics(mut self, value: impl IntoReactive<ScrollPhysics>) -> Self {
+        self.physics = Some(value.into_reactive());
         self
     }
 
@@ -90,14 +96,14 @@ impl SingleChildScrollView {
     }
 
     /// Determines the way that drag start behavior is handled.
-    pub fn drag_start_behavior(mut self, value: impl Into<DragStartBehavior>) -> Self {
-        self.drag_start_behavior = Some(value.into());
+    pub fn drag_start_behavior(mut self, value: impl IntoReactive<DragStartBehavior>) -> Self {
+        self.drag_start_behavior = Some(value.into_reactive());
         self
     }
 
     /// Sets `clipBehavior`.
-    pub fn clip_behavior(mut self, value: impl Into<Clip>) -> Self {
-        self.clip_behavior = Some(value.into());
+    pub fn clip_behavior(mut self, value: impl IntoReactive<Clip>) -> Self {
+        self.clip_behavior = Some(value.into_reactive());
         self
     }
 
@@ -110,9 +116,45 @@ impl SingleChildScrollView {
     /// Sets `keyboardDismissBehavior`.
     pub fn keyboard_dismiss_behavior(
         mut self,
-        value: impl Into<ScrollViewKeyboardDismissBehavior>,
+        value: impl IntoReactive<ScrollViewKeyboardDismissBehavior>,
     ) -> Self {
-        self.keyboard_dismiss_behavior = Some(value.into());
+        self.keyboard_dismiss_behavior = Some(value.into_reactive());
+        self
+    }
+
+    /// Sets `visible` (envelope): a `bool`, a state path or an expression.
+    pub fn visible(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.visible(value);
+        self
+    }
+
+    /// Sets `enabled` (envelope): a `bool`, a state path or an expression.
+    pub fn enabled(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.enabled(value);
+        self
+    }
+
+    /// Sets `bind` (envelope): the state key the widget reads and writes.
+    pub fn bind(mut self, key: BindKey) -> Self {
+        self.envelope = self.envelope.bind(key);
+        self
+    }
+
+    /// Sets `state` (envelope): the screen state declared by this widget.
+    pub fn state(mut self, block: StateBlock) -> Self {
+        self.envelope = self.envelope.state(block);
+        self
+    }
+
+    /// Sets `globalState` (envelope): the global state declared by this widget.
+    pub fn global_state(mut self, block: GlobalStateBlock) -> Self {
+        self.envelope = self.envelope.global_state(block);
+        self
+    }
+
+    /// Sets `onInit` (envelope): action(s) run when the widget is first built.
+    pub fn on_init(mut self, on_init: impl Into<OnInit>) -> Self {
+        self.envelope = self.envelope.on_init(on_init);
         self
     }
 }
@@ -121,6 +163,7 @@ impl Serialize for SingleChildScrollView {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         let mut map = serializer.serialize_map(None)?;
         map.serialize_entry("type", "singleChildScrollView")?;
+        self.envelope.serialize_into(&mut map)?;
         if let Some(value) = &self.scroll_direction {
             map.serialize_entry("scrollDirection", value)?;
         }
@@ -157,10 +200,32 @@ impl Serialize for SingleChildScrollView {
 
 impl Validate for SingleChildScrollView {
     fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
+        self.envelope.validate_at(path, issues);
+        if let Some(value) = &self.scroll_direction {
+            value.validate_binding_at(&path.key("scrollDirection"), issues);
+        }
+        if let Some(value) = &self.reverse {
+            value.validate_binding_at(&path.key("reverse"), issues);
+        }
         self.padding.validate_at(&path.key("padding"), issues);
+        if let Some(value) = &self.primary {
+            value.validate_binding_at(&path.key("primary"), issues);
+        }
+        if let Some(value) = &self.physics {
+            value.validate_binding_at(&path.key("physics"), issues);
+        }
         self.child.validate_at(&path.key("child"), issues);
+        if let Some(value) = &self.drag_start_behavior {
+            value.validate_binding_at(&path.key("dragStartBehavior"), issues);
+        }
+        if let Some(value) = &self.clip_behavior {
+            value.validate_binding_at(&path.key("clipBehavior"), issues);
+        }
         self.restoration_id
             .validate_at(&path.key("restorationId"), issues);
+        if let Some(value) = &self.keyboard_dismiss_behavior {
+            value.validate_binding_at(&path.key("keyboardDismissBehavior"), issues);
+        }
     }
 }
 
@@ -168,6 +233,8 @@ impl StacNode for SingleChildScrollView {
     const KIND: NodeKind = NodeKind::Widget;
     const TYPE_NAME: &'static str = "singleChildScrollView";
 }
+
+impl Plain for SingleChildScrollView {}
 
 impl From<SingleChildScrollView> for Widget {
     fn from(value: SingleChildScrollView) -> Self {

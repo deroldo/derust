@@ -8,6 +8,9 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
@@ -15,9 +18,9 @@ use serde::ser::{Serialize, SerializeMap, Serializer};
 #[derive(Debug, Clone, PartialEq)]
 pub struct VisualDensity {
     /// The horizontal density adjustment. Negative values make the widget more compact horizontally.
-    pub horizontal: Option<f64>,
+    pub horizontal: Option<Reactive<f64>>,
     /// The vertical density adjustment. Negative values make the widget more compact vertically.
-    pub vertical: Option<f64>,
+    pub vertical: Option<Reactive<f64>>,
 }
 
 impl VisualDensity {
@@ -30,14 +33,14 @@ impl VisualDensity {
     }
 
     /// The horizontal density adjustment. Negative values make the widget more compact horizontally.
-    pub fn horizontal(mut self, value: impl Into<f64>) -> Self {
-        self.horizontal = Some(value.into());
+    pub fn horizontal(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.horizontal = Some(value.into_reactive());
         self
     }
 
     /// The vertical density adjustment. Negative values make the widget more compact vertically.
-    pub fn vertical(mut self, value: impl Into<f64>) -> Self {
-        self.vertical = Some(value.into());
+    pub fn vertical(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.vertical = Some(value.into_reactive());
         self
     }
 }
@@ -61,3 +64,5 @@ impl Validate for VisualDensity {
         self.vertical.validate_at(&path.key("vertical"), issues);
     }
 }
+
+impl Plain for VisualDensity {}

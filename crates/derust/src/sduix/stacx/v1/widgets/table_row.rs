@@ -8,6 +8,9 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
@@ -15,7 +18,7 @@ use serde::ser::{Serialize, SerializeMap, Serializer};
 #[derive(Debug, Clone, PartialEq)]
 pub struct TableRow {
     /// Optional background decoration for the row.
-    pub decoration: Option<Box<BoxDecoration>>,
+    pub decoration: Option<Reactive<Box<BoxDecoration>>>,
     /// Widgets contained in this row.
     pub children: Option<Vec<Widget>>,
 }
@@ -30,8 +33,8 @@ impl TableRow {
     }
 
     /// Optional background decoration for the row.
-    pub fn decoration(mut self, value: impl Into<BoxDecoration>) -> Self {
-        self.decoration = Some(Box::new(value.into()));
+    pub fn decoration(mut self, value: impl IntoReactive<BoxDecoration>) -> Self {
+        self.decoration = Some(value.into_reactive().boxed());
         self
     }
 
@@ -61,3 +64,5 @@ impl Validate for TableRow {
         self.children.validate_at(&path.key("children"), issues);
     }
 }
+
+impl Plain for TableRow {}

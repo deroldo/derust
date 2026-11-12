@@ -8,22 +8,27 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
 /// A Stac model representing Flutter's Material 3 \[NavigationBar\].
 #[derive(Debug, Clone, PartialEq)]
 pub struct NavigationBar {
+    /// Properties common to every widget (`visible`, `enabled`, `bind`, `state`, `globalState`, `onInit`).
+    pub envelope: Envelope,
     /// The destinations shown in the navigation bar.
-    pub destinations: Vec<NavigationDestination>,
+    pub destinations: Reactive<Vec<NavigationDestination>>,
     /// Transition time for each destination as it goes between selected and unselected.
-    pub animation_duration: Option<Duration>,
+    pub animation_duration: Option<Reactive<Duration>>,
     /// The initial selected destination index. Ignored when a \[StacDefaultNavigationController\] is provided.
-    pub selected_index: Option<i64>,
+    pub selected_index: Option<Reactive<i64>>,
     /// The color of the \[NavigationBar\] itself.
     pub background_color: Option<Dyn<String>>,
     /// The elevation of the navigation bar.
-    pub elevation: Option<f64>,
+    pub elevation: Option<Reactive<f64>>,
     /// The color used for the drop shadow to indicate elevation.
     pub shadow_color: Option<Dyn<String>>,
     /// The color used as an overlay on \[backgroundColor\] to indicate elevation.
@@ -31,17 +36,17 @@ pub struct NavigationBar {
     /// The color of the selected destination's indicator.
     pub indicator_color: Option<Dyn<String>>,
     /// The shape of the selected destination's indicator.
-    pub indicator_shape: Option<Box<Border>>,
+    pub indicator_shape: Option<Reactive<Box<Border>>>,
     /// The height of the navigation bar.
-    pub height: Option<f64>,
+    pub height: Option<Reactive<f64>>,
     /// Defines how destination labels are laid out and when they are displayed.
-    pub label_behavior: Option<NavigationDestinationLabelBehavior>,
+    pub label_behavior: Option<Reactive<NavigationDestinationLabelBehavior>>,
     /// The text style for destination labels.
-    pub label_text_style: Option<TextStyle>,
+    pub label_text_style: Option<Reactive<TextStyle>>,
     /// The padding around each destination's label widget.
-    pub label_padding: Option<EdgeInsets>,
+    pub label_padding: Option<Reactive<EdgeInsets>>,
     /// Whether the underlying \[SafeArea\] should maintain the bottom `viewPadding` instead of the bottom `padding`.
-    pub maintain_bottom_view_padding: Option<bool>,
+    pub maintain_bottom_view_padding: Option<Reactive<bool>>,
 }
 
 impl NavigationBar {
@@ -49,9 +54,10 @@ impl NavigationBar {
     pub const TYPE: &'static str = "navigationBar";
 
     /// Creates the model with only its required fields set.
-    pub fn new(destinations: impl IntoIterator<Item = impl Into<NavigationDestination>>) -> Self {
+    pub fn new(destinations: impl IntoReactive<Vec<NavigationDestination>>) -> Self {
         Self {
-            destinations: destinations.into_iter().map(Into::into).collect(),
+            envelope: Envelope::new(),
+            destinations: destinations.into_reactive(),
             animation_duration: None,
             selected_index: None,
             background_color: None,
@@ -69,23 +75,20 @@ impl NavigationBar {
     }
 
     /// The destinations shown in the navigation bar.
-    pub fn destinations(
-        mut self,
-        value: impl IntoIterator<Item = impl Into<NavigationDestination>>,
-    ) -> Self {
-        self.destinations = value.into_iter().map(Into::into).collect();
+    pub fn destinations(mut self, value: impl IntoReactive<Vec<NavigationDestination>>) -> Self {
+        self.destinations = value.into_reactive();
         self
     }
 
     /// Transition time for each destination as it goes between selected and unselected.
-    pub fn animation_duration(mut self, value: impl Into<Duration>) -> Self {
-        self.animation_duration = Some(value.into());
+    pub fn animation_duration(mut self, value: impl IntoReactive<Duration>) -> Self {
+        self.animation_duration = Some(value.into_reactive());
         self
     }
 
     /// The initial selected destination index. Ignored when a \[StacDefaultNavigationController\] is provided.
-    pub fn selected_index(mut self, value: impl Into<i64>) -> Self {
-        self.selected_index = Some(value.into());
+    pub fn selected_index(mut self, value: impl IntoReactive<i64>) -> Self {
+        self.selected_index = Some(value.into_reactive());
         self
     }
 
@@ -96,8 +99,8 @@ impl NavigationBar {
     }
 
     /// The elevation of the navigation bar.
-    pub fn elevation(mut self, value: impl Into<f64>) -> Self {
-        self.elevation = Some(value.into());
+    pub fn elevation(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.elevation = Some(value.into_reactive());
         self
     }
 
@@ -120,38 +123,77 @@ impl NavigationBar {
     }
 
     /// The shape of the selected destination's indicator.
-    pub fn indicator_shape(mut self, value: impl Into<Border>) -> Self {
-        self.indicator_shape = Some(Box::new(value.into()));
+    pub fn indicator_shape(mut self, value: impl IntoReactive<Border>) -> Self {
+        self.indicator_shape = Some(value.into_reactive().boxed());
         self
     }
 
     /// The height of the navigation bar.
-    pub fn height(mut self, value: impl Into<f64>) -> Self {
-        self.height = Some(value.into());
+    pub fn height(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.height = Some(value.into_reactive());
         self
     }
 
     /// Defines how destination labels are laid out and when they are displayed.
-    pub fn label_behavior(mut self, value: impl Into<NavigationDestinationLabelBehavior>) -> Self {
-        self.label_behavior = Some(value.into());
+    pub fn label_behavior(
+        mut self,
+        value: impl IntoReactive<NavigationDestinationLabelBehavior>,
+    ) -> Self {
+        self.label_behavior = Some(value.into_reactive());
         self
     }
 
     /// The text style for destination labels.
-    pub fn label_text_style(mut self, value: impl Into<TextStyle>) -> Self {
-        self.label_text_style = Some(value.into());
+    pub fn label_text_style(mut self, value: impl IntoReactive<TextStyle>) -> Self {
+        self.label_text_style = Some(value.into_reactive());
         self
     }
 
     /// The padding around each destination's label widget.
-    pub fn label_padding(mut self, value: impl Into<EdgeInsets>) -> Self {
-        self.label_padding = Some(value.into());
+    pub fn label_padding(mut self, value: impl IntoReactive<EdgeInsets>) -> Self {
+        self.label_padding = Some(value.into_reactive());
         self
     }
 
     /// Whether the underlying \[SafeArea\] should maintain the bottom `viewPadding` instead of the bottom `padding`.
-    pub fn maintain_bottom_view_padding(mut self, value: bool) -> Self {
-        self.maintain_bottom_view_padding = Some(value);
+    pub fn maintain_bottom_view_padding(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.maintain_bottom_view_padding = Some(value.into_reactive());
+        self
+    }
+
+    /// Sets `visible` (envelope): a `bool`, a state path or an expression.
+    pub fn visible(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.visible(value);
+        self
+    }
+
+    /// Sets `enabled` (envelope): a `bool`, a state path or an expression.
+    pub fn enabled(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.enabled(value);
+        self
+    }
+
+    /// Sets `bind` (envelope): the state key the widget reads and writes.
+    pub fn bind(mut self, key: BindKey) -> Self {
+        self.envelope = self.envelope.bind(key);
+        self
+    }
+
+    /// Sets `state` (envelope): the screen state declared by this widget.
+    pub fn state(mut self, block: StateBlock) -> Self {
+        self.envelope = self.envelope.state(block);
+        self
+    }
+
+    /// Sets `globalState` (envelope): the global state declared by this widget.
+    pub fn global_state(mut self, block: GlobalStateBlock) -> Self {
+        self.envelope = self.envelope.global_state(block);
+        self
+    }
+
+    /// Sets `onInit` (envelope): action(s) run when the widget is first built.
+    pub fn on_init(mut self, on_init: impl Into<OnInit>) -> Self {
+        self.envelope = self.envelope.on_init(on_init);
         self
     }
 }
@@ -160,6 +202,7 @@ impl Serialize for NavigationBar {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         let mut map = serializer.serialize_map(None)?;
         map.serialize_entry("type", "navigationBar")?;
+        self.envelope.serialize_into(&mut map)?;
         map.serialize_entry("destinations", &self.destinations)?;
         if let Some(value) = &self.animation_duration {
             map.serialize_entry("animationDuration", value)?;
@@ -206,10 +249,14 @@ impl Serialize for NavigationBar {
 
 impl Validate for NavigationBar {
     fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
+        self.envelope.validate_at(path, issues);
         self.destinations
             .validate_at(&path.key("destinations"), issues);
         self.animation_duration
             .validate_at(&path.key("animationDuration"), issues);
+        if let Some(value) = &self.selected_index {
+            value.validate_binding_at(&path.key("selectedIndex"), issues);
+        }
         self.background_color
             .validate_at(&path.key("backgroundColor"), issues);
         self.elevation.validate_at(&path.key("elevation"), issues);
@@ -222,10 +269,16 @@ impl Validate for NavigationBar {
         self.indicator_shape
             .validate_at(&path.key("indicatorShape"), issues);
         self.height.validate_at(&path.key("height"), issues);
+        if let Some(value) = &self.label_behavior {
+            value.validate_binding_at(&path.key("labelBehavior"), issues);
+        }
         self.label_text_style
             .validate_at(&path.key("labelTextStyle"), issues);
         self.label_padding
             .validate_at(&path.key("labelPadding"), issues);
+        if let Some(value) = &self.maintain_bottom_view_padding {
+            value.validate_binding_at(&path.key("maintainBottomViewPadding"), issues);
+        }
     }
 }
 
@@ -233,6 +286,8 @@ impl StacNode for NavigationBar {
     const KIND: NodeKind = NodeKind::Widget;
     const TYPE_NAME: &'static str = "navigationBar";
 }
+
+impl Plain for NavigationBar {}
 
 impl From<NavigationBar> for Widget {
     fn from(value: NavigationBar) -> Self {

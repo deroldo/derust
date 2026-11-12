@@ -8,24 +8,29 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
 /// A Stac widget that controls where a child of a Stack is positioned.
 #[derive(Debug, Clone, PartialEq)]
 pub struct Positioned {
+    /// Properties common to every widget (`visible`, `enabled`, `bind`, `state`, `globalState`, `onInit`).
+    pub envelope: Envelope,
     /// The distance from the left edge of the stack.
-    pub left: Option<f64>,
+    pub left: Option<Reactive<f64>>,
     /// The distance from the top edge of the stack.
-    pub top: Option<f64>,
+    pub top: Option<Reactive<f64>>,
     /// The distance from the right edge of the stack.
-    pub right: Option<f64>,
+    pub right: Option<Reactive<f64>>,
     /// The distance from the bottom edge of the stack.
-    pub bottom: Option<f64>,
+    pub bottom: Option<Reactive<f64>>,
     /// The width of the positioned widget.
-    pub width: Option<f64>,
+    pub width: Option<Reactive<f64>>,
     /// The height of the positioned widget.
-    pub height: Option<f64>,
+    pub height: Option<Reactive<f64>>,
     /// The widget to position within the stack.
     pub child: Option<Widget>,
 }
@@ -37,6 +42,7 @@ impl Positioned {
     /// Creates the model with only its required fields set.
     pub fn new() -> Self {
         Self {
+            envelope: Envelope::new(),
             left: None,
             top: None,
             right: None,
@@ -48,38 +54,38 @@ impl Positioned {
     }
 
     /// The distance from the left edge of the stack.
-    pub fn left(mut self, value: impl Into<f64>) -> Self {
-        self.left = Some(value.into());
+    pub fn left(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.left = Some(value.into_reactive());
         self
     }
 
     /// The distance from the top edge of the stack.
-    pub fn top(mut self, value: impl Into<f64>) -> Self {
-        self.top = Some(value.into());
+    pub fn top(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.top = Some(value.into_reactive());
         self
     }
 
     /// The distance from the right edge of the stack.
-    pub fn right(mut self, value: impl Into<f64>) -> Self {
-        self.right = Some(value.into());
+    pub fn right(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.right = Some(value.into_reactive());
         self
     }
 
     /// The distance from the bottom edge of the stack.
-    pub fn bottom(mut self, value: impl Into<f64>) -> Self {
-        self.bottom = Some(value.into());
+    pub fn bottom(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.bottom = Some(value.into_reactive());
         self
     }
 
     /// The width of the positioned widget.
-    pub fn width(mut self, value: impl Into<f64>) -> Self {
-        self.width = Some(value.into());
+    pub fn width(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.width = Some(value.into_reactive());
         self
     }
 
     /// The height of the positioned widget.
-    pub fn height(mut self, value: impl Into<f64>) -> Self {
-        self.height = Some(value.into());
+    pub fn height(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.height = Some(value.into_reactive());
         self
     }
 
@@ -88,12 +94,49 @@ impl Positioned {
         self.child = Some(value.into());
         self
     }
+
+    /// Sets `visible` (envelope): a `bool`, a state path or an expression.
+    pub fn visible(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.visible(value);
+        self
+    }
+
+    /// Sets `enabled` (envelope): a `bool`, a state path or an expression.
+    pub fn enabled(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.enabled(value);
+        self
+    }
+
+    /// Sets `bind` (envelope): the state key the widget reads and writes.
+    pub fn bind(mut self, key: BindKey) -> Self {
+        self.envelope = self.envelope.bind(key);
+        self
+    }
+
+    /// Sets `state` (envelope): the screen state declared by this widget.
+    pub fn state(mut self, block: StateBlock) -> Self {
+        self.envelope = self.envelope.state(block);
+        self
+    }
+
+    /// Sets `globalState` (envelope): the global state declared by this widget.
+    pub fn global_state(mut self, block: GlobalStateBlock) -> Self {
+        self.envelope = self.envelope.global_state(block);
+        self
+    }
+
+    /// Sets `onInit` (envelope): action(s) run when the widget is first built.
+    pub fn on_init(mut self, on_init: impl Into<OnInit>) -> Self {
+        self.envelope = self.envelope.on_init(on_init);
+        self
+    }
 }
 
 impl Serialize for Positioned {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         let mut map = serializer.serialize_map(None)?;
         map.serialize_entry("type", "positioned")?;
+        self.envelope.serialize_into(&mut map)?;
         if let Some(value) = &self.left {
             map.serialize_entry("left", value)?;
         }
@@ -121,6 +164,7 @@ impl Serialize for Positioned {
 
 impl Validate for Positioned {
     fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
+        self.envelope.validate_at(path, issues);
         self.left.validate_at(&path.key("left"), issues);
         self.top.validate_at(&path.key("top"), issues);
         self.right.validate_at(&path.key("right"), issues);
@@ -135,6 +179,8 @@ impl StacNode for Positioned {
     const KIND: NodeKind = NodeKind::Widget;
     const TYPE_NAME: &'static str = "positioned";
 }
+
+impl Plain for Positioned {}
 
 impl From<Positioned> for Widget {
     fn from(value: Positioned) -> Self {

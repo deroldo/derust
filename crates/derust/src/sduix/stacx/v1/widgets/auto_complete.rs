@@ -8,20 +8,25 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
 /// A Stac model representing Flutter's \[Autocomplete\] widget.
 #[derive(Debug, Clone, PartialEq)]
 pub struct AutoComplete {
+    /// Properties common to every widget (`visible`, `enabled`, `bind`, `state`, `globalState`, `onInit`).
+    pub envelope: Envelope,
     /// The list of options available for selection.
-    pub options: Vec<String>,
+    pub options: Reactive<Vec<String>>,
     /// The callback that is called when an option is selected.
     pub on_selected: Option<Action>,
     /// The maximum height of the options list. Defaults to 200 in Flutter's \[Autocomplete\].
-    pub options_max_height: Option<f64>,
+    pub options_max_height: Option<Reactive<f64>>,
     /// The direction in which the options view opens. Defaults to \[StacOptionsViewOpenDirection.down\].
-    pub options_view_open_direction: Option<OptionsViewOpenDirection>,
+    pub options_view_open_direction: Option<Reactive<OptionsViewOpenDirection>>,
     /// The initial value of the autocomplete field.
     pub initial_value: Option<Dyn<String>>,
 }
@@ -31,9 +36,10 @@ impl AutoComplete {
     pub const TYPE: &'static str = "autocomplete";
 
     /// Creates the model with only its required fields set.
-    pub fn new(options: impl IntoIterator<Item = impl Into<String>>) -> Self {
+    pub fn new(options: impl IntoReactive<Vec<String>>) -> Self {
         Self {
-            options: options.into_iter().map(Into::into).collect(),
+            envelope: Envelope::new(),
+            options: options.into_reactive(),
             on_selected: None,
             options_max_height: None,
             options_view_open_direction: None,
@@ -42,8 +48,8 @@ impl AutoComplete {
     }
 
     /// The list of options available for selection.
-    pub fn options(mut self, value: impl IntoIterator<Item = impl Into<String>>) -> Self {
-        self.options = value.into_iter().map(Into::into).collect();
+    pub fn options(mut self, value: impl IntoReactive<Vec<String>>) -> Self {
+        self.options = value.into_reactive();
         self
     }
 
@@ -54,17 +60,17 @@ impl AutoComplete {
     }
 
     /// The maximum height of the options list. Defaults to 200 in Flutter's \[Autocomplete\].
-    pub fn options_max_height(mut self, value: impl Into<f64>) -> Self {
-        self.options_max_height = Some(value.into());
+    pub fn options_max_height(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.options_max_height = Some(value.into_reactive());
         self
     }
 
     /// The direction in which the options view opens. Defaults to \[StacOptionsViewOpenDirection.down\].
     pub fn options_view_open_direction(
         mut self,
-        value: impl Into<OptionsViewOpenDirection>,
+        value: impl IntoReactive<OptionsViewOpenDirection>,
     ) -> Self {
-        self.options_view_open_direction = Some(value.into());
+        self.options_view_open_direction = Some(value.into_reactive());
         self
     }
 
@@ -73,12 +79,49 @@ impl AutoComplete {
         self.initial_value = Some(value.into());
         self
     }
+
+    /// Sets `visible` (envelope): a `bool`, a state path or an expression.
+    pub fn visible(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.visible(value);
+        self
+    }
+
+    /// Sets `enabled` (envelope): a `bool`, a state path or an expression.
+    pub fn enabled(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.enabled(value);
+        self
+    }
+
+    /// Sets `bind` (envelope): the state key the widget reads and writes.
+    pub fn bind(mut self, key: BindKey) -> Self {
+        self.envelope = self.envelope.bind(key);
+        self
+    }
+
+    /// Sets `state` (envelope): the screen state declared by this widget.
+    pub fn state(mut self, block: StateBlock) -> Self {
+        self.envelope = self.envelope.state(block);
+        self
+    }
+
+    /// Sets `globalState` (envelope): the global state declared by this widget.
+    pub fn global_state(mut self, block: GlobalStateBlock) -> Self {
+        self.envelope = self.envelope.global_state(block);
+        self
+    }
+
+    /// Sets `onInit` (envelope): action(s) run when the widget is first built.
+    pub fn on_init(mut self, on_init: impl Into<OnInit>) -> Self {
+        self.envelope = self.envelope.on_init(on_init);
+        self
+    }
 }
 
 impl Serialize for AutoComplete {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         let mut map = serializer.serialize_map(None)?;
         map.serialize_entry("type", "autocomplete")?;
+        self.envelope.serialize_into(&mut map)?;
         map.serialize_entry("options", &self.options)?;
         if let Some(value) = &self.on_selected {
             map.serialize_entry("onSelected", value)?;
@@ -98,10 +141,16 @@ impl Serialize for AutoComplete {
 
 impl Validate for AutoComplete {
     fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
+        self.envelope.validate_at(path, issues);
+        self.options
+            .validate_binding_at(&path.key("options"), issues);
         self.on_selected
             .validate_at(&path.key("onSelected"), issues);
         self.options_max_height
             .validate_at(&path.key("optionsMaxHeight"), issues);
+        if let Some(value) = &self.options_view_open_direction {
+            value.validate_binding_at(&path.key("optionsViewOpenDirection"), issues);
+        }
         self.initial_value
             .validate_at(&path.key("initialValue"), issues);
     }
@@ -111,6 +160,8 @@ impl StacNode for AutoComplete {
     const KIND: NodeKind = NodeKind::Widget;
     const TYPE_NAME: &'static str = "autocomplete";
 }
+
+impl Plain for AutoComplete {}
 
 impl From<AutoComplete> for Widget {
     fn from(value: AutoComplete) -> Self {

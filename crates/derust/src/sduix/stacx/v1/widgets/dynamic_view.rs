@@ -8,14 +8,19 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
 /// A Stac model for dynamically fetching data and rendering it using a template.
 #[derive(Debug, Clone, PartialEq)]
 pub struct DynamicView {
+    /// Properties common to every widget (`visible`, `enabled`, `bind`, `state`, `globalState`, `onInit`).
+    pub envelope: Envelope,
     /// Configuration for the network request to fetch data.
-    pub request: Box<NetworkRequest>,
+    pub request: Reactive<Box<NetworkRequest>>,
     /// Path within the fetched JSON data to find the actual content to be rendered.
     pub target_path: Option<Dyn<String>>,
     /// The StacWidget template used to render the fetched data.
@@ -35,9 +40,10 @@ impl DynamicView {
     pub const TYPE: &'static str = "dynamicView";
 
     /// Creates the model with only its required fields set.
-    pub fn new(request: impl Into<NetworkRequest>) -> Self {
+    pub fn new(request: impl IntoReactive<NetworkRequest>) -> Self {
         Self {
-            request: Box::new(request.into()),
+            envelope: Envelope::new(),
+            request: request.into_reactive().boxed(),
             target_path: None,
             template: None,
             result_target: None,
@@ -48,8 +54,8 @@ impl DynamicView {
     }
 
     /// Configuration for the network request to fetch data.
-    pub fn request(mut self, value: impl Into<NetworkRequest>) -> Self {
-        self.request = Box::new(value.into());
+    pub fn request(mut self, value: impl IntoReactive<NetworkRequest>) -> Self {
+        self.request = value.into_reactive().boxed();
         self
     }
 
@@ -88,12 +94,49 @@ impl DynamicView {
         self.error_widget = Some(value.into());
         self
     }
+
+    /// Sets `visible` (envelope): a `bool`, a state path or an expression.
+    pub fn visible(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.visible(value);
+        self
+    }
+
+    /// Sets `enabled` (envelope): a `bool`, a state path or an expression.
+    pub fn enabled(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.enabled(value);
+        self
+    }
+
+    /// Sets `bind` (envelope): the state key the widget reads and writes.
+    pub fn bind(mut self, key: BindKey) -> Self {
+        self.envelope = self.envelope.bind(key);
+        self
+    }
+
+    /// Sets `state` (envelope): the screen state declared by this widget.
+    pub fn state(mut self, block: StateBlock) -> Self {
+        self.envelope = self.envelope.state(block);
+        self
+    }
+
+    /// Sets `globalState` (envelope): the global state declared by this widget.
+    pub fn global_state(mut self, block: GlobalStateBlock) -> Self {
+        self.envelope = self.envelope.global_state(block);
+        self
+    }
+
+    /// Sets `onInit` (envelope): action(s) run when the widget is first built.
+    pub fn on_init(mut self, on_init: impl Into<OnInit>) -> Self {
+        self.envelope = self.envelope.on_init(on_init);
+        self
+    }
 }
 
 impl Serialize for DynamicView {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         let mut map = serializer.serialize_map(None)?;
         map.serialize_entry("type", "dynamicView")?;
+        self.envelope.serialize_into(&mut map)?;
         map.serialize_entry("request", &self.request)?;
         if let Some(value) = &self.target_path {
             map.serialize_entry("targetPath", value)?;
@@ -119,6 +162,7 @@ impl Serialize for DynamicView {
 
 impl Validate for DynamicView {
     fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
+        self.envelope.validate_at(path, issues);
         self.request.validate_at(&path.key("request"), issues);
         self.target_path
             .validate_at(&path.key("targetPath"), issues);
@@ -138,6 +182,8 @@ impl StacNode for DynamicView {
     const KIND: NodeKind = NodeKind::Widget;
     const TYPE_NAME: &'static str = "dynamicView";
 }
+
+impl Plain for DynamicView {}
 
 impl From<DynamicView> for Widget {
     fn from(value: DynamicView) -> Self {

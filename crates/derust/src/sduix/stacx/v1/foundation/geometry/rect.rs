@@ -8,6 +8,9 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
@@ -15,34 +18,34 @@ use serde::ser::{Serialize, SerializeMap, Serializer};
 #[derive(Debug, Clone, PartialEq)]
 pub struct Rect {
     /// The method used to construct this rectangle.
-    pub rect_type: RectType,
+    pub rect_type: Reactive<RectType>,
     /// The left coordinate (used with fromLTRB, fromLTWH).
-    pub left: Option<f64>,
+    pub left: Option<Reactive<f64>>,
     /// The top coordinate (used with fromLTRB, fromLTWH).
-    pub top: Option<f64>,
+    pub top: Option<Reactive<f64>>,
     /// The right coordinate (used with fromLTRB).
-    pub right: Option<f64>,
+    pub right: Option<Reactive<f64>>,
     /// The bottom coordinate (used with fromLTRB).
-    pub bottom: Option<f64>,
+    pub bottom: Option<Reactive<f64>>,
     /// The width (used with fromLTWH, fromCenter).
-    pub width: Option<f64>,
+    pub width: Option<Reactive<f64>>,
     /// The height (used with fromLTWH, fromCenter).
-    pub height: Option<f64>,
+    pub height: Option<Reactive<f64>>,
     /// The center point (used with fromCenter, fromCircle).
-    pub center: Option<Offset>,
+    pub center: Option<Reactive<Offset>>,
     /// The radius (used with fromCircle).
-    pub radius: Option<f64>,
+    pub radius: Option<Reactive<f64>>,
     /// The first corner point (used with fromPoints).
-    pub a: Option<Offset>,
+    pub a: Option<Reactive<Offset>>,
     /// The second corner point (used with fromPoints).
-    pub b: Option<Offset>,
+    pub b: Option<Reactive<Offset>>,
 }
 
 impl Rect {
     /// Creates the model with only its required fields set.
-    pub fn new(rect_type: impl Into<RectType>) -> Self {
+    pub fn new(rect_type: impl IntoReactive<RectType>) -> Self {
         Self {
-            rect_type: rect_type.into(),
+            rect_type: rect_type.into_reactive(),
             left: None,
             top: None,
             right: None,
@@ -57,68 +60,68 @@ impl Rect {
     }
 
     /// The method used to construct this rectangle.
-    pub fn rect_type(mut self, value: impl Into<RectType>) -> Self {
-        self.rect_type = value.into();
+    pub fn rect_type(mut self, value: impl IntoReactive<RectType>) -> Self {
+        self.rect_type = value.into_reactive();
         self
     }
 
     /// The left coordinate (used with fromLTRB, fromLTWH).
-    pub fn left(mut self, value: impl Into<f64>) -> Self {
-        self.left = Some(value.into());
+    pub fn left(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.left = Some(value.into_reactive());
         self
     }
 
     /// The top coordinate (used with fromLTRB, fromLTWH).
-    pub fn top(mut self, value: impl Into<f64>) -> Self {
-        self.top = Some(value.into());
+    pub fn top(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.top = Some(value.into_reactive());
         self
     }
 
     /// The right coordinate (used with fromLTRB).
-    pub fn right(mut self, value: impl Into<f64>) -> Self {
-        self.right = Some(value.into());
+    pub fn right(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.right = Some(value.into_reactive());
         self
     }
 
     /// The bottom coordinate (used with fromLTRB).
-    pub fn bottom(mut self, value: impl Into<f64>) -> Self {
-        self.bottom = Some(value.into());
+    pub fn bottom(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.bottom = Some(value.into_reactive());
         self
     }
 
     /// The width (used with fromLTWH, fromCenter).
-    pub fn width(mut self, value: impl Into<f64>) -> Self {
-        self.width = Some(value.into());
+    pub fn width(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.width = Some(value.into_reactive());
         self
     }
 
     /// The height (used with fromLTWH, fromCenter).
-    pub fn height(mut self, value: impl Into<f64>) -> Self {
-        self.height = Some(value.into());
+    pub fn height(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.height = Some(value.into_reactive());
         self
     }
 
     /// The center point (used with fromCenter, fromCircle).
-    pub fn center(mut self, value: impl Into<Offset>) -> Self {
-        self.center = Some(value.into());
+    pub fn center(mut self, value: impl IntoReactive<Offset>) -> Self {
+        self.center = Some(value.into_reactive());
         self
     }
 
     /// The radius (used with fromCircle).
-    pub fn radius(mut self, value: impl Into<f64>) -> Self {
-        self.radius = Some(value.into());
+    pub fn radius(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.radius = Some(value.into_reactive());
         self
     }
 
     /// The first corner point (used with fromPoints).
-    pub fn a(mut self, value: impl Into<Offset>) -> Self {
-        self.a = Some(value.into());
+    pub fn a(mut self, value: impl IntoReactive<Offset>) -> Self {
+        self.a = Some(value.into_reactive());
         self
     }
 
     /// The second corner point (used with fromPoints).
-    pub fn b(mut self, value: impl Into<Offset>) -> Self {
-        self.b = Some(value.into());
+    pub fn b(mut self, value: impl IntoReactive<Offset>) -> Self {
+        self.b = Some(value.into_reactive());
         self
     }
 }
@@ -163,6 +166,8 @@ impl Serialize for Rect {
 
 impl Validate for Rect {
     fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
+        self.rect_type
+            .validate_binding_at(&path.key("rectType"), issues);
         self.left.validate_at(&path.key("left"), issues);
         self.top.validate_at(&path.key("top"), issues);
         self.right.validate_at(&path.key("right"), issues);
@@ -175,3 +180,5 @@ impl Validate for Rect {
         self.b.validate_at(&path.key("b"), issues);
     }
 }
+
+impl Plain for Rect {}

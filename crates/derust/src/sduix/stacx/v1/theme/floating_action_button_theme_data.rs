@@ -8,6 +8,9 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
@@ -25,29 +28,29 @@ pub struct FloatingActionButtonThemeData {
     /// The splash color for the floating action button.
     pub splash_color: Option<Dyn<String>>,
     /// The z-coordinate at which to place this floating action button relative to its parent.
-    pub elevation: Option<f64>,
+    pub elevation: Option<Reactive<f64>>,
     /// The z-coordinate at which to place this floating action button when it has focus.
-    pub focus_elevation: Option<f64>,
+    pub focus_elevation: Option<Reactive<f64>>,
     /// The z-coordinate at which to place this floating action button when it's being hovered over.
-    pub hover_elevation: Option<f64>,
+    pub hover_elevation: Option<Reactive<f64>>,
     /// The z-coordinate at which to place this floating action button when it's disabled.
-    pub disabled_elevation: Option<f64>,
+    pub disabled_elevation: Option<Reactive<f64>>,
     /// The z-coordinate at which to place this floating action button when it's highlighted.
-    pub highlight_elevation: Option<f64>,
+    pub highlight_elevation: Option<Reactive<f64>>,
     /// The shape of this button's \[Material\].
-    pub shape: Option<ShapeBorder>,
+    pub shape: Option<Reactive<ShapeBorder>>,
     /// Whether detected gestures should provide acoustic and/or haptic feedback.
-    pub enable_feedback: Option<bool>,
+    pub enable_feedback: Option<Reactive<bool>>,
     /// The size of the floating action button's icon.
-    pub icon_size: Option<f64>,
+    pub icon_size: Option<Reactive<f64>>,
     /// Layout constraints for the regular-size floating action button.
-    pub size_constraints: Option<BoxConstraints>,
+    pub size_constraints: Option<Reactive<BoxConstraints>>,
     /// The spacing between the icon and label in an extended floating action button.
-    pub extended_icon_label_spacing: Option<f64>,
+    pub extended_icon_label_spacing: Option<Reactive<f64>>,
     /// The padding for an extended floating action button.
-    pub extended_padding: Option<EdgeInsets>,
+    pub extended_padding: Option<Reactive<EdgeInsets>>,
     /// The text style for an extended floating action button's label.
-    pub extended_text_style: Option<TextStyle>,
+    pub extended_text_style: Option<Reactive<TextStyle>>,
 }
 
 impl FloatingActionButtonThemeData {
@@ -105,74 +108,74 @@ impl FloatingActionButtonThemeData {
     }
 
     /// The z-coordinate at which to place this floating action button relative to its parent.
-    pub fn elevation(mut self, value: impl Into<f64>) -> Self {
-        self.elevation = Some(value.into());
+    pub fn elevation(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.elevation = Some(value.into_reactive());
         self
     }
 
     /// The z-coordinate at which to place this floating action button when it has focus.
-    pub fn focus_elevation(mut self, value: impl Into<f64>) -> Self {
-        self.focus_elevation = Some(value.into());
+    pub fn focus_elevation(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.focus_elevation = Some(value.into_reactive());
         self
     }
 
     /// The z-coordinate at which to place this floating action button when it's being hovered over.
-    pub fn hover_elevation(mut self, value: impl Into<f64>) -> Self {
-        self.hover_elevation = Some(value.into());
+    pub fn hover_elevation(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.hover_elevation = Some(value.into_reactive());
         self
     }
 
     /// The z-coordinate at which to place this floating action button when it's disabled.
-    pub fn disabled_elevation(mut self, value: impl Into<f64>) -> Self {
-        self.disabled_elevation = Some(value.into());
+    pub fn disabled_elevation(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.disabled_elevation = Some(value.into_reactive());
         self
     }
 
     /// The z-coordinate at which to place this floating action button when it's highlighted.
-    pub fn highlight_elevation(mut self, value: impl Into<f64>) -> Self {
-        self.highlight_elevation = Some(value.into());
+    pub fn highlight_elevation(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.highlight_elevation = Some(value.into_reactive());
         self
     }
 
     /// The shape of this button's \[Material\].
-    pub fn shape(mut self, value: impl Into<ShapeBorder>) -> Self {
-        self.shape = Some(value.into());
+    pub fn shape(mut self, value: impl IntoReactive<ShapeBorder>) -> Self {
+        self.shape = Some(value.into_reactive());
         self
     }
 
     /// Whether detected gestures should provide acoustic and/or haptic feedback.
-    pub fn enable_feedback(mut self, value: bool) -> Self {
-        self.enable_feedback = Some(value);
+    pub fn enable_feedback(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.enable_feedback = Some(value.into_reactive());
         self
     }
 
     /// The size of the floating action button's icon.
-    pub fn icon_size(mut self, value: impl Into<f64>) -> Self {
-        self.icon_size = Some(value.into());
+    pub fn icon_size(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.icon_size = Some(value.into_reactive());
         self
     }
 
     /// Layout constraints for the regular-size floating action button.
-    pub fn size_constraints(mut self, value: impl Into<BoxConstraints>) -> Self {
-        self.size_constraints = Some(value.into());
+    pub fn size_constraints(mut self, value: impl IntoReactive<BoxConstraints>) -> Self {
+        self.size_constraints = Some(value.into_reactive());
         self
     }
 
     /// The spacing between the icon and label in an extended floating action button.
-    pub fn extended_icon_label_spacing(mut self, value: impl Into<f64>) -> Self {
-        self.extended_icon_label_spacing = Some(value.into());
+    pub fn extended_icon_label_spacing(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.extended_icon_label_spacing = Some(value.into_reactive());
         self
     }
 
     /// The padding for an extended floating action button.
-    pub fn extended_padding(mut self, value: impl Into<EdgeInsets>) -> Self {
-        self.extended_padding = Some(value.into());
+    pub fn extended_padding(mut self, value: impl IntoReactive<EdgeInsets>) -> Self {
+        self.extended_padding = Some(value.into_reactive());
         self
     }
 
     /// The text style for an extended floating action button's label.
-    pub fn extended_text_style(mut self, value: impl Into<TextStyle>) -> Self {
-        self.extended_text_style = Some(value.into());
+    pub fn extended_text_style(mut self, value: impl IntoReactive<TextStyle>) -> Self {
+        self.extended_text_style = Some(value.into_reactive());
         self
     }
 }
@@ -257,6 +260,9 @@ impl Validate for FloatingActionButtonThemeData {
         self.highlight_elevation
             .validate_at(&path.key("highlightElevation"), issues);
         self.shape.validate_at(&path.key("shape"), issues);
+        if let Some(value) = &self.enable_feedback {
+            value.validate_binding_at(&path.key("enableFeedback"), issues);
+        }
         self.icon_size.validate_at(&path.key("iconSize"), issues);
         self.size_constraints
             .validate_at(&path.key("sizeConstraints"), issues);
@@ -268,3 +274,5 @@ impl Validate for FloatingActionButtonThemeData {
             .validate_at(&path.key("extendedTextStyle"), issues);
     }
 }
+
+impl Plain for FloatingActionButtonThemeData {}

@@ -8,6 +8,9 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
@@ -15,7 +18,7 @@ use serde::ser::{Serialize, SerializeMap, Serializer};
 #[derive(Debug, Clone, PartialEq)]
 pub struct CheckboxThemeData {
     /// The mouse cursor to use when hovering over the checkbox.
-    pub mouse_cursor: Option<MouseCursor>,
+    pub mouse_cursor: Option<Reactive<MouseCursor>>,
     /// The color to fill the checkbox with.
     pub fill_color: Option<Dyn<String>>,
     /// The color of the check icon.
@@ -23,15 +26,15 @@ pub struct CheckboxThemeData {
     /// The color of the overlay shown when the checkbox is pressed.
     pub overlay_color: Option<Dyn<String>>,
     /// The radius of the splash effect.
-    pub splash_radius: Option<f64>,
+    pub splash_radius: Option<Reactive<f64>>,
     /// The minimum size of the tap target.
-    pub material_tap_target_size: Option<MaterialTapTargetSize>,
+    pub material_tap_target_size: Option<Reactive<MaterialTapTargetSize>>,
     /// The visual density of the checkbox.
-    pub visual_density: Option<VisualDensity>,
+    pub visual_density: Option<Reactive<VisualDensity>>,
     /// The shape of the checkbox's border.
-    pub shape: Option<ShapeBorder>,
+    pub shape: Option<Reactive<ShapeBorder>>,
     /// The border side of the checkbox.
-    pub side: Option<BorderSide>,
+    pub side: Option<Reactive<BorderSide>>,
 }
 
 impl CheckboxThemeData {
@@ -51,8 +54,8 @@ impl CheckboxThemeData {
     }
 
     /// The mouse cursor to use when hovering over the checkbox.
-    pub fn mouse_cursor(mut self, value: impl Into<MouseCursor>) -> Self {
-        self.mouse_cursor = Some(value.into());
+    pub fn mouse_cursor(mut self, value: impl IntoReactive<MouseCursor>) -> Self {
+        self.mouse_cursor = Some(value.into_reactive());
         self
     }
 
@@ -75,32 +78,35 @@ impl CheckboxThemeData {
     }
 
     /// The radius of the splash effect.
-    pub fn splash_radius(mut self, value: impl Into<f64>) -> Self {
-        self.splash_radius = Some(value.into());
+    pub fn splash_radius(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.splash_radius = Some(value.into_reactive());
         self
     }
 
     /// The minimum size of the tap target.
-    pub fn material_tap_target_size(mut self, value: impl Into<MaterialTapTargetSize>) -> Self {
-        self.material_tap_target_size = Some(value.into());
+    pub fn material_tap_target_size(
+        mut self,
+        value: impl IntoReactive<MaterialTapTargetSize>,
+    ) -> Self {
+        self.material_tap_target_size = Some(value.into_reactive());
         self
     }
 
     /// The visual density of the checkbox.
-    pub fn visual_density(mut self, value: impl Into<VisualDensity>) -> Self {
-        self.visual_density = Some(value.into());
+    pub fn visual_density(mut self, value: impl IntoReactive<VisualDensity>) -> Self {
+        self.visual_density = Some(value.into_reactive());
         self
     }
 
     /// The shape of the checkbox's border.
-    pub fn shape(mut self, value: impl Into<ShapeBorder>) -> Self {
-        self.shape = Some(value.into());
+    pub fn shape(mut self, value: impl IntoReactive<ShapeBorder>) -> Self {
+        self.shape = Some(value.into_reactive());
         self
     }
 
     /// The border side of the checkbox.
-    pub fn side(mut self, value: impl Into<BorderSide>) -> Self {
-        self.side = Some(value.into());
+    pub fn side(mut self, value: impl IntoReactive<BorderSide>) -> Self {
+        self.side = Some(value.into_reactive());
         self
     }
 }
@@ -141,6 +147,9 @@ impl Serialize for CheckboxThemeData {
 
 impl Validate for CheckboxThemeData {
     fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
+        if let Some(value) = &self.mouse_cursor {
+            value.validate_binding_at(&path.key("mouseCursor"), issues);
+        }
         self.fill_color.validate_at(&path.key("fillColor"), issues);
         self.check_color
             .validate_at(&path.key("checkColor"), issues);
@@ -148,9 +157,14 @@ impl Validate for CheckboxThemeData {
             .validate_at(&path.key("overlayColor"), issues);
         self.splash_radius
             .validate_at(&path.key("splashRadius"), issues);
+        if let Some(value) = &self.material_tap_target_size {
+            value.validate_binding_at(&path.key("materialTapTargetSize"), issues);
+        }
         self.visual_density
             .validate_at(&path.key("visualDensity"), issues);
         self.shape.validate_at(&path.key("shape"), issues);
         self.side.validate_at(&path.key("side"), issues);
     }
 }
+
+impl Plain for CheckboxThemeData {}

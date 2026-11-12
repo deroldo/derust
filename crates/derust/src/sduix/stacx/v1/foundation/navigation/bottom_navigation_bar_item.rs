@@ -8,6 +8,9 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
@@ -98,3 +101,5 @@ impl Validate for BottomNavigationBarItem {
         self.tooltip.validate_at(&path.key("tooltip"), issues);
     }
 }
+
+impl Plain for BottomNavigationBarItem {}

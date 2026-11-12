@@ -8,22 +8,27 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
 /// A Stac model representing Flutter's \[SliverList\] widget.
 #[derive(Debug, Clone, PartialEq)]
 pub struct SliverList {
+    /// Properties common to every widget (`visible`, `enabled`, `bind`, `state`, `globalState`, `onInit`).
+    pub envelope: Envelope,
     /// The widgets below this sliver in the tree.
     pub children: Option<Vec<Widget>>,
     /// Whether to add automatic keep-alives for the children.
-    pub add_automatic_keep_alives: Option<bool>,
+    pub add_automatic_keep_alives: Option<Reactive<bool>>,
     /// Whether to wrap children in repaint boundaries.
-    pub add_repaint_boundaries: Option<bool>,
+    pub add_repaint_boundaries: Option<Reactive<bool>>,
     /// Whether to add semantic indexes for the children.
-    pub add_semantic_indexes: Option<bool>,
+    pub add_semantic_indexes: Option<Reactive<bool>>,
     /// An offset added to each child’s semantic index.
-    pub semantic_index_offset: Option<i64>,
+    pub semantic_index_offset: Option<Reactive<i64>>,
 }
 
 impl SliverList {
@@ -33,6 +38,7 @@ impl SliverList {
     /// Creates the model with only its required fields set.
     pub fn new() -> Self {
         Self {
+            envelope: Envelope::new(),
             children: None,
             add_automatic_keep_alives: None,
             add_repaint_boundaries: None,
@@ -48,26 +54,62 @@ impl SliverList {
     }
 
     /// Whether to add automatic keep-alives for the children.
-    pub fn add_automatic_keep_alives(mut self, value: bool) -> Self {
-        self.add_automatic_keep_alives = Some(value);
+    pub fn add_automatic_keep_alives(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.add_automatic_keep_alives = Some(value.into_reactive());
         self
     }
 
     /// Whether to wrap children in repaint boundaries.
-    pub fn add_repaint_boundaries(mut self, value: bool) -> Self {
-        self.add_repaint_boundaries = Some(value);
+    pub fn add_repaint_boundaries(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.add_repaint_boundaries = Some(value.into_reactive());
         self
     }
 
     /// Whether to add semantic indexes for the children.
-    pub fn add_semantic_indexes(mut self, value: bool) -> Self {
-        self.add_semantic_indexes = Some(value);
+    pub fn add_semantic_indexes(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.add_semantic_indexes = Some(value.into_reactive());
         self
     }
 
     /// An offset added to each child’s semantic index.
-    pub fn semantic_index_offset(mut self, value: impl Into<i64>) -> Self {
-        self.semantic_index_offset = Some(value.into());
+    pub fn semantic_index_offset(mut self, value: impl IntoReactive<i64>) -> Self {
+        self.semantic_index_offset = Some(value.into_reactive());
+        self
+    }
+
+    /// Sets `visible` (envelope): a `bool`, a state path or an expression.
+    pub fn visible(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.visible(value);
+        self
+    }
+
+    /// Sets `enabled` (envelope): a `bool`, a state path or an expression.
+    pub fn enabled(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.enabled(value);
+        self
+    }
+
+    /// Sets `bind` (envelope): the state key the widget reads and writes.
+    pub fn bind(mut self, key: BindKey) -> Self {
+        self.envelope = self.envelope.bind(key);
+        self
+    }
+
+    /// Sets `state` (envelope): the screen state declared by this widget.
+    pub fn state(mut self, block: StateBlock) -> Self {
+        self.envelope = self.envelope.state(block);
+        self
+    }
+
+    /// Sets `globalState` (envelope): the global state declared by this widget.
+    pub fn global_state(mut self, block: GlobalStateBlock) -> Self {
+        self.envelope = self.envelope.global_state(block);
+        self
+    }
+
+    /// Sets `onInit` (envelope): action(s) run when the widget is first built.
+    pub fn on_init(mut self, on_init: impl Into<OnInit>) -> Self {
+        self.envelope = self.envelope.on_init(on_init);
         self
     }
 }
@@ -76,6 +118,7 @@ impl Serialize for SliverList {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         let mut map = serializer.serialize_map(None)?;
         map.serialize_entry("type", "sliverList")?;
+        self.envelope.serialize_into(&mut map)?;
         if let Some(value) = &self.children {
             map.serialize_entry("children", value)?;
         }
@@ -97,7 +140,20 @@ impl Serialize for SliverList {
 
 impl Validate for SliverList {
     fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
+        self.envelope.validate_at(path, issues);
         self.children.validate_at(&path.key("children"), issues);
+        if let Some(value) = &self.add_automatic_keep_alives {
+            value.validate_binding_at(&path.key("addAutomaticKeepAlives"), issues);
+        }
+        if let Some(value) = &self.add_repaint_boundaries {
+            value.validate_binding_at(&path.key("addRepaintBoundaries"), issues);
+        }
+        if let Some(value) = &self.add_semantic_indexes {
+            value.validate_binding_at(&path.key("addSemanticIndexes"), issues);
+        }
+        if let Some(value) = &self.semantic_index_offset {
+            value.validate_binding_at(&path.key("semanticIndexOffset"), issues);
+        }
     }
 }
 
@@ -105,6 +161,8 @@ impl StacNode for SliverList {
     const KIND: NodeKind = NodeKind::Widget;
     const TYPE_NAME: &'static str = "sliverList";
 }
+
+impl Plain for SliverList {}
 
 impl From<SliverList> for Widget {
     fn from(value: SliverList) -> Self {

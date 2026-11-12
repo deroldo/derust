@@ -8,6 +8,9 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
@@ -15,13 +18,13 @@ use serde::ser::{Serialize, SerializeMap, Serializer};
 #[derive(Debug, Clone, PartialEq)]
 pub struct ScrollbarThemeData {
     /// Whether the scrollbar thumb should be visible.
-    pub thumb_visibility: Option<bool>,
+    pub thumb_visibility: Option<Reactive<bool>>,
     /// The thickness of the scrollbar.
-    pub thickness: Option<f64>,
+    pub thickness: Option<Reactive<f64>>,
     /// Whether the scrollbar track should be visible.
-    pub track_visibility: Option<bool>,
+    pub track_visibility: Option<Reactive<bool>>,
     /// The radius of the scrollbar's rounded corners.
-    pub radius: Option<f64>,
+    pub radius: Option<Reactive<f64>>,
     /// The color of the scrollbar thumb.
     pub thumb_color: Option<Dyn<String>>,
     /// The color of the scrollbar track.
@@ -29,13 +32,13 @@ pub struct ScrollbarThemeData {
     /// The color of the scrollbar track border.
     pub track_border_color: Option<Dyn<String>>,
     /// The margin from the cross axis edge.
-    pub cross_axis_margin: Option<f64>,
+    pub cross_axis_margin: Option<Reactive<f64>>,
     /// The margin from the main axis edge.
-    pub main_axis_margin: Option<f64>,
+    pub main_axis_margin: Option<Reactive<f64>>,
     /// The minimum length of the scrollbar thumb.
-    pub min_thumb_length: Option<f64>,
+    pub min_thumb_length: Option<Reactive<f64>>,
     /// Whether the scrollbar is interactive.
-    pub interactive: Option<bool>,
+    pub interactive: Option<Reactive<bool>>,
 }
 
 impl ScrollbarThemeData {
@@ -57,26 +60,26 @@ impl ScrollbarThemeData {
     }
 
     /// Whether the scrollbar thumb should be visible.
-    pub fn thumb_visibility(mut self, value: bool) -> Self {
-        self.thumb_visibility = Some(value);
+    pub fn thumb_visibility(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.thumb_visibility = Some(value.into_reactive());
         self
     }
 
     /// The thickness of the scrollbar.
-    pub fn thickness(mut self, value: impl Into<f64>) -> Self {
-        self.thickness = Some(value.into());
+    pub fn thickness(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.thickness = Some(value.into_reactive());
         self
     }
 
     /// Whether the scrollbar track should be visible.
-    pub fn track_visibility(mut self, value: bool) -> Self {
-        self.track_visibility = Some(value);
+    pub fn track_visibility(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.track_visibility = Some(value.into_reactive());
         self
     }
 
     /// The radius of the scrollbar's rounded corners.
-    pub fn radius(mut self, value: impl Into<f64>) -> Self {
-        self.radius = Some(value.into());
+    pub fn radius(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.radius = Some(value.into_reactive());
         self
     }
 
@@ -99,26 +102,26 @@ impl ScrollbarThemeData {
     }
 
     /// The margin from the cross axis edge.
-    pub fn cross_axis_margin(mut self, value: impl Into<f64>) -> Self {
-        self.cross_axis_margin = Some(value.into());
+    pub fn cross_axis_margin(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.cross_axis_margin = Some(value.into_reactive());
         self
     }
 
     /// The margin from the main axis edge.
-    pub fn main_axis_margin(mut self, value: impl Into<f64>) -> Self {
-        self.main_axis_margin = Some(value.into());
+    pub fn main_axis_margin(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.main_axis_margin = Some(value.into_reactive());
         self
     }
 
     /// The minimum length of the scrollbar thumb.
-    pub fn min_thumb_length(mut self, value: impl Into<f64>) -> Self {
-        self.min_thumb_length = Some(value.into());
+    pub fn min_thumb_length(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.min_thumb_length = Some(value.into_reactive());
         self
     }
 
     /// Whether the scrollbar is interactive.
-    pub fn interactive(mut self, value: bool) -> Self {
-        self.interactive = Some(value);
+    pub fn interactive(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.interactive = Some(value.into_reactive());
         self
     }
 }
@@ -165,7 +168,13 @@ impl Serialize for ScrollbarThemeData {
 
 impl Validate for ScrollbarThemeData {
     fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
+        if let Some(value) = &self.thumb_visibility {
+            value.validate_binding_at(&path.key("thumbVisibility"), issues);
+        }
         self.thickness.validate_at(&path.key("thickness"), issues);
+        if let Some(value) = &self.track_visibility {
+            value.validate_binding_at(&path.key("trackVisibility"), issues);
+        }
         self.radius.validate_at(&path.key("radius"), issues);
         self.thumb_color
             .validate_at(&path.key("thumbColor"), issues);
@@ -179,5 +188,10 @@ impl Validate for ScrollbarThemeData {
             .validate_at(&path.key("mainAxisMargin"), issues);
         self.min_thumb_length
             .validate_at(&path.key("minThumbLength"), issues);
+        if let Some(value) = &self.interactive {
+            value.validate_binding_at(&path.key("interactive"), issues);
+        }
     }
 }
+
+impl Plain for ScrollbarThemeData {}

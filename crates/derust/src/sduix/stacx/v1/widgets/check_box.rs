@@ -8,42 +8,47 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
 /// A Stac model representing Flutter's \[Checkbox\] widget.
 #[derive(Debug, Clone, PartialEq)]
 pub struct CheckBox {
+    /// Properties common to every widget (`visible`, `enabled`, `bind`, `state`, `globalState`, `onInit`).
+    pub envelope: Envelope,
     /// Identifier used with form scope to store/read this checkbox's value.
     pub id: Option<Dyn<String>>,
     /// Whether this checkbox is checked.
-    pub value: Option<bool>,
+    pub value: Option<Reactive<bool>>,
     /// Whether this checkbox supports three states (true, false, null).
-    pub tristate: Option<bool>,
+    pub tristate: Option<Reactive<bool>>,
     /// Action invoked when the user toggles the checkbox.
     pub on_changed: Option<Action>,
     /// The mouse cursor to use when hovering over this widget.
-    pub mouse_cursor: Option<MouseCursor>,
+    pub mouse_cursor: Option<Reactive<MouseCursor>>,
     /// The color to use for the checkbox when it is active.
-    pub active_color: Option<Color>,
+    pub active_color: Option<Reactive<Color>>,
     /// The fill color of the checkbox.
-    pub fill_color: Option<Color>,
+    pub fill_color: Option<Reactive<Color>>,
     /// The color of the check icon when the checkbox is checked.
-    pub check_color: Option<Color>,
+    pub check_color: Option<Reactive<Color>>,
     /// The color of the checkbox's focus highlight.
-    pub focus_color: Option<Color>,
+    pub focus_color: Option<Reactive<Color>>,
     /// The color of the checkbox when a pointer is hovering over it.
-    pub hover_color: Option<Color>,
+    pub hover_color: Option<Reactive<Color>>,
     /// The overlay color for the checkbox's ink response.
-    pub overlay_color: Option<Color>,
+    pub overlay_color: Option<Reactive<Color>>,
     /// The splash radius of the checkbox's splash in logical pixels.
-    pub splash_radius: Option<f64>,
+    pub splash_radius: Option<Reactive<f64>>,
     /// Configures the minimum size of the area within which the checkbox may be pressed.
-    pub material_tap_target_size: Option<MaterialTapTargetSize>,
+    pub material_tap_target_size: Option<Reactive<MaterialTapTargetSize>>,
     /// Whether this checkbox should focus itself if nothing else is focused.
-    pub autofocus: Option<bool>,
+    pub autofocus: Option<Reactive<bool>>,
     /// Whether to display the checkbox in an error state.
-    pub is_error: Option<bool>,
+    pub is_error: Option<Reactive<bool>>,
 }
 
 impl CheckBox {
@@ -53,6 +58,7 @@ impl CheckBox {
     /// Creates the model with only its required fields set.
     pub fn new() -> Self {
         Self {
+            envelope: Envelope::new(),
             id: None,
             value: None,
             tristate: None,
@@ -78,14 +84,14 @@ impl CheckBox {
     }
 
     /// Whether this checkbox is checked.
-    pub fn value(mut self, value: bool) -> Self {
-        self.value = Some(value);
+    pub fn value(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.value = Some(value.into_reactive());
         self
     }
 
     /// Whether this checkbox supports three states (true, false, null).
-    pub fn tristate(mut self, value: bool) -> Self {
-        self.tristate = Some(value);
+    pub fn tristate(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.tristate = Some(value.into_reactive());
         self
     }
 
@@ -96,68 +102,107 @@ impl CheckBox {
     }
 
     /// The mouse cursor to use when hovering over this widget.
-    pub fn mouse_cursor(mut self, value: impl Into<MouseCursor>) -> Self {
-        self.mouse_cursor = Some(value.into());
+    pub fn mouse_cursor(mut self, value: impl IntoReactive<MouseCursor>) -> Self {
+        self.mouse_cursor = Some(value.into_reactive());
         self
     }
 
     /// The color to use for the checkbox when it is active.
-    pub fn active_color(mut self, value: impl Into<Color>) -> Self {
-        self.active_color = Some(value.into());
+    pub fn active_color(mut self, value: impl IntoReactive<Color>) -> Self {
+        self.active_color = Some(value.into_reactive());
         self
     }
 
     /// The fill color of the checkbox.
-    pub fn fill_color(mut self, value: impl Into<Color>) -> Self {
-        self.fill_color = Some(value.into());
+    pub fn fill_color(mut self, value: impl IntoReactive<Color>) -> Self {
+        self.fill_color = Some(value.into_reactive());
         self
     }
 
     /// The color of the check icon when the checkbox is checked.
-    pub fn check_color(mut self, value: impl Into<Color>) -> Self {
-        self.check_color = Some(value.into());
+    pub fn check_color(mut self, value: impl IntoReactive<Color>) -> Self {
+        self.check_color = Some(value.into_reactive());
         self
     }
 
     /// The color of the checkbox's focus highlight.
-    pub fn focus_color(mut self, value: impl Into<Color>) -> Self {
-        self.focus_color = Some(value.into());
+    pub fn focus_color(mut self, value: impl IntoReactive<Color>) -> Self {
+        self.focus_color = Some(value.into_reactive());
         self
     }
 
     /// The color of the checkbox when a pointer is hovering over it.
-    pub fn hover_color(mut self, value: impl Into<Color>) -> Self {
-        self.hover_color = Some(value.into());
+    pub fn hover_color(mut self, value: impl IntoReactive<Color>) -> Self {
+        self.hover_color = Some(value.into_reactive());
         self
     }
 
     /// The overlay color for the checkbox's ink response.
-    pub fn overlay_color(mut self, value: impl Into<Color>) -> Self {
-        self.overlay_color = Some(value.into());
+    pub fn overlay_color(mut self, value: impl IntoReactive<Color>) -> Self {
+        self.overlay_color = Some(value.into_reactive());
         self
     }
 
     /// The splash radius of the checkbox's splash in logical pixels.
-    pub fn splash_radius(mut self, value: impl Into<f64>) -> Self {
-        self.splash_radius = Some(value.into());
+    pub fn splash_radius(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.splash_radius = Some(value.into_reactive());
         self
     }
 
     /// Configures the minimum size of the area within which the checkbox may be pressed.
-    pub fn material_tap_target_size(mut self, value: impl Into<MaterialTapTargetSize>) -> Self {
-        self.material_tap_target_size = Some(value.into());
+    pub fn material_tap_target_size(
+        mut self,
+        value: impl IntoReactive<MaterialTapTargetSize>,
+    ) -> Self {
+        self.material_tap_target_size = Some(value.into_reactive());
         self
     }
 
     /// Whether this checkbox should focus itself if nothing else is focused.
-    pub fn autofocus(mut self, value: bool) -> Self {
-        self.autofocus = Some(value);
+    pub fn autofocus(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.autofocus = Some(value.into_reactive());
         self
     }
 
     /// Whether to display the checkbox in an error state.
-    pub fn is_error(mut self, value: bool) -> Self {
-        self.is_error = Some(value);
+    pub fn is_error(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.is_error = Some(value.into_reactive());
+        self
+    }
+
+    /// Sets `visible` (envelope): a `bool`, a state path or an expression.
+    pub fn visible(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.visible(value);
+        self
+    }
+
+    /// Sets `enabled` (envelope): a `bool`, a state path or an expression.
+    pub fn enabled(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.enabled(value);
+        self
+    }
+
+    /// Sets `bind` (envelope): the state key the widget reads and writes.
+    pub fn bind(mut self, key: BindKey) -> Self {
+        self.envelope = self.envelope.bind(key);
+        self
+    }
+
+    /// Sets `state` (envelope): the screen state declared by this widget.
+    pub fn state(mut self, block: StateBlock) -> Self {
+        self.envelope = self.envelope.state(block);
+        self
+    }
+
+    /// Sets `globalState` (envelope): the global state declared by this widget.
+    pub fn global_state(mut self, block: GlobalStateBlock) -> Self {
+        self.envelope = self.envelope.global_state(block);
+        self
+    }
+
+    /// Sets `onInit` (envelope): action(s) run when the widget is first built.
+    pub fn on_init(mut self, on_init: impl Into<OnInit>) -> Self {
+        self.envelope = self.envelope.on_init(on_init);
         self
     }
 }
@@ -166,6 +211,7 @@ impl Serialize for CheckBox {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         let mut map = serializer.serialize_map(None)?;
         map.serialize_entry("type", "checkBox")?;
+        self.envelope.serialize_into(&mut map)?;
         if let Some(value) = &self.id {
             map.serialize_entry("id", value)?;
         }
@@ -217,8 +263,18 @@ impl Serialize for CheckBox {
 
 impl Validate for CheckBox {
     fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
+        self.envelope.validate_at(path, issues);
         self.id.validate_at(&path.key("id"), issues);
+        if let Some(value) = &self.value {
+            value.validate_binding_at(&path.key("value"), issues);
+        }
+        if let Some(value) = &self.tristate {
+            value.validate_binding_at(&path.key("tristate"), issues);
+        }
         self.on_changed.validate_at(&path.key("onChanged"), issues);
+        if let Some(value) = &self.mouse_cursor {
+            value.validate_binding_at(&path.key("mouseCursor"), issues);
+        }
         self.active_color
             .validate_at(&path.key("activeColor"), issues);
         self.fill_color.validate_at(&path.key("fillColor"), issues);
@@ -232,6 +288,15 @@ impl Validate for CheckBox {
             .validate_at(&path.key("overlayColor"), issues);
         self.splash_radius
             .validate_at(&path.key("splashRadius"), issues);
+        if let Some(value) = &self.material_tap_target_size {
+            value.validate_binding_at(&path.key("materialTapTargetSize"), issues);
+        }
+        if let Some(value) = &self.autofocus {
+            value.validate_binding_at(&path.key("autofocus"), issues);
+        }
+        if let Some(value) = &self.is_error {
+            value.validate_binding_at(&path.key("isError"), issues);
+        }
     }
 }
 
@@ -239,6 +304,8 @@ impl StacNode for CheckBox {
     const KIND: NodeKind = NodeKind::Widget;
     const TYPE_NAME: &'static str = "checkBox";
 }
+
+impl Plain for CheckBox {}
 
 impl From<CheckBox> for Widget {
     fn from(value: CheckBox) -> Self {

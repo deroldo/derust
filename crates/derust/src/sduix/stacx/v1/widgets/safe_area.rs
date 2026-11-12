@@ -8,24 +8,29 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
 /// A Stac model representing Flutter's \[SafeArea\] widget.
 #[derive(Debug, Clone, PartialEq)]
 pub struct SafeArea {
+    /// Properties common to every widget (`visible`, `enabled`, `bind`, `state`, `globalState`, `onInit`).
+    pub envelope: Envelope,
     /// Whether to avoid system intrusions on the left.
-    pub left: Option<bool>,
+    pub left: Option<Reactive<bool>>,
     /// Whether to avoid system intrusions on the top.
-    pub top: Option<bool>,
+    pub top: Option<Reactive<bool>>,
     /// Whether to avoid system intrusions on the right.
-    pub right: Option<bool>,
+    pub right: Option<Reactive<bool>>,
     /// Whether to avoid system intrusions on the bottom.
-    pub bottom: Option<bool>,
+    pub bottom: Option<Reactive<bool>>,
     /// This minimum padding to apply.
-    pub minimum: Option<EdgeInsets>,
+    pub minimum: Option<Reactive<EdgeInsets>>,
     /// Specifies whether the \[SafeArea\] should maintain the \[MediaQueryData.viewPadding\] instead of the \[MediaQueryData.padding\] when consumed by the \[MediaQueryData.viewInsets\] of the current context's \[MediaQuery\], defaults to false.
-    pub maintain_bottom_view_padding: Option<bool>,
+    pub maintain_bottom_view_padding: Option<Reactive<bool>>,
     /// The widget below this widget in the tree.
     pub child: Option<Widget>,
 }
@@ -37,6 +42,7 @@ impl SafeArea {
     /// Creates the model with only its required fields set.
     pub fn new() -> Self {
         Self {
+            envelope: Envelope::new(),
             left: None,
             top: None,
             right: None,
@@ -48,38 +54,38 @@ impl SafeArea {
     }
 
     /// Whether to avoid system intrusions on the left.
-    pub fn left(mut self, value: bool) -> Self {
-        self.left = Some(value);
+    pub fn left(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.left = Some(value.into_reactive());
         self
     }
 
     /// Whether to avoid system intrusions on the top.
-    pub fn top(mut self, value: bool) -> Self {
-        self.top = Some(value);
+    pub fn top(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.top = Some(value.into_reactive());
         self
     }
 
     /// Whether to avoid system intrusions on the right.
-    pub fn right(mut self, value: bool) -> Self {
-        self.right = Some(value);
+    pub fn right(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.right = Some(value.into_reactive());
         self
     }
 
     /// Whether to avoid system intrusions on the bottom.
-    pub fn bottom(mut self, value: bool) -> Self {
-        self.bottom = Some(value);
+    pub fn bottom(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.bottom = Some(value.into_reactive());
         self
     }
 
     /// This minimum padding to apply.
-    pub fn minimum(mut self, value: impl Into<EdgeInsets>) -> Self {
-        self.minimum = Some(value.into());
+    pub fn minimum(mut self, value: impl IntoReactive<EdgeInsets>) -> Self {
+        self.minimum = Some(value.into_reactive());
         self
     }
 
     /// Specifies whether the \[SafeArea\] should maintain the \[MediaQueryData.viewPadding\] instead of the \[MediaQueryData.padding\] when consumed by the \[MediaQueryData.viewInsets\] of the current context's \[MediaQuery\], defaults to false.
-    pub fn maintain_bottom_view_padding(mut self, value: bool) -> Self {
-        self.maintain_bottom_view_padding = Some(value);
+    pub fn maintain_bottom_view_padding(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.maintain_bottom_view_padding = Some(value.into_reactive());
         self
     }
 
@@ -88,12 +94,49 @@ impl SafeArea {
         self.child = Some(value.into());
         self
     }
+
+    /// Sets `visible` (envelope): a `bool`, a state path or an expression.
+    pub fn visible(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.visible(value);
+        self
+    }
+
+    /// Sets `enabled` (envelope): a `bool`, a state path or an expression.
+    pub fn enabled(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.enabled(value);
+        self
+    }
+
+    /// Sets `bind` (envelope): the state key the widget reads and writes.
+    pub fn bind(mut self, key: BindKey) -> Self {
+        self.envelope = self.envelope.bind(key);
+        self
+    }
+
+    /// Sets `state` (envelope): the screen state declared by this widget.
+    pub fn state(mut self, block: StateBlock) -> Self {
+        self.envelope = self.envelope.state(block);
+        self
+    }
+
+    /// Sets `globalState` (envelope): the global state declared by this widget.
+    pub fn global_state(mut self, block: GlobalStateBlock) -> Self {
+        self.envelope = self.envelope.global_state(block);
+        self
+    }
+
+    /// Sets `onInit` (envelope): action(s) run when the widget is first built.
+    pub fn on_init(mut self, on_init: impl Into<OnInit>) -> Self {
+        self.envelope = self.envelope.on_init(on_init);
+        self
+    }
 }
 
 impl Serialize for SafeArea {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         let mut map = serializer.serialize_map(None)?;
         map.serialize_entry("type", "safeArea")?;
+        self.envelope.serialize_into(&mut map)?;
         if let Some(value) = &self.left {
             map.serialize_entry("left", value)?;
         }
@@ -121,7 +164,23 @@ impl Serialize for SafeArea {
 
 impl Validate for SafeArea {
     fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
+        self.envelope.validate_at(path, issues);
+        if let Some(value) = &self.left {
+            value.validate_binding_at(&path.key("left"), issues);
+        }
+        if let Some(value) = &self.top {
+            value.validate_binding_at(&path.key("top"), issues);
+        }
+        if let Some(value) = &self.right {
+            value.validate_binding_at(&path.key("right"), issues);
+        }
+        if let Some(value) = &self.bottom {
+            value.validate_binding_at(&path.key("bottom"), issues);
+        }
         self.minimum.validate_at(&path.key("minimum"), issues);
+        if let Some(value) = &self.maintain_bottom_view_padding {
+            value.validate_binding_at(&path.key("maintainBottomViewPadding"), issues);
+        }
         self.child.validate_at(&path.key("child"), issues);
     }
 }
@@ -130,6 +189,8 @@ impl StacNode for SafeArea {
     const KIND: NodeKind = NodeKind::Widget;
     const TYPE_NAME: &'static str = "safeArea";
 }
+
+impl Plain for SafeArea {}
 
 impl From<SafeArea> for Widget {
     fn from(value: SafeArea) -> Self {

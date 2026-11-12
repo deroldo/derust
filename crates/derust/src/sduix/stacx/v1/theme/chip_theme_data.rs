@@ -8,6 +8,9 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
@@ -33,33 +36,33 @@ pub struct ChipThemeData {
     /// The color of the shadow for selected chips.
     pub selected_shadow_color: Option<Dyn<String>>,
     /// Whether to show a checkmark for selected chips.
-    pub show_checkmark: Option<bool>,
+    pub show_checkmark: Option<Reactive<bool>>,
     /// The color of the checkmark.
     pub checkmark_color: Option<Dyn<String>>,
     /// The padding around the chip's label.
-    pub label_padding: Option<EdgeInsets>,
+    pub label_padding: Option<Reactive<EdgeInsets>>,
     /// The internal padding for the chip's content.
-    pub padding: Option<EdgeInsets>,
+    pub padding: Option<Reactive<EdgeInsets>>,
     /// The border side of the chip.
-    pub side: Option<BorderSide>,
+    pub side: Option<Reactive<BorderSide>>,
     /// The shape of the chip's border.
-    pub shape: Option<ShapeBorder>,
+    pub shape: Option<Reactive<ShapeBorder>>,
     /// The text style for the chip's label.
-    pub label_style: Option<TextStyle>,
+    pub label_style: Option<Reactive<TextStyle>>,
     /// The text style for secondary chip labels.
-    pub secondary_label_style: Option<TextStyle>,
+    pub secondary_label_style: Option<Reactive<TextStyle>>,
     /// The brightness of the chip theme.
-    pub brightness: Option<Brightness>,
+    pub brightness: Option<Reactive<Brightness>>,
     /// The z-coordinate at which to place this chip relative to its parent.
-    pub elevation: Option<f64>,
+    pub elevation: Option<Reactive<f64>>,
     /// The z-coordinate at which to place this chip when pressed.
-    pub press_elevation: Option<f64>,
+    pub press_elevation: Option<Reactive<f64>>,
     /// The icon theme for chip icons.
-    pub icon_theme: Option<Box<IconThemeData>>,
+    pub icon_theme: Option<Reactive<Box<IconThemeData>>>,
     /// Constraints on the size of chip avatars.
-    pub avatar_box_constraints: Option<BoxConstraints>,
+    pub avatar_box_constraints: Option<Reactive<BoxConstraints>>,
     /// Constraints on the size of the delete icon.
-    pub delete_icon_box_constraints: Option<BoxConstraints>,
+    pub delete_icon_box_constraints: Option<Reactive<BoxConstraints>>,
 }
 
 impl ChipThemeData {
@@ -147,8 +150,8 @@ impl ChipThemeData {
     }
 
     /// Whether to show a checkmark for selected chips.
-    pub fn show_checkmark(mut self, value: bool) -> Self {
-        self.show_checkmark = Some(value);
+    pub fn show_checkmark(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.show_checkmark = Some(value.into_reactive());
         self
     }
 
@@ -159,74 +162,74 @@ impl ChipThemeData {
     }
 
     /// The padding around the chip's label.
-    pub fn label_padding(mut self, value: impl Into<EdgeInsets>) -> Self {
-        self.label_padding = Some(value.into());
+    pub fn label_padding(mut self, value: impl IntoReactive<EdgeInsets>) -> Self {
+        self.label_padding = Some(value.into_reactive());
         self
     }
 
     /// The internal padding for the chip's content.
-    pub fn padding(mut self, value: impl Into<EdgeInsets>) -> Self {
-        self.padding = Some(value.into());
+    pub fn padding(mut self, value: impl IntoReactive<EdgeInsets>) -> Self {
+        self.padding = Some(value.into_reactive());
         self
     }
 
     /// The border side of the chip.
-    pub fn side(mut self, value: impl Into<BorderSide>) -> Self {
-        self.side = Some(value.into());
+    pub fn side(mut self, value: impl IntoReactive<BorderSide>) -> Self {
+        self.side = Some(value.into_reactive());
         self
     }
 
     /// The shape of the chip's border.
-    pub fn shape(mut self, value: impl Into<ShapeBorder>) -> Self {
-        self.shape = Some(value.into());
+    pub fn shape(mut self, value: impl IntoReactive<ShapeBorder>) -> Self {
+        self.shape = Some(value.into_reactive());
         self
     }
 
     /// The text style for the chip's label.
-    pub fn label_style(mut self, value: impl Into<TextStyle>) -> Self {
-        self.label_style = Some(value.into());
+    pub fn label_style(mut self, value: impl IntoReactive<TextStyle>) -> Self {
+        self.label_style = Some(value.into_reactive());
         self
     }
 
     /// The text style for secondary chip labels.
-    pub fn secondary_label_style(mut self, value: impl Into<TextStyle>) -> Self {
-        self.secondary_label_style = Some(value.into());
+    pub fn secondary_label_style(mut self, value: impl IntoReactive<TextStyle>) -> Self {
+        self.secondary_label_style = Some(value.into_reactive());
         self
     }
 
     /// The brightness of the chip theme.
-    pub fn brightness(mut self, value: impl Into<Brightness>) -> Self {
-        self.brightness = Some(value.into());
+    pub fn brightness(mut self, value: impl IntoReactive<Brightness>) -> Self {
+        self.brightness = Some(value.into_reactive());
         self
     }
 
     /// The z-coordinate at which to place this chip relative to its parent.
-    pub fn elevation(mut self, value: impl Into<f64>) -> Self {
-        self.elevation = Some(value.into());
+    pub fn elevation(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.elevation = Some(value.into_reactive());
         self
     }
 
     /// The z-coordinate at which to place this chip when pressed.
-    pub fn press_elevation(mut self, value: impl Into<f64>) -> Self {
-        self.press_elevation = Some(value.into());
+    pub fn press_elevation(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.press_elevation = Some(value.into_reactive());
         self
     }
 
     /// The icon theme for chip icons.
-    pub fn icon_theme(mut self, value: impl Into<IconThemeData>) -> Self {
-        self.icon_theme = Some(Box::new(value.into()));
+    pub fn icon_theme(mut self, value: impl IntoReactive<IconThemeData>) -> Self {
+        self.icon_theme = Some(value.into_reactive().boxed());
         self
     }
 
     /// Constraints on the size of chip avatars.
-    pub fn avatar_box_constraints(mut self, value: impl Into<BoxConstraints>) -> Self {
-        self.avatar_box_constraints = Some(value.into());
+    pub fn avatar_box_constraints(mut self, value: impl IntoReactive<BoxConstraints>) -> Self {
+        self.avatar_box_constraints = Some(value.into_reactive());
         self
     }
 
     /// Constraints on the size of the delete icon.
-    pub fn delete_icon_box_constraints(mut self, value: impl Into<BoxConstraints>) -> Self {
-        self.delete_icon_box_constraints = Some(value.into());
+    pub fn delete_icon_box_constraints(mut self, value: impl IntoReactive<BoxConstraints>) -> Self {
+        self.delete_icon_box_constraints = Some(value.into_reactive());
         self
     }
 }
@@ -326,6 +329,9 @@ impl Validate for ChipThemeData {
             .validate_at(&path.key("surfaceTintColor"), issues);
         self.selected_shadow_color
             .validate_at(&path.key("selectedShadowColor"), issues);
+        if let Some(value) = &self.show_checkmark {
+            value.validate_binding_at(&path.key("showCheckmark"), issues);
+        }
         self.checkmark_color
             .validate_at(&path.key("checkmarkColor"), issues);
         self.label_padding
@@ -337,6 +343,9 @@ impl Validate for ChipThemeData {
             .validate_at(&path.key("labelStyle"), issues);
         self.secondary_label_style
             .validate_at(&path.key("secondaryLabelStyle"), issues);
+        if let Some(value) = &self.brightness {
+            value.validate_binding_at(&path.key("brightness"), issues);
+        }
         self.elevation.validate_at(&path.key("elevation"), issues);
         self.press_elevation
             .validate_at(&path.key("pressElevation"), issues);
@@ -347,3 +356,5 @@ impl Validate for ChipThemeData {
             .validate_at(&path.key("deleteIconBoxConstraints"), issues);
     }
 }
+
+impl Plain for ChipThemeData {}

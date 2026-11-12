@@ -8,16 +8,21 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
 /// A Stac model representing Flutter's \[SizedBox\] widget.
 #[derive(Debug, Clone, PartialEq)]
 pub struct SizedBox {
+    /// Properties common to every widget (`visible`, `enabled`, `bind`, `state`, `globalState`, `onInit`).
+    pub envelope: Envelope,
     /// The width of the box. If null, the box will try to be as wide as its parent allows.
-    pub width: Option<f64>,
+    pub width: Option<Reactive<f64>>,
     /// The height of the box. If null, the box will try to be as high as its parent allows.
-    pub height: Option<f64>,
+    pub height: Option<Reactive<f64>>,
     /// The widget below this widget in the tree.
     pub child: Option<Widget>,
 }
@@ -29,6 +34,7 @@ impl SizedBox {
     /// Creates the model with only its required fields set.
     pub fn new() -> Self {
         Self {
+            envelope: Envelope::new(),
             width: None,
             height: None,
             child: None,
@@ -36,14 +42,14 @@ impl SizedBox {
     }
 
     /// The width of the box. If null, the box will try to be as wide as its parent allows.
-    pub fn width(mut self, value: impl Into<f64>) -> Self {
-        self.width = Some(value.into());
+    pub fn width(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.width = Some(value.into_reactive());
         self
     }
 
     /// The height of the box. If null, the box will try to be as high as its parent allows.
-    pub fn height(mut self, value: impl Into<f64>) -> Self {
-        self.height = Some(value.into());
+    pub fn height(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.height = Some(value.into_reactive());
         self
     }
 
@@ -52,12 +58,49 @@ impl SizedBox {
         self.child = Some(value.into());
         self
     }
+
+    /// Sets `visible` (envelope): a `bool`, a state path or an expression.
+    pub fn visible(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.visible(value);
+        self
+    }
+
+    /// Sets `enabled` (envelope): a `bool`, a state path or an expression.
+    pub fn enabled(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.enabled(value);
+        self
+    }
+
+    /// Sets `bind` (envelope): the state key the widget reads and writes.
+    pub fn bind(mut self, key: BindKey) -> Self {
+        self.envelope = self.envelope.bind(key);
+        self
+    }
+
+    /// Sets `state` (envelope): the screen state declared by this widget.
+    pub fn state(mut self, block: StateBlock) -> Self {
+        self.envelope = self.envelope.state(block);
+        self
+    }
+
+    /// Sets `globalState` (envelope): the global state declared by this widget.
+    pub fn global_state(mut self, block: GlobalStateBlock) -> Self {
+        self.envelope = self.envelope.global_state(block);
+        self
+    }
+
+    /// Sets `onInit` (envelope): action(s) run when the widget is first built.
+    pub fn on_init(mut self, on_init: impl Into<OnInit>) -> Self {
+        self.envelope = self.envelope.on_init(on_init);
+        self
+    }
 }
 
 impl Serialize for SizedBox {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         let mut map = serializer.serialize_map(None)?;
         map.serialize_entry("type", "sizedBox")?;
+        self.envelope.serialize_into(&mut map)?;
         if let Some(value) = &self.width {
             map.serialize_entry("width", value)?;
         }
@@ -73,6 +116,7 @@ impl Serialize for SizedBox {
 
 impl Validate for SizedBox {
     fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
+        self.envelope.validate_at(path, issues);
         self.width.validate_at(&path.key("width"), issues);
         self.height.validate_at(&path.key("height"), issues);
         self.child.validate_at(&path.key("child"), issues);
@@ -83,6 +127,8 @@ impl StacNode for SizedBox {
     const KIND: NodeKind = NodeKind::Widget;
     const TYPE_NAME: &'static str = "sizedBox";
 }
+
+impl Plain for SizedBox {}
 
 impl From<SizedBox> for Widget {
     fn from(value: SizedBox) -> Self {

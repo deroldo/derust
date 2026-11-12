@@ -8,64 +8,69 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
 /// A Stac model representing Flutter's \[AlertDialog\] widget.
 #[derive(Debug, Clone, PartialEq)]
 pub struct AlertDialog {
+    /// Properties common to every widget (`visible`, `enabled`, `bind`, `state`, `globalState`, `onInit`).
+    pub envelope: Envelope,
     /// Optional icon widget displayed above the title.
     pub icon: Option<Widget>,
     /// Padding around \[icon\].
-    pub icon_padding: Option<EdgeInsets>,
+    pub icon_padding: Option<Reactive<EdgeInsets>>,
     /// Color for the icon.
-    pub icon_color: Option<Color>,
+    pub icon_color: Option<Reactive<Color>>,
     /// The title of the dialog.
     pub title: Option<Widget>,
     /// Padding around \[title\].
-    pub title_padding: Option<EdgeInsets>,
+    pub title_padding: Option<Reactive<EdgeInsets>>,
     /// Text style for \[title\].
-    pub title_text_style: Option<TextStyle>,
+    pub title_text_style: Option<Reactive<TextStyle>>,
     /// The primary content of the dialog.
     pub content: Option<Widget>,
     /// Padding around \[content\].
-    pub content_padding: Option<EdgeInsets>,
+    pub content_padding: Option<Reactive<EdgeInsets>>,
     /// Text style for \[content\].
-    pub content_text_style: Option<TextStyle>,
+    pub content_text_style: Option<Reactive<TextStyle>>,
     /// Dialog action buttons.
     pub actions: Option<Vec<Widget>>,
     /// Padding around \[actions\].
-    pub actions_padding: Option<EdgeInsets>,
+    pub actions_padding: Option<Reactive<EdgeInsets>>,
     /// How the actions should be placed along the main axis.
-    pub actions_alignment: Option<MainAxisAlignment>,
+    pub actions_alignment: Option<Reactive<MainAxisAlignment>>,
     /// How overflowing actions should be aligned horizontally.
-    pub actions_overflow_alignment: Option<OverflowBarAlignment>,
+    pub actions_overflow_alignment: Option<Reactive<OverflowBarAlignment>>,
     /// The vertical direction for overflowing actions.
-    pub actions_overflow_direction: Option<VerticalDirection>,
+    pub actions_overflow_direction: Option<Reactive<VerticalDirection>>,
     /// Spacing between overflowing action buttons.
-    pub actions_overflow_button_spacing: Option<f64>,
+    pub actions_overflow_button_spacing: Option<Reactive<f64>>,
     /// The padding for the button bar.
-    pub button_padding: Option<EdgeInsets>,
+    pub button_padding: Option<Reactive<EdgeInsets>>,
     /// The background color of the dialog's surface.
-    pub background_color: Option<Color>,
+    pub background_color: Option<Reactive<Color>>,
     /// The z-coordinate at which to place this dialog.
-    pub elevation: Option<f64>,
+    pub elevation: Option<Reactive<f64>>,
     /// The color of the dialog's shadow.
-    pub shadow_color: Option<Color>,
+    pub shadow_color: Option<Reactive<Color>>,
     /// The color of the surface tint overlay applied to the background.
-    pub surface_tint_color: Option<Color>,
+    pub surface_tint_color: Option<Reactive<Color>>,
     /// The semantic label of the dialog.
     pub semantic_label: Option<Dyn<String>>,
     /// The padding around the outside of the dialog.
-    pub inset_padding: Option<EdgeInsets>,
+    pub inset_padding: Option<Reactive<EdgeInsets>>,
     /// How to clip the content.
-    pub clip_behavior: Option<Clip>,
+    pub clip_behavior: Option<Reactive<Clip>>,
     /// The shape of the dialog's material.
-    pub shape: Option<ShapeBorder>,
+    pub shape: Option<Reactive<ShapeBorder>>,
     /// Where to align the dialog.
-    pub alignment: Option<Alignment>,
+    pub alignment: Option<Reactive<Alignment>>,
     /// Whether the dialog is scrollable.
-    pub scrollable: Option<bool>,
+    pub scrollable: Option<Reactive<bool>>,
 }
 
 impl AlertDialog {
@@ -75,6 +80,7 @@ impl AlertDialog {
     /// Creates the model with only its required fields set.
     pub fn new() -> Self {
         Self {
+            envelope: Envelope::new(),
             icon: None,
             icon_padding: None,
             icon_color: None,
@@ -111,14 +117,14 @@ impl AlertDialog {
     }
 
     /// Padding around \[icon\].
-    pub fn icon_padding(mut self, value: impl Into<EdgeInsets>) -> Self {
-        self.icon_padding = Some(value.into());
+    pub fn icon_padding(mut self, value: impl IntoReactive<EdgeInsets>) -> Self {
+        self.icon_padding = Some(value.into_reactive());
         self
     }
 
     /// Color for the icon.
-    pub fn icon_color(mut self, value: impl Into<Color>) -> Self {
-        self.icon_color = Some(value.into());
+    pub fn icon_color(mut self, value: impl IntoReactive<Color>) -> Self {
+        self.icon_color = Some(value.into_reactive());
         self
     }
 
@@ -129,14 +135,14 @@ impl AlertDialog {
     }
 
     /// Padding around \[title\].
-    pub fn title_padding(mut self, value: impl Into<EdgeInsets>) -> Self {
-        self.title_padding = Some(value.into());
+    pub fn title_padding(mut self, value: impl IntoReactive<EdgeInsets>) -> Self {
+        self.title_padding = Some(value.into_reactive());
         self
     }
 
     /// Text style for \[title\].
-    pub fn title_text_style(mut self, value: impl Into<TextStyle>) -> Self {
-        self.title_text_style = Some(value.into());
+    pub fn title_text_style(mut self, value: impl IntoReactive<TextStyle>) -> Self {
+        self.title_text_style = Some(value.into_reactive());
         self
     }
 
@@ -147,14 +153,14 @@ impl AlertDialog {
     }
 
     /// Padding around \[content\].
-    pub fn content_padding(mut self, value: impl Into<EdgeInsets>) -> Self {
-        self.content_padding = Some(value.into());
+    pub fn content_padding(mut self, value: impl IntoReactive<EdgeInsets>) -> Self {
+        self.content_padding = Some(value.into_reactive());
         self
     }
 
     /// Text style for \[content\].
-    pub fn content_text_style(mut self, value: impl Into<TextStyle>) -> Self {
-        self.content_text_style = Some(value.into());
+    pub fn content_text_style(mut self, value: impl IntoReactive<TextStyle>) -> Self {
+        self.content_text_style = Some(value.into_reactive());
         self
     }
 
@@ -165,62 +171,68 @@ impl AlertDialog {
     }
 
     /// Padding around \[actions\].
-    pub fn actions_padding(mut self, value: impl Into<EdgeInsets>) -> Self {
-        self.actions_padding = Some(value.into());
+    pub fn actions_padding(mut self, value: impl IntoReactive<EdgeInsets>) -> Self {
+        self.actions_padding = Some(value.into_reactive());
         self
     }
 
     /// How the actions should be placed along the main axis.
-    pub fn actions_alignment(mut self, value: impl Into<MainAxisAlignment>) -> Self {
-        self.actions_alignment = Some(value.into());
+    pub fn actions_alignment(mut self, value: impl IntoReactive<MainAxisAlignment>) -> Self {
+        self.actions_alignment = Some(value.into_reactive());
         self
     }
 
     /// How overflowing actions should be aligned horizontally.
-    pub fn actions_overflow_alignment(mut self, value: impl Into<OverflowBarAlignment>) -> Self {
-        self.actions_overflow_alignment = Some(value.into());
+    pub fn actions_overflow_alignment(
+        mut self,
+        value: impl IntoReactive<OverflowBarAlignment>,
+    ) -> Self {
+        self.actions_overflow_alignment = Some(value.into_reactive());
         self
     }
 
     /// The vertical direction for overflowing actions.
-    pub fn actions_overflow_direction(mut self, value: impl Into<VerticalDirection>) -> Self {
-        self.actions_overflow_direction = Some(value.into());
+    pub fn actions_overflow_direction(
+        mut self,
+        value: impl IntoReactive<VerticalDirection>,
+    ) -> Self {
+        self.actions_overflow_direction = Some(value.into_reactive());
         self
     }
 
     /// Spacing between overflowing action buttons.
-    pub fn actions_overflow_button_spacing(mut self, value: impl Into<f64>) -> Self {
-        self.actions_overflow_button_spacing = Some(value.into());
+    pub fn actions_overflow_button_spacing(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.actions_overflow_button_spacing = Some(value.into_reactive());
         self
     }
 
     /// The padding for the button bar.
-    pub fn button_padding(mut self, value: impl Into<EdgeInsets>) -> Self {
-        self.button_padding = Some(value.into());
+    pub fn button_padding(mut self, value: impl IntoReactive<EdgeInsets>) -> Self {
+        self.button_padding = Some(value.into_reactive());
         self
     }
 
     /// The background color of the dialog's surface.
-    pub fn background_color(mut self, value: impl Into<Color>) -> Self {
-        self.background_color = Some(value.into());
+    pub fn background_color(mut self, value: impl IntoReactive<Color>) -> Self {
+        self.background_color = Some(value.into_reactive());
         self
     }
 
     /// The z-coordinate at which to place this dialog.
-    pub fn elevation(mut self, value: impl Into<f64>) -> Self {
-        self.elevation = Some(value.into());
+    pub fn elevation(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.elevation = Some(value.into_reactive());
         self
     }
 
     /// The color of the dialog's shadow.
-    pub fn shadow_color(mut self, value: impl Into<Color>) -> Self {
-        self.shadow_color = Some(value.into());
+    pub fn shadow_color(mut self, value: impl IntoReactive<Color>) -> Self {
+        self.shadow_color = Some(value.into_reactive());
         self
     }
 
     /// The color of the surface tint overlay applied to the background.
-    pub fn surface_tint_color(mut self, value: impl Into<Color>) -> Self {
-        self.surface_tint_color = Some(value.into());
+    pub fn surface_tint_color(mut self, value: impl IntoReactive<Color>) -> Self {
+        self.surface_tint_color = Some(value.into_reactive());
         self
     }
 
@@ -231,32 +243,68 @@ impl AlertDialog {
     }
 
     /// The padding around the outside of the dialog.
-    pub fn inset_padding(mut self, value: impl Into<EdgeInsets>) -> Self {
-        self.inset_padding = Some(value.into());
+    pub fn inset_padding(mut self, value: impl IntoReactive<EdgeInsets>) -> Self {
+        self.inset_padding = Some(value.into_reactive());
         self
     }
 
     /// How to clip the content.
-    pub fn clip_behavior(mut self, value: impl Into<Clip>) -> Self {
-        self.clip_behavior = Some(value.into());
+    pub fn clip_behavior(mut self, value: impl IntoReactive<Clip>) -> Self {
+        self.clip_behavior = Some(value.into_reactive());
         self
     }
 
     /// The shape of the dialog's material.
-    pub fn shape(mut self, value: impl Into<ShapeBorder>) -> Self {
-        self.shape = Some(value.into());
+    pub fn shape(mut self, value: impl IntoReactive<ShapeBorder>) -> Self {
+        self.shape = Some(value.into_reactive());
         self
     }
 
     /// Where to align the dialog.
-    pub fn alignment(mut self, value: impl Into<Alignment>) -> Self {
-        self.alignment = Some(value.into());
+    pub fn alignment(mut self, value: impl IntoReactive<Alignment>) -> Self {
+        self.alignment = Some(value.into_reactive());
         self
     }
 
     /// Whether the dialog is scrollable.
-    pub fn scrollable(mut self, value: bool) -> Self {
-        self.scrollable = Some(value);
+    pub fn scrollable(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.scrollable = Some(value.into_reactive());
+        self
+    }
+
+    /// Sets `visible` (envelope): a `bool`, a state path or an expression.
+    pub fn visible(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.visible(value);
+        self
+    }
+
+    /// Sets `enabled` (envelope): a `bool`, a state path or an expression.
+    pub fn enabled(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.enabled(value);
+        self
+    }
+
+    /// Sets `bind` (envelope): the state key the widget reads and writes.
+    pub fn bind(mut self, key: BindKey) -> Self {
+        self.envelope = self.envelope.bind(key);
+        self
+    }
+
+    /// Sets `state` (envelope): the screen state declared by this widget.
+    pub fn state(mut self, block: StateBlock) -> Self {
+        self.envelope = self.envelope.state(block);
+        self
+    }
+
+    /// Sets `globalState` (envelope): the global state declared by this widget.
+    pub fn global_state(mut self, block: GlobalStateBlock) -> Self {
+        self.envelope = self.envelope.global_state(block);
+        self
+    }
+
+    /// Sets `onInit` (envelope): action(s) run when the widget is first built.
+    pub fn on_init(mut self, on_init: impl Into<OnInit>) -> Self {
+        self.envelope = self.envelope.on_init(on_init);
         self
     }
 }
@@ -265,6 +313,7 @@ impl Serialize for AlertDialog {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         let mut map = serializer.serialize_map(None)?;
         map.serialize_entry("type", "alertDialog")?;
+        self.envelope.serialize_into(&mut map)?;
         if let Some(value) = &self.icon {
             map.serialize_entry("icon", value)?;
         }
@@ -349,6 +398,7 @@ impl Serialize for AlertDialog {
 
 impl Validate for AlertDialog {
     fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
+        self.envelope.validate_at(path, issues);
         self.icon.validate_at(&path.key("icon"), issues);
         self.icon_padding
             .validate_at(&path.key("iconPadding"), issues);
@@ -366,6 +416,15 @@ impl Validate for AlertDialog {
         self.actions.validate_at(&path.key("actions"), issues);
         self.actions_padding
             .validate_at(&path.key("actionsPadding"), issues);
+        if let Some(value) = &self.actions_alignment {
+            value.validate_binding_at(&path.key("actionsAlignment"), issues);
+        }
+        if let Some(value) = &self.actions_overflow_alignment {
+            value.validate_binding_at(&path.key("actionsOverflowAlignment"), issues);
+        }
+        if let Some(value) = &self.actions_overflow_direction {
+            value.validate_binding_at(&path.key("actionsOverflowDirection"), issues);
+        }
         self.actions_overflow_button_spacing
             .validate_at(&path.key("actionsOverflowButtonSpacing"), issues);
         self.button_padding
@@ -381,7 +440,16 @@ impl Validate for AlertDialog {
             .validate_at(&path.key("semanticLabel"), issues);
         self.inset_padding
             .validate_at(&path.key("insetPadding"), issues);
+        if let Some(value) = &self.clip_behavior {
+            value.validate_binding_at(&path.key("clipBehavior"), issues);
+        }
         self.shape.validate_at(&path.key("shape"), issues);
+        if let Some(value) = &self.alignment {
+            value.validate_binding_at(&path.key("alignment"), issues);
+        }
+        if let Some(value) = &self.scrollable {
+            value.validate_binding_at(&path.key("scrollable"), issues);
+        }
     }
 }
 
@@ -389,6 +457,8 @@ impl StacNode for AlertDialog {
     const KIND: NodeKind = NodeKind::Widget;
     const TYPE_NAME: &'static str = "alertDialog";
 }
+
+impl Plain for AlertDialog {}
 
 impl From<AlertDialog> for Widget {
     fn from(value: AlertDialog) -> Self {

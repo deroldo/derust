@@ -8,6 +8,9 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
@@ -17,29 +20,29 @@ pub struct BottomNavBarThemeData {
     /// The background color of the bottom navigation bar.
     pub background_color: Option<Dyn<String>>,
     /// The z-coordinate at which to place this bottom navigation bar relative to its parent.
-    pub elevation: Option<f64>,
+    pub elevation: Option<Reactive<f64>>,
     /// The icon theme for selected items.
-    pub selected_icon_theme: Option<Box<IconThemeData>>,
+    pub selected_icon_theme: Option<Reactive<Box<IconThemeData>>>,
     /// The icon theme for unselected items.
-    pub unselected_icon_theme: Option<Box<IconThemeData>>,
+    pub unselected_icon_theme: Option<Reactive<Box<IconThemeData>>>,
     /// The color of the selected item.
     pub selected_item_color: Option<Dyn<String>>,
     /// The color of the unselected items.
     pub unselected_item_color: Option<Dyn<String>>,
     /// The text style for selected labels.
-    pub selected_label_style: Option<TextStyle>,
+    pub selected_label_style: Option<Reactive<TextStyle>>,
     /// The text style for unselected labels.
-    pub unselected_label_style: Option<TextStyle>,
+    pub unselected_label_style: Option<Reactive<TextStyle>>,
     /// Whether to show labels for selected items.
-    pub show_selected_labels: Option<bool>,
+    pub show_selected_labels: Option<Reactive<bool>>,
     /// Whether to show labels for unselected items.
-    pub show_unselected_labels: Option<bool>,
+    pub show_unselected_labels: Option<Reactive<bool>>,
     /// The type of bottom navigation bar.
-    pub type_: Option<BottomNavigationBarType>,
+    pub type_: Option<Reactive<BottomNavigationBarType>>,
     /// Whether detected gestures should provide acoustic and/or haptic feedback.
-    pub enable_feedback: Option<bool>,
+    pub enable_feedback: Option<Reactive<bool>>,
     /// The layout behavior in landscape orientation.
-    pub landscape_layout: Option<BottomNavigationBarLandscapeLayout>,
+    pub landscape_layout: Option<Reactive<BottomNavigationBarLandscapeLayout>>,
 }
 
 impl BottomNavBarThemeData {
@@ -69,20 +72,20 @@ impl BottomNavBarThemeData {
     }
 
     /// The z-coordinate at which to place this bottom navigation bar relative to its parent.
-    pub fn elevation(mut self, value: impl Into<f64>) -> Self {
-        self.elevation = Some(value.into());
+    pub fn elevation(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.elevation = Some(value.into_reactive());
         self
     }
 
     /// The icon theme for selected items.
-    pub fn selected_icon_theme(mut self, value: impl Into<IconThemeData>) -> Self {
-        self.selected_icon_theme = Some(Box::new(value.into()));
+    pub fn selected_icon_theme(mut self, value: impl IntoReactive<IconThemeData>) -> Self {
+        self.selected_icon_theme = Some(value.into_reactive().boxed());
         self
     }
 
     /// The icon theme for unselected items.
-    pub fn unselected_icon_theme(mut self, value: impl Into<IconThemeData>) -> Self {
-        self.unselected_icon_theme = Some(Box::new(value.into()));
+    pub fn unselected_icon_theme(mut self, value: impl IntoReactive<IconThemeData>) -> Self {
+        self.unselected_icon_theme = Some(value.into_reactive().boxed());
         self
     }
 
@@ -99,47 +102,47 @@ impl BottomNavBarThemeData {
     }
 
     /// The text style for selected labels.
-    pub fn selected_label_style(mut self, value: impl Into<TextStyle>) -> Self {
-        self.selected_label_style = Some(value.into());
+    pub fn selected_label_style(mut self, value: impl IntoReactive<TextStyle>) -> Self {
+        self.selected_label_style = Some(value.into_reactive());
         self
     }
 
     /// The text style for unselected labels.
-    pub fn unselected_label_style(mut self, value: impl Into<TextStyle>) -> Self {
-        self.unselected_label_style = Some(value.into());
+    pub fn unselected_label_style(mut self, value: impl IntoReactive<TextStyle>) -> Self {
+        self.unselected_label_style = Some(value.into_reactive());
         self
     }
 
     /// Whether to show labels for selected items.
-    pub fn show_selected_labels(mut self, value: bool) -> Self {
-        self.show_selected_labels = Some(value);
+    pub fn show_selected_labels(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.show_selected_labels = Some(value.into_reactive());
         self
     }
 
     /// Whether to show labels for unselected items.
-    pub fn show_unselected_labels(mut self, value: bool) -> Self {
-        self.show_unselected_labels = Some(value);
+    pub fn show_unselected_labels(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.show_unselected_labels = Some(value.into_reactive());
         self
     }
 
     /// The type of bottom navigation bar.
-    pub fn type_(mut self, value: impl Into<BottomNavigationBarType>) -> Self {
-        self.type_ = Some(value.into());
+    pub fn type_(mut self, value: impl IntoReactive<BottomNavigationBarType>) -> Self {
+        self.type_ = Some(value.into_reactive());
         self
     }
 
     /// Whether detected gestures should provide acoustic and/or haptic feedback.
-    pub fn enable_feedback(mut self, value: bool) -> Self {
-        self.enable_feedback = Some(value);
+    pub fn enable_feedback(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.enable_feedback = Some(value.into_reactive());
         self
     }
 
     /// The layout behavior in landscape orientation.
     pub fn landscape_layout(
         mut self,
-        value: impl Into<BottomNavigationBarLandscapeLayout>,
+        value: impl IntoReactive<BottomNavigationBarLandscapeLayout>,
     ) -> Self {
-        self.landscape_layout = Some(value.into());
+        self.landscape_layout = Some(value.into_reactive());
         self
     }
 }
@@ -207,5 +210,22 @@ impl Validate for BottomNavBarThemeData {
             .validate_at(&path.key("selectedLabelStyle"), issues);
         self.unselected_label_style
             .validate_at(&path.key("unselectedLabelStyle"), issues);
+        if let Some(value) = &self.show_selected_labels {
+            value.validate_binding_at(&path.key("showSelectedLabels"), issues);
+        }
+        if let Some(value) = &self.show_unselected_labels {
+            value.validate_binding_at(&path.key("showUnselectedLabels"), issues);
+        }
+        if let Some(value) = &self.type_ {
+            value.validate_binding_at(&path.key("type"), issues);
+        }
+        if let Some(value) = &self.enable_feedback {
+            value.validate_binding_at(&path.key("enableFeedback"), issues);
+        }
+        if let Some(value) = &self.landscape_layout {
+            value.validate_binding_at(&path.key("landscapeLayout"), issues);
+        }
     }
 }
+
+impl Plain for BottomNavBarThemeData {}

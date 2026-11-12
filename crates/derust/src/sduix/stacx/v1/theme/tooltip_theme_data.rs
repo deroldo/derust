@@ -8,6 +8,9 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
@@ -15,33 +18,33 @@ use serde::ser::{Serialize, SerializeMap, Serializer};
 #[derive(Debug, Clone, PartialEq)]
 pub struct TooltipThemeData {
     /// Size constraints for the tooltip.
-    pub constraints: Option<BoxConstraints>,
+    pub constraints: Option<Reactive<BoxConstraints>>,
     /// Padding inside the tooltip.
-    pub padding: Option<EdgeInsets>,
+    pub padding: Option<Reactive<EdgeInsets>>,
     /// Margin around the tooltip.
-    pub margin: Option<EdgeInsets>,
+    pub margin: Option<Reactive<EdgeInsets>>,
     /// Vertical gap between widget and tooltip.
-    pub vertical_offset: Option<f64>,
+    pub vertical_offset: Option<Reactive<f64>>,
     /// Whether tooltip prefers to appear below the widget.
-    pub prefer_below: Option<bool>,
+    pub prefer_below: Option<Reactive<bool>>,
     /// Whether tooltip text is excluded from semantics.
-    pub exclude_from_semantics: Option<bool>,
+    pub exclude_from_semantics: Option<Reactive<bool>>,
     /// Tooltip decoration.
-    pub decoration: Option<Box<BoxDecoration>>,
+    pub decoration: Option<Reactive<Box<BoxDecoration>>>,
     /// Tooltip text style.
-    pub text_style: Option<TextStyle>,
+    pub text_style: Option<Reactive<TextStyle>>,
     /// Tooltip text alignment.
-    pub text_align: Option<TextAlign>,
+    pub text_align: Option<Reactive<TextAlign>>,
     /// Delay before showing tooltip.
-    pub wait_duration: Option<Duration>,
+    pub wait_duration: Option<Reactive<Duration>>,
     /// Duration tooltip remains visible.
-    pub show_duration: Option<Duration>,
+    pub show_duration: Option<Reactive<Duration>>,
     /// Delay before tooltip disappears.
-    pub exit_duration: Option<Duration>,
+    pub exit_duration: Option<Reactive<Duration>>,
     /// Trigger mode for tooltip.
-    pub trigger_mode: Option<TooltipTriggerMode>,
+    pub trigger_mode: Option<Reactive<TooltipTriggerMode>>,
     /// Whether to provide acoustic/haptic feedback.
-    pub enable_feedback: Option<bool>,
+    pub enable_feedback: Option<Reactive<bool>>,
 }
 
 impl TooltipThemeData {
@@ -66,86 +69,86 @@ impl TooltipThemeData {
     }
 
     /// Size constraints for the tooltip.
-    pub fn constraints(mut self, value: impl Into<BoxConstraints>) -> Self {
-        self.constraints = Some(value.into());
+    pub fn constraints(mut self, value: impl IntoReactive<BoxConstraints>) -> Self {
+        self.constraints = Some(value.into_reactive());
         self
     }
 
     /// Padding inside the tooltip.
-    pub fn padding(mut self, value: impl Into<EdgeInsets>) -> Self {
-        self.padding = Some(value.into());
+    pub fn padding(mut self, value: impl IntoReactive<EdgeInsets>) -> Self {
+        self.padding = Some(value.into_reactive());
         self
     }
 
     /// Margin around the tooltip.
-    pub fn margin(mut self, value: impl Into<EdgeInsets>) -> Self {
-        self.margin = Some(value.into());
+    pub fn margin(mut self, value: impl IntoReactive<EdgeInsets>) -> Self {
+        self.margin = Some(value.into_reactive());
         self
     }
 
     /// Vertical gap between widget and tooltip.
-    pub fn vertical_offset(mut self, value: impl Into<f64>) -> Self {
-        self.vertical_offset = Some(value.into());
+    pub fn vertical_offset(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.vertical_offset = Some(value.into_reactive());
         self
     }
 
     /// Whether tooltip prefers to appear below the widget.
-    pub fn prefer_below(mut self, value: bool) -> Self {
-        self.prefer_below = Some(value);
+    pub fn prefer_below(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.prefer_below = Some(value.into_reactive());
         self
     }
 
     /// Whether tooltip text is excluded from semantics.
-    pub fn exclude_from_semantics(mut self, value: bool) -> Self {
-        self.exclude_from_semantics = Some(value);
+    pub fn exclude_from_semantics(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.exclude_from_semantics = Some(value.into_reactive());
         self
     }
 
     /// Tooltip decoration.
-    pub fn decoration(mut self, value: impl Into<BoxDecoration>) -> Self {
-        self.decoration = Some(Box::new(value.into()));
+    pub fn decoration(mut self, value: impl IntoReactive<BoxDecoration>) -> Self {
+        self.decoration = Some(value.into_reactive().boxed());
         self
     }
 
     /// Tooltip text style.
-    pub fn text_style(mut self, value: impl Into<TextStyle>) -> Self {
-        self.text_style = Some(value.into());
+    pub fn text_style(mut self, value: impl IntoReactive<TextStyle>) -> Self {
+        self.text_style = Some(value.into_reactive());
         self
     }
 
     /// Tooltip text alignment.
-    pub fn text_align(mut self, value: impl Into<TextAlign>) -> Self {
-        self.text_align = Some(value.into());
+    pub fn text_align(mut self, value: impl IntoReactive<TextAlign>) -> Self {
+        self.text_align = Some(value.into_reactive());
         self
     }
 
     /// Delay before showing tooltip.
-    pub fn wait_duration(mut self, value: impl Into<Duration>) -> Self {
-        self.wait_duration = Some(value.into());
+    pub fn wait_duration(mut self, value: impl IntoReactive<Duration>) -> Self {
+        self.wait_duration = Some(value.into_reactive());
         self
     }
 
     /// Duration tooltip remains visible.
-    pub fn show_duration(mut self, value: impl Into<Duration>) -> Self {
-        self.show_duration = Some(value.into());
+    pub fn show_duration(mut self, value: impl IntoReactive<Duration>) -> Self {
+        self.show_duration = Some(value.into_reactive());
         self
     }
 
     /// Delay before tooltip disappears.
-    pub fn exit_duration(mut self, value: impl Into<Duration>) -> Self {
-        self.exit_duration = Some(value.into());
+    pub fn exit_duration(mut self, value: impl IntoReactive<Duration>) -> Self {
+        self.exit_duration = Some(value.into_reactive());
         self
     }
 
     /// Trigger mode for tooltip.
-    pub fn trigger_mode(mut self, value: impl Into<TooltipTriggerMode>) -> Self {
-        self.trigger_mode = Some(value.into());
+    pub fn trigger_mode(mut self, value: impl IntoReactive<TooltipTriggerMode>) -> Self {
+        self.trigger_mode = Some(value.into_reactive());
         self
     }
 
     /// Whether to provide acoustic/haptic feedback.
-    pub fn enable_feedback(mut self, value: bool) -> Self {
-        self.enable_feedback = Some(value);
+    pub fn enable_feedback(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.enable_feedback = Some(value.into_reactive());
         self
     }
 }
@@ -207,13 +210,30 @@ impl Validate for TooltipThemeData {
         self.margin.validate_at(&path.key("margin"), issues);
         self.vertical_offset
             .validate_at(&path.key("verticalOffset"), issues);
+        if let Some(value) = &self.prefer_below {
+            value.validate_binding_at(&path.key("preferBelow"), issues);
+        }
+        if let Some(value) = &self.exclude_from_semantics {
+            value.validate_binding_at(&path.key("excludeFromSemantics"), issues);
+        }
         self.decoration.validate_at(&path.key("decoration"), issues);
         self.text_style.validate_at(&path.key("textStyle"), issues);
+        if let Some(value) = &self.text_align {
+            value.validate_binding_at(&path.key("textAlign"), issues);
+        }
         self.wait_duration
             .validate_at(&path.key("waitDuration"), issues);
         self.show_duration
             .validate_at(&path.key("showDuration"), issues);
         self.exit_duration
             .validate_at(&path.key("exitDuration"), issues);
+        if let Some(value) = &self.trigger_mode {
+            value.validate_binding_at(&path.key("triggerMode"), issues);
+        }
+        if let Some(value) = &self.enable_feedback {
+            value.validate_binding_at(&path.key("enableFeedback"), issues);
+        }
     }
 }
+
+impl Plain for TooltipThemeData {}

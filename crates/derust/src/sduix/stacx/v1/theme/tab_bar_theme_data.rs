@@ -8,6 +8,9 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
@@ -15,23 +18,23 @@ use serde::ser::{Serialize, SerializeMap, Serializer};
 #[derive(Debug, Clone, PartialEq)]
 pub struct TabBarThemeData {
     /// The decoration for the tab indicator.
-    pub indicator: Option<Box<BoxDecoration>>,
+    pub indicator: Option<Reactive<Box<BoxDecoration>>>,
     /// The color of the tab indicator.
     pub indicator_color: Option<Dyn<String>>,
     /// The size of the tab indicator.
-    pub indicator_size: Option<TabBarIndicatorSize>,
+    pub indicator_size: Option<Reactive<TabBarIndicatorSize>>,
     /// The color of the divider between tabs.
     pub divider_color: Option<Dyn<String>>,
     /// The color of selected tab labels.
     pub label_color: Option<Dyn<String>>,
     /// The padding around tab labels.
-    pub label_padding: Option<EdgeInsets>,
+    pub label_padding: Option<Reactive<EdgeInsets>>,
     /// The text style for selected tab labels.
-    pub label_style: Option<TextStyle>,
+    pub label_style: Option<Reactive<TextStyle>>,
     /// The color of unselected tab labels.
     pub unselected_label_color: Option<Dyn<String>>,
     /// The text style for unselected tab labels.
-    pub unselected_label_style: Option<TextStyle>,
+    pub unselected_label_style: Option<Reactive<TextStyle>>,
     /// The overlay color for tab interactions.
     pub overlay_color: Option<Dyn<String>>,
 }
@@ -54,8 +57,8 @@ impl TabBarThemeData {
     }
 
     /// The decoration for the tab indicator.
-    pub fn indicator(mut self, value: impl Into<BoxDecoration>) -> Self {
-        self.indicator = Some(Box::new(value.into()));
+    pub fn indicator(mut self, value: impl IntoReactive<BoxDecoration>) -> Self {
+        self.indicator = Some(value.into_reactive().boxed());
         self
     }
 
@@ -66,8 +69,8 @@ impl TabBarThemeData {
     }
 
     /// The size of the tab indicator.
-    pub fn indicator_size(mut self, value: impl Into<TabBarIndicatorSize>) -> Self {
-        self.indicator_size = Some(value.into());
+    pub fn indicator_size(mut self, value: impl IntoReactive<TabBarIndicatorSize>) -> Self {
+        self.indicator_size = Some(value.into_reactive());
         self
     }
 
@@ -84,14 +87,14 @@ impl TabBarThemeData {
     }
 
     /// The padding around tab labels.
-    pub fn label_padding(mut self, value: impl Into<EdgeInsets>) -> Self {
-        self.label_padding = Some(value.into());
+    pub fn label_padding(mut self, value: impl IntoReactive<EdgeInsets>) -> Self {
+        self.label_padding = Some(value.into_reactive());
         self
     }
 
     /// The text style for selected tab labels.
-    pub fn label_style(mut self, value: impl Into<TextStyle>) -> Self {
-        self.label_style = Some(value.into());
+    pub fn label_style(mut self, value: impl IntoReactive<TextStyle>) -> Self {
+        self.label_style = Some(value.into_reactive());
         self
     }
 
@@ -102,8 +105,8 @@ impl TabBarThemeData {
     }
 
     /// The text style for unselected tab labels.
-    pub fn unselected_label_style(mut self, value: impl Into<TextStyle>) -> Self {
-        self.unselected_label_style = Some(value.into());
+    pub fn unselected_label_style(mut self, value: impl IntoReactive<TextStyle>) -> Self {
+        self.unselected_label_style = Some(value.into_reactive());
         self
     }
 
@@ -156,6 +159,9 @@ impl Validate for TabBarThemeData {
         self.indicator.validate_at(&path.key("indicator"), issues);
         self.indicator_color
             .validate_at(&path.key("indicatorColor"), issues);
+        if let Some(value) = &self.indicator_size {
+            value.validate_binding_at(&path.key("indicatorSize"), issues);
+        }
         self.divider_color
             .validate_at(&path.key("dividerColor"), issues);
         self.label_color
@@ -172,3 +178,5 @@ impl Validate for TabBarThemeData {
             .validate_at(&path.key("overlayColor"), issues);
     }
 }
+
+impl Plain for TabBarThemeData {}

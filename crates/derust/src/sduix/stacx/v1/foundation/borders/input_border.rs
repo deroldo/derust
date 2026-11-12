@@ -8,6 +8,9 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
@@ -15,17 +18,17 @@ use serde::ser::{Serialize, SerializeMap, Serializer};
 #[derive(Debug, Clone, PartialEq)]
 pub struct InputBorder {
     /// The kind of border to draw.
-    pub type_: Option<InputBorderType>,
+    pub type_: Option<Reactive<InputBorderType>>,
     /// Corner radii for outline or underline borders.
-    pub border_radius: Option<BorderRadius>,
+    pub border_radius: Option<Reactive<BorderRadius>>,
     /// Padding around the notch in an `OutlineInputBorder`. Only applicable when \[type\] is \[StacInputBorderType.outlineInputBorder\].
-    pub gap_padding: Option<f64>,
+    pub gap_padding: Option<Reactive<f64>>,
     /// Stroke width for the border line.
-    pub width: Option<f64>,
+    pub width: Option<Reactive<f64>>,
     /// Border color. Accepts a hex string or named/theme color.
     pub color: Option<Dyn<String>>,
     /// Optional gradient used by custom outline implementations.
-    pub gradient: Option<Gradient>,
+    pub gradient: Option<Reactive<Gradient>>,
 }
 
 impl InputBorder {
@@ -42,26 +45,26 @@ impl InputBorder {
     }
 
     /// The kind of border to draw.
-    pub fn type_(mut self, value: impl Into<InputBorderType>) -> Self {
-        self.type_ = Some(value.into());
+    pub fn type_(mut self, value: impl IntoReactive<InputBorderType>) -> Self {
+        self.type_ = Some(value.into_reactive());
         self
     }
 
     /// Corner radii for outline or underline borders.
-    pub fn border_radius(mut self, value: impl Into<BorderRadius>) -> Self {
-        self.border_radius = Some(value.into());
+    pub fn border_radius(mut self, value: impl IntoReactive<BorderRadius>) -> Self {
+        self.border_radius = Some(value.into_reactive());
         self
     }
 
     /// Padding around the notch in an `OutlineInputBorder`. Only applicable when \[type\] is \[StacInputBorderType.outlineInputBorder\].
-    pub fn gap_padding(mut self, value: impl Into<f64>) -> Self {
-        self.gap_padding = Some(value.into());
+    pub fn gap_padding(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.gap_padding = Some(value.into_reactive());
         self
     }
 
     /// Stroke width for the border line.
-    pub fn width(mut self, value: impl Into<f64>) -> Self {
-        self.width = Some(value.into());
+    pub fn width(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.width = Some(value.into_reactive());
         self
     }
 
@@ -72,8 +75,8 @@ impl InputBorder {
     }
 
     /// Optional gradient used by custom outline implementations.
-    pub fn gradient(mut self, value: impl Into<Gradient>) -> Self {
-        self.gradient = Some(value.into());
+    pub fn gradient(mut self, value: impl IntoReactive<Gradient>) -> Self {
+        self.gradient = Some(value.into_reactive());
         self
     }
 }
@@ -105,6 +108,9 @@ impl Serialize for InputBorder {
 
 impl Validate for InputBorder {
     fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
+        if let Some(value) = &self.type_ {
+            value.validate_binding_at(&path.key("type"), issues);
+        }
         self.border_radius
             .validate_at(&path.key("borderRadius"), issues);
         self.gap_padding
@@ -114,3 +120,5 @@ impl Validate for InputBorder {
         self.gradient.validate_at(&path.key("gradient"), issues);
     }
 }
+
+impl Plain for InputBorder {}

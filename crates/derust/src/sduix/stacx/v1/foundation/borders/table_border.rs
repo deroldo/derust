@@ -8,6 +8,9 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
@@ -17,11 +20,11 @@ pub struct TableBorder {
     /// Border color as hex or named color.
     pub color: Option<Dyn<String>>,
     /// Border stroke width in logical pixels.
-    pub width: Option<f64>,
+    pub width: Option<Reactive<f64>>,
     /// Border style (e.g., solid or none).
-    pub style: Option<BorderStyle>,
+    pub style: Option<Reactive<BorderStyle>>,
     /// Corner radii for rounded borders.
-    pub border_radius: Option<BorderRadius>,
+    pub border_radius: Option<Reactive<BorderRadius>>,
 }
 
 impl TableBorder {
@@ -42,20 +45,20 @@ impl TableBorder {
     }
 
     /// Border stroke width in logical pixels.
-    pub fn width(mut self, value: impl Into<f64>) -> Self {
-        self.width = Some(value.into());
+    pub fn width(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.width = Some(value.into_reactive());
         self
     }
 
     /// Border style (e.g., solid or none).
-    pub fn style(mut self, value: impl Into<BorderStyle>) -> Self {
-        self.style = Some(value.into());
+    pub fn style(mut self, value: impl IntoReactive<BorderStyle>) -> Self {
+        self.style = Some(value.into_reactive());
         self
     }
 
     /// Corner radii for rounded borders.
-    pub fn border_radius(mut self, value: impl Into<BorderRadius>) -> Self {
-        self.border_radius = Some(value.into());
+    pub fn border_radius(mut self, value: impl IntoReactive<BorderRadius>) -> Self {
+        self.border_radius = Some(value.into_reactive());
         self
     }
 }
@@ -83,7 +86,12 @@ impl Validate for TableBorder {
     fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
         self.color.validate_at(&path.key("color"), issues);
         self.width.validate_at(&path.key("width"), issues);
+        if let Some(value) = &self.style {
+            value.validate_binding_at(&path.key("style"), issues);
+        }
         self.border_radius
             .validate_at(&path.key("borderRadius"), issues);
     }
 }
+
+impl Plain for TableBorder {}

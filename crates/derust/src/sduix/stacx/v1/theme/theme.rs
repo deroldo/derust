@@ -8,6 +8,9 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
@@ -15,19 +18,19 @@ use serde::ser::{Serialize, SerializeMap, Serializer};
 #[derive(Debug, Clone, PartialEq)]
 pub struct Theme {
     /// Whether to apply elevation overlay color.
-    pub apply_elevation_overlay_color: Option<bool>,
+    pub apply_elevation_overlay_color: Option<Reactive<bool>>,
     /// The theme for input decorations (text fields, etc.).
-    pub input_decoration_theme: Option<Box<InputDecorationTheme>>,
+    pub input_decoration_theme: Option<Reactive<Box<InputDecorationTheme>>>,
     /// The minimum size of tap targets.
-    pub material_tap_target_size: Option<MaterialTapTargetSize>,
+    pub material_tap_target_size: Option<Reactive<MaterialTapTargetSize>>,
     /// The theme for scrollbars.
-    pub scrollbar_theme: Option<Box<ScrollbarThemeData>>,
+    pub scrollbar_theme: Option<Reactive<Box<ScrollbarThemeData>>>,
     /// Whether to use Material 3 design.
-    pub use_material3: Option<bool>,
+    pub use_material3: Option<Reactive<bool>>,
     /// The color scheme for the theme.
-    pub color_scheme: Option<Box<ColorScheme>>,
+    pub color_scheme: Option<Reactive<Box<ColorScheme>>>,
     /// The brightness of the theme (light or dark).
-    pub brightness: Option<Brightness>,
+    pub brightness: Option<Reactive<Brightness>>,
     /// A seed color used to generate the color scheme.
     pub color_scheme_seed: Option<Dyn<String>>,
     /// The default color of \[Material\] when it is used within this theme.
@@ -53,7 +56,7 @@ pub struct Theme {
     /// A lighter version of the primary color.
     pub primary_color_light: Option<Dyn<String>>,
     /// A swatch of primary colors with different shades.
-    pub primary_swatch: Option<Box<MaterialColor>>,
+    pub primary_swatch: Option<Reactive<Box<MaterialColor>>>,
     /// The default color of the \[Scaffold\] background.
     pub scaffold_background_color: Option<Dyn<String>>,
     /// The color of the header in a \[DataTable\].
@@ -67,71 +70,71 @@ pub struct Theme {
     /// The default font family for text in the theme.
     pub font_family: Option<Dyn<String>>,
     /// The fallback font families to use when \[fontFamily\] is not available.
-    pub font_family_fallback: Option<Vec<String>>,
+    pub font_family_fallback: Option<Reactive<Vec<String>>>,
     /// The package name for the font family.
     pub package: Option<Dyn<String>>,
     /// The default theme for icons.
-    pub icon_theme: Option<Box<IconThemeData>>,
+    pub icon_theme: Option<Reactive<Box<IconThemeData>>>,
     /// The theme for primary icons.
-    pub primary_icon_theme: Option<Box<IconThemeData>>,
+    pub primary_icon_theme: Option<Reactive<Box<IconThemeData>>>,
     /// The text theme for primary text.
-    pub primary_text_theme: Option<Box<TextTheme>>,
+    pub primary_text_theme: Option<Reactive<Box<TextTheme>>>,
     /// The default text theme for the application.
-    pub text_theme: Option<Box<TextTheme>>,
+    pub text_theme: Option<Reactive<Box<TextTheme>>>,
     /// The theme for \[AppBar\] widgets.
-    pub app_bar_theme: Option<Box<AppBarTheme>>,
+    pub app_bar_theme: Option<Reactive<Box<AppBarTheme>>>,
     /// The theme for \[MaterialBanner\] widgets.
-    pub banner_theme: Option<Box<MaterialBannerThemeData>>,
+    pub banner_theme: Option<Reactive<Box<MaterialBannerThemeData>>>,
     /// The theme for \[BottomAppBar\] widgets.
-    pub bottom_app_bar_theme: Option<Box<BottomAppBarThemeData>>,
+    pub bottom_app_bar_theme: Option<Reactive<Box<BottomAppBarThemeData>>>,
     /// The theme for \[BottomNavigationBar\] widgets.
-    pub bottom_navigation_bar_theme: Option<Box<BottomNavBarThemeData>>,
+    pub bottom_navigation_bar_theme: Option<Reactive<Box<BottomNavBarThemeData>>>,
     /// The theme for \[BottomSheet\] widgets.
-    pub bottom_sheet_theme: Option<Box<BottomSheetThemeData>>,
+    pub bottom_sheet_theme: Option<Reactive<Box<BottomSheetThemeData>>>,
     /// The theme for Material buttons.
-    pub button_theme: Option<Box<ButtonThemeData>>,
+    pub button_theme: Option<Reactive<Box<ButtonThemeData>>>,
     /// The theme for \[Card\] widgets.
-    pub card_theme: Option<Box<CardThemeData>>,
+    pub card_theme: Option<Reactive<Box<CardThemeData>>>,
     /// The theme for \[Checkbox\] widgets.
-    pub checkbox_theme: Option<Box<CheckboxThemeData>>,
+    pub checkbox_theme: Option<Reactive<Box<CheckboxThemeData>>>,
     /// The theme for \[Chip\] widgets.
-    pub chip_theme: Option<Box<ChipThemeData>>,
+    pub chip_theme: Option<Reactive<Box<ChipThemeData>>>,
     /// The theme for date picker dialogs.
-    pub date_picker_theme: Option<Box<DatePickerThemeData>>,
+    pub date_picker_theme: Option<Reactive<Box<DatePickerThemeData>>>,
     /// The theme for \[Dialog\] widgets.
-    pub dialog_theme: Option<Box<DialogThemeData>>,
+    pub dialog_theme: Option<Reactive<Box<DialogThemeData>>>,
     /// The theme for \[Divider\] widgets.
-    pub divider_theme: Option<DividerThemeData>,
+    pub divider_theme: Option<Reactive<DividerThemeData>>,
     /// The theme for \[Drawer\] widgets.
-    pub drawer_theme: Option<Box<DrawerThemeData>>,
+    pub drawer_theme: Option<Reactive<Box<DrawerThemeData>>>,
     /// The theme for \[ElevatedButton\] widgets.
-    pub elevated_button_theme: Option<Box<ButtonStyle>>,
+    pub elevated_button_theme: Option<Reactive<Box<ButtonStyle>>>,
     /// The theme for \[FilledButton\] widgets.
-    pub filled_button_theme: Option<Box<ButtonStyle>>,
+    pub filled_button_theme: Option<Reactive<Box<ButtonStyle>>>,
     /// The theme for \[FloatingActionButton\] widgets.
-    pub floating_action_button_theme: Option<Box<FloatingActionButtonThemeData>>,
+    pub floating_action_button_theme: Option<Reactive<Box<FloatingActionButtonThemeData>>>,
     /// The theme for \[IconButton\] widgets.
-    pub icon_button_theme: Option<Box<ButtonStyle>>,
+    pub icon_button_theme: Option<Reactive<Box<ButtonStyle>>>,
     /// The theme for \[ListTile\] widgets.
-    pub list_tile_theme: Option<Box<ListTileThemeData>>,
+    pub list_tile_theme: Option<Reactive<Box<ListTileThemeData>>>,
     /// The theme for \[MenuButton\] widgets.
-    pub menu_button_theme: Option<Box<ButtonStyle>>,
+    pub menu_button_theme: Option<Reactive<Box<ButtonStyle>>>,
     /// The theme for \[NavigationBar\] widgets.
-    pub navigation_bar_theme: Option<Box<NavigationBarThemeData>>,
+    pub navigation_bar_theme: Option<Reactive<Box<NavigationBarThemeData>>>,
     /// The theme for \[NavigationDrawer\] widgets.
-    pub navigation_drawer_theme: Option<Box<NavigationDrawerThemeData>>,
+    pub navigation_drawer_theme: Option<Reactive<Box<NavigationDrawerThemeData>>>,
     /// The theme for \[OutlinedButton\] widgets.
-    pub outlined_button_theme: Option<Box<ButtonStyle>>,
+    pub outlined_button_theme: Option<Reactive<Box<ButtonStyle>>>,
     /// The theme for \[SegmentedButton\] widgets.
-    pub segmented_button_theme: Option<Box<ButtonStyle>>,
+    pub segmented_button_theme: Option<Reactive<Box<ButtonStyle>>>,
     /// The theme for \[SnackBar\] widgets.
-    pub snack_bar_theme: Option<Box<SnackBarThemeData>>,
+    pub snack_bar_theme: Option<Reactive<Box<SnackBarThemeData>>>,
     /// The theme for \[TabBar\] widgets.
-    pub tab_bar_theme: Option<Box<TabBarThemeData>>,
+    pub tab_bar_theme: Option<Reactive<Box<TabBarThemeData>>>,
     /// The theme for \[TextButton\] widgets.
-    pub text_button_theme: Option<Box<ButtonStyle>>,
+    pub text_button_theme: Option<Reactive<Box<ButtonStyle>>>,
     /// The theme for \[Tooltip\] widgets.
-    pub tooltip_theme: Option<Box<TooltipThemeData>>,
+    pub tooltip_theme: Option<Reactive<Box<TooltipThemeData>>>,
 }
 
 impl Theme {
@@ -201,44 +204,50 @@ impl Theme {
     }
 
     /// Whether to apply elevation overlay color.
-    pub fn apply_elevation_overlay_color(mut self, value: bool) -> Self {
-        self.apply_elevation_overlay_color = Some(value);
+    pub fn apply_elevation_overlay_color(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.apply_elevation_overlay_color = Some(value.into_reactive());
         self
     }
 
     /// The theme for input decorations (text fields, etc.).
-    pub fn input_decoration_theme(mut self, value: impl Into<InputDecorationTheme>) -> Self {
-        self.input_decoration_theme = Some(Box::new(value.into()));
+    pub fn input_decoration_theme(
+        mut self,
+        value: impl IntoReactive<InputDecorationTheme>,
+    ) -> Self {
+        self.input_decoration_theme = Some(value.into_reactive().boxed());
         self
     }
 
     /// The minimum size of tap targets.
-    pub fn material_tap_target_size(mut self, value: impl Into<MaterialTapTargetSize>) -> Self {
-        self.material_tap_target_size = Some(value.into());
+    pub fn material_tap_target_size(
+        mut self,
+        value: impl IntoReactive<MaterialTapTargetSize>,
+    ) -> Self {
+        self.material_tap_target_size = Some(value.into_reactive());
         self
     }
 
     /// The theme for scrollbars.
-    pub fn scrollbar_theme(mut self, value: impl Into<ScrollbarThemeData>) -> Self {
-        self.scrollbar_theme = Some(Box::new(value.into()));
+    pub fn scrollbar_theme(mut self, value: impl IntoReactive<ScrollbarThemeData>) -> Self {
+        self.scrollbar_theme = Some(value.into_reactive().boxed());
         self
     }
 
     /// Whether to use Material 3 design.
-    pub fn use_material3(mut self, value: bool) -> Self {
-        self.use_material3 = Some(value);
+    pub fn use_material3(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.use_material3 = Some(value.into_reactive());
         self
     }
 
     /// The color scheme for the theme.
-    pub fn color_scheme(mut self, value: impl Into<ColorScheme>) -> Self {
-        self.color_scheme = Some(Box::new(value.into()));
+    pub fn color_scheme(mut self, value: impl IntoReactive<ColorScheme>) -> Self {
+        self.color_scheme = Some(value.into_reactive().boxed());
         self
     }
 
     /// The brightness of the theme (light or dark).
-    pub fn brightness(mut self, value: impl Into<Brightness>) -> Self {
-        self.brightness = Some(value.into());
+    pub fn brightness(mut self, value: impl IntoReactive<Brightness>) -> Self {
+        self.brightness = Some(value.into_reactive());
         self
     }
 
@@ -315,8 +324,8 @@ impl Theme {
     }
 
     /// A swatch of primary colors with different shades.
-    pub fn primary_swatch(mut self, value: impl Into<MaterialColor>) -> Self {
-        self.primary_swatch = Some(Box::new(value.into()));
+    pub fn primary_swatch(mut self, value: impl IntoReactive<MaterialColor>) -> Self {
+        self.primary_swatch = Some(value.into_reactive().boxed());
         self
     }
 
@@ -357,11 +366,8 @@ impl Theme {
     }
 
     /// The fallback font families to use when \[fontFamily\] is not available.
-    pub fn font_family_fallback(
-        mut self,
-        value: impl IntoIterator<Item = impl Into<String>>,
-    ) -> Self {
-        self.font_family_fallback = Some(value.into_iter().map(Into::into).collect());
+    pub fn font_family_fallback(mut self, value: impl IntoReactive<Vec<String>>) -> Self {
+        self.font_family_fallback = Some(value.into_reactive());
         self
     }
 
@@ -372,191 +378,200 @@ impl Theme {
     }
 
     /// The default theme for icons.
-    pub fn icon_theme(mut self, value: impl Into<IconThemeData>) -> Self {
-        self.icon_theme = Some(Box::new(value.into()));
+    pub fn icon_theme(mut self, value: impl IntoReactive<IconThemeData>) -> Self {
+        self.icon_theme = Some(value.into_reactive().boxed());
         self
     }
 
     /// The theme for primary icons.
-    pub fn primary_icon_theme(mut self, value: impl Into<IconThemeData>) -> Self {
-        self.primary_icon_theme = Some(Box::new(value.into()));
+    pub fn primary_icon_theme(mut self, value: impl IntoReactive<IconThemeData>) -> Self {
+        self.primary_icon_theme = Some(value.into_reactive().boxed());
         self
     }
 
     /// The text theme for primary text.
-    pub fn primary_text_theme(mut self, value: impl Into<TextTheme>) -> Self {
-        self.primary_text_theme = Some(Box::new(value.into()));
+    pub fn primary_text_theme(mut self, value: impl IntoReactive<TextTheme>) -> Self {
+        self.primary_text_theme = Some(value.into_reactive().boxed());
         self
     }
 
     /// The default text theme for the application.
-    pub fn text_theme(mut self, value: impl Into<TextTheme>) -> Self {
-        self.text_theme = Some(Box::new(value.into()));
+    pub fn text_theme(mut self, value: impl IntoReactive<TextTheme>) -> Self {
+        self.text_theme = Some(value.into_reactive().boxed());
         self
     }
 
     /// The theme for \[AppBar\] widgets.
-    pub fn app_bar_theme(mut self, value: impl Into<AppBarTheme>) -> Self {
-        self.app_bar_theme = Some(Box::new(value.into()));
+    pub fn app_bar_theme(mut self, value: impl IntoReactive<AppBarTheme>) -> Self {
+        self.app_bar_theme = Some(value.into_reactive().boxed());
         self
     }
 
     /// The theme for \[MaterialBanner\] widgets.
-    pub fn banner_theme(mut self, value: impl Into<MaterialBannerThemeData>) -> Self {
-        self.banner_theme = Some(Box::new(value.into()));
+    pub fn banner_theme(mut self, value: impl IntoReactive<MaterialBannerThemeData>) -> Self {
+        self.banner_theme = Some(value.into_reactive().boxed());
         self
     }
 
     /// The theme for \[BottomAppBar\] widgets.
-    pub fn bottom_app_bar_theme(mut self, value: impl Into<BottomAppBarThemeData>) -> Self {
-        self.bottom_app_bar_theme = Some(Box::new(value.into()));
+    pub fn bottom_app_bar_theme(mut self, value: impl IntoReactive<BottomAppBarThemeData>) -> Self {
+        self.bottom_app_bar_theme = Some(value.into_reactive().boxed());
         self
     }
 
     /// The theme for \[BottomNavigationBar\] widgets.
-    pub fn bottom_navigation_bar_theme(mut self, value: impl Into<BottomNavBarThemeData>) -> Self {
-        self.bottom_navigation_bar_theme = Some(Box::new(value.into()));
+    pub fn bottom_navigation_bar_theme(
+        mut self,
+        value: impl IntoReactive<BottomNavBarThemeData>,
+    ) -> Self {
+        self.bottom_navigation_bar_theme = Some(value.into_reactive().boxed());
         self
     }
 
     /// The theme for \[BottomSheet\] widgets.
-    pub fn bottom_sheet_theme(mut self, value: impl Into<BottomSheetThemeData>) -> Self {
-        self.bottom_sheet_theme = Some(Box::new(value.into()));
+    pub fn bottom_sheet_theme(mut self, value: impl IntoReactive<BottomSheetThemeData>) -> Self {
+        self.bottom_sheet_theme = Some(value.into_reactive().boxed());
         self
     }
 
     /// The theme for Material buttons.
-    pub fn button_theme(mut self, value: impl Into<ButtonThemeData>) -> Self {
-        self.button_theme = Some(Box::new(value.into()));
+    pub fn button_theme(mut self, value: impl IntoReactive<ButtonThemeData>) -> Self {
+        self.button_theme = Some(value.into_reactive().boxed());
         self
     }
 
     /// The theme for \[Card\] widgets.
-    pub fn card_theme(mut self, value: impl Into<CardThemeData>) -> Self {
-        self.card_theme = Some(Box::new(value.into()));
+    pub fn card_theme(mut self, value: impl IntoReactive<CardThemeData>) -> Self {
+        self.card_theme = Some(value.into_reactive().boxed());
         self
     }
 
     /// The theme for \[Checkbox\] widgets.
-    pub fn checkbox_theme(mut self, value: impl Into<CheckboxThemeData>) -> Self {
-        self.checkbox_theme = Some(Box::new(value.into()));
+    pub fn checkbox_theme(mut self, value: impl IntoReactive<CheckboxThemeData>) -> Self {
+        self.checkbox_theme = Some(value.into_reactive().boxed());
         self
     }
 
     /// The theme for \[Chip\] widgets.
-    pub fn chip_theme(mut self, value: impl Into<ChipThemeData>) -> Self {
-        self.chip_theme = Some(Box::new(value.into()));
+    pub fn chip_theme(mut self, value: impl IntoReactive<ChipThemeData>) -> Self {
+        self.chip_theme = Some(value.into_reactive().boxed());
         self
     }
 
     /// The theme for date picker dialogs.
-    pub fn date_picker_theme(mut self, value: impl Into<DatePickerThemeData>) -> Self {
-        self.date_picker_theme = Some(Box::new(value.into()));
+    pub fn date_picker_theme(mut self, value: impl IntoReactive<DatePickerThemeData>) -> Self {
+        self.date_picker_theme = Some(value.into_reactive().boxed());
         self
     }
 
     /// The theme for \[Dialog\] widgets.
-    pub fn dialog_theme(mut self, value: impl Into<DialogThemeData>) -> Self {
-        self.dialog_theme = Some(Box::new(value.into()));
+    pub fn dialog_theme(mut self, value: impl IntoReactive<DialogThemeData>) -> Self {
+        self.dialog_theme = Some(value.into_reactive().boxed());
         self
     }
 
     /// The theme for \[Divider\] widgets.
-    pub fn divider_theme(mut self, value: impl Into<DividerThemeData>) -> Self {
-        self.divider_theme = Some(value.into());
+    pub fn divider_theme(mut self, value: impl IntoReactive<DividerThemeData>) -> Self {
+        self.divider_theme = Some(value.into_reactive());
         self
     }
 
     /// The theme for \[Drawer\] widgets.
-    pub fn drawer_theme(mut self, value: impl Into<DrawerThemeData>) -> Self {
-        self.drawer_theme = Some(Box::new(value.into()));
+    pub fn drawer_theme(mut self, value: impl IntoReactive<DrawerThemeData>) -> Self {
+        self.drawer_theme = Some(value.into_reactive().boxed());
         self
     }
 
     /// The theme for \[ElevatedButton\] widgets.
-    pub fn elevated_button_theme(mut self, value: impl Into<ButtonStyle>) -> Self {
-        self.elevated_button_theme = Some(Box::new(value.into()));
+    pub fn elevated_button_theme(mut self, value: impl IntoReactive<ButtonStyle>) -> Self {
+        self.elevated_button_theme = Some(value.into_reactive().boxed());
         self
     }
 
     /// The theme for \[FilledButton\] widgets.
-    pub fn filled_button_theme(mut self, value: impl Into<ButtonStyle>) -> Self {
-        self.filled_button_theme = Some(Box::new(value.into()));
+    pub fn filled_button_theme(mut self, value: impl IntoReactive<ButtonStyle>) -> Self {
+        self.filled_button_theme = Some(value.into_reactive().boxed());
         self
     }
 
     /// The theme for \[FloatingActionButton\] widgets.
     pub fn floating_action_button_theme(
         mut self,
-        value: impl Into<FloatingActionButtonThemeData>,
+        value: impl IntoReactive<FloatingActionButtonThemeData>,
     ) -> Self {
-        self.floating_action_button_theme = Some(Box::new(value.into()));
+        self.floating_action_button_theme = Some(value.into_reactive().boxed());
         self
     }
 
     /// The theme for \[IconButton\] widgets.
-    pub fn icon_button_theme(mut self, value: impl Into<ButtonStyle>) -> Self {
-        self.icon_button_theme = Some(Box::new(value.into()));
+    pub fn icon_button_theme(mut self, value: impl IntoReactive<ButtonStyle>) -> Self {
+        self.icon_button_theme = Some(value.into_reactive().boxed());
         self
     }
 
     /// The theme for \[ListTile\] widgets.
-    pub fn list_tile_theme(mut self, value: impl Into<ListTileThemeData>) -> Self {
-        self.list_tile_theme = Some(Box::new(value.into()));
+    pub fn list_tile_theme(mut self, value: impl IntoReactive<ListTileThemeData>) -> Self {
+        self.list_tile_theme = Some(value.into_reactive().boxed());
         self
     }
 
     /// The theme for \[MenuButton\] widgets.
-    pub fn menu_button_theme(mut self, value: impl Into<ButtonStyle>) -> Self {
-        self.menu_button_theme = Some(Box::new(value.into()));
+    pub fn menu_button_theme(mut self, value: impl IntoReactive<ButtonStyle>) -> Self {
+        self.menu_button_theme = Some(value.into_reactive().boxed());
         self
     }
 
     /// The theme for \[NavigationBar\] widgets.
-    pub fn navigation_bar_theme(mut self, value: impl Into<NavigationBarThemeData>) -> Self {
-        self.navigation_bar_theme = Some(Box::new(value.into()));
+    pub fn navigation_bar_theme(
+        mut self,
+        value: impl IntoReactive<NavigationBarThemeData>,
+    ) -> Self {
+        self.navigation_bar_theme = Some(value.into_reactive().boxed());
         self
     }
 
     /// The theme for \[NavigationDrawer\] widgets.
-    pub fn navigation_drawer_theme(mut self, value: impl Into<NavigationDrawerThemeData>) -> Self {
-        self.navigation_drawer_theme = Some(Box::new(value.into()));
+    pub fn navigation_drawer_theme(
+        mut self,
+        value: impl IntoReactive<NavigationDrawerThemeData>,
+    ) -> Self {
+        self.navigation_drawer_theme = Some(value.into_reactive().boxed());
         self
     }
 
     /// The theme for \[OutlinedButton\] widgets.
-    pub fn outlined_button_theme(mut self, value: impl Into<ButtonStyle>) -> Self {
-        self.outlined_button_theme = Some(Box::new(value.into()));
+    pub fn outlined_button_theme(mut self, value: impl IntoReactive<ButtonStyle>) -> Self {
+        self.outlined_button_theme = Some(value.into_reactive().boxed());
         self
     }
 
     /// The theme for \[SegmentedButton\] widgets.
-    pub fn segmented_button_theme(mut self, value: impl Into<ButtonStyle>) -> Self {
-        self.segmented_button_theme = Some(Box::new(value.into()));
+    pub fn segmented_button_theme(mut self, value: impl IntoReactive<ButtonStyle>) -> Self {
+        self.segmented_button_theme = Some(value.into_reactive().boxed());
         self
     }
 
     /// The theme for \[SnackBar\] widgets.
-    pub fn snack_bar_theme(mut self, value: impl Into<SnackBarThemeData>) -> Self {
-        self.snack_bar_theme = Some(Box::new(value.into()));
+    pub fn snack_bar_theme(mut self, value: impl IntoReactive<SnackBarThemeData>) -> Self {
+        self.snack_bar_theme = Some(value.into_reactive().boxed());
         self
     }
 
     /// The theme for \[TabBar\] widgets.
-    pub fn tab_bar_theme(mut self, value: impl Into<TabBarThemeData>) -> Self {
-        self.tab_bar_theme = Some(Box::new(value.into()));
+    pub fn tab_bar_theme(mut self, value: impl IntoReactive<TabBarThemeData>) -> Self {
+        self.tab_bar_theme = Some(value.into_reactive().boxed());
         self
     }
 
     /// The theme for \[TextButton\] widgets.
-    pub fn text_button_theme(mut self, value: impl Into<ButtonStyle>) -> Self {
-        self.text_button_theme = Some(Box::new(value.into()));
+    pub fn text_button_theme(mut self, value: impl IntoReactive<ButtonStyle>) -> Self {
+        self.text_button_theme = Some(value.into_reactive().boxed());
         self
     }
 
     /// The theme for \[Tooltip\] widgets.
-    pub fn tooltip_theme(mut self, value: impl Into<TooltipThemeData>) -> Self {
-        self.tooltip_theme = Some(Box::new(value.into()));
+    pub fn tooltip_theme(mut self, value: impl IntoReactive<TooltipThemeData>) -> Self {
+        self.tooltip_theme = Some(value.into_reactive().boxed());
         self
     }
 }
@@ -747,12 +762,24 @@ impl Serialize for Theme {
 
 impl Validate for Theme {
     fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
+        if let Some(value) = &self.apply_elevation_overlay_color {
+            value.validate_binding_at(&path.key("applyElevationOverlayColor"), issues);
+        }
         self.input_decoration_theme
             .validate_at(&path.key("inputDecorationTheme"), issues);
+        if let Some(value) = &self.material_tap_target_size {
+            value.validate_binding_at(&path.key("materialTapTargetSize"), issues);
+        }
         self.scrollbar_theme
             .validate_at(&path.key("scrollbarTheme"), issues);
+        if let Some(value) = &self.use_material3 {
+            value.validate_binding_at(&path.key("useMaterial3"), issues);
+        }
         self.color_scheme
             .validate_at(&path.key("colorScheme"), issues);
+        if let Some(value) = &self.brightness {
+            value.validate_binding_at(&path.key("brightness"), issues);
+        }
         self.color_scheme_seed
             .validate_at(&path.key("colorSchemeSeed"), issues);
         self.canvas_color
@@ -789,6 +816,9 @@ impl Validate for Theme {
             .validate_at(&path.key("unselectedWidgetColor"), issues);
         self.font_family
             .validate_at(&path.key("fontFamily"), issues);
+        if let Some(value) = &self.font_family_fallback {
+            value.validate_binding_at(&path.key("fontFamilyFallback"), issues);
+        }
         self.package.validate_at(&path.key("package"), issues);
         self.icon_theme.validate_at(&path.key("iconTheme"), issues);
         self.primary_icon_theme
@@ -850,3 +880,5 @@ impl Validate for Theme {
             .validate_at(&path.key("tooltipTheme"), issues);
     }
 }
+
+impl Plain for Theme {}

@@ -8,80 +8,83 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
 /// A Stac model representing Flutter's \[TextFormField\] widget.
 #[derive(Debug, Clone, PartialEq)]
 pub struct TextFormField {
+    /// Properties common to every widget (`visible`, `enabled`, `bind`, `state`, `globalState`, `onInit`).
+    pub envelope: Envelope,
     /// Identifier used by the form scope to store/read this field's value.
     pub id: Option<Dyn<String>>,
     /// Visual decoration and labeling for the text field.
-    pub decoration: Option<Box<InputDecoration>>,
+    pub decoration: Option<Reactive<Box<InputDecoration>>>,
     /// Initial text to display in the field.
     pub initial_value: Option<Dyn<String>>,
     /// Keyboard configuration.
-    pub keyboard_type: Option<TextInputType>,
+    pub keyboard_type: Option<Reactive<TextInputType>>,
     /// IME action button configuration.
-    pub text_input_action: Option<TextInputAction>,
+    pub text_input_action: Option<Reactive<TextInputAction>>,
     /// Auto-capitalization behavior.
-    pub text_capitalization: Option<TextCapitalization>,
+    pub text_capitalization: Option<Reactive<TextCapitalization>>,
     /// Text style for the input text.
-    pub style: Option<TextStyle>,
+    pub style: Option<Reactive<TextStyle>>,
     /// Horizontal text alignment.
-    pub text_align: Option<TextAlign>,
+    pub text_align: Option<Reactive<TextAlign>>,
     /// Text direction.
-    pub text_direction: Option<TextDirection>,
+    pub text_direction: Option<Reactive<TextDirection>>,
     /// Whether the field is read-only.
-    pub read_only: Option<bool>,
+    pub read_only: Option<Reactive<bool>>,
     /// Whether to show the cursor.
-    pub show_cursor: Option<bool>,
+    pub show_cursor: Option<Reactive<bool>>,
     /// Whether to focus automatically.
-    pub autofocus: Option<bool>,
+    pub autofocus: Option<Reactive<bool>>,
     /// Character used when \[obscureText\] is true.
     pub obscuring_character: Option<Dyn<String>>,
     /// Maximum lines.
-    pub max_lines: Option<i64>,
+    pub max_lines: Option<Reactive<i64>>,
     /// Minimum lines.
-    pub min_lines: Option<i64>,
+    pub min_lines: Option<Reactive<i64>>,
     /// Maximum number of characters allowed.
-    pub max_length: Option<i64>,
+    pub max_length: Option<Reactive<i64>>,
     /// Obscure text (e.g., for passwords).
-    pub obscure_text: Option<bool>,
+    pub obscure_text: Option<Reactive<bool>>,
     /// Whether to enable autocorrect.
-    pub autocorrect: Option<bool>,
+    pub autocorrect: Option<Reactive<bool>>,
     /// Smart dashes behavior.
-    pub smart_dashes_type: Option<SmartDashesType>,
+    pub smart_dashes_type: Option<Reactive<SmartDashesType>>,
     /// Smart quotes behavior.
-    pub smart_quotes_type: Option<SmartQuotesType>,
+    pub smart_quotes_type: Option<Reactive<SmartQuotesType>>,
     /// Max length enforcement strategy.
-    pub max_length_enforcement: Option<MaxLengthEnforcement>,
+    pub max_length_enforcement: Option<Reactive<MaxLengthEnforcement>>,
     /// Expand to fill parent vertically.
-    pub expands: Option<bool>,
+    pub expands: Option<Reactive<bool>>,
     /// Keyboard brightness.
-    pub keyboard_appearance: Option<Brightness>,
+    pub keyboard_appearance: Option<Reactive<Brightness>>,
     /// Scroll padding when ensuring visibility.
-    pub scroll_padding: Option<EdgeInsets>,
+    pub scroll_padding: Option<Reactive<EdgeInsets>>,
     /// Restoration ID.
     pub restoration_id: Option<Dyn<String>>,
     /// Whether to enable personalized learning.
-    pub enable_ime_personalized_learning: Option<bool>,
+    pub enable_ime_personalized_learning: Option<Reactive<bool>>,
     /// Whether to enable input suggestions.
-    pub enable_suggestions: Option<bool>,
-    /// Whether the field is interactive.
-    pub enabled: Option<bool>,
+    pub enable_suggestions: Option<Reactive<bool>>,
     /// Width of the text cursor in logical pixels.
-    pub cursor_width: Option<f64>,
+    pub cursor_width: Option<Reactive<f64>>,
     /// Height of the text cursor in logical pixels.
-    pub cursor_height: Option<f64>,
+    pub cursor_height: Option<Reactive<f64>>,
     /// Color of the text cursor.
-    pub cursor_color: Option<Color>,
+    pub cursor_color: Option<Reactive<Color>>,
     /// Autovalidation behavior.
-    pub autovalidate_mode: Option<AutovalidateMode>,
+    pub autovalidate_mode: Option<Reactive<AutovalidateMode>>,
     /// Input text formatting rules applied as the user types.
-    pub input_formatters: Option<Vec<InputFormatter>>,
+    pub input_formatters: Option<Reactive<Vec<InputFormatter>>>,
     /// Declarative validation rules for the form field.
-    pub validator_rules: Option<Vec<FormFieldValidator>>,
+    pub validator_rules: Option<Reactive<Vec<FormFieldValidator>>>,
 }
 
 impl TextFormField {
@@ -91,6 +94,7 @@ impl TextFormField {
     /// Creates the model with only its required fields set.
     pub fn new() -> Self {
         Self {
+            envelope: Envelope::new(),
             id: None,
             decoration: None,
             initial_value: None,
@@ -118,7 +122,6 @@ impl TextFormField {
             restoration_id: None,
             enable_ime_personalized_learning: None,
             enable_suggestions: None,
-            enabled: None,
             cursor_width: None,
             cursor_height: None,
             cursor_color: None,
@@ -135,8 +138,8 @@ impl TextFormField {
     }
 
     /// Visual decoration and labeling for the text field.
-    pub fn decoration(mut self, value: impl Into<InputDecoration>) -> Self {
-        self.decoration = Some(Box::new(value.into()));
+    pub fn decoration(mut self, value: impl IntoReactive<InputDecoration>) -> Self {
+        self.decoration = Some(value.into_reactive().boxed());
         self
     }
 
@@ -147,56 +150,56 @@ impl TextFormField {
     }
 
     /// Keyboard configuration.
-    pub fn keyboard_type(mut self, value: impl Into<TextInputType>) -> Self {
-        self.keyboard_type = Some(value.into());
+    pub fn keyboard_type(mut self, value: impl IntoReactive<TextInputType>) -> Self {
+        self.keyboard_type = Some(value.into_reactive());
         self
     }
 
     /// IME action button configuration.
-    pub fn text_input_action(mut self, value: impl Into<TextInputAction>) -> Self {
-        self.text_input_action = Some(value.into());
+    pub fn text_input_action(mut self, value: impl IntoReactive<TextInputAction>) -> Self {
+        self.text_input_action = Some(value.into_reactive());
         self
     }
 
     /// Auto-capitalization behavior.
-    pub fn text_capitalization(mut self, value: impl Into<TextCapitalization>) -> Self {
-        self.text_capitalization = Some(value.into());
+    pub fn text_capitalization(mut self, value: impl IntoReactive<TextCapitalization>) -> Self {
+        self.text_capitalization = Some(value.into_reactive());
         self
     }
 
     /// Text style for the input text.
-    pub fn style(mut self, value: impl Into<TextStyle>) -> Self {
-        self.style = Some(value.into());
+    pub fn style(mut self, value: impl IntoReactive<TextStyle>) -> Self {
+        self.style = Some(value.into_reactive());
         self
     }
 
     /// Horizontal text alignment.
-    pub fn text_align(mut self, value: impl Into<TextAlign>) -> Self {
-        self.text_align = Some(value.into());
+    pub fn text_align(mut self, value: impl IntoReactive<TextAlign>) -> Self {
+        self.text_align = Some(value.into_reactive());
         self
     }
 
     /// Text direction.
-    pub fn text_direction(mut self, value: impl Into<TextDirection>) -> Self {
-        self.text_direction = Some(value.into());
+    pub fn text_direction(mut self, value: impl IntoReactive<TextDirection>) -> Self {
+        self.text_direction = Some(value.into_reactive());
         self
     }
 
     /// Whether the field is read-only.
-    pub fn read_only(mut self, value: bool) -> Self {
-        self.read_only = Some(value);
+    pub fn read_only(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.read_only = Some(value.into_reactive());
         self
     }
 
     /// Whether to show the cursor.
-    pub fn show_cursor(mut self, value: bool) -> Self {
-        self.show_cursor = Some(value);
+    pub fn show_cursor(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.show_cursor = Some(value.into_reactive());
         self
     }
 
     /// Whether to focus automatically.
-    pub fn autofocus(mut self, value: bool) -> Self {
-        self.autofocus = Some(value);
+    pub fn autofocus(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.autofocus = Some(value.into_reactive());
         self
     }
 
@@ -207,68 +210,71 @@ impl TextFormField {
     }
 
     /// Maximum lines.
-    pub fn max_lines(mut self, value: impl Into<i64>) -> Self {
-        self.max_lines = Some(value.into());
+    pub fn max_lines(mut self, value: impl IntoReactive<i64>) -> Self {
+        self.max_lines = Some(value.into_reactive());
         self
     }
 
     /// Minimum lines.
-    pub fn min_lines(mut self, value: impl Into<i64>) -> Self {
-        self.min_lines = Some(value.into());
+    pub fn min_lines(mut self, value: impl IntoReactive<i64>) -> Self {
+        self.min_lines = Some(value.into_reactive());
         self
     }
 
     /// Maximum number of characters allowed.
-    pub fn max_length(mut self, value: impl Into<i64>) -> Self {
-        self.max_length = Some(value.into());
+    pub fn max_length(mut self, value: impl IntoReactive<i64>) -> Self {
+        self.max_length = Some(value.into_reactive());
         self
     }
 
     /// Obscure text (e.g., for passwords).
-    pub fn obscure_text(mut self, value: bool) -> Self {
-        self.obscure_text = Some(value);
+    pub fn obscure_text(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.obscure_text = Some(value.into_reactive());
         self
     }
 
     /// Whether to enable autocorrect.
-    pub fn autocorrect(mut self, value: bool) -> Self {
-        self.autocorrect = Some(value);
+    pub fn autocorrect(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.autocorrect = Some(value.into_reactive());
         self
     }
 
     /// Smart dashes behavior.
-    pub fn smart_dashes_type(mut self, value: impl Into<SmartDashesType>) -> Self {
-        self.smart_dashes_type = Some(value.into());
+    pub fn smart_dashes_type(mut self, value: impl IntoReactive<SmartDashesType>) -> Self {
+        self.smart_dashes_type = Some(value.into_reactive());
         self
     }
 
     /// Smart quotes behavior.
-    pub fn smart_quotes_type(mut self, value: impl Into<SmartQuotesType>) -> Self {
-        self.smart_quotes_type = Some(value.into());
+    pub fn smart_quotes_type(mut self, value: impl IntoReactive<SmartQuotesType>) -> Self {
+        self.smart_quotes_type = Some(value.into_reactive());
         self
     }
 
     /// Max length enforcement strategy.
-    pub fn max_length_enforcement(mut self, value: impl Into<MaxLengthEnforcement>) -> Self {
-        self.max_length_enforcement = Some(value.into());
+    pub fn max_length_enforcement(
+        mut self,
+        value: impl IntoReactive<MaxLengthEnforcement>,
+    ) -> Self {
+        self.max_length_enforcement = Some(value.into_reactive());
         self
     }
 
     /// Expand to fill parent vertically.
-    pub fn expands(mut self, value: bool) -> Self {
-        self.expands = Some(value);
+    pub fn expands(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.expands = Some(value.into_reactive());
         self
     }
 
     /// Keyboard brightness.
-    pub fn keyboard_appearance(mut self, value: impl Into<Brightness>) -> Self {
-        self.keyboard_appearance = Some(value.into());
+    pub fn keyboard_appearance(mut self, value: impl IntoReactive<Brightness>) -> Self {
+        self.keyboard_appearance = Some(value.into_reactive());
         self
     }
 
     /// Scroll padding when ensuring visibility.
-    pub fn scroll_padding(mut self, value: impl Into<EdgeInsets>) -> Self {
-        self.scroll_padding = Some(value.into());
+    pub fn scroll_padding(mut self, value: impl IntoReactive<EdgeInsets>) -> Self {
+        self.scroll_padding = Some(value.into_reactive());
         self
     }
 
@@ -279,62 +285,86 @@ impl TextFormField {
     }
 
     /// Whether to enable personalized learning.
-    pub fn enable_ime_personalized_learning(mut self, value: bool) -> Self {
-        self.enable_ime_personalized_learning = Some(value);
+    pub fn enable_ime_personalized_learning(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.enable_ime_personalized_learning = Some(value.into_reactive());
         self
     }
 
     /// Whether to enable input suggestions.
-    pub fn enable_suggestions(mut self, value: bool) -> Self {
-        self.enable_suggestions = Some(value);
-        self
-    }
-
-    /// Whether the field is interactive.
-    pub fn enabled(mut self, value: bool) -> Self {
-        self.enabled = Some(value);
+    pub fn enable_suggestions(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.enable_suggestions = Some(value.into_reactive());
         self
     }
 
     /// Width of the text cursor in logical pixels.
-    pub fn cursor_width(mut self, value: impl Into<f64>) -> Self {
-        self.cursor_width = Some(value.into());
+    pub fn cursor_width(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.cursor_width = Some(value.into_reactive());
         self
     }
 
     /// Height of the text cursor in logical pixels.
-    pub fn cursor_height(mut self, value: impl Into<f64>) -> Self {
-        self.cursor_height = Some(value.into());
+    pub fn cursor_height(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.cursor_height = Some(value.into_reactive());
         self
     }
 
     /// Color of the text cursor.
-    pub fn cursor_color(mut self, value: impl Into<Color>) -> Self {
-        self.cursor_color = Some(value.into());
+    pub fn cursor_color(mut self, value: impl IntoReactive<Color>) -> Self {
+        self.cursor_color = Some(value.into_reactive());
         self
     }
 
     /// Autovalidation behavior.
-    pub fn autovalidate_mode(mut self, value: impl Into<AutovalidateMode>) -> Self {
-        self.autovalidate_mode = Some(value.into());
+    pub fn autovalidate_mode(mut self, value: impl IntoReactive<AutovalidateMode>) -> Self {
+        self.autovalidate_mode = Some(value.into_reactive());
         self
     }
 
     /// Input text formatting rules applied as the user types.
-    pub fn input_formatters(
-        mut self,
-        value: impl IntoIterator<Item = impl Into<InputFormatter>>,
-    ) -> Self {
-        self.input_formatters = Some(value.into_iter().map(Into::into).collect());
+    pub fn input_formatters(mut self, value: impl IntoReactive<Vec<InputFormatter>>) -> Self {
+        self.input_formatters = Some(value.into_reactive());
         self
     }
 
     /// Declarative validation rules for the form field.
-    pub fn validator_rules(
-        mut self,
-        value: impl IntoIterator<Item = impl Into<FormFieldValidator>>,
-    ) -> Self {
-        self.validator_rules = Some(value.into_iter().map(Into::into).collect());
+    pub fn validator_rules(mut self, value: impl IntoReactive<Vec<FormFieldValidator>>) -> Self {
+        self.validator_rules = Some(value.into_reactive());
+        self
+    }
+
+    /// Sets `visible` (envelope): a `bool`, a state path or an expression.
+    pub fn visible(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.visible(value);
+        self
+    }
+
+    /// Sets `enabled` (envelope): a `bool`, a state path or an expression.
+    pub fn enabled(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.enabled(value);
+        self
+    }
+
+    /// Sets `bind` (envelope): the state key the widget reads and writes.
+    pub fn bind(mut self, key: BindKey) -> Self {
+        self.envelope = self.envelope.bind(key);
+        self
+    }
+
+    /// Sets `state` (envelope): the screen state declared by this widget.
+    pub fn state(mut self, block: StateBlock) -> Self {
+        self.envelope = self.envelope.state(block);
+        self
+    }
+
+    /// Sets `globalState` (envelope): the global state declared by this widget.
+    pub fn global_state(mut self, block: GlobalStateBlock) -> Self {
+        self.envelope = self.envelope.global_state(block);
+        self
+    }
+
+    /// Sets `onInit` (envelope): action(s) run when the widget is first built.
+    pub fn on_init(mut self, on_init: impl Into<OnInit>) -> Self {
+        self.envelope = self.envelope.on_init(on_init);
         self
     }
 }
@@ -343,6 +373,7 @@ impl Serialize for TextFormField {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         let mut map = serializer.serialize_map(None)?;
         map.serialize_entry("type", "textFormField")?;
+        self.envelope.serialize_into(&mut map)?;
         if let Some(value) = &self.id {
             map.serialize_entry("id", value)?;
         }
@@ -424,9 +455,6 @@ impl Serialize for TextFormField {
         if let Some(value) = &self.enable_suggestions {
             map.serialize_entry("enableSuggestions", value)?;
         }
-        if let Some(value) = &self.enabled {
-            map.serialize_entry("enabled", value)?;
-        }
         if let Some(value) = &self.cursor_width {
             map.serialize_entry("cursorWidth", value)?;
         }
@@ -451,23 +479,87 @@ impl Serialize for TextFormField {
 
 impl Validate for TextFormField {
     fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
+        self.envelope.validate_at(path, issues);
         self.id.validate_at(&path.key("id"), issues);
         self.decoration.validate_at(&path.key("decoration"), issues);
         self.initial_value
             .validate_at(&path.key("initialValue"), issues);
+        if let Some(value) = &self.keyboard_type {
+            value.validate_binding_at(&path.key("keyboardType"), issues);
+        }
+        if let Some(value) = &self.text_input_action {
+            value.validate_binding_at(&path.key("textInputAction"), issues);
+        }
+        if let Some(value) = &self.text_capitalization {
+            value.validate_binding_at(&path.key("textCapitalization"), issues);
+        }
         self.style.validate_at(&path.key("style"), issues);
+        if let Some(value) = &self.text_align {
+            value.validate_binding_at(&path.key("textAlign"), issues);
+        }
+        if let Some(value) = &self.text_direction {
+            value.validate_binding_at(&path.key("textDirection"), issues);
+        }
+        if let Some(value) = &self.read_only {
+            value.validate_binding_at(&path.key("readOnly"), issues);
+        }
+        if let Some(value) = &self.show_cursor {
+            value.validate_binding_at(&path.key("showCursor"), issues);
+        }
+        if let Some(value) = &self.autofocus {
+            value.validate_binding_at(&path.key("autofocus"), issues);
+        }
         self.obscuring_character
             .validate_at(&path.key("obscuringCharacter"), issues);
+        if let Some(value) = &self.max_lines {
+            value.validate_binding_at(&path.key("maxLines"), issues);
+        }
+        if let Some(value) = &self.min_lines {
+            value.validate_binding_at(&path.key("minLines"), issues);
+        }
+        if let Some(value) = &self.max_length {
+            value.validate_binding_at(&path.key("maxLength"), issues);
+        }
+        if let Some(value) = &self.obscure_text {
+            value.validate_binding_at(&path.key("obscureText"), issues);
+        }
+        if let Some(value) = &self.autocorrect {
+            value.validate_binding_at(&path.key("autocorrect"), issues);
+        }
+        if let Some(value) = &self.smart_dashes_type {
+            value.validate_binding_at(&path.key("smartDashesType"), issues);
+        }
+        if let Some(value) = &self.smart_quotes_type {
+            value.validate_binding_at(&path.key("smartQuotesType"), issues);
+        }
+        if let Some(value) = &self.max_length_enforcement {
+            value.validate_binding_at(&path.key("maxLengthEnforcement"), issues);
+        }
+        if let Some(value) = &self.expands {
+            value.validate_binding_at(&path.key("expands"), issues);
+        }
+        if let Some(value) = &self.keyboard_appearance {
+            value.validate_binding_at(&path.key("keyboardAppearance"), issues);
+        }
         self.scroll_padding
             .validate_at(&path.key("scrollPadding"), issues);
         self.restoration_id
             .validate_at(&path.key("restorationId"), issues);
+        if let Some(value) = &self.enable_ime_personalized_learning {
+            value.validate_binding_at(&path.key("enableIMEPersonalizedLearning"), issues);
+        }
+        if let Some(value) = &self.enable_suggestions {
+            value.validate_binding_at(&path.key("enableSuggestions"), issues);
+        }
         self.cursor_width
             .validate_at(&path.key("cursorWidth"), issues);
         self.cursor_height
             .validate_at(&path.key("cursorHeight"), issues);
         self.cursor_color
             .validate_at(&path.key("cursorColor"), issues);
+        if let Some(value) = &self.autovalidate_mode {
+            value.validate_binding_at(&path.key("autovalidateMode"), issues);
+        }
         self.input_formatters
             .validate_at(&path.key("inputFormatters"), issues);
         self.validator_rules
@@ -479,6 +571,8 @@ impl StacNode for TextFormField {
     const KIND: NodeKind = NodeKind::Widget;
     const TYPE_NAME: &'static str = "textFormField";
 }
+
+impl Plain for TextFormField {}
 
 impl From<TextFormField> for Widget {
     fn from(value: TextFormField) -> Self {

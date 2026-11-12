@@ -8,6 +8,9 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
@@ -15,29 +18,29 @@ use serde::ser::{Serialize, SerializeMap, Serializer};
 #[derive(Debug, Clone, PartialEq)]
 pub struct Gradient {
     /// The type of gradient (linear, radial, or sweep).
-    pub gradient_type: Option<GradientType>,
+    pub gradient_type: Option<Reactive<GradientType>>,
     /// The list of colors used in the gradient.
-    pub colors: Option<Vec<Color>>,
+    pub colors: Option<Reactive<Vec<Color>>>,
     /// The stop positions for each color (values between 0.0 and 1.0).
-    pub stops: Option<Vec<f64>>,
+    pub stops: Option<Reactive<Vec<f64>>>,
     /// The starting alignment for linear gradients.
-    pub begin: Option<Alignment>,
+    pub begin: Option<Reactive<Alignment>>,
     /// The ending alignment for linear gradients.
-    pub end: Option<Alignment>,
+    pub end: Option<Reactive<Alignment>>,
     /// The center alignment for radial and sweep gradients.
-    pub center: Option<Alignment>,
+    pub center: Option<Reactive<Alignment>>,
     /// The focal point alignment for radial gradients.
-    pub focal: Option<Alignment>,
+    pub focal: Option<Reactive<Alignment>>,
     /// How the gradient should handle areas outside its bounds.
-    pub tile_mode: Option<TileMode>,
+    pub tile_mode: Option<Reactive<TileMode>>,
     /// The radius of the focal point for radial gradients.
-    pub focal_radius: Option<f64>,
+    pub focal_radius: Option<Reactive<f64>>,
     /// The radius for radial gradients.
-    pub radius: Option<f64>,
+    pub radius: Option<Reactive<f64>>,
     /// The starting angle for sweep gradients (in radians).
-    pub start_angle: Option<f64>,
+    pub start_angle: Option<Reactive<f64>>,
     /// The ending angle for sweep gradients (in radians).
-    pub end_angle: Option<f64>,
+    pub end_angle: Option<Reactive<f64>>,
 }
 
 impl Gradient {
@@ -60,74 +63,74 @@ impl Gradient {
     }
 
     /// The type of gradient (linear, radial, or sweep).
-    pub fn gradient_type(mut self, value: impl Into<GradientType>) -> Self {
-        self.gradient_type = Some(value.into());
+    pub fn gradient_type(mut self, value: impl IntoReactive<GradientType>) -> Self {
+        self.gradient_type = Some(value.into_reactive());
         self
     }
 
     /// The list of colors used in the gradient.
-    pub fn colors(mut self, value: impl IntoIterator<Item = impl Into<Color>>) -> Self {
-        self.colors = Some(value.into_iter().map(Into::into).collect());
+    pub fn colors(mut self, value: impl IntoReactive<Vec<Color>>) -> Self {
+        self.colors = Some(value.into_reactive());
         self
     }
 
     /// The stop positions for each color (values between 0.0 and 1.0).
-    pub fn stops(mut self, value: impl IntoIterator<Item = impl Into<f64>>) -> Self {
-        self.stops = Some(value.into_iter().map(Into::into).collect());
+    pub fn stops(mut self, value: impl IntoReactive<Vec<f64>>) -> Self {
+        self.stops = Some(value.into_reactive());
         self
     }
 
     /// The starting alignment for linear gradients.
-    pub fn begin(mut self, value: impl Into<Alignment>) -> Self {
-        self.begin = Some(value.into());
+    pub fn begin(mut self, value: impl IntoReactive<Alignment>) -> Self {
+        self.begin = Some(value.into_reactive());
         self
     }
 
     /// The ending alignment for linear gradients.
-    pub fn end(mut self, value: impl Into<Alignment>) -> Self {
-        self.end = Some(value.into());
+    pub fn end(mut self, value: impl IntoReactive<Alignment>) -> Self {
+        self.end = Some(value.into_reactive());
         self
     }
 
     /// The center alignment for radial and sweep gradients.
-    pub fn center(mut self, value: impl Into<Alignment>) -> Self {
-        self.center = Some(value.into());
+    pub fn center(mut self, value: impl IntoReactive<Alignment>) -> Self {
+        self.center = Some(value.into_reactive());
         self
     }
 
     /// The focal point alignment for radial gradients.
-    pub fn focal(mut self, value: impl Into<Alignment>) -> Self {
-        self.focal = Some(value.into());
+    pub fn focal(mut self, value: impl IntoReactive<Alignment>) -> Self {
+        self.focal = Some(value.into_reactive());
         self
     }
 
     /// How the gradient should handle areas outside its bounds.
-    pub fn tile_mode(mut self, value: impl Into<TileMode>) -> Self {
-        self.tile_mode = Some(value.into());
+    pub fn tile_mode(mut self, value: impl IntoReactive<TileMode>) -> Self {
+        self.tile_mode = Some(value.into_reactive());
         self
     }
 
     /// The radius of the focal point for radial gradients.
-    pub fn focal_radius(mut self, value: impl Into<f64>) -> Self {
-        self.focal_radius = Some(value.into());
+    pub fn focal_radius(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.focal_radius = Some(value.into_reactive());
         self
     }
 
     /// The radius for radial gradients.
-    pub fn radius(mut self, value: impl Into<f64>) -> Self {
-        self.radius = Some(value.into());
+    pub fn radius(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.radius = Some(value.into_reactive());
         self
     }
 
     /// The starting angle for sweep gradients (in radians).
-    pub fn start_angle(mut self, value: impl Into<f64>) -> Self {
-        self.start_angle = Some(value.into());
+    pub fn start_angle(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.start_angle = Some(value.into_reactive());
         self
     }
 
     /// The ending angle for sweep gradients (in radians).
-    pub fn end_angle(mut self, value: impl Into<f64>) -> Self {
-        self.end_angle = Some(value.into());
+    pub fn end_angle(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.end_angle = Some(value.into_reactive());
         self
     }
 }
@@ -177,8 +180,26 @@ impl Serialize for Gradient {
 
 impl Validate for Gradient {
     fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
+        if let Some(value) = &self.gradient_type {
+            value.validate_binding_at(&path.key("gradientType"), issues);
+        }
         self.colors.validate_at(&path.key("colors"), issues);
         self.stops.validate_at(&path.key("stops"), issues);
+        if let Some(value) = &self.begin {
+            value.validate_binding_at(&path.key("begin"), issues);
+        }
+        if let Some(value) = &self.end {
+            value.validate_binding_at(&path.key("end"), issues);
+        }
+        if let Some(value) = &self.center {
+            value.validate_binding_at(&path.key("center"), issues);
+        }
+        if let Some(value) = &self.focal {
+            value.validate_binding_at(&path.key("focal"), issues);
+        }
+        if let Some(value) = &self.tile_mode {
+            value.validate_binding_at(&path.key("tileMode"), issues);
+        }
         self.focal_radius
             .validate_at(&path.key("focalRadius"), issues);
         self.radius.validate_at(&path.key("radius"), issues);
@@ -187,3 +208,5 @@ impl Validate for Gradient {
         self.end_angle.validate_at(&path.key("endAngle"), issues);
     }
 }
+
+impl Plain for Gradient {}

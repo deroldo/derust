@@ -8,16 +8,21 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
 /// Executes multiple actions sequentially or concurrently.
 #[derive(Debug, Clone, PartialEq)]
 pub struct MultiAction {
+    /// Run the action only when this is true (state path or expression).
+    pub condition: Option<Reactive<bool>>,
     /// List of child actions to execute.
     pub actions: Option<Vec<Action>>,
     /// Whether to execute actions synchronously.
-    pub sync: Option<bool>,
+    pub sync: Option<Reactive<bool>>,
 }
 
 impl MultiAction {
@@ -27,9 +32,16 @@ impl MultiAction {
     /// Creates the model with only its required fields set.
     pub fn new() -> Self {
         Self {
+            condition: None,
             actions: None,
             sync: None,
         }
+    }
+
+    /// Run the action only when this is true (state path or expression).
+    pub fn condition(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.condition = Some(value.into_reactive());
+        self
     }
 
     /// List of child actions to execute.
@@ -39,8 +51,8 @@ impl MultiAction {
     }
 
     /// Whether to execute actions synchronously.
-    pub fn sync(mut self, value: bool) -> Self {
-        self.sync = Some(value);
+    pub fn sync(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.sync = Some(value.into_reactive());
         self
     }
 }
@@ -49,6 +61,9 @@ impl Serialize for MultiAction {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         let mut map = serializer.serialize_map(None)?;
         map.serialize_entry("actionType", "multiAction")?;
+        if let Some(value) = &self.condition {
+            map.serialize_entry("condition", value)?;
+        }
         if let Some(value) = &self.actions {
             map.serialize_entry("actions", value)?;
         }
@@ -61,7 +76,11 @@ impl Serialize for MultiAction {
 
 impl Validate for MultiAction {
     fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
+        self.condition.validate_at(&path.key("condition"), issues);
         self.actions.validate_at(&path.key("actions"), issues);
+        if let Some(value) = &self.sync {
+            value.validate_binding_at(&path.key("sync"), issues);
+        }
     }
 }
 
@@ -69,6 +88,8 @@ impl StacNode for MultiAction {
     const KIND: NodeKind = NodeKind::Action;
     const TYPE_NAME: &'static str = "multiAction";
 }
+
+impl Plain for MultiAction {}
 
 impl From<MultiAction> for Action {
     fn from(value: MultiAction) -> Self {

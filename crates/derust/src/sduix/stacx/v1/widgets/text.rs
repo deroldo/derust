@@ -8,38 +8,43 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
 /// A Stac model representing Flutter's \[Text\] widget (and `Text.rich`).
 #[derive(Debug, Clone, PartialEq)]
 pub struct Text {
+    /// Properties common to every widget (`visible`, `enabled`, `bind`, `state`, `globalState`, `onInit`).
+    pub envelope: Envelope,
     /// The text string to display.
     pub data: Dyn<String>,
     /// Optional inline children as rich \[TextSpan\]-like nodes.
-    pub children: Option<Vec<TextSpan>>,
+    pub children: Option<Reactive<Vec<TextSpan>>>,
     /// Base text style.
-    pub style: Option<TextStyle>,
+    pub style: Option<Reactive<TextStyle>>,
     /// Optional style overrides applied on top of \[style\].
-    pub copy_with_style: Option<Box<CustomTextStyle>>,
+    pub copy_with_style: Option<Reactive<Box<CustomTextStyle>>>,
     /// How the text should be aligned horizontally.
-    pub text_align: Option<TextAlign>,
+    pub text_align: Option<Reactive<TextAlign>>,
     /// The directionality of the text.
-    pub text_direction: Option<TextDirection>,
+    pub text_direction: Option<Reactive<TextDirection>>,
     /// Whether the text should break at soft line wraps.
-    pub soft_wrap: Option<bool>,
+    pub soft_wrap: Option<Reactive<bool>>,
     /// How visual overflow should be handled.
-    pub overflow: Option<TextOverflow>,
+    pub overflow: Option<Reactive<TextOverflow>>,
     /// The number used to scale text glyphs.
-    pub text_scale_factor: Option<f64>,
+    pub text_scale_factor: Option<Reactive<f64>>,
     /// An optional maximum number of lines for the text to span.
-    pub max_lines: Option<i64>,
+    pub max_lines: Option<Reactive<i64>>,
     /// An alternative semantics label for this text.
     pub semantics_label: Option<Dyn<String>>,
     /// Defines how to measure the width of the text.
-    pub text_width_basis: Option<TextWidthBasis>,
+    pub text_width_basis: Option<Reactive<TextWidthBasis>>,
     /// Color for text selection highlight.
-    pub selection_color: Option<Color>,
+    pub selection_color: Option<Reactive<Color>>,
 }
 
 impl Text {
@@ -49,6 +54,7 @@ impl Text {
     /// Creates the model with only its required fields set.
     pub fn new(data: impl Into<Dyn<String>>) -> Self {
         Self {
+            envelope: Envelope::new(),
             data: data.into(),
             children: None,
             style: None,
@@ -72,56 +78,56 @@ impl Text {
     }
 
     /// Optional inline children as rich \[TextSpan\]-like nodes.
-    pub fn children(mut self, value: impl IntoIterator<Item = impl Into<TextSpan>>) -> Self {
-        self.children = Some(value.into_iter().map(Into::into).collect());
+    pub fn children(mut self, value: impl IntoReactive<Vec<TextSpan>>) -> Self {
+        self.children = Some(value.into_reactive());
         self
     }
 
     /// Base text style.
-    pub fn style(mut self, value: impl Into<TextStyle>) -> Self {
-        self.style = Some(value.into());
+    pub fn style(mut self, value: impl IntoReactive<TextStyle>) -> Self {
+        self.style = Some(value.into_reactive());
         self
     }
 
     /// Optional style overrides applied on top of \[style\].
-    pub fn copy_with_style(mut self, value: impl Into<CustomTextStyle>) -> Self {
-        self.copy_with_style = Some(Box::new(value.into()));
+    pub fn copy_with_style(mut self, value: impl IntoReactive<CustomTextStyle>) -> Self {
+        self.copy_with_style = Some(value.into_reactive().boxed());
         self
     }
 
     /// How the text should be aligned horizontally.
-    pub fn text_align(mut self, value: impl Into<TextAlign>) -> Self {
-        self.text_align = Some(value.into());
+    pub fn text_align(mut self, value: impl IntoReactive<TextAlign>) -> Self {
+        self.text_align = Some(value.into_reactive());
         self
     }
 
     /// The directionality of the text.
-    pub fn text_direction(mut self, value: impl Into<TextDirection>) -> Self {
-        self.text_direction = Some(value.into());
+    pub fn text_direction(mut self, value: impl IntoReactive<TextDirection>) -> Self {
+        self.text_direction = Some(value.into_reactive());
         self
     }
 
     /// Whether the text should break at soft line wraps.
-    pub fn soft_wrap(mut self, value: bool) -> Self {
-        self.soft_wrap = Some(value);
+    pub fn soft_wrap(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.soft_wrap = Some(value.into_reactive());
         self
     }
 
     /// How visual overflow should be handled.
-    pub fn overflow(mut self, value: impl Into<TextOverflow>) -> Self {
-        self.overflow = Some(value.into());
+    pub fn overflow(mut self, value: impl IntoReactive<TextOverflow>) -> Self {
+        self.overflow = Some(value.into_reactive());
         self
     }
 
     /// The number used to scale text glyphs.
-    pub fn text_scale_factor(mut self, value: impl Into<f64>) -> Self {
-        self.text_scale_factor = Some(value.into());
+    pub fn text_scale_factor(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.text_scale_factor = Some(value.into_reactive());
         self
     }
 
     /// An optional maximum number of lines for the text to span.
-    pub fn max_lines(mut self, value: impl Into<i64>) -> Self {
-        self.max_lines = Some(value.into());
+    pub fn max_lines(mut self, value: impl IntoReactive<i64>) -> Self {
+        self.max_lines = Some(value.into_reactive());
         self
     }
 
@@ -132,14 +138,50 @@ impl Text {
     }
 
     /// Defines how to measure the width of the text.
-    pub fn text_width_basis(mut self, value: impl Into<TextWidthBasis>) -> Self {
-        self.text_width_basis = Some(value.into());
+    pub fn text_width_basis(mut self, value: impl IntoReactive<TextWidthBasis>) -> Self {
+        self.text_width_basis = Some(value.into_reactive());
         self
     }
 
     /// Color for text selection highlight.
-    pub fn selection_color(mut self, value: impl Into<Color>) -> Self {
-        self.selection_color = Some(value.into());
+    pub fn selection_color(mut self, value: impl IntoReactive<Color>) -> Self {
+        self.selection_color = Some(value.into_reactive());
+        self
+    }
+
+    /// Sets `visible` (envelope): a `bool`, a state path or an expression.
+    pub fn visible(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.visible(value);
+        self
+    }
+
+    /// Sets `enabled` (envelope): a `bool`, a state path or an expression.
+    pub fn enabled(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.enabled(value);
+        self
+    }
+
+    /// Sets `bind` (envelope): the state key the widget reads and writes.
+    pub fn bind(mut self, key: BindKey) -> Self {
+        self.envelope = self.envelope.bind(key);
+        self
+    }
+
+    /// Sets `state` (envelope): the screen state declared by this widget.
+    pub fn state(mut self, block: StateBlock) -> Self {
+        self.envelope = self.envelope.state(block);
+        self
+    }
+
+    /// Sets `globalState` (envelope): the global state declared by this widget.
+    pub fn global_state(mut self, block: GlobalStateBlock) -> Self {
+        self.envelope = self.envelope.global_state(block);
+        self
+    }
+
+    /// Sets `onInit` (envelope): action(s) run when the widget is first built.
+    pub fn on_init(mut self, on_init: impl Into<OnInit>) -> Self {
+        self.envelope = self.envelope.on_init(on_init);
         self
     }
 }
@@ -148,6 +190,7 @@ impl Serialize for Text {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         let mut map = serializer.serialize_map(None)?;
         map.serialize_entry("type", "text")?;
+        self.envelope.serialize_into(&mut map)?;
         map.serialize_entry("data", &self.data)?;
         if let Some(value) = &self.children {
             map.serialize_entry("children", value)?;
@@ -191,15 +234,34 @@ impl Serialize for Text {
 
 impl Validate for Text {
     fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
+        self.envelope.validate_at(path, issues);
         self.data.validate_at(&path.key("data"), issues);
         self.children.validate_at(&path.key("children"), issues);
         self.style.validate_at(&path.key("style"), issues);
         self.copy_with_style
             .validate_at(&path.key("copyWithStyle"), issues);
+        if let Some(value) = &self.text_align {
+            value.validate_binding_at(&path.key("textAlign"), issues);
+        }
+        if let Some(value) = &self.text_direction {
+            value.validate_binding_at(&path.key("textDirection"), issues);
+        }
+        if let Some(value) = &self.soft_wrap {
+            value.validate_binding_at(&path.key("softWrap"), issues);
+        }
+        if let Some(value) = &self.overflow {
+            value.validate_binding_at(&path.key("overflow"), issues);
+        }
         self.text_scale_factor
             .validate_at(&path.key("textScaleFactor"), issues);
+        if let Some(value) = &self.max_lines {
+            value.validate_binding_at(&path.key("maxLines"), issues);
+        }
         self.semantics_label
             .validate_at(&path.key("semanticsLabel"), issues);
+        if let Some(value) = &self.text_width_basis {
+            value.validate_binding_at(&path.key("textWidthBasis"), issues);
+        }
         self.selection_color
             .validate_at(&path.key("selectionColor"), issues);
     }
@@ -209,6 +271,8 @@ impl StacNode for Text {
     const KIND: NodeKind = NodeKind::Widget;
     const TYPE_NAME: &'static str = "text";
 }
+
+impl Plain for Text {}
 
 impl From<Text> for Widget {
     fn from(value: Text) -> Self {

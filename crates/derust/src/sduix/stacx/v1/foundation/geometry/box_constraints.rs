@@ -8,6 +8,9 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
@@ -15,13 +18,13 @@ use serde::ser::{Serialize, SerializeMap, Serializer};
 #[derive(Debug, Clone, PartialEq)]
 pub struct BoxConstraints {
     /// The minimum width constraint in logical pixels.
-    pub min_width: Option<f64>,
+    pub min_width: Option<Reactive<f64>>,
     /// The maximum width constraint in logical pixels.
-    pub max_width: Option<f64>,
+    pub max_width: Option<Reactive<f64>>,
     /// The minimum height constraint in logical pixels.
-    pub min_height: Option<f64>,
+    pub min_height: Option<Reactive<f64>>,
     /// The maximum height constraint in logical pixels.
-    pub max_height: Option<f64>,
+    pub max_height: Option<Reactive<f64>>,
 }
 
 impl BoxConstraints {
@@ -36,26 +39,26 @@ impl BoxConstraints {
     }
 
     /// The minimum width constraint in logical pixels.
-    pub fn min_width(mut self, value: impl Into<f64>) -> Self {
-        self.min_width = Some(value.into());
+    pub fn min_width(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.min_width = Some(value.into_reactive());
         self
     }
 
     /// The maximum width constraint in logical pixels.
-    pub fn max_width(mut self, value: impl Into<f64>) -> Self {
-        self.max_width = Some(value.into());
+    pub fn max_width(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.max_width = Some(value.into_reactive());
         self
     }
 
     /// The minimum height constraint in logical pixels.
-    pub fn min_height(mut self, value: impl Into<f64>) -> Self {
-        self.min_height = Some(value.into());
+    pub fn min_height(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.min_height = Some(value.into_reactive());
         self
     }
 
     /// The maximum height constraint in logical pixels.
-    pub fn max_height(mut self, value: impl Into<f64>) -> Self {
-        self.max_height = Some(value.into());
+    pub fn max_height(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.max_height = Some(value.into_reactive());
         self
     }
 }
@@ -87,3 +90,5 @@ impl Validate for BoxConstraints {
         self.max_height.validate_at(&path.key("maxHeight"), issues);
     }
 }
+
+impl Plain for BoxConstraints {}

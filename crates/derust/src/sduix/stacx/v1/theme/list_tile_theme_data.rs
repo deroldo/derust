@@ -8,6 +8,9 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
@@ -15,11 +18,11 @@ use serde::ser::{Serialize, SerializeMap, Serializer};
 #[derive(Debug, Clone, PartialEq)]
 pub struct ListTileThemeData {
     /// Whether to use a more compact layout for the list tile.
-    pub dense: Option<bool>,
+    pub dense: Option<Reactive<bool>>,
     /// The shape of the list tile's border.
-    pub shape: Option<Box<Border>>,
+    pub shape: Option<Reactive<Box<Border>>>,
     /// The style of the list tile.
-    pub style: Option<ListTileStyle>,
+    pub style: Option<Reactive<ListTileStyle>>,
     /// The color to use for selected list tiles.
     pub selected_color: Option<Dyn<String>>,
     /// The color to use for list tile icons.
@@ -27,31 +30,31 @@ pub struct ListTileThemeData {
     /// The color to use for list tile text.
     pub text_color: Option<Dyn<String>>,
     /// The text style for the list tile's title.
-    pub title_text_style: Option<TextStyle>,
+    pub title_text_style: Option<Reactive<TextStyle>>,
     /// The text style for the list tile's subtitle.
-    pub subtitle_text_style: Option<TextStyle>,
+    pub subtitle_text_style: Option<Reactive<TextStyle>>,
     /// The text style for leading and trailing widgets.
-    pub leading_and_trailing_text_style: Option<TextStyle>,
+    pub leading_and_trailing_text_style: Option<Reactive<TextStyle>>,
     /// The padding around the list tile's content.
-    pub content_padding: Option<EdgeInsets>,
+    pub content_padding: Option<Reactive<EdgeInsets>>,
     /// The background color of the list tile.
     pub tile_color: Option<Dyn<String>>,
     /// The background color of the selected list tile.
     pub selected_tile_color: Option<Dyn<String>>,
     /// The horizontal gap between the leading widget and the title.
-    pub horizontal_title_gap: Option<f64>,
+    pub horizontal_title_gap: Option<Reactive<f64>>,
     /// The minimum vertical padding for the list tile.
-    pub min_vertical_padding: Option<f64>,
+    pub min_vertical_padding: Option<Reactive<f64>>,
     /// The minimum width for the leading widget.
-    pub min_leading_width: Option<f64>,
+    pub min_leading_width: Option<Reactive<f64>>,
     /// Whether detected gestures should provide acoustic and/or haptic feedback.
-    pub enable_feedback: Option<bool>,
+    pub enable_feedback: Option<Reactive<bool>>,
     /// The visual density of the list tile.
-    pub visual_density: Option<VisualDensity>,
+    pub visual_density: Option<Reactive<VisualDensity>>,
     /// The alignment of the list tile's title.
-    pub title_alignment: Option<ListTileTitleAlignment>,
+    pub title_alignment: Option<Reactive<ListTileTitleAlignment>>,
     /// The list of shadows to apply to the list tile.
-    pub shadows: Option<Vec<Shadow>>,
+    pub shadows: Option<Reactive<Vec<Shadow>>>,
 }
 
 impl ListTileThemeData {
@@ -81,20 +84,20 @@ impl ListTileThemeData {
     }
 
     /// Whether to use a more compact layout for the list tile.
-    pub fn dense(mut self, value: bool) -> Self {
-        self.dense = Some(value);
+    pub fn dense(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.dense = Some(value.into_reactive());
         self
     }
 
     /// The shape of the list tile's border.
-    pub fn shape(mut self, value: impl Into<Border>) -> Self {
-        self.shape = Some(Box::new(value.into()));
+    pub fn shape(mut self, value: impl IntoReactive<Border>) -> Self {
+        self.shape = Some(value.into_reactive().boxed());
         self
     }
 
     /// The style of the list tile.
-    pub fn style(mut self, value: impl Into<ListTileStyle>) -> Self {
-        self.style = Some(value.into());
+    pub fn style(mut self, value: impl IntoReactive<ListTileStyle>) -> Self {
+        self.style = Some(value.into_reactive());
         self
     }
 
@@ -117,26 +120,26 @@ impl ListTileThemeData {
     }
 
     /// The text style for the list tile's title.
-    pub fn title_text_style(mut self, value: impl Into<TextStyle>) -> Self {
-        self.title_text_style = Some(value.into());
+    pub fn title_text_style(mut self, value: impl IntoReactive<TextStyle>) -> Self {
+        self.title_text_style = Some(value.into_reactive());
         self
     }
 
     /// The text style for the list tile's subtitle.
-    pub fn subtitle_text_style(mut self, value: impl Into<TextStyle>) -> Self {
-        self.subtitle_text_style = Some(value.into());
+    pub fn subtitle_text_style(mut self, value: impl IntoReactive<TextStyle>) -> Self {
+        self.subtitle_text_style = Some(value.into_reactive());
         self
     }
 
     /// The text style for leading and trailing widgets.
-    pub fn leading_and_trailing_text_style(mut self, value: impl Into<TextStyle>) -> Self {
-        self.leading_and_trailing_text_style = Some(value.into());
+    pub fn leading_and_trailing_text_style(mut self, value: impl IntoReactive<TextStyle>) -> Self {
+        self.leading_and_trailing_text_style = Some(value.into_reactive());
         self
     }
 
     /// The padding around the list tile's content.
-    pub fn content_padding(mut self, value: impl Into<EdgeInsets>) -> Self {
-        self.content_padding = Some(value.into());
+    pub fn content_padding(mut self, value: impl IntoReactive<EdgeInsets>) -> Self {
+        self.content_padding = Some(value.into_reactive());
         self
     }
 
@@ -153,44 +156,44 @@ impl ListTileThemeData {
     }
 
     /// The horizontal gap between the leading widget and the title.
-    pub fn horizontal_title_gap(mut self, value: impl Into<f64>) -> Self {
-        self.horizontal_title_gap = Some(value.into());
+    pub fn horizontal_title_gap(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.horizontal_title_gap = Some(value.into_reactive());
         self
     }
 
     /// The minimum vertical padding for the list tile.
-    pub fn min_vertical_padding(mut self, value: impl Into<f64>) -> Self {
-        self.min_vertical_padding = Some(value.into());
+    pub fn min_vertical_padding(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.min_vertical_padding = Some(value.into_reactive());
         self
     }
 
     /// The minimum width for the leading widget.
-    pub fn min_leading_width(mut self, value: impl Into<f64>) -> Self {
-        self.min_leading_width = Some(value.into());
+    pub fn min_leading_width(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.min_leading_width = Some(value.into_reactive());
         self
     }
 
     /// Whether detected gestures should provide acoustic and/or haptic feedback.
-    pub fn enable_feedback(mut self, value: bool) -> Self {
-        self.enable_feedback = Some(value);
+    pub fn enable_feedback(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.enable_feedback = Some(value.into_reactive());
         self
     }
 
     /// The visual density of the list tile.
-    pub fn visual_density(mut self, value: impl Into<VisualDensity>) -> Self {
-        self.visual_density = Some(value.into());
+    pub fn visual_density(mut self, value: impl IntoReactive<VisualDensity>) -> Self {
+        self.visual_density = Some(value.into_reactive());
         self
     }
 
     /// The alignment of the list tile's title.
-    pub fn title_alignment(mut self, value: impl Into<ListTileTitleAlignment>) -> Self {
-        self.title_alignment = Some(value.into());
+    pub fn title_alignment(mut self, value: impl IntoReactive<ListTileTitleAlignment>) -> Self {
+        self.title_alignment = Some(value.into_reactive());
         self
     }
 
     /// The list of shadows to apply to the list tile.
-    pub fn shadows(mut self, value: impl IntoIterator<Item = impl Into<Shadow>>) -> Self {
-        self.shadows = Some(value.into_iter().map(Into::into).collect());
+    pub fn shadows(mut self, value: impl IntoReactive<Vec<Shadow>>) -> Self {
+        self.shadows = Some(value.into_reactive());
         self
     }
 }
@@ -261,7 +264,13 @@ impl Serialize for ListTileThemeData {
 
 impl Validate for ListTileThemeData {
     fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
+        if let Some(value) = &self.dense {
+            value.validate_binding_at(&path.key("dense"), issues);
+        }
         self.shape.validate_at(&path.key("shape"), issues);
+        if let Some(value) = &self.style {
+            value.validate_binding_at(&path.key("style"), issues);
+        }
         self.selected_color
             .validate_at(&path.key("selectedColor"), issues);
         self.icon_color.validate_at(&path.key("iconColor"), issues);
@@ -283,8 +292,16 @@ impl Validate for ListTileThemeData {
             .validate_at(&path.key("minVerticalPadding"), issues);
         self.min_leading_width
             .validate_at(&path.key("minLeadingWidth"), issues);
+        if let Some(value) = &self.enable_feedback {
+            value.validate_binding_at(&path.key("enableFeedback"), issues);
+        }
         self.visual_density
             .validate_at(&path.key("visualDensity"), issues);
+        if let Some(value) = &self.title_alignment {
+            value.validate_binding_at(&path.key("titleAlignment"), issues);
+        }
         self.shadows.validate_at(&path.key("shadows"), issues);
     }
 }
+
+impl Plain for ListTileThemeData {}

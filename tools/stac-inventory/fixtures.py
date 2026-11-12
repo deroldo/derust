@@ -130,7 +130,7 @@ class FixtureBuilder:
                 v = {"topLeft": v, "topRight": v, "bottomLeft": v, "bottomRight": v}
         if not isinstance(v, dict):
             raise Mismatch("%s: expected object for %s" % (where, comp["dart"]))
-        fields = {f["json"]: f for f in comp["fields"]}
+        fields = {f["json"]: f for f in comp["fixture_fields"] if not f["fork"]}
         out = {}
         disc = comp["disc"]
         for key, val in v.items():
@@ -146,7 +146,7 @@ class FixtureBuilder:
                     continue
                 raise Mismatch("%s: null for required %s" % (where, key))
             out[key] = self.conform(val, f["ast"], "%s.%s" % (where, key))
-        for f in comp["fields"]:
+        for f in comp["fixture_fields"]:
             if not f["opt"] and f["json"] not in out:
                 raise Mismatch("%s: missing required %s of %s" % (where, f["json"], comp["dart"]))
         if disc:
@@ -196,7 +196,9 @@ class FixtureBuilder:
         out = {}
         if comp["disc"]:
             out[comp["disc"][0]] = comp["disc"][1]
-        for f in comp["fields"]:
+        for f in comp["fixture_fields"]:
+            if f["fork"]:
+                continue  # fork vocabulary never goes into the official fixtures
             if depth >= 2 and f["opt"]:
                 continue
             out[f["json"]] = self.sample(f["ast"], f["json"], depth)
@@ -230,7 +232,7 @@ class FixtureBuilder:
         if name == "StateEntry":
             return "StateEntry::new(%s, serde_json::json!(%s))" % (rust_str(v["key"]), json.dumps(v["value"]))
         if name == "StacColor":
-            return rust_str(v)
+            return "Color::from(%s)" % rust_str(v)
         if name in self.g.enums:
             e = self.g.enums[name]
             return "%s::%s" % (self.g.rust_named(name), pascal(e["values"][e["json_values"].index(v)]))
@@ -242,7 +244,7 @@ class FixtureBuilder:
         return self.class_expr(v, self.comp_of(name))
 
     def class_expr(self, v, comp):
-        fields = {f["json"]: f for f in comp["fields"]}
+        fields = {f["json"]: f for f in comp["fixture_fields"]}
         req = [f for f in comp["fields"] if not f["opt"]]
         args = ", ".join(self.rexpr(v[f["json"]], f["ast"]) for f in req)
         expr = "%s::new(%s)" % (comp["rust"], args)

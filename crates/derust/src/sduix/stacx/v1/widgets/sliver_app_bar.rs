@@ -8,16 +8,21 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
 /// A Stac model representing Flutter's \[SliverAppBar\] widget.
 #[derive(Debug, Clone, PartialEq)]
 pub struct SliverAppBar {
+    /// Properties common to every widget (`visible`, `enabled`, `bind`, `state`, `globalState`, `onInit`).
+    pub envelope: Envelope,
     /// Widget displayed before the \[title\].
     pub leading: Option<Widget>,
     /// Whether to imply a leading widget if \[leading\] is null.
-    pub automatically_imply_leading: Option<bool>,
+    pub automatically_imply_leading: Option<Reactive<bool>>,
     /// Primary widget displayed in the app bar.
     pub title: Option<Widget>,
     /// Widgets displayed after the \[title\].
@@ -27,59 +32,59 @@ pub struct SliverAppBar {
     /// Widget displayed across the bottom of the app bar (e.g., a TabBar).
     pub bottom: Option<Widget>,
     /// Z-coordinate at which to place the app bar.
-    pub elevation: Option<f64>,
+    pub elevation: Option<Reactive<f64>>,
     /// Elevation when content is scrolled under the app bar.
-    pub scrolled_under_elevation: Option<f64>,
+    pub scrolled_under_elevation: Option<Reactive<f64>>,
     /// Color of the shadow below the app bar.
-    pub shadow_color: Option<Color>,
+    pub shadow_color: Option<Reactive<Color>>,
     /// Color of the surface tint overlay applied to the background color.
-    pub surface_tint_color: Option<Color>,
+    pub surface_tint_color: Option<Reactive<Color>>,
     /// Whether to show the shadow appropriate for the elevation even if the content is not scrolled under the app bar.
-    pub force_elevated: Option<bool>,
+    pub force_elevated: Option<Reactive<bool>>,
     /// Fill color for the app bar's material.
-    pub background_color: Option<Color>,
+    pub background_color: Option<Reactive<Color>>,
     /// Default color for text and icons within the app bar.
-    pub foreground_color: Option<Color>,
+    pub foreground_color: Option<Reactive<Color>>,
     /// Whether this app bar is part of the primary scroll view.
-    pub primary: Option<bool>,
+    pub primary: Option<Reactive<bool>>,
     /// Whether the \[title\] should be centered.
-    pub center_title: Option<bool>,
+    pub center_title: Option<Reactive<bool>>,
     /// Whether the \[title\] should be wrapped with header semantics.
-    pub exclude_header_semantics: Option<bool>,
+    pub exclude_header_semantics: Option<Reactive<bool>>,
     /// Spacing around the \[title\] on the horizontal axis.
-    pub title_spacing: Option<f64>,
+    pub title_spacing: Option<Reactive<f64>>,
     /// Height of the app bar when collapsed.
-    pub collapsed_height: Option<f64>,
+    pub collapsed_height: Option<Reactive<f64>>,
     /// Height of the app bar when fully expanded.
-    pub expanded_height: Option<f64>,
+    pub expanded_height: Option<Reactive<f64>>,
     /// Whether the app bar becomes visible as soon as the user scrolls towards it.
-    pub floating: Option<bool>,
+    pub floating: Option<Reactive<bool>>,
     /// Whether the app bar remains visible at the start of the scroll view.
-    pub pinned: Option<bool>,
+    pub pinned: Option<Reactive<bool>>,
     /// If true, the floating app bar will snap into view.
-    pub snap: Option<bool>,
+    pub snap: Option<Reactive<bool>>,
     /// Whether the app bar should stretch to fill the over-scroll area.
-    pub stretch: Option<bool>,
+    pub stretch: Option<Reactive<bool>>,
     /// Offset of overscroll required to activate \[onStretchTrigger\].
-    pub stretch_trigger_offset: Option<f64>,
+    pub stretch_trigger_offset: Option<Reactive<f64>>,
     /// Shape of the app bar's material and its shadow.
-    pub shape: Option<ShapeBorder>,
+    pub shape: Option<Reactive<ShapeBorder>>,
     /// Height of the toolbar component.
-    pub toolbar_height: Option<f64>,
+    pub toolbar_height: Option<Reactive<f64>>,
     /// Width for the \[leading\] widget.
-    pub leading_width: Option<f64>,
+    pub leading_width: Option<Reactive<f64>>,
     /// Default text style for the app bar's leading and actions widgets.
-    pub toolbar_text_style: Option<TextStyle>,
+    pub toolbar_text_style: Option<Reactive<TextStyle>>,
     /// Default text style for the app bar's \[title\] widget.
-    pub title_text_style: Option<TextStyle>,
+    pub title_text_style: Option<Reactive<TextStyle>>,
     /// Style for the system overlays (e.g., status bar).
-    pub system_overlay_style: Option<SystemUIOverlayStyle>,
+    pub system_overlay_style: Option<Reactive<SystemUIOverlayStyle>>,
     /// Forces the app bar's material widget type to be MaterialType.transparency.
-    pub force_material_transparency: Option<bool>,
+    pub force_material_transparency: Option<Reactive<bool>>,
     /// Content clipping behavior.
-    pub clip_behavior: Option<Clip>,
+    pub clip_behavior: Option<Reactive<Clip>>,
     /// Padding between the \[actions\] and the end of the app bar.
-    pub actions_padding: Option<EdgeInsets>,
+    pub actions_padding: Option<Reactive<EdgeInsets>>,
 }
 
 impl SliverAppBar {
@@ -89,6 +94,7 @@ impl SliverAppBar {
     /// Creates the model with only its required fields set.
     pub fn new() -> Self {
         Self {
+            envelope: Envelope::new(),
             leading: None,
             automatically_imply_leading: None,
             title: None,
@@ -132,8 +138,8 @@ impl SliverAppBar {
     }
 
     /// Whether to imply a leading widget if \[leading\] is null.
-    pub fn automatically_imply_leading(mut self, value: bool) -> Self {
-        self.automatically_imply_leading = Some(value);
+    pub fn automatically_imply_leading(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.automatically_imply_leading = Some(value.into_reactive());
         self
     }
 
@@ -162,164 +168,200 @@ impl SliverAppBar {
     }
 
     /// Z-coordinate at which to place the app bar.
-    pub fn elevation(mut self, value: impl Into<f64>) -> Self {
-        self.elevation = Some(value.into());
+    pub fn elevation(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.elevation = Some(value.into_reactive());
         self
     }
 
     /// Elevation when content is scrolled under the app bar.
-    pub fn scrolled_under_elevation(mut self, value: impl Into<f64>) -> Self {
-        self.scrolled_under_elevation = Some(value.into());
+    pub fn scrolled_under_elevation(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.scrolled_under_elevation = Some(value.into_reactive());
         self
     }
 
     /// Color of the shadow below the app bar.
-    pub fn shadow_color(mut self, value: impl Into<Color>) -> Self {
-        self.shadow_color = Some(value.into());
+    pub fn shadow_color(mut self, value: impl IntoReactive<Color>) -> Self {
+        self.shadow_color = Some(value.into_reactive());
         self
     }
 
     /// Color of the surface tint overlay applied to the background color.
-    pub fn surface_tint_color(mut self, value: impl Into<Color>) -> Self {
-        self.surface_tint_color = Some(value.into());
+    pub fn surface_tint_color(mut self, value: impl IntoReactive<Color>) -> Self {
+        self.surface_tint_color = Some(value.into_reactive());
         self
     }
 
     /// Whether to show the shadow appropriate for the elevation even if the content is not scrolled under the app bar.
-    pub fn force_elevated(mut self, value: bool) -> Self {
-        self.force_elevated = Some(value);
+    pub fn force_elevated(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.force_elevated = Some(value.into_reactive());
         self
     }
 
     /// Fill color for the app bar's material.
-    pub fn background_color(mut self, value: impl Into<Color>) -> Self {
-        self.background_color = Some(value.into());
+    pub fn background_color(mut self, value: impl IntoReactive<Color>) -> Self {
+        self.background_color = Some(value.into_reactive());
         self
     }
 
     /// Default color for text and icons within the app bar.
-    pub fn foreground_color(mut self, value: impl Into<Color>) -> Self {
-        self.foreground_color = Some(value.into());
+    pub fn foreground_color(mut self, value: impl IntoReactive<Color>) -> Self {
+        self.foreground_color = Some(value.into_reactive());
         self
     }
 
     /// Whether this app bar is part of the primary scroll view.
-    pub fn primary(mut self, value: bool) -> Self {
-        self.primary = Some(value);
+    pub fn primary(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.primary = Some(value.into_reactive());
         self
     }
 
     /// Whether the \[title\] should be centered.
-    pub fn center_title(mut self, value: bool) -> Self {
-        self.center_title = Some(value);
+    pub fn center_title(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.center_title = Some(value.into_reactive());
         self
     }
 
     /// Whether the \[title\] should be wrapped with header semantics.
-    pub fn exclude_header_semantics(mut self, value: bool) -> Self {
-        self.exclude_header_semantics = Some(value);
+    pub fn exclude_header_semantics(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.exclude_header_semantics = Some(value.into_reactive());
         self
     }
 
     /// Spacing around the \[title\] on the horizontal axis.
-    pub fn title_spacing(mut self, value: impl Into<f64>) -> Self {
-        self.title_spacing = Some(value.into());
+    pub fn title_spacing(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.title_spacing = Some(value.into_reactive());
         self
     }
 
     /// Height of the app bar when collapsed.
-    pub fn collapsed_height(mut self, value: impl Into<f64>) -> Self {
-        self.collapsed_height = Some(value.into());
+    pub fn collapsed_height(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.collapsed_height = Some(value.into_reactive());
         self
     }
 
     /// Height of the app bar when fully expanded.
-    pub fn expanded_height(mut self, value: impl Into<f64>) -> Self {
-        self.expanded_height = Some(value.into());
+    pub fn expanded_height(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.expanded_height = Some(value.into_reactive());
         self
     }
 
     /// Whether the app bar becomes visible as soon as the user scrolls towards it.
-    pub fn floating(mut self, value: bool) -> Self {
-        self.floating = Some(value);
+    pub fn floating(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.floating = Some(value.into_reactive());
         self
     }
 
     /// Whether the app bar remains visible at the start of the scroll view.
-    pub fn pinned(mut self, value: bool) -> Self {
-        self.pinned = Some(value);
+    pub fn pinned(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.pinned = Some(value.into_reactive());
         self
     }
 
     /// If true, the floating app bar will snap into view.
-    pub fn snap(mut self, value: bool) -> Self {
-        self.snap = Some(value);
+    pub fn snap(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.snap = Some(value.into_reactive());
         self
     }
 
     /// Whether the app bar should stretch to fill the over-scroll area.
-    pub fn stretch(mut self, value: bool) -> Self {
-        self.stretch = Some(value);
+    pub fn stretch(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.stretch = Some(value.into_reactive());
         self
     }
 
     /// Offset of overscroll required to activate \[onStretchTrigger\].
-    pub fn stretch_trigger_offset(mut self, value: impl Into<f64>) -> Self {
-        self.stretch_trigger_offset = Some(value.into());
+    pub fn stretch_trigger_offset(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.stretch_trigger_offset = Some(value.into_reactive());
         self
     }
 
     /// Shape of the app bar's material and its shadow.
-    pub fn shape(mut self, value: impl Into<ShapeBorder>) -> Self {
-        self.shape = Some(value.into());
+    pub fn shape(mut self, value: impl IntoReactive<ShapeBorder>) -> Self {
+        self.shape = Some(value.into_reactive());
         self
     }
 
     /// Height of the toolbar component.
-    pub fn toolbar_height(mut self, value: impl Into<f64>) -> Self {
-        self.toolbar_height = Some(value.into());
+    pub fn toolbar_height(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.toolbar_height = Some(value.into_reactive());
         self
     }
 
     /// Width for the \[leading\] widget.
-    pub fn leading_width(mut self, value: impl Into<f64>) -> Self {
-        self.leading_width = Some(value.into());
+    pub fn leading_width(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.leading_width = Some(value.into_reactive());
         self
     }
 
     /// Default text style for the app bar's leading and actions widgets.
-    pub fn toolbar_text_style(mut self, value: impl Into<TextStyle>) -> Self {
-        self.toolbar_text_style = Some(value.into());
+    pub fn toolbar_text_style(mut self, value: impl IntoReactive<TextStyle>) -> Self {
+        self.toolbar_text_style = Some(value.into_reactive());
         self
     }
 
     /// Default text style for the app bar's \[title\] widget.
-    pub fn title_text_style(mut self, value: impl Into<TextStyle>) -> Self {
-        self.title_text_style = Some(value.into());
+    pub fn title_text_style(mut self, value: impl IntoReactive<TextStyle>) -> Self {
+        self.title_text_style = Some(value.into_reactive());
         self
     }
 
     /// Style for the system overlays (e.g., status bar).
-    pub fn system_overlay_style(mut self, value: impl Into<SystemUIOverlayStyle>) -> Self {
-        self.system_overlay_style = Some(value.into());
+    pub fn system_overlay_style(mut self, value: impl IntoReactive<SystemUIOverlayStyle>) -> Self {
+        self.system_overlay_style = Some(value.into_reactive());
         self
     }
 
     /// Forces the app bar's material widget type to be MaterialType.transparency.
-    pub fn force_material_transparency(mut self, value: bool) -> Self {
-        self.force_material_transparency = Some(value);
+    pub fn force_material_transparency(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.force_material_transparency = Some(value.into_reactive());
         self
     }
 
     /// Content clipping behavior.
-    pub fn clip_behavior(mut self, value: impl Into<Clip>) -> Self {
-        self.clip_behavior = Some(value.into());
+    pub fn clip_behavior(mut self, value: impl IntoReactive<Clip>) -> Self {
+        self.clip_behavior = Some(value.into_reactive());
         self
     }
 
     /// Padding between the \[actions\] and the end of the app bar.
-    pub fn actions_padding(mut self, value: impl Into<EdgeInsets>) -> Self {
-        self.actions_padding = Some(value.into());
+    pub fn actions_padding(mut self, value: impl IntoReactive<EdgeInsets>) -> Self {
+        self.actions_padding = Some(value.into_reactive());
+        self
+    }
+
+    /// Sets `visible` (envelope): a `bool`, a state path or an expression.
+    pub fn visible(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.visible(value);
+        self
+    }
+
+    /// Sets `enabled` (envelope): a `bool`, a state path or an expression.
+    pub fn enabled(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.enabled(value);
+        self
+    }
+
+    /// Sets `bind` (envelope): the state key the widget reads and writes.
+    pub fn bind(mut self, key: BindKey) -> Self {
+        self.envelope = self.envelope.bind(key);
+        self
+    }
+
+    /// Sets `state` (envelope): the screen state declared by this widget.
+    pub fn state(mut self, block: StateBlock) -> Self {
+        self.envelope = self.envelope.state(block);
+        self
+    }
+
+    /// Sets `globalState` (envelope): the global state declared by this widget.
+    pub fn global_state(mut self, block: GlobalStateBlock) -> Self {
+        self.envelope = self.envelope.global_state(block);
+        self
+    }
+
+    /// Sets `onInit` (envelope): action(s) run when the widget is first built.
+    pub fn on_init(mut self, on_init: impl Into<OnInit>) -> Self {
+        self.envelope = self.envelope.on_init(on_init);
         self
     }
 }
@@ -328,6 +370,7 @@ impl Serialize for SliverAppBar {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         let mut map = serializer.serialize_map(None)?;
         map.serialize_entry("type", "sliverAppBar")?;
+        self.envelope.serialize_into(&mut map)?;
         if let Some(value) = &self.leading {
             map.serialize_entry("leading", value)?;
         }
@@ -433,7 +476,11 @@ impl Serialize for SliverAppBar {
 
 impl Validate for SliverAppBar {
     fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
+        self.envelope.validate_at(path, issues);
         self.leading.validate_at(&path.key("leading"), issues);
+        if let Some(value) = &self.automatically_imply_leading {
+            value.validate_binding_at(&path.key("automaticallyImplyLeading"), issues);
+        }
         self.title.validate_at(&path.key("title"), issues);
         self.actions.validate_at(&path.key("actions"), issues);
         self.flexible_space
@@ -446,16 +493,40 @@ impl Validate for SliverAppBar {
             .validate_at(&path.key("shadowColor"), issues);
         self.surface_tint_color
             .validate_at(&path.key("surfaceTintColor"), issues);
+        if let Some(value) = &self.force_elevated {
+            value.validate_binding_at(&path.key("forceElevated"), issues);
+        }
         self.background_color
             .validate_at(&path.key("backgroundColor"), issues);
         self.foreground_color
             .validate_at(&path.key("foregroundColor"), issues);
+        if let Some(value) = &self.primary {
+            value.validate_binding_at(&path.key("primary"), issues);
+        }
+        if let Some(value) = &self.center_title {
+            value.validate_binding_at(&path.key("centerTitle"), issues);
+        }
+        if let Some(value) = &self.exclude_header_semantics {
+            value.validate_binding_at(&path.key("excludeHeaderSemantics"), issues);
+        }
         self.title_spacing
             .validate_at(&path.key("titleSpacing"), issues);
         self.collapsed_height
             .validate_at(&path.key("collapsedHeight"), issues);
         self.expanded_height
             .validate_at(&path.key("expandedHeight"), issues);
+        if let Some(value) = &self.floating {
+            value.validate_binding_at(&path.key("floating"), issues);
+        }
+        if let Some(value) = &self.pinned {
+            value.validate_binding_at(&path.key("pinned"), issues);
+        }
+        if let Some(value) = &self.snap {
+            value.validate_binding_at(&path.key("snap"), issues);
+        }
+        if let Some(value) = &self.stretch {
+            value.validate_binding_at(&path.key("stretch"), issues);
+        }
         self.stretch_trigger_offset
             .validate_at(&path.key("stretchTriggerOffset"), issues);
         self.shape.validate_at(&path.key("shape"), issues);
@@ -469,6 +540,12 @@ impl Validate for SliverAppBar {
             .validate_at(&path.key("titleTextStyle"), issues);
         self.system_overlay_style
             .validate_at(&path.key("systemOverlayStyle"), issues);
+        if let Some(value) = &self.force_material_transparency {
+            value.validate_binding_at(&path.key("forceMaterialTransparency"), issues);
+        }
+        if let Some(value) = &self.clip_behavior {
+            value.validate_binding_at(&path.key("clipBehavior"), issues);
+        }
         self.actions_padding
             .validate_at(&path.key("actionsPadding"), issues);
     }
@@ -478,6 +555,8 @@ impl StacNode for SliverAppBar {
     const KIND: NodeKind = NodeKind::Widget;
     const TYPE_NAME: &'static str = "sliverAppBar";
 }
+
+impl Plain for SliverAppBar {}
 
 impl From<SliverAppBar> for Widget {
     fn from(value: SliverAppBar) -> Self {

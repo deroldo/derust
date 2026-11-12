@@ -8,14 +8,19 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
 /// A Stac action that performs navigation operations.
 #[derive(Debug, Clone, PartialEq)]
 pub struct NavigateAction {
+    /// Run the action only when this is true (state path or expression).
+    pub condition: Option<Reactive<bool>>,
     /// Optional network request to load destination widget JSON.
-    pub request: Option<Box<NetworkRequest>>,
+    pub request: Option<Reactive<Box<NetworkRequest>>>,
     /// Inline widget JSON to navigate to.
     pub widget_json: Option<Widget>,
     /// Asset path containing widget JSON to navigate to.
@@ -23,11 +28,11 @@ pub struct NavigateAction {
     /// Named route to push/pop.
     pub route_name: Option<Dyn<String>>,
     /// How navigation should be performed.
-    pub navigation_style: Option<NavigationStyle>,
+    pub navigation_style: Option<Reactive<NavigationStyle>>,
     /// A result to pass back when popping.
-    pub result: Option<serde_json::Map<String, serde_json::Value>>,
+    pub result: Option<Reactive<serde_json::Map<String, serde_json::Value>>>,
     /// Arguments to pass to the new route.
-    pub arguments: Option<serde_json::Map<String, serde_json::Value>>,
+    pub arguments: Option<Reactive<serde_json::Map<String, serde_json::Value>>>,
 }
 
 impl NavigateAction {
@@ -37,6 +42,7 @@ impl NavigateAction {
     /// Creates the model with only its required fields set.
     pub fn new() -> Self {
         Self {
+            condition: None,
             request: None,
             widget_json: None,
             asset_path: None,
@@ -47,9 +53,15 @@ impl NavigateAction {
         }
     }
 
+    /// Run the action only when this is true (state path or expression).
+    pub fn condition(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.condition = Some(value.into_reactive());
+        self
+    }
+
     /// Optional network request to load destination widget JSON.
-    pub fn request(mut self, value: impl Into<NetworkRequest>) -> Self {
-        self.request = Some(Box::new(value.into()));
+    pub fn request(mut self, value: impl IntoReactive<NetworkRequest>) -> Self {
+        self.request = Some(value.into_reactive().boxed());
         self
     }
 
@@ -72,23 +84,26 @@ impl NavigateAction {
     }
 
     /// How navigation should be performed.
-    pub fn navigation_style(mut self, value: impl Into<NavigationStyle>) -> Self {
-        self.navigation_style = Some(value.into());
+    pub fn navigation_style(mut self, value: impl IntoReactive<NavigationStyle>) -> Self {
+        self.navigation_style = Some(value.into_reactive());
         self
     }
 
     /// A result to pass back when popping.
-    pub fn result(mut self, value: impl Into<serde_json::Map<String, serde_json::Value>>) -> Self {
-        self.result = Some(value.into());
+    pub fn result(
+        mut self,
+        value: impl IntoReactive<serde_json::Map<String, serde_json::Value>>,
+    ) -> Self {
+        self.result = Some(value.into_reactive());
         self
     }
 
     /// Arguments to pass to the new route.
     pub fn arguments(
         mut self,
-        value: impl Into<serde_json::Map<String, serde_json::Value>>,
+        value: impl IntoReactive<serde_json::Map<String, serde_json::Value>>,
     ) -> Self {
-        self.arguments = Some(value.into());
+        self.arguments = Some(value.into_reactive());
         self
     }
 }
@@ -97,6 +112,9 @@ impl Serialize for NavigateAction {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         let mut map = serializer.serialize_map(None)?;
         map.serialize_entry("actionType", "navigate")?;
+        if let Some(value) = &self.condition {
+            map.serialize_entry("condition", value)?;
+        }
         if let Some(value) = &self.request {
             map.serialize_entry("request", value)?;
         }
@@ -124,11 +142,21 @@ impl Serialize for NavigateAction {
 
 impl Validate for NavigateAction {
     fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
+        self.condition.validate_at(&path.key("condition"), issues);
         self.request.validate_at(&path.key("request"), issues);
         self.widget_json
             .validate_at(&path.key("widgetJson"), issues);
         self.asset_path.validate_at(&path.key("assetPath"), issues);
         self.route_name.validate_at(&path.key("routeName"), issues);
+        if let Some(value) = &self.navigation_style {
+            value.validate_binding_at(&path.key("navigationStyle"), issues);
+        }
+        if let Some(value) = &self.result {
+            value.validate_binding_at(&path.key("result"), issues);
+        }
+        if let Some(value) = &self.arguments {
+            value.validate_binding_at(&path.key("arguments"), issues);
+        }
     }
 }
 
@@ -136,6 +164,8 @@ impl StacNode for NavigateAction {
     const KIND: NodeKind = NodeKind::Action;
     const TYPE_NAME: &'static str = "navigate";
 }
+
+impl Plain for NavigateAction {}
 
 impl From<NavigateAction> for Action {
     fn from(value: NavigateAction) -> Self {

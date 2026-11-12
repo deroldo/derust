@@ -8,12 +8,17 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
 /// A Stac action that retrieves the value of a specific form field.
 #[derive(Debug, Clone, PartialEq)]
 pub struct GetFormValue {
+    /// Run the action only when this is true (state path or expression).
+    pub condition: Option<Reactive<bool>>,
     /// The unique identifier of the form field to retrieve the value from.
     pub id: Dyn<String>,
 }
@@ -24,7 +29,16 @@ impl GetFormValue {
 
     /// Creates the model with only its required fields set.
     pub fn new(id: impl Into<Dyn<String>>) -> Self {
-        Self { id: id.into() }
+        Self {
+            condition: None,
+            id: id.into(),
+        }
+    }
+
+    /// Run the action only when this is true (state path or expression).
+    pub fn condition(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.condition = Some(value.into_reactive());
+        self
     }
 
     /// The unique identifier of the form field to retrieve the value from.
@@ -38,6 +52,9 @@ impl Serialize for GetFormValue {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         let mut map = serializer.serialize_map(None)?;
         map.serialize_entry("actionType", "getFormValue")?;
+        if let Some(value) = &self.condition {
+            map.serialize_entry("condition", value)?;
+        }
         map.serialize_entry("id", &self.id)?;
         map.end()
     }
@@ -45,6 +62,7 @@ impl Serialize for GetFormValue {
 
 impl Validate for GetFormValue {
     fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
+        self.condition.validate_at(&path.key("condition"), issues);
         self.id.validate_at(&path.key("id"), issues);
     }
 }
@@ -53,6 +71,8 @@ impl StacNode for GetFormValue {
     const KIND: NodeKind = NodeKind::Action;
     const TYPE_NAME: &'static str = "getFormValue";
 }
+
+impl Plain for GetFormValue {}
 
 impl From<GetFormValue> for Action {
     fn from(value: GetFormValue) -> Self {

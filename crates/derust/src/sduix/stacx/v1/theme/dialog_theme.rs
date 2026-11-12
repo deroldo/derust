@@ -8,6 +8,9 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
@@ -17,21 +20,21 @@ pub struct DialogTheme {
     /// The background color of the dialog.
     pub background_color: Option<Dyn<String>>,
     /// The z-coordinate at which to place this dialog relative to its parent.
-    pub elevation: Option<f64>,
+    pub elevation: Option<Reactive<f64>>,
     /// The color of the shadow below the dialog.
     pub shadow_color: Option<Dyn<String>>,
     /// The color used to tint the surface of this dialog.
     pub surface_tint_color: Option<Dyn<String>>,
     /// The shape of the dialog's border.
-    pub shape: Option<Box<Border>>,
+    pub shape: Option<Reactive<Box<Border>>>,
     /// The alignment of the dialog.
-    pub alignment: Option<AlignmentGeometry>,
+    pub alignment: Option<Reactive<AlignmentGeometry>>,
     /// The text style for the dialog's title.
-    pub title_text_style: Option<TextStyle>,
+    pub title_text_style: Option<Reactive<TextStyle>>,
     /// The text style for the dialog's content.
-    pub content_text_style: Option<TextStyle>,
+    pub content_text_style: Option<Reactive<TextStyle>>,
     /// The padding around the dialog's action buttons.
-    pub actions_padding: Option<EdgeInsets>,
+    pub actions_padding: Option<Reactive<EdgeInsets>>,
     /// The color of the dialog's icon.
     pub icon_color: Option<Dyn<String>>,
 }
@@ -60,8 +63,8 @@ impl DialogTheme {
     }
 
     /// The z-coordinate at which to place this dialog relative to its parent.
-    pub fn elevation(mut self, value: impl Into<f64>) -> Self {
-        self.elevation = Some(value.into());
+    pub fn elevation(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.elevation = Some(value.into_reactive());
         self
     }
 
@@ -78,32 +81,32 @@ impl DialogTheme {
     }
 
     /// The shape of the dialog's border.
-    pub fn shape(mut self, value: impl Into<Border>) -> Self {
-        self.shape = Some(Box::new(value.into()));
+    pub fn shape(mut self, value: impl IntoReactive<Border>) -> Self {
+        self.shape = Some(value.into_reactive().boxed());
         self
     }
 
     /// The alignment of the dialog.
-    pub fn alignment(mut self, value: impl Into<AlignmentGeometry>) -> Self {
-        self.alignment = Some(value.into());
+    pub fn alignment(mut self, value: impl IntoReactive<AlignmentGeometry>) -> Self {
+        self.alignment = Some(value.into_reactive());
         self
     }
 
     /// The text style for the dialog's title.
-    pub fn title_text_style(mut self, value: impl Into<TextStyle>) -> Self {
-        self.title_text_style = Some(value.into());
+    pub fn title_text_style(mut self, value: impl IntoReactive<TextStyle>) -> Self {
+        self.title_text_style = Some(value.into_reactive());
         self
     }
 
     /// The text style for the dialog's content.
-    pub fn content_text_style(mut self, value: impl Into<TextStyle>) -> Self {
-        self.content_text_style = Some(value.into());
+    pub fn content_text_style(mut self, value: impl IntoReactive<TextStyle>) -> Self {
+        self.content_text_style = Some(value.into_reactive());
         self
     }
 
     /// The padding around the dialog's action buttons.
-    pub fn actions_padding(mut self, value: impl Into<EdgeInsets>) -> Self {
-        self.actions_padding = Some(value.into());
+    pub fn actions_padding(mut self, value: impl IntoReactive<EdgeInsets>) -> Self {
+        self.actions_padding = Some(value.into_reactive());
         self
     }
 
@@ -171,3 +174,5 @@ impl Validate for DialogTheme {
         self.icon_color.validate_at(&path.key("iconColor"), issues);
     }
 }
+
+impl Plain for DialogTheme {}

@@ -8,44 +8,49 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
 /// A Stac model representing Flutter's \[BottomNavigationBar\].
 #[derive(Debug, Clone, PartialEq)]
 pub struct BottomNavigationBar {
+    /// Properties common to every widget (`visible`, `enabled`, `bind`, `state`, `globalState`, `onInit`).
+    pub envelope: Envelope,
     /// The items to display in the bottom navigation bar.
-    pub items: Vec<BottomNavigationBarItem>,
+    pub items: Reactive<Vec<BottomNavigationBarItem>>,
     /// The z-coordinate at which to place this bottom navigation bar.
-    pub elevation: Option<f64>,
+    pub elevation: Option<Reactive<f64>>,
     /// The visual layout type of the bottom navigation bar.
-    pub bar_type: Option<BottomNavigationBarType>,
+    pub bar_type: Option<Reactive<BottomNavigationBarType>>,
     /// The color of the selected item when using the fixed type.
     pub fixed_color: Option<Dyn<String>>,
     /// The background color of the bottom navigation bar.
     pub background_color: Option<Dyn<String>>,
     /// The size of the icons in the bottom navigation bar.
-    pub icon_size: Option<f64>,
+    pub icon_size: Option<Reactive<f64>>,
     /// The color of the selected item.
     pub selected_item_color: Option<Dyn<String>>,
     /// The color of the unselected items.
     pub unselected_item_color: Option<Dyn<String>>,
     /// The font size of the selected item label.
-    pub selected_font_size: Option<f64>,
+    pub selected_font_size: Option<Reactive<f64>>,
     /// The font size of the unselected item labels.
-    pub unselected_font_size: Option<f64>,
+    pub unselected_font_size: Option<Reactive<f64>>,
     /// The text style for the selected item label.
-    pub selected_label_style: Option<TextStyle>,
+    pub selected_label_style: Option<Reactive<TextStyle>>,
     /// The text style for the unselected item labels.
-    pub unselected_label_style: Option<TextStyle>,
+    pub unselected_label_style: Option<Reactive<TextStyle>>,
     /// Whether to show the selected item labels.
-    pub show_selected_labels: Option<bool>,
+    pub show_selected_labels: Option<Reactive<bool>>,
     /// Whether to show the unselected item labels.
-    pub show_unselected_labels: Option<bool>,
+    pub show_unselected_labels: Option<Reactive<bool>>,
     /// Whether detected gestures should provide acoustic and/or haptic feedback.
-    pub enable_feedback: Option<bool>,
+    pub enable_feedback: Option<Reactive<bool>>,
     /// The layout to use when in landscape orientation.
-    pub landscape_layout: Option<BottomNavigationBarLandscapeLayout>,
+    pub landscape_layout: Option<Reactive<BottomNavigationBarLandscapeLayout>>,
 }
 
 impl BottomNavigationBar {
@@ -53,9 +58,10 @@ impl BottomNavigationBar {
     pub const TYPE: &'static str = "bottomNavigationBar";
 
     /// Creates the model with only its required fields set.
-    pub fn new(items: impl IntoIterator<Item = impl Into<BottomNavigationBarItem>>) -> Self {
+    pub fn new(items: impl IntoReactive<Vec<BottomNavigationBarItem>>) -> Self {
         Self {
-            items: items.into_iter().map(Into::into).collect(),
+            envelope: Envelope::new(),
+            items: items.into_reactive(),
             elevation: None,
             bar_type: None,
             fixed_color: None,
@@ -75,23 +81,20 @@ impl BottomNavigationBar {
     }
 
     /// The items to display in the bottom navigation bar.
-    pub fn items(
-        mut self,
-        value: impl IntoIterator<Item = impl Into<BottomNavigationBarItem>>,
-    ) -> Self {
-        self.items = value.into_iter().map(Into::into).collect();
+    pub fn items(mut self, value: impl IntoReactive<Vec<BottomNavigationBarItem>>) -> Self {
+        self.items = value.into_reactive();
         self
     }
 
     /// The z-coordinate at which to place this bottom navigation bar.
-    pub fn elevation(mut self, value: impl Into<f64>) -> Self {
-        self.elevation = Some(value.into());
+    pub fn elevation(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.elevation = Some(value.into_reactive());
         self
     }
 
     /// The visual layout type of the bottom navigation bar.
-    pub fn bar_type(mut self, value: impl Into<BottomNavigationBarType>) -> Self {
-        self.bar_type = Some(value.into());
+    pub fn bar_type(mut self, value: impl IntoReactive<BottomNavigationBarType>) -> Self {
+        self.bar_type = Some(value.into_reactive());
         self
     }
 
@@ -108,8 +111,8 @@ impl BottomNavigationBar {
     }
 
     /// The size of the icons in the bottom navigation bar.
-    pub fn icon_size(mut self, value: impl Into<f64>) -> Self {
-        self.icon_size = Some(value.into());
+    pub fn icon_size(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.icon_size = Some(value.into_reactive());
         self
     }
 
@@ -126,53 +129,89 @@ impl BottomNavigationBar {
     }
 
     /// The font size of the selected item label.
-    pub fn selected_font_size(mut self, value: impl Into<f64>) -> Self {
-        self.selected_font_size = Some(value.into());
+    pub fn selected_font_size(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.selected_font_size = Some(value.into_reactive());
         self
     }
 
     /// The font size of the unselected item labels.
-    pub fn unselected_font_size(mut self, value: impl Into<f64>) -> Self {
-        self.unselected_font_size = Some(value.into());
+    pub fn unselected_font_size(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.unselected_font_size = Some(value.into_reactive());
         self
     }
 
     /// The text style for the selected item label.
-    pub fn selected_label_style(mut self, value: impl Into<TextStyle>) -> Self {
-        self.selected_label_style = Some(value.into());
+    pub fn selected_label_style(mut self, value: impl IntoReactive<TextStyle>) -> Self {
+        self.selected_label_style = Some(value.into_reactive());
         self
     }
 
     /// The text style for the unselected item labels.
-    pub fn unselected_label_style(mut self, value: impl Into<TextStyle>) -> Self {
-        self.unselected_label_style = Some(value.into());
+    pub fn unselected_label_style(mut self, value: impl IntoReactive<TextStyle>) -> Self {
+        self.unselected_label_style = Some(value.into_reactive());
         self
     }
 
     /// Whether to show the selected item labels.
-    pub fn show_selected_labels(mut self, value: bool) -> Self {
-        self.show_selected_labels = Some(value);
+    pub fn show_selected_labels(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.show_selected_labels = Some(value.into_reactive());
         self
     }
 
     /// Whether to show the unselected item labels.
-    pub fn show_unselected_labels(mut self, value: bool) -> Self {
-        self.show_unselected_labels = Some(value);
+    pub fn show_unselected_labels(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.show_unselected_labels = Some(value.into_reactive());
         self
     }
 
     /// Whether detected gestures should provide acoustic and/or haptic feedback.
-    pub fn enable_feedback(mut self, value: bool) -> Self {
-        self.enable_feedback = Some(value);
+    pub fn enable_feedback(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.enable_feedback = Some(value.into_reactive());
         self
     }
 
     /// The layout to use when in landscape orientation.
     pub fn landscape_layout(
         mut self,
-        value: impl Into<BottomNavigationBarLandscapeLayout>,
+        value: impl IntoReactive<BottomNavigationBarLandscapeLayout>,
     ) -> Self {
-        self.landscape_layout = Some(value.into());
+        self.landscape_layout = Some(value.into_reactive());
+        self
+    }
+
+    /// Sets `visible` (envelope): a `bool`, a state path or an expression.
+    pub fn visible(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.visible(value);
+        self
+    }
+
+    /// Sets `enabled` (envelope): a `bool`, a state path or an expression.
+    pub fn enabled(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.enabled(value);
+        self
+    }
+
+    /// Sets `bind` (envelope): the state key the widget reads and writes.
+    pub fn bind(mut self, key: BindKey) -> Self {
+        self.envelope = self.envelope.bind(key);
+        self
+    }
+
+    /// Sets `state` (envelope): the screen state declared by this widget.
+    pub fn state(mut self, block: StateBlock) -> Self {
+        self.envelope = self.envelope.state(block);
+        self
+    }
+
+    /// Sets `globalState` (envelope): the global state declared by this widget.
+    pub fn global_state(mut self, block: GlobalStateBlock) -> Self {
+        self.envelope = self.envelope.global_state(block);
+        self
+    }
+
+    /// Sets `onInit` (envelope): action(s) run when the widget is first built.
+    pub fn on_init(mut self, on_init: impl Into<OnInit>) -> Self {
+        self.envelope = self.envelope.on_init(on_init);
         self
     }
 }
@@ -181,6 +220,7 @@ impl Serialize for BottomNavigationBar {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         let mut map = serializer.serialize_map(None)?;
         map.serialize_entry("type", "bottomNavigationBar")?;
+        self.envelope.serialize_into(&mut map)?;
         map.serialize_entry("items", &self.items)?;
         if let Some(value) = &self.elevation {
             map.serialize_entry("elevation", value)?;
@@ -233,8 +273,12 @@ impl Serialize for BottomNavigationBar {
 
 impl Validate for BottomNavigationBar {
     fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
+        self.envelope.validate_at(path, issues);
         self.items.validate_at(&path.key("items"), issues);
         self.elevation.validate_at(&path.key("elevation"), issues);
+        if let Some(value) = &self.bar_type {
+            value.validate_binding_at(&path.key("barType"), issues);
+        }
         self.fixed_color
             .validate_at(&path.key("fixedColor"), issues);
         self.background_color
@@ -252,6 +296,18 @@ impl Validate for BottomNavigationBar {
             .validate_at(&path.key("selectedLabelStyle"), issues);
         self.unselected_label_style
             .validate_at(&path.key("unselectedLabelStyle"), issues);
+        if let Some(value) = &self.show_selected_labels {
+            value.validate_binding_at(&path.key("showSelectedLabels"), issues);
+        }
+        if let Some(value) = &self.show_unselected_labels {
+            value.validate_binding_at(&path.key("showUnselectedLabels"), issues);
+        }
+        if let Some(value) = &self.enable_feedback {
+            value.validate_binding_at(&path.key("enableFeedback"), issues);
+        }
+        if let Some(value) = &self.landscape_layout {
+            value.validate_binding_at(&path.key("landscapeLayout"), issues);
+        }
     }
 }
 
@@ -259,6 +315,8 @@ impl StacNode for BottomNavigationBar {
     const KIND: NodeKind = NodeKind::Widget;
     const TYPE_NAME: &'static str = "bottomNavigationBar";
 }
+
+impl Plain for BottomNavigationBar {}
 
 impl From<BottomNavigationBar> for Widget {
     fn from(value: BottomNavigationBar) -> Self {

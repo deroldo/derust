@@ -8,6 +8,9 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
@@ -19,7 +22,7 @@ pub struct BottomSheetThemeData {
     /// The color used to tint the surface of this bottom sheet.
     pub surface_tint_color: Option<Dyn<String>>,
     /// The z-coordinate at which to place this bottom sheet relative to its parent.
-    pub elevation: Option<f64>,
+    pub elevation: Option<Reactive<f64>>,
     /// The background color of the modal bottom sheet.
     pub modal_background_color: Option<Dyn<String>>,
     /// The color of the modal barrier.
@@ -27,19 +30,19 @@ pub struct BottomSheetThemeData {
     /// The color of the shadow below the bottom sheet.
     pub shadow_color: Option<Dyn<String>>,
     /// The z-coordinate at which to place the modal bottom sheet.
-    pub modal_elevation: Option<f64>,
+    pub modal_elevation: Option<Reactive<f64>>,
     /// The shape of the bottom sheet's border.
-    pub shape: Option<Box<Border>>,
+    pub shape: Option<Reactive<Box<Border>>>,
     /// Whether to show a drag handle on the bottom sheet.
-    pub show_drag_handle: Option<bool>,
+    pub show_drag_handle: Option<Reactive<bool>>,
     /// The color of the drag handle.
     pub drag_handle_color: Option<Dyn<String>>,
     /// The size of the drag handle.
-    pub drag_handle_size: Option<Size>,
+    pub drag_handle_size: Option<Reactive<Size>>,
     /// How to clip the bottom sheet's content.
-    pub clip_behavior: Option<Clip>,
+    pub clip_behavior: Option<Reactive<Clip>>,
     /// Constraints on the size of the bottom sheet.
-    pub constraints: Option<BoxConstraints>,
+    pub constraints: Option<Reactive<BoxConstraints>>,
 }
 
 impl BottomSheetThemeData {
@@ -75,8 +78,8 @@ impl BottomSheetThemeData {
     }
 
     /// The z-coordinate at which to place this bottom sheet relative to its parent.
-    pub fn elevation(mut self, value: impl Into<f64>) -> Self {
-        self.elevation = Some(value.into());
+    pub fn elevation(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.elevation = Some(value.into_reactive());
         self
     }
 
@@ -99,20 +102,20 @@ impl BottomSheetThemeData {
     }
 
     /// The z-coordinate at which to place the modal bottom sheet.
-    pub fn modal_elevation(mut self, value: impl Into<f64>) -> Self {
-        self.modal_elevation = Some(value.into());
+    pub fn modal_elevation(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.modal_elevation = Some(value.into_reactive());
         self
     }
 
     /// The shape of the bottom sheet's border.
-    pub fn shape(mut self, value: impl Into<Border>) -> Self {
-        self.shape = Some(Box::new(value.into()));
+    pub fn shape(mut self, value: impl IntoReactive<Border>) -> Self {
+        self.shape = Some(value.into_reactive().boxed());
         self
     }
 
     /// Whether to show a drag handle on the bottom sheet.
-    pub fn show_drag_handle(mut self, value: bool) -> Self {
-        self.show_drag_handle = Some(value);
+    pub fn show_drag_handle(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.show_drag_handle = Some(value.into_reactive());
         self
     }
 
@@ -123,20 +126,20 @@ impl BottomSheetThemeData {
     }
 
     /// The size of the drag handle.
-    pub fn drag_handle_size(mut self, value: impl Into<Size>) -> Self {
-        self.drag_handle_size = Some(value.into());
+    pub fn drag_handle_size(mut self, value: impl IntoReactive<Size>) -> Self {
+        self.drag_handle_size = Some(value.into_reactive());
         self
     }
 
     /// How to clip the bottom sheet's content.
-    pub fn clip_behavior(mut self, value: impl Into<Clip>) -> Self {
-        self.clip_behavior = Some(value.into());
+    pub fn clip_behavior(mut self, value: impl IntoReactive<Clip>) -> Self {
+        self.clip_behavior = Some(value.into_reactive());
         self
     }
 
     /// Constraints on the size of the bottom sheet.
-    pub fn constraints(mut self, value: impl Into<BoxConstraints>) -> Self {
-        self.constraints = Some(value.into());
+    pub fn constraints(mut self, value: impl IntoReactive<BoxConstraints>) -> Self {
+        self.constraints = Some(value.into_reactive());
         self
     }
 }
@@ -203,11 +206,19 @@ impl Validate for BottomSheetThemeData {
         self.modal_elevation
             .validate_at(&path.key("modalElevation"), issues);
         self.shape.validate_at(&path.key("shape"), issues);
+        if let Some(value) = &self.show_drag_handle {
+            value.validate_binding_at(&path.key("showDragHandle"), issues);
+        }
         self.drag_handle_color
             .validate_at(&path.key("dragHandleColor"), issues);
         self.drag_handle_size
             .validate_at(&path.key("dragHandleSize"), issues);
+        if let Some(value) = &self.clip_behavior {
+            value.validate_binding_at(&path.key("clipBehavior"), issues);
+        }
         self.constraints
             .validate_at(&path.key("constraints"), issues);
     }
 }
+
+impl Plain for BottomSheetThemeData {}

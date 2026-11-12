@@ -8,6 +8,9 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
@@ -15,31 +18,31 @@ use serde::ser::{Serialize, SerializeMap, Serializer};
 #[derive(Debug, Clone, PartialEq)]
 pub struct SnackBarThemeData {
     /// The behavior of the snack bar.
-    pub behavior: Option<SnackBarBehavior>,
+    pub behavior: Option<Reactive<SnackBarBehavior>>,
     /// The background color of the snack bar.
     pub background_color: Option<Dyn<String>>,
     /// The z-coordinate at which to place this snack bar relative to its parent.
-    pub elevation: Option<f64>,
+    pub elevation: Option<Reactive<f64>>,
     /// The shape of the snack bar's border.
-    pub shape: Option<ShapeBorder>,
+    pub shape: Option<Reactive<ShapeBorder>>,
     /// The width of the snack bar.
-    pub width: Option<f64>,
+    pub width: Option<Reactive<f64>>,
     /// The text style for the snack bar's content.
-    pub content_text_style: Option<TextStyle>,
+    pub content_text_style: Option<Reactive<TextStyle>>,
     /// The color of the snack bar's action text.
     pub action_text_color: Option<Dyn<String>>,
     /// The color of the snack bar's disabled action text.
     pub disabled_action_text_color: Option<Dyn<String>>,
     /// The padding around the snack bar's content.
-    pub inset_padding: Option<EdgeInsets>,
+    pub inset_padding: Option<Reactive<EdgeInsets>>,
     /// The direction in which the snack bar can be dismissed.
-    pub dismiss_direction: Option<DismissDirection>,
+    pub dismiss_direction: Option<Reactive<DismissDirection>>,
     /// Whether to show a close icon on the snack bar.
-    pub show_close_icon: Option<bool>,
+    pub show_close_icon: Option<Reactive<bool>>,
     /// The color of the close icon.
     pub close_icon_color: Option<Dyn<String>>,
     /// The threshold for action overflow.
-    pub action_overflow_threshold: Option<f64>,
+    pub action_overflow_threshold: Option<Reactive<f64>>,
     /// The background color of the snack bar's action.
     pub action_background_color: Option<Dyn<String>>,
     /// The background color of the snack bar's disabled action.
@@ -69,8 +72,8 @@ impl SnackBarThemeData {
     }
 
     /// The behavior of the snack bar.
-    pub fn behavior(mut self, value: impl Into<SnackBarBehavior>) -> Self {
-        self.behavior = Some(value.into());
+    pub fn behavior(mut self, value: impl IntoReactive<SnackBarBehavior>) -> Self {
+        self.behavior = Some(value.into_reactive());
         self
     }
 
@@ -81,26 +84,26 @@ impl SnackBarThemeData {
     }
 
     /// The z-coordinate at which to place this snack bar relative to its parent.
-    pub fn elevation(mut self, value: impl Into<f64>) -> Self {
-        self.elevation = Some(value.into());
+    pub fn elevation(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.elevation = Some(value.into_reactive());
         self
     }
 
     /// The shape of the snack bar's border.
-    pub fn shape(mut self, value: impl Into<ShapeBorder>) -> Self {
-        self.shape = Some(value.into());
+    pub fn shape(mut self, value: impl IntoReactive<ShapeBorder>) -> Self {
+        self.shape = Some(value.into_reactive());
         self
     }
 
     /// The width of the snack bar.
-    pub fn width(mut self, value: impl Into<f64>) -> Self {
-        self.width = Some(value.into());
+    pub fn width(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.width = Some(value.into_reactive());
         self
     }
 
     /// The text style for the snack bar's content.
-    pub fn content_text_style(mut self, value: impl Into<TextStyle>) -> Self {
-        self.content_text_style = Some(value.into());
+    pub fn content_text_style(mut self, value: impl IntoReactive<TextStyle>) -> Self {
+        self.content_text_style = Some(value.into_reactive());
         self
     }
 
@@ -117,20 +120,20 @@ impl SnackBarThemeData {
     }
 
     /// The padding around the snack bar's content.
-    pub fn inset_padding(mut self, value: impl Into<EdgeInsets>) -> Self {
-        self.inset_padding = Some(value.into());
+    pub fn inset_padding(mut self, value: impl IntoReactive<EdgeInsets>) -> Self {
+        self.inset_padding = Some(value.into_reactive());
         self
     }
 
     /// The direction in which the snack bar can be dismissed.
-    pub fn dismiss_direction(mut self, value: impl Into<DismissDirection>) -> Self {
-        self.dismiss_direction = Some(value.into());
+    pub fn dismiss_direction(mut self, value: impl IntoReactive<DismissDirection>) -> Self {
+        self.dismiss_direction = Some(value.into_reactive());
         self
     }
 
     /// Whether to show a close icon on the snack bar.
-    pub fn show_close_icon(mut self, value: bool) -> Self {
-        self.show_close_icon = Some(value);
+    pub fn show_close_icon(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.show_close_icon = Some(value.into_reactive());
         self
     }
 
@@ -141,8 +144,8 @@ impl SnackBarThemeData {
     }
 
     /// The threshold for action overflow.
-    pub fn action_overflow_threshold(mut self, value: impl Into<f64>) -> Self {
-        self.action_overflow_threshold = Some(value.into());
+    pub fn action_overflow_threshold(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.action_overflow_threshold = Some(value.into_reactive());
         self
     }
 
@@ -213,6 +216,9 @@ impl Serialize for SnackBarThemeData {
 
 impl Validate for SnackBarThemeData {
     fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
+        if let Some(value) = &self.behavior {
+            value.validate_binding_at(&path.key("behavior"), issues);
+        }
         self.background_color
             .validate_at(&path.key("backgroundColor"), issues);
         self.elevation.validate_at(&path.key("elevation"), issues);
@@ -226,6 +232,12 @@ impl Validate for SnackBarThemeData {
             .validate_at(&path.key("disabledActionTextColor"), issues);
         self.inset_padding
             .validate_at(&path.key("insetPadding"), issues);
+        if let Some(value) = &self.dismiss_direction {
+            value.validate_binding_at(&path.key("dismissDirection"), issues);
+        }
+        if let Some(value) = &self.show_close_icon {
+            value.validate_binding_at(&path.key("showCloseIcon"), issues);
+        }
         self.close_icon_color
             .validate_at(&path.key("closeIconColor"), issues);
         self.action_overflow_threshold
@@ -236,3 +248,5 @@ impl Validate for SnackBarThemeData {
             .validate_at(&path.key("disabledActionBackgroundColor"), issues);
     }
 }
+
+impl Plain for SnackBarThemeData {}

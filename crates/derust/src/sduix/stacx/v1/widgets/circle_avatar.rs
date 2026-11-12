@@ -8,28 +8,33 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
 /// A Stac model representing Flutter's \[CircleAvatar\] widget.
 #[derive(Debug, Clone, PartialEq)]
 pub struct CircleAvatar {
+    /// Properties common to every widget (`visible`, `enabled`, `bind`, `state`, `globalState`, `onInit`).
+    pub envelope: Envelope,
     /// The widget below this widget in the tree.
     pub child: Option<Widget>,
     /// The fill color for the avatar's background.
-    pub background_color: Option<Color>,
+    pub background_color: Option<Reactive<Color>>,
     /// A URL for a background image.
     pub background_image: Option<Dyn<String>>,
     /// A URL for a foreground image (drawn on top of the background).
     pub foreground_image: Option<Dyn<String>>,
     /// Default color for text and icons within the avatar.
-    pub foreground_color: Option<Color>,
+    pub foreground_color: Option<Reactive<Color>>,
     /// Explicit radius for the avatar.
-    pub radius: Option<f64>,
+    pub radius: Option<Reactive<f64>>,
     /// The minimum radius for the avatar when using dynamic sizing.
-    pub min_radius: Option<f64>,
+    pub min_radius: Option<Reactive<f64>>,
     /// The maximum radius for the avatar when using dynamic sizing.
-    pub max_radius: Option<f64>,
+    pub max_radius: Option<Reactive<f64>>,
 }
 
 impl CircleAvatar {
@@ -39,6 +44,7 @@ impl CircleAvatar {
     /// Creates the model with only its required fields set.
     pub fn new() -> Self {
         Self {
+            envelope: Envelope::new(),
             child: None,
             background_color: None,
             background_image: None,
@@ -57,8 +63,8 @@ impl CircleAvatar {
     }
 
     /// The fill color for the avatar's background.
-    pub fn background_color(mut self, value: impl Into<Color>) -> Self {
-        self.background_color = Some(value.into());
+    pub fn background_color(mut self, value: impl IntoReactive<Color>) -> Self {
+        self.background_color = Some(value.into_reactive());
         self
     }
 
@@ -75,26 +81,62 @@ impl CircleAvatar {
     }
 
     /// Default color for text and icons within the avatar.
-    pub fn foreground_color(mut self, value: impl Into<Color>) -> Self {
-        self.foreground_color = Some(value.into());
+    pub fn foreground_color(mut self, value: impl IntoReactive<Color>) -> Self {
+        self.foreground_color = Some(value.into_reactive());
         self
     }
 
     /// Explicit radius for the avatar.
-    pub fn radius(mut self, value: impl Into<f64>) -> Self {
-        self.radius = Some(value.into());
+    pub fn radius(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.radius = Some(value.into_reactive());
         self
     }
 
     /// The minimum radius for the avatar when using dynamic sizing.
-    pub fn min_radius(mut self, value: impl Into<f64>) -> Self {
-        self.min_radius = Some(value.into());
+    pub fn min_radius(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.min_radius = Some(value.into_reactive());
         self
     }
 
     /// The maximum radius for the avatar when using dynamic sizing.
-    pub fn max_radius(mut self, value: impl Into<f64>) -> Self {
-        self.max_radius = Some(value.into());
+    pub fn max_radius(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.max_radius = Some(value.into_reactive());
+        self
+    }
+
+    /// Sets `visible` (envelope): a `bool`, a state path or an expression.
+    pub fn visible(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.visible(value);
+        self
+    }
+
+    /// Sets `enabled` (envelope): a `bool`, a state path or an expression.
+    pub fn enabled(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.enabled(value);
+        self
+    }
+
+    /// Sets `bind` (envelope): the state key the widget reads and writes.
+    pub fn bind(mut self, key: BindKey) -> Self {
+        self.envelope = self.envelope.bind(key);
+        self
+    }
+
+    /// Sets `state` (envelope): the screen state declared by this widget.
+    pub fn state(mut self, block: StateBlock) -> Self {
+        self.envelope = self.envelope.state(block);
+        self
+    }
+
+    /// Sets `globalState` (envelope): the global state declared by this widget.
+    pub fn global_state(mut self, block: GlobalStateBlock) -> Self {
+        self.envelope = self.envelope.global_state(block);
+        self
+    }
+
+    /// Sets `onInit` (envelope): action(s) run when the widget is first built.
+    pub fn on_init(mut self, on_init: impl Into<OnInit>) -> Self {
+        self.envelope = self.envelope.on_init(on_init);
         self
     }
 }
@@ -103,6 +145,7 @@ impl Serialize for CircleAvatar {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         let mut map = serializer.serialize_map(None)?;
         map.serialize_entry("type", "circleAvatar")?;
+        self.envelope.serialize_into(&mut map)?;
         if let Some(value) = &self.child {
             map.serialize_entry("child", value)?;
         }
@@ -133,6 +176,7 @@ impl Serialize for CircleAvatar {
 
 impl Validate for CircleAvatar {
     fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
+        self.envelope.validate_at(path, issues);
         self.child.validate_at(&path.key("child"), issues);
         self.background_color
             .validate_at(&path.key("backgroundColor"), issues);
@@ -152,6 +196,8 @@ impl StacNode for CircleAvatar {
     const KIND: NodeKind = NodeKind::Widget;
     const TYPE_NAME: &'static str = "circleAvatar";
 }
+
+impl Plain for CircleAvatar {}
 
 impl From<CircleAvatar> for Widget {
     fn from(value: CircleAvatar) -> Self {

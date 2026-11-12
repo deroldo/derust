@@ -8,6 +8,9 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
@@ -17,27 +20,27 @@ pub struct DecorationImage {
     /// The source path or URL of the image.
     pub src: Dyn<String>,
     /// How the image should be inscribed into the decoration box.
-    pub fit: Option<BoxFit>,
+    pub fit: Option<Reactive<BoxFit>>,
     /// The type of image source (asset, network, etc.).
-    pub image_type: Option<ImageType>,
+    pub image_type: Option<Reactive<ImageType>>,
     /// How to align the image within the decoration box.
-    pub alignment: Option<Alignment>,
+    pub alignment: Option<Reactive<Alignment>>,
     /// The center slice for nine-patch images.
-    pub center_slice: Option<Box<Rect>>,
+    pub center_slice: Option<Reactive<Box<Rect>>>,
     /// How the image should be repeated if it doesn't fill the box.
-    pub repeat: Option<ImageRepeat>,
+    pub repeat: Option<Reactive<ImageRepeat>>,
     /// Whether to match the text direction for alignment.
-    pub match_text_direction: Option<bool>,
+    pub match_text_direction: Option<Reactive<bool>>,
     /// The scale factor for the image.
-    pub scale: Option<f64>,
+    pub scale: Option<Reactive<f64>>,
     /// The opacity to apply to the image (0.0 to 1.0).
-    pub opacity: Option<f64>,
+    pub opacity: Option<Reactive<f64>>,
     /// The quality level for image filtering.
-    pub filter_quality: Option<FilterQuality>,
+    pub filter_quality: Option<Reactive<FilterQuality>>,
     /// Whether to invert the colors of the image.
-    pub invert_colors: Option<bool>,
+    pub invert_colors: Option<Reactive<bool>>,
     /// Whether to use anti-aliasing for the image.
-    pub is_anti_alias: Option<bool>,
+    pub is_anti_alias: Option<Reactive<bool>>,
 }
 
 impl DecorationImage {
@@ -66,68 +69,68 @@ impl DecorationImage {
     }
 
     /// How the image should be inscribed into the decoration box.
-    pub fn fit(mut self, value: impl Into<BoxFit>) -> Self {
-        self.fit = Some(value.into());
+    pub fn fit(mut self, value: impl IntoReactive<BoxFit>) -> Self {
+        self.fit = Some(value.into_reactive());
         self
     }
 
     /// The type of image source (asset, network, etc.).
-    pub fn image_type(mut self, value: impl Into<ImageType>) -> Self {
-        self.image_type = Some(value.into());
+    pub fn image_type(mut self, value: impl IntoReactive<ImageType>) -> Self {
+        self.image_type = Some(value.into_reactive());
         self
     }
 
     /// How to align the image within the decoration box.
-    pub fn alignment(mut self, value: impl Into<Alignment>) -> Self {
-        self.alignment = Some(value.into());
+    pub fn alignment(mut self, value: impl IntoReactive<Alignment>) -> Self {
+        self.alignment = Some(value.into_reactive());
         self
     }
 
     /// The center slice for nine-patch images.
-    pub fn center_slice(mut self, value: impl Into<Rect>) -> Self {
-        self.center_slice = Some(Box::new(value.into()));
+    pub fn center_slice(mut self, value: impl IntoReactive<Rect>) -> Self {
+        self.center_slice = Some(value.into_reactive().boxed());
         self
     }
 
     /// How the image should be repeated if it doesn't fill the box.
-    pub fn repeat(mut self, value: impl Into<ImageRepeat>) -> Self {
-        self.repeat = Some(value.into());
+    pub fn repeat(mut self, value: impl IntoReactive<ImageRepeat>) -> Self {
+        self.repeat = Some(value.into_reactive());
         self
     }
 
     /// Whether to match the text direction for alignment.
-    pub fn match_text_direction(mut self, value: bool) -> Self {
-        self.match_text_direction = Some(value);
+    pub fn match_text_direction(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.match_text_direction = Some(value.into_reactive());
         self
     }
 
     /// The scale factor for the image.
-    pub fn scale(mut self, value: impl Into<f64>) -> Self {
-        self.scale = Some(value.into());
+    pub fn scale(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.scale = Some(value.into_reactive());
         self
     }
 
     /// The opacity to apply to the image (0.0 to 1.0).
-    pub fn opacity(mut self, value: impl Into<f64>) -> Self {
-        self.opacity = Some(value.into());
+    pub fn opacity(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.opacity = Some(value.into_reactive());
         self
     }
 
     /// The quality level for image filtering.
-    pub fn filter_quality(mut self, value: impl Into<FilterQuality>) -> Self {
-        self.filter_quality = Some(value.into());
+    pub fn filter_quality(mut self, value: impl IntoReactive<FilterQuality>) -> Self {
+        self.filter_quality = Some(value.into_reactive());
         self
     }
 
     /// Whether to invert the colors of the image.
-    pub fn invert_colors(mut self, value: bool) -> Self {
-        self.invert_colors = Some(value);
+    pub fn invert_colors(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.invert_colors = Some(value.into_reactive());
         self
     }
 
     /// Whether to use anti-aliasing for the image.
-    pub fn is_anti_alias(mut self, value: bool) -> Self {
-        self.is_anti_alias = Some(value);
+    pub fn is_anti_alias(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.is_anti_alias = Some(value.into_reactive());
         self
     }
 }
@@ -176,9 +179,35 @@ impl Serialize for DecorationImage {
 impl Validate for DecorationImage {
     fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
         self.src.validate_at(&path.key("src"), issues);
+        if let Some(value) = &self.fit {
+            value.validate_binding_at(&path.key("fit"), issues);
+        }
+        if let Some(value) = &self.image_type {
+            value.validate_binding_at(&path.key("imageType"), issues);
+        }
+        if let Some(value) = &self.alignment {
+            value.validate_binding_at(&path.key("alignment"), issues);
+        }
         self.center_slice
             .validate_at(&path.key("centerSlice"), issues);
+        if let Some(value) = &self.repeat {
+            value.validate_binding_at(&path.key("repeat"), issues);
+        }
+        if let Some(value) = &self.match_text_direction {
+            value.validate_binding_at(&path.key("matchTextDirection"), issues);
+        }
         self.scale.validate_at(&path.key("scale"), issues);
         self.opacity.validate_at(&path.key("opacity"), issues);
+        if let Some(value) = &self.filter_quality {
+            value.validate_binding_at(&path.key("filterQuality"), issues);
+        }
+        if let Some(value) = &self.invert_colors {
+            value.validate_binding_at(&path.key("invertColors"), issues);
+        }
+        if let Some(value) = &self.is_anti_alias {
+            value.validate_binding_at(&path.key("isAntiAlias"), issues);
+        }
     }
 }
+
+impl Plain for DecorationImage {}

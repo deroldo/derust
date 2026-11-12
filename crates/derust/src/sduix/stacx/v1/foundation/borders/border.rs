@@ -8,6 +8,9 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
@@ -15,21 +18,21 @@ use serde::ser::{Serialize, SerializeMap, Serializer};
 #[derive(Debug, Clone, PartialEq)]
 pub struct Border {
     /// The color applied to all sides (when not using individual sides).
-    pub color: Option<Color>,
+    pub color: Option<Reactive<Color>>,
     /// The border style applied to all sides (when not using individual sides).
-    pub border_style: Option<BorderStyle>,
+    pub border_style: Option<Reactive<BorderStyle>>,
     /// The width applied to all sides (when not using individual sides).
-    pub width: Option<f64>,
+    pub width: Option<Reactive<f64>>,
     /// The stroke alignment applied to all sides (when not using individual sides).
-    pub stroke_align: Option<f64>,
+    pub stroke_align: Option<Reactive<f64>>,
     /// The top border side with individual styling.
-    pub top: Option<BorderSide>,
+    pub top: Option<Reactive<BorderSide>>,
     /// The right border side with individual styling.
-    pub right: Option<BorderSide>,
+    pub right: Option<Reactive<BorderSide>>,
     /// The bottom border side with individual styling.
-    pub bottom: Option<BorderSide>,
+    pub bottom: Option<Reactive<BorderSide>>,
     /// The left border side with individual styling.
-    pub left: Option<BorderSide>,
+    pub left: Option<Reactive<BorderSide>>,
 }
 
 impl Border {
@@ -48,50 +51,50 @@ impl Border {
     }
 
     /// The color applied to all sides (when not using individual sides).
-    pub fn color(mut self, value: impl Into<Color>) -> Self {
-        self.color = Some(value.into());
+    pub fn color(mut self, value: impl IntoReactive<Color>) -> Self {
+        self.color = Some(value.into_reactive());
         self
     }
 
     /// The border style applied to all sides (when not using individual sides).
-    pub fn border_style(mut self, value: impl Into<BorderStyle>) -> Self {
-        self.border_style = Some(value.into());
+    pub fn border_style(mut self, value: impl IntoReactive<BorderStyle>) -> Self {
+        self.border_style = Some(value.into_reactive());
         self
     }
 
     /// The width applied to all sides (when not using individual sides).
-    pub fn width(mut self, value: impl Into<f64>) -> Self {
-        self.width = Some(value.into());
+    pub fn width(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.width = Some(value.into_reactive());
         self
     }
 
     /// The stroke alignment applied to all sides (when not using individual sides).
-    pub fn stroke_align(mut self, value: impl Into<f64>) -> Self {
-        self.stroke_align = Some(value.into());
+    pub fn stroke_align(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.stroke_align = Some(value.into_reactive());
         self
     }
 
     /// The top border side with individual styling.
-    pub fn top(mut self, value: impl Into<BorderSide>) -> Self {
-        self.top = Some(value.into());
+    pub fn top(mut self, value: impl IntoReactive<BorderSide>) -> Self {
+        self.top = Some(value.into_reactive());
         self
     }
 
     /// The right border side with individual styling.
-    pub fn right(mut self, value: impl Into<BorderSide>) -> Self {
-        self.right = Some(value.into());
+    pub fn right(mut self, value: impl IntoReactive<BorderSide>) -> Self {
+        self.right = Some(value.into_reactive());
         self
     }
 
     /// The bottom border side with individual styling.
-    pub fn bottom(mut self, value: impl Into<BorderSide>) -> Self {
-        self.bottom = Some(value.into());
+    pub fn bottom(mut self, value: impl IntoReactive<BorderSide>) -> Self {
+        self.bottom = Some(value.into_reactive());
         self
     }
 
     /// The left border side with individual styling.
-    pub fn left(mut self, value: impl Into<BorderSide>) -> Self {
-        self.left = Some(value.into());
+    pub fn left(mut self, value: impl IntoReactive<BorderSide>) -> Self {
+        self.left = Some(value.into_reactive());
         self
     }
 }
@@ -130,6 +133,9 @@ impl Serialize for Border {
 impl Validate for Border {
     fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
         self.color.validate_at(&path.key("color"), issues);
+        if let Some(value) = &self.border_style {
+            value.validate_binding_at(&path.key("borderStyle"), issues);
+        }
         self.width.validate_at(&path.key("width"), issues);
         self.stroke_align
             .validate_at(&path.key("strokeAlign"), issues);
@@ -139,3 +145,5 @@ impl Validate for Border {
         self.left.validate_at(&path.key("left"), issues);
     }
 }
+
+impl Plain for Border {}

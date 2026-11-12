@@ -8,6 +8,9 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
@@ -17,31 +20,31 @@ pub struct DialogThemeData {
     /// Overrides the default value for \[Dialog.backgroundColor\].
     pub background_color: Option<Dyn<String>>,
     /// Overrides the default value for \[Dialog.elevation\].
-    pub elevation: Option<f64>,
+    pub elevation: Option<Reactive<f64>>,
     /// Overrides the default value for \[Dialog.shadowColor\].
     pub shadow_color: Option<Dyn<String>>,
     /// Overrides the default value for \[Dialog.surfaceTintColor\].
     pub surface_tint_color: Option<Dyn<String>>,
     /// Overrides the default value for \[Dialog.shape\].
-    pub shape: Option<Box<Border>>,
+    pub shape: Option<Reactive<Box<Border>>>,
     /// Overrides the default value for \[Dialog.alignment\].
-    pub alignment: Option<AlignmentGeometry>,
+    pub alignment: Option<Reactive<AlignmentGeometry>>,
     /// Used to configure the \[IconTheme\] for the \[AlertDialog.icon\] widget.
     pub icon_color: Option<Dyn<String>>,
     /// Overrides the default value for \[DefaultTextStyle\] for \[SimpleDialog.title\] and \[AlertDialog.title\].
-    pub title_text_style: Option<TextStyle>,
+    pub title_text_style: Option<Reactive<TextStyle>>,
     /// Overrides the default value for \[DefaultTextStyle\] for \[SimpleDialog.children\] and \[AlertDialog.content\].
-    pub content_text_style: Option<TextStyle>,
+    pub content_text_style: Option<Reactive<TextStyle>>,
     /// Overrides the default value for \[AlertDialog.actionsPadding\].
-    pub actions_padding: Option<EdgeInsets>,
+    pub actions_padding: Option<Reactive<EdgeInsets>>,
     /// Overrides the default value for \[barrierColor\] in \[showDialog\].
     pub barrier_color: Option<Dyn<String>>,
     /// Overrides the default value for \[Dialog.insetPadding\].
-    pub inset_padding: Option<EdgeInsets>,
+    pub inset_padding: Option<Reactive<EdgeInsets>>,
     /// Overrides the default value of \[Dialog.clipBehavior\].
-    pub clip_behavior: Option<Clip>,
+    pub clip_behavior: Option<Reactive<Clip>>,
     /// Constrains the size of the \[Dialog\].
-    pub constraints: Option<BoxConstraints>,
+    pub constraints: Option<Reactive<BoxConstraints>>,
 }
 
 impl DialogThemeData {
@@ -72,8 +75,8 @@ impl DialogThemeData {
     }
 
     /// Overrides the default value for \[Dialog.elevation\].
-    pub fn elevation(mut self, value: impl Into<f64>) -> Self {
-        self.elevation = Some(value.into());
+    pub fn elevation(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.elevation = Some(value.into_reactive());
         self
     }
 
@@ -90,14 +93,14 @@ impl DialogThemeData {
     }
 
     /// Overrides the default value for \[Dialog.shape\].
-    pub fn shape(mut self, value: impl Into<Border>) -> Self {
-        self.shape = Some(Box::new(value.into()));
+    pub fn shape(mut self, value: impl IntoReactive<Border>) -> Self {
+        self.shape = Some(value.into_reactive().boxed());
         self
     }
 
     /// Overrides the default value for \[Dialog.alignment\].
-    pub fn alignment(mut self, value: impl Into<AlignmentGeometry>) -> Self {
-        self.alignment = Some(value.into());
+    pub fn alignment(mut self, value: impl IntoReactive<AlignmentGeometry>) -> Self {
+        self.alignment = Some(value.into_reactive());
         self
     }
 
@@ -108,20 +111,20 @@ impl DialogThemeData {
     }
 
     /// Overrides the default value for \[DefaultTextStyle\] for \[SimpleDialog.title\] and \[AlertDialog.title\].
-    pub fn title_text_style(mut self, value: impl Into<TextStyle>) -> Self {
-        self.title_text_style = Some(value.into());
+    pub fn title_text_style(mut self, value: impl IntoReactive<TextStyle>) -> Self {
+        self.title_text_style = Some(value.into_reactive());
         self
     }
 
     /// Overrides the default value for \[DefaultTextStyle\] for \[SimpleDialog.children\] and \[AlertDialog.content\].
-    pub fn content_text_style(mut self, value: impl Into<TextStyle>) -> Self {
-        self.content_text_style = Some(value.into());
+    pub fn content_text_style(mut self, value: impl IntoReactive<TextStyle>) -> Self {
+        self.content_text_style = Some(value.into_reactive());
         self
     }
 
     /// Overrides the default value for \[AlertDialog.actionsPadding\].
-    pub fn actions_padding(mut self, value: impl Into<EdgeInsets>) -> Self {
-        self.actions_padding = Some(value.into());
+    pub fn actions_padding(mut self, value: impl IntoReactive<EdgeInsets>) -> Self {
+        self.actions_padding = Some(value.into_reactive());
         self
     }
 
@@ -132,20 +135,20 @@ impl DialogThemeData {
     }
 
     /// Overrides the default value for \[Dialog.insetPadding\].
-    pub fn inset_padding(mut self, value: impl Into<EdgeInsets>) -> Self {
-        self.inset_padding = Some(value.into());
+    pub fn inset_padding(mut self, value: impl IntoReactive<EdgeInsets>) -> Self {
+        self.inset_padding = Some(value.into_reactive());
         self
     }
 
     /// Overrides the default value of \[Dialog.clipBehavior\].
-    pub fn clip_behavior(mut self, value: impl Into<Clip>) -> Self {
-        self.clip_behavior = Some(value.into());
+    pub fn clip_behavior(mut self, value: impl IntoReactive<Clip>) -> Self {
+        self.clip_behavior = Some(value.into_reactive());
         self
     }
 
     /// Constrains the size of the \[Dialog\].
-    pub fn constraints(mut self, value: impl Into<BoxConstraints>) -> Self {
-        self.constraints = Some(value.into());
+    pub fn constraints(mut self, value: impl IntoReactive<BoxConstraints>) -> Self {
+        self.constraints = Some(value.into_reactive());
         self
     }
 }
@@ -221,7 +224,12 @@ impl Validate for DialogThemeData {
             .validate_at(&path.key("barrierColor"), issues);
         self.inset_padding
             .validate_at(&path.key("insetPadding"), issues);
+        if let Some(value) = &self.clip_behavior {
+            value.validate_binding_at(&path.key("clipBehavior"), issues);
+        }
         self.constraints
             .validate_at(&path.key("constraints"), issues);
     }
 }
+
+impl Plain for DialogThemeData {}

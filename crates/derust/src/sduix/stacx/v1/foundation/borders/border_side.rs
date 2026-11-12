@@ -8,6 +8,9 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
@@ -15,13 +18,13 @@ use serde::ser::{Serialize, SerializeMap, Serializer};
 #[derive(Debug, Clone, PartialEq)]
 pub struct BorderSide {
     /// The color of the border side.
-    pub color: Option<Color>,
+    pub color: Option<Reactive<Color>>,
     /// The width of the border side in logical pixels.
-    pub width: Option<f64>,
+    pub width: Option<Reactive<f64>>,
     /// The stroke alignment of the border side.
-    pub stroke_align: Option<f64>,
+    pub stroke_align: Option<Reactive<f64>>,
     /// The style of the border side.
-    pub border_style: Option<BorderStyle>,
+    pub border_style: Option<Reactive<BorderStyle>>,
 }
 
 impl BorderSide {
@@ -36,26 +39,26 @@ impl BorderSide {
     }
 
     /// The color of the border side.
-    pub fn color(mut self, value: impl Into<Color>) -> Self {
-        self.color = Some(value.into());
+    pub fn color(mut self, value: impl IntoReactive<Color>) -> Self {
+        self.color = Some(value.into_reactive());
         self
     }
 
     /// The width of the border side in logical pixels.
-    pub fn width(mut self, value: impl Into<f64>) -> Self {
-        self.width = Some(value.into());
+    pub fn width(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.width = Some(value.into_reactive());
         self
     }
 
     /// The stroke alignment of the border side.
-    pub fn stroke_align(mut self, value: impl Into<f64>) -> Self {
-        self.stroke_align = Some(value.into());
+    pub fn stroke_align(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.stroke_align = Some(value.into_reactive());
         self
     }
 
     /// The style of the border side.
-    pub fn border_style(mut self, value: impl Into<BorderStyle>) -> Self {
-        self.border_style = Some(value.into());
+    pub fn border_style(mut self, value: impl IntoReactive<BorderStyle>) -> Self {
+        self.border_style = Some(value.into_reactive());
         self
     }
 }
@@ -85,5 +88,10 @@ impl Validate for BorderSide {
         self.width.validate_at(&path.key("width"), issues);
         self.stroke_align
             .validate_at(&path.key("strokeAlign"), issues);
+        if let Some(value) = &self.border_style {
+            value.validate_binding_at(&path.key("borderStyle"), issues);
+        }
     }
 }
+
+impl Plain for BorderSide {}

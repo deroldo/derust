@@ -1,5 +1,5 @@
 use super::validate::{Path, Validate, ValidationIssue};
-use crate::sduix::stacx::v1::state::Binding;
+use crate::sduix::stacx::v1::state::{Binding, Expr, StatePath};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 use std::fmt;
 
@@ -113,6 +113,18 @@ impl From<String> for Dyn<String> {
 impl From<StateRef> for Dyn<String> {
     fn from(value: StateRef) -> Self {
         Dyn::Ref(value)
+    }
+}
+
+impl From<Expr> for Dyn<String> {
+    fn from(value: Expr) -> Self {
+        Dyn::Bind(Binding::Expr(value))
+    }
+}
+
+impl From<StatePath> for Dyn<String> {
+    fn from(value: StatePath) -> Self {
+        Dyn::Bind(Binding::State(value))
     }
 }
 

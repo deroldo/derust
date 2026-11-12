@@ -8,6 +8,9 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
@@ -19,35 +22,35 @@ pub struct AppBarTheme {
     /// The default color for \[AppBar\] icons and text.
     pub foreground_color: Option<Dyn<String>>,
     /// The z-coordinate at which to place this app bar relative to its parent.
-    pub elevation: Option<f64>,
+    pub elevation: Option<Reactive<f64>>,
     /// The z-coordinate at which to place this app bar when it's scrolled under.
-    pub scrolled_under_elevation: Option<f64>,
+    pub scrolled_under_elevation: Option<Reactive<f64>>,
     /// The color of the shadow below the app bar.
     pub shadow_color: Option<Dyn<String>>,
     /// The color used as an overlay on the app bar's surface color.
     pub surface_tint_color: Option<Dyn<String>>,
     /// The shape of the app bar's \[Material\].
-    pub shape: Option<ShapeBorder>,
+    pub shape: Option<Reactive<ShapeBorder>>,
     /// The color, opacity, and size to use for app bar icons.
-    pub icon_theme: Option<Box<IconThemeData>>,
+    pub icon_theme: Option<Reactive<Box<IconThemeData>>>,
     /// The color, opacity, and size to use for the app bar's action icons.
-    pub actions_icon_theme: Option<Box<IconThemeData>>,
+    pub actions_icon_theme: Option<Reactive<Box<IconThemeData>>>,
     /// Whether the title should be centered.
-    pub center_title: Option<bool>,
+    pub center_title: Option<Reactive<bool>>,
     /// The spacing around the title content on the app bar.
-    pub title_spacing: Option<f64>,
+    pub title_spacing: Option<Reactive<f64>>,
     /// The width of the leading widget.
-    pub leading_width: Option<f64>,
+    pub leading_width: Option<Reactive<f64>>,
     /// The height of the app bar's toolbar.
-    pub toolbar_height: Option<f64>,
+    pub toolbar_height: Option<Reactive<f64>>,
     /// The default text style for the app bar's toolbar.
-    pub toolbar_text_style: Option<TextStyle>,
+    pub toolbar_text_style: Option<Reactive<TextStyle>>,
     /// The default text style for the app bar's title.
-    pub title_text_style: Option<TextStyle>,
+    pub title_text_style: Option<Reactive<TextStyle>>,
     /// The system UI overlay style for the app bar.
-    pub system_overlay_style: Option<SystemUIOverlayStyle>,
+    pub system_overlay_style: Option<Reactive<SystemUIOverlayStyle>>,
     /// The padding around the action buttons.
-    pub actions_padding: Option<EdgeInsets>,
+    pub actions_padding: Option<Reactive<EdgeInsets>>,
 }
 
 impl AppBarTheme {
@@ -87,14 +90,14 @@ impl AppBarTheme {
     }
 
     /// The z-coordinate at which to place this app bar relative to its parent.
-    pub fn elevation(mut self, value: impl Into<f64>) -> Self {
-        self.elevation = Some(value.into());
+    pub fn elevation(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.elevation = Some(value.into_reactive());
         self
     }
 
     /// The z-coordinate at which to place this app bar when it's scrolled under.
-    pub fn scrolled_under_elevation(mut self, value: impl Into<f64>) -> Self {
-        self.scrolled_under_elevation = Some(value.into());
+    pub fn scrolled_under_elevation(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.scrolled_under_elevation = Some(value.into_reactive());
         self
     }
 
@@ -111,68 +114,68 @@ impl AppBarTheme {
     }
 
     /// The shape of the app bar's \[Material\].
-    pub fn shape(mut self, value: impl Into<ShapeBorder>) -> Self {
-        self.shape = Some(value.into());
+    pub fn shape(mut self, value: impl IntoReactive<ShapeBorder>) -> Self {
+        self.shape = Some(value.into_reactive());
         self
     }
 
     /// The color, opacity, and size to use for app bar icons.
-    pub fn icon_theme(mut self, value: impl Into<IconThemeData>) -> Self {
-        self.icon_theme = Some(Box::new(value.into()));
+    pub fn icon_theme(mut self, value: impl IntoReactive<IconThemeData>) -> Self {
+        self.icon_theme = Some(value.into_reactive().boxed());
         self
     }
 
     /// The color, opacity, and size to use for the app bar's action icons.
-    pub fn actions_icon_theme(mut self, value: impl Into<IconThemeData>) -> Self {
-        self.actions_icon_theme = Some(Box::new(value.into()));
+    pub fn actions_icon_theme(mut self, value: impl IntoReactive<IconThemeData>) -> Self {
+        self.actions_icon_theme = Some(value.into_reactive().boxed());
         self
     }
 
     /// Whether the title should be centered.
-    pub fn center_title(mut self, value: bool) -> Self {
-        self.center_title = Some(value);
+    pub fn center_title(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.center_title = Some(value.into_reactive());
         self
     }
 
     /// The spacing around the title content on the app bar.
-    pub fn title_spacing(mut self, value: impl Into<f64>) -> Self {
-        self.title_spacing = Some(value.into());
+    pub fn title_spacing(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.title_spacing = Some(value.into_reactive());
         self
     }
 
     /// The width of the leading widget.
-    pub fn leading_width(mut self, value: impl Into<f64>) -> Self {
-        self.leading_width = Some(value.into());
+    pub fn leading_width(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.leading_width = Some(value.into_reactive());
         self
     }
 
     /// The height of the app bar's toolbar.
-    pub fn toolbar_height(mut self, value: impl Into<f64>) -> Self {
-        self.toolbar_height = Some(value.into());
+    pub fn toolbar_height(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.toolbar_height = Some(value.into_reactive());
         self
     }
 
     /// The default text style for the app bar's toolbar.
-    pub fn toolbar_text_style(mut self, value: impl Into<TextStyle>) -> Self {
-        self.toolbar_text_style = Some(value.into());
+    pub fn toolbar_text_style(mut self, value: impl IntoReactive<TextStyle>) -> Self {
+        self.toolbar_text_style = Some(value.into_reactive());
         self
     }
 
     /// The default text style for the app bar's title.
-    pub fn title_text_style(mut self, value: impl Into<TextStyle>) -> Self {
-        self.title_text_style = Some(value.into());
+    pub fn title_text_style(mut self, value: impl IntoReactive<TextStyle>) -> Self {
+        self.title_text_style = Some(value.into_reactive());
         self
     }
 
     /// The system UI overlay style for the app bar.
-    pub fn system_overlay_style(mut self, value: impl Into<SystemUIOverlayStyle>) -> Self {
-        self.system_overlay_style = Some(value.into());
+    pub fn system_overlay_style(mut self, value: impl IntoReactive<SystemUIOverlayStyle>) -> Self {
+        self.system_overlay_style = Some(value.into_reactive());
         self
     }
 
     /// The padding around the action buttons.
-    pub fn actions_padding(mut self, value: impl Into<EdgeInsets>) -> Self {
-        self.actions_padding = Some(value.into());
+    pub fn actions_padding(mut self, value: impl IntoReactive<EdgeInsets>) -> Self {
+        self.actions_padding = Some(value.into_reactive());
         self
     }
 }
@@ -252,6 +255,9 @@ impl Validate for AppBarTheme {
         self.icon_theme.validate_at(&path.key("iconTheme"), issues);
         self.actions_icon_theme
             .validate_at(&path.key("actionsIconTheme"), issues);
+        if let Some(value) = &self.center_title {
+            value.validate_binding_at(&path.key("centerTitle"), issues);
+        }
         self.title_spacing
             .validate_at(&path.key("titleSpacing"), issues);
         self.leading_width
@@ -268,3 +274,5 @@ impl Validate for AppBarTheme {
             .validate_at(&path.key("actionsPadding"), issues);
     }
 }
+
+impl Plain for AppBarTheme {}

@@ -8,36 +8,41 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
 /// A Stac model representing Flutter's \[Badge\] widget.
 #[derive(Debug, Clone, PartialEq)]
 pub struct Badge {
+    /// Properties common to every widget (`visible`, `enabled`, `bind`, `state`, `globalState`, `onInit`).
+    pub envelope: Envelope,
     /// The badge's fill color (hex string).
     pub background_color: Option<Dyn<String>>,
     /// The color of the badge's label text (hex string).
     pub text_color: Option<Dyn<String>>,
     /// The diameter of the badge if \[label\] is null.
-    pub small_size: Option<f64>,
+    pub small_size: Option<Reactive<f64>>,
     /// The badge's height if \[label\] is non-null.
-    pub large_size: Option<f64>,
+    pub large_size: Option<Reactive<f64>>,
     /// The text style for the badge's label.
-    pub text_style: Option<TextStyle>,
+    pub text_style: Option<Reactive<TextStyle>>,
     /// The padding added to the badge's label.
-    pub padding: Option<EdgeInsets>,
+    pub padding: Option<Reactive<EdgeInsets>>,
     /// Combined with \[offset\] to determine the location of the \[label\].
-    pub alignment: Option<AlignmentGeometry>,
+    pub alignment: Option<Reactive<AlignmentGeometry>>,
     /// Combined with \[alignment\] to determine the location of the \[label\].
-    pub offset: Option<Offset>,
+    pub offset: Option<Reactive<Offset>>,
     /// The badge's content, typically a \[StacText\] widget.
     pub label: Option<Widget>,
     /// Convenience property for creating a badge with a numeric label.
-    pub count: Option<i64>,
+    pub count: Option<Reactive<i64>>,
     /// Maximum count value before showing '\[maxCount\]+' format.
-    pub max_count: Option<i64>,
+    pub max_count: Option<Reactive<i64>>,
     /// If false, the badge's \[label\] is not included.
-    pub is_label_visible: Option<bool>,
+    pub is_label_visible: Option<Reactive<bool>>,
     /// The widget that the badge is stacked on top of.
     pub child: Option<Widget>,
 }
@@ -49,6 +54,7 @@ impl Badge {
     /// Creates the model with only its required fields set.
     pub fn new() -> Self {
         Self {
+            envelope: Envelope::new(),
             background_color: None,
             text_color: None,
             small_size: None,
@@ -78,38 +84,38 @@ impl Badge {
     }
 
     /// The diameter of the badge if \[label\] is null.
-    pub fn small_size(mut self, value: impl Into<f64>) -> Self {
-        self.small_size = Some(value.into());
+    pub fn small_size(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.small_size = Some(value.into_reactive());
         self
     }
 
     /// The badge's height if \[label\] is non-null.
-    pub fn large_size(mut self, value: impl Into<f64>) -> Self {
-        self.large_size = Some(value.into());
+    pub fn large_size(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.large_size = Some(value.into_reactive());
         self
     }
 
     /// The text style for the badge's label.
-    pub fn text_style(mut self, value: impl Into<TextStyle>) -> Self {
-        self.text_style = Some(value.into());
+    pub fn text_style(mut self, value: impl IntoReactive<TextStyle>) -> Self {
+        self.text_style = Some(value.into_reactive());
         self
     }
 
     /// The padding added to the badge's label.
-    pub fn padding(mut self, value: impl Into<EdgeInsets>) -> Self {
-        self.padding = Some(value.into());
+    pub fn padding(mut self, value: impl IntoReactive<EdgeInsets>) -> Self {
+        self.padding = Some(value.into_reactive());
         self
     }
 
     /// Combined with \[offset\] to determine the location of the \[label\].
-    pub fn alignment(mut self, value: impl Into<AlignmentGeometry>) -> Self {
-        self.alignment = Some(value.into());
+    pub fn alignment(mut self, value: impl IntoReactive<AlignmentGeometry>) -> Self {
+        self.alignment = Some(value.into_reactive());
         self
     }
 
     /// Combined with \[alignment\] to determine the location of the \[label\].
-    pub fn offset(mut self, value: impl Into<Offset>) -> Self {
-        self.offset = Some(value.into());
+    pub fn offset(mut self, value: impl IntoReactive<Offset>) -> Self {
+        self.offset = Some(value.into_reactive());
         self
     }
 
@@ -120,20 +126,20 @@ impl Badge {
     }
 
     /// Convenience property for creating a badge with a numeric label.
-    pub fn count(mut self, value: impl Into<i64>) -> Self {
-        self.count = Some(value.into());
+    pub fn count(mut self, value: impl IntoReactive<i64>) -> Self {
+        self.count = Some(value.into_reactive());
         self
     }
 
     /// Maximum count value before showing '\[maxCount\]+' format.
-    pub fn max_count(mut self, value: impl Into<i64>) -> Self {
-        self.max_count = Some(value.into());
+    pub fn max_count(mut self, value: impl IntoReactive<i64>) -> Self {
+        self.max_count = Some(value.into_reactive());
         self
     }
 
     /// If false, the badge's \[label\] is not included.
-    pub fn is_label_visible(mut self, value: bool) -> Self {
-        self.is_label_visible = Some(value);
+    pub fn is_label_visible(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.is_label_visible = Some(value.into_reactive());
         self
     }
 
@@ -142,12 +148,49 @@ impl Badge {
         self.child = Some(value.into());
         self
     }
+
+    /// Sets `visible` (envelope): a `bool`, a state path or an expression.
+    pub fn visible(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.visible(value);
+        self
+    }
+
+    /// Sets `enabled` (envelope): a `bool`, a state path or an expression.
+    pub fn enabled(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.enabled(value);
+        self
+    }
+
+    /// Sets `bind` (envelope): the state key the widget reads and writes.
+    pub fn bind(mut self, key: BindKey) -> Self {
+        self.envelope = self.envelope.bind(key);
+        self
+    }
+
+    /// Sets `state` (envelope): the screen state declared by this widget.
+    pub fn state(mut self, block: StateBlock) -> Self {
+        self.envelope = self.envelope.state(block);
+        self
+    }
+
+    /// Sets `globalState` (envelope): the global state declared by this widget.
+    pub fn global_state(mut self, block: GlobalStateBlock) -> Self {
+        self.envelope = self.envelope.global_state(block);
+        self
+    }
+
+    /// Sets `onInit` (envelope): action(s) run when the widget is first built.
+    pub fn on_init(mut self, on_init: impl Into<OnInit>) -> Self {
+        self.envelope = self.envelope.on_init(on_init);
+        self
+    }
 }
 
 impl Serialize for Badge {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         let mut map = serializer.serialize_map(None)?;
         map.serialize_entry("type", "badge")?;
+        self.envelope.serialize_into(&mut map)?;
         if let Some(value) = &self.background_color {
             map.serialize_entry("backgroundColor", value)?;
         }
@@ -193,6 +236,7 @@ impl Serialize for Badge {
 
 impl Validate for Badge {
     fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
+        self.envelope.validate_at(path, issues);
         self.background_color
             .validate_at(&path.key("backgroundColor"), issues);
         self.text_color.validate_at(&path.key("textColor"), issues);
@@ -203,8 +247,17 @@ impl Validate for Badge {
         self.alignment.validate_at(&path.key("alignment"), issues);
         self.offset.validate_at(&path.key("offset"), issues);
         self.label.validate_at(&path.key("label"), issues);
+        if let Some(value) = &self.count {
+            value.validate_binding_at(&path.key("count"), issues);
+        }
+        if let Some(value) = &self.max_count {
+            value.validate_binding_at(&path.key("maxCount"), issues);
+        }
+        if let Some(value) = &self.is_label_visible {
+            value.validate_binding_at(&path.key("isLabelVisible"), issues);
+        }
         self.child.validate_at(&path.key("child"), issues);
-        if let Some(count) = self.count.as_ref() {
+        if let Some(Reactive::Value(count)) = self.count.as_ref() {
             if *count < 0 {
                 issues.push(ValidationIssue::new(
                     &path.key("count"),
@@ -212,7 +265,7 @@ impl Validate for Badge {
                 ));
             }
         }
-        if let Some(max_count) = self.max_count.as_ref() {
+        if let Some(Reactive::Value(max_count)) = self.max_count.as_ref() {
             if *max_count <= 0 {
                 issues.push(ValidationIssue::new(
                     &path.key("maxCount"),
@@ -227,6 +280,8 @@ impl StacNode for Badge {
     const KIND: NodeKind = NodeKind::Widget;
     const TYPE_NAME: &'static str = "badge";
 }
+
+impl Plain for Badge {}
 
 impl From<Badge> for Widget {
     fn from(value: Badge) -> Self {

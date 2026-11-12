@@ -8,36 +8,41 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
 /// A Stac model representing Flutter's \[Container\] widget.
 #[derive(Debug, Clone, PartialEq)]
 pub struct Container {
+    /// Properties common to every widget (`visible`, `enabled`, `bind`, `state`, `globalState`, `onInit`).
+    pub envelope: Envelope,
     /// How to align the \[child\] within the container.
-    pub alignment: Option<Alignment>,
+    pub alignment: Option<Reactive<Alignment>>,
     /// Inner spacing around the \[child\].
-    pub padding: Option<EdgeInsets>,
+    pub padding: Option<Reactive<EdgeInsets>>,
     /// Background color. Cannot be used with \[decoration\].
-    pub color: Option<Color>,
+    pub color: Option<Reactive<Color>>,
     /// Background decoration (borders, gradients, shadows).
-    pub decoration: Option<Box<BoxDecoration>>,
+    pub decoration: Option<Reactive<Box<BoxDecoration>>>,
     /// Foreground decoration painted over the \[child\].
-    pub foreground_decoration: Option<Box<BoxDecoration>>,
+    pub foreground_decoration: Option<Reactive<Box<BoxDecoration>>>,
     /// Fixed width. If null, expands to fill available space. Supports string values like "20" or "infinite".
-    pub width: Option<f64>,
+    pub width: Option<Reactive<f64>>,
     /// Fixed height. If null, expands to fill available space. Supports string values like "20" or "infinite".
-    pub height: Option<f64>,
+    pub height: Option<Reactive<f64>>,
     /// Size constraints for the container.
-    pub constraints: Option<BoxConstraints>,
+    pub constraints: Option<Reactive<BoxConstraints>>,
     /// Outer spacing around the container.
-    pub margin: Option<EdgeInsets>,
+    pub margin: Option<Reactive<EdgeInsets>>,
     /// Transform alignment for the container.
-    pub transform_alignment: Option<Alignment>,
+    pub transform_alignment: Option<Reactive<Alignment>>,
     /// The child widget contained within this container.
     pub child: Option<Widget>,
     /// How to clip the container's content.
-    pub clip_behavior: Option<Clip>,
+    pub clip_behavior: Option<Reactive<Clip>>,
 }
 
 impl Container {
@@ -47,6 +52,7 @@ impl Container {
     /// Creates the model with only its required fields set.
     pub fn new() -> Self {
         Self {
+            envelope: Envelope::new(),
             alignment: None,
             padding: None,
             color: None,
@@ -63,62 +69,62 @@ impl Container {
     }
 
     /// How to align the \[child\] within the container.
-    pub fn alignment(mut self, value: impl Into<Alignment>) -> Self {
-        self.alignment = Some(value.into());
+    pub fn alignment(mut self, value: impl IntoReactive<Alignment>) -> Self {
+        self.alignment = Some(value.into_reactive());
         self
     }
 
     /// Inner spacing around the \[child\].
-    pub fn padding(mut self, value: impl Into<EdgeInsets>) -> Self {
-        self.padding = Some(value.into());
+    pub fn padding(mut self, value: impl IntoReactive<EdgeInsets>) -> Self {
+        self.padding = Some(value.into_reactive());
         self
     }
 
     /// Background color. Cannot be used with \[decoration\].
-    pub fn color(mut self, value: impl Into<Color>) -> Self {
-        self.color = Some(value.into());
+    pub fn color(mut self, value: impl IntoReactive<Color>) -> Self {
+        self.color = Some(value.into_reactive());
         self
     }
 
     /// Background decoration (borders, gradients, shadows).
-    pub fn decoration(mut self, value: impl Into<BoxDecoration>) -> Self {
-        self.decoration = Some(Box::new(value.into()));
+    pub fn decoration(mut self, value: impl IntoReactive<BoxDecoration>) -> Self {
+        self.decoration = Some(value.into_reactive().boxed());
         self
     }
 
     /// Foreground decoration painted over the \[child\].
-    pub fn foreground_decoration(mut self, value: impl Into<BoxDecoration>) -> Self {
-        self.foreground_decoration = Some(Box::new(value.into()));
+    pub fn foreground_decoration(mut self, value: impl IntoReactive<BoxDecoration>) -> Self {
+        self.foreground_decoration = Some(value.into_reactive().boxed());
         self
     }
 
     /// Fixed width. If null, expands to fill available space. Supports string values like "20" or "infinite".
-    pub fn width(mut self, value: impl Into<f64>) -> Self {
-        self.width = Some(value.into());
+    pub fn width(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.width = Some(value.into_reactive());
         self
     }
 
     /// Fixed height. If null, expands to fill available space. Supports string values like "20" or "infinite".
-    pub fn height(mut self, value: impl Into<f64>) -> Self {
-        self.height = Some(value.into());
+    pub fn height(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.height = Some(value.into_reactive());
         self
     }
 
     /// Size constraints for the container.
-    pub fn constraints(mut self, value: impl Into<BoxConstraints>) -> Self {
-        self.constraints = Some(value.into());
+    pub fn constraints(mut self, value: impl IntoReactive<BoxConstraints>) -> Self {
+        self.constraints = Some(value.into_reactive());
         self
     }
 
     /// Outer spacing around the container.
-    pub fn margin(mut self, value: impl Into<EdgeInsets>) -> Self {
-        self.margin = Some(value.into());
+    pub fn margin(mut self, value: impl IntoReactive<EdgeInsets>) -> Self {
+        self.margin = Some(value.into_reactive());
         self
     }
 
     /// Transform alignment for the container.
-    pub fn transform_alignment(mut self, value: impl Into<Alignment>) -> Self {
-        self.transform_alignment = Some(value.into());
+    pub fn transform_alignment(mut self, value: impl IntoReactive<Alignment>) -> Self {
+        self.transform_alignment = Some(value.into_reactive());
         self
     }
 
@@ -129,8 +135,44 @@ impl Container {
     }
 
     /// How to clip the container's content.
-    pub fn clip_behavior(mut self, value: impl Into<Clip>) -> Self {
-        self.clip_behavior = Some(value.into());
+    pub fn clip_behavior(mut self, value: impl IntoReactive<Clip>) -> Self {
+        self.clip_behavior = Some(value.into_reactive());
+        self
+    }
+
+    /// Sets `visible` (envelope): a `bool`, a state path or an expression.
+    pub fn visible(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.visible(value);
+        self
+    }
+
+    /// Sets `enabled` (envelope): a `bool`, a state path or an expression.
+    pub fn enabled(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.enabled(value);
+        self
+    }
+
+    /// Sets `bind` (envelope): the state key the widget reads and writes.
+    pub fn bind(mut self, key: BindKey) -> Self {
+        self.envelope = self.envelope.bind(key);
+        self
+    }
+
+    /// Sets `state` (envelope): the screen state declared by this widget.
+    pub fn state(mut self, block: StateBlock) -> Self {
+        self.envelope = self.envelope.state(block);
+        self
+    }
+
+    /// Sets `globalState` (envelope): the global state declared by this widget.
+    pub fn global_state(mut self, block: GlobalStateBlock) -> Self {
+        self.envelope = self.envelope.global_state(block);
+        self
+    }
+
+    /// Sets `onInit` (envelope): action(s) run when the widget is first built.
+    pub fn on_init(mut self, on_init: impl Into<OnInit>) -> Self {
+        self.envelope = self.envelope.on_init(on_init);
         self
     }
 }
@@ -139,6 +181,7 @@ impl Serialize for Container {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         let mut map = serializer.serialize_map(None)?;
         map.serialize_entry("type", "container")?;
+        self.envelope.serialize_into(&mut map)?;
         if let Some(value) = &self.alignment {
             map.serialize_entry("alignment", value)?;
         }
@@ -181,6 +224,10 @@ impl Serialize for Container {
 
 impl Validate for Container {
     fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
+        self.envelope.validate_at(path, issues);
+        if let Some(value) = &self.alignment {
+            value.validate_binding_at(&path.key("alignment"), issues);
+        }
         self.padding.validate_at(&path.key("padding"), issues);
         self.color.validate_at(&path.key("color"), issues);
         self.decoration.validate_at(&path.key("decoration"), issues);
@@ -191,7 +238,13 @@ impl Validate for Container {
         self.constraints
             .validate_at(&path.key("constraints"), issues);
         self.margin.validate_at(&path.key("margin"), issues);
+        if let Some(value) = &self.transform_alignment {
+            value.validate_binding_at(&path.key("transformAlignment"), issues);
+        }
         self.child.validate_at(&path.key("child"), issues);
+        if let Some(value) = &self.clip_behavior {
+            value.validate_binding_at(&path.key("clipBehavior"), issues);
+        }
     }
 }
 
@@ -199,6 +252,8 @@ impl StacNode for Container {
     const KIND: NodeKind = NodeKind::Widget;
     const TYPE_NAME: &'static str = "container";
 }
+
+impl Plain for Container {}
 
 impl From<Container> for Widget {
     fn from(value: Container) -> Self {

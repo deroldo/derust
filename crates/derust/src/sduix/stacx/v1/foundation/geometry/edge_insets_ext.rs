@@ -1,39 +1,42 @@
 use super::EdgeInsets;
+use crate::sduix::stacx::v1::state::IntoReactive;
 
 /// Convenience constructors mirroring the named constructors of Dart's `StacEdgeInsets`.
+///
+/// Every inset accepts a number, a state path or an expression.
 impl EdgeInsets {
     /// Same inset on the four sides.
-    pub fn all(value: impl Into<f64>) -> Self {
-        let value = value.into();
-        Self::only(value, value, value, value)
+    pub fn all(value: impl IntoReactive<f64>) -> Self {
+        let value = value.into_reactive();
+        Self::only(value.clone(), value.clone(), value.clone(), value)
     }
 
     /// Explicit insets (`left`, `top`, `right`, `bottom`).
     pub fn only(
-        left: impl Into<f64>,
-        top: impl Into<f64>,
-        right: impl Into<f64>,
-        bottom: impl Into<f64>,
+        left: impl IntoReactive<f64>,
+        top: impl IntoReactive<f64>,
+        right: impl IntoReactive<f64>,
+        bottom: impl IntoReactive<f64>,
     ) -> Self {
         Self::new().left(left).top(top).right(right).bottom(bottom)
     }
 
     /// Vertical (`top`/`bottom`) and horizontal (`left`/`right`) insets.
-    pub fn symmetric(vertical: impl Into<f64>, horizontal: impl Into<f64>) -> Self {
-        let (vertical, horizontal) = (vertical.into(), horizontal.into());
-        Self::only(horizontal, vertical, horizontal, vertical)
+    pub fn symmetric(vertical: impl IntoReactive<f64>, horizontal: impl IntoReactive<f64>) -> Self {
+        let (vertical, horizontal) = (vertical.into_reactive(), horizontal.into_reactive());
+        Self::only(horizontal.clone(), vertical.clone(), horizontal, vertical)
     }
 
     /// `left`/`right` only.
-    pub fn horizontal(value: impl Into<f64>) -> Self {
-        let value = value.into();
-        Self::new().left(value).right(value)
+    pub fn horizontal(value: impl IntoReactive<f64>) -> Self {
+        let value = value.into_reactive();
+        Self::new().left(value.clone()).right(value)
     }
 
     /// `top`/`bottom` only.
-    pub fn vertical(value: impl Into<f64>) -> Self {
-        let value = value.into();
-        Self::new().top(value).bottom(value)
+    pub fn vertical(value: impl IntoReactive<f64>) -> Self {
+        let value = value.into_reactive();
+        Self::new().top(value.clone()).bottom(value)
     }
 }
 

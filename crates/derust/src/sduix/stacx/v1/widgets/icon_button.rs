@@ -8,22 +8,27 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
 /// A Stac model representing Flutter's \[IconButton\] widget.
 #[derive(Debug, Clone, PartialEq)]
 pub struct IconButton {
+    /// Properties common to every widget (`visible`, `enabled`, `bind`, `state`, `globalState`, `onInit`).
+    pub envelope: Envelope,
     /// The size of the icon inside the button.
-    pub icon_size: Option<f64>,
+    pub icon_size: Option<Reactive<f64>>,
     /// The visual density of the button.
-    pub visual_density: Option<VisualDensity>,
+    pub visual_density: Option<Reactive<VisualDensity>>,
     /// The padding around the button.
-    pub padding: Option<EdgeInsets>,
+    pub padding: Option<Reactive<EdgeInsets>>,
     /// The alignment of the icon within the button.
-    pub alignment: Option<Alignment>,
+    pub alignment: Option<Reactive<Alignment>>,
     /// The radius of the splash effect.
-    pub splash_radius: Option<f64>,
+    pub splash_radius: Option<Reactive<f64>>,
     /// The color of the icon.
     pub color: Option<Dyn<String>>,
     /// The color when the button is focused.
@@ -43,19 +48,19 @@ pub struct IconButton {
     /// Called when the button is long pressed.
     pub on_long_press: Option<Action>,
     /// The mouse cursor for the button.
-    pub mouse_cursor: Option<MouseCursor>,
+    pub mouse_cursor: Option<Reactive<MouseCursor>>,
     /// True if this widget will be selected as the initial focus when no other node in its scope is currently focused.
-    pub autofocus: Option<bool>,
+    pub autofocus: Option<Reactive<bool>>,
     /// The tooltip text for the button.
     pub tooltip: Option<Dyn<String>>,
     /// Whether to enable haptic feedback.
-    pub enable_feedback: Option<bool>,
+    pub enable_feedback: Option<Reactive<bool>>,
     /// The constraints for the button.
-    pub constraints: Option<BoxConstraints>,
+    pub constraints: Option<Reactive<BoxConstraints>>,
     /// Customizes this button's appearance.
-    pub style: Option<Box<ButtonStyle>>,
+    pub style: Option<Reactive<Box<ButtonStyle>>>,
     /// Whether the button is selected.
-    pub is_selected: Option<bool>,
+    pub is_selected: Option<Reactive<bool>>,
     /// The icon to display when the button is selected.
     pub selected_icon: Option<Widget>,
     /// The icon to display in the button.
@@ -69,6 +74,7 @@ impl IconButton {
     /// Creates the model with only its required fields set.
     pub fn new() -> Self {
         Self {
+            envelope: Envelope::new(),
             icon_size: None,
             visual_density: None,
             padding: None,
@@ -96,32 +102,32 @@ impl IconButton {
     }
 
     /// The size of the icon inside the button.
-    pub fn icon_size(mut self, value: impl Into<f64>) -> Self {
-        self.icon_size = Some(value.into());
+    pub fn icon_size(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.icon_size = Some(value.into_reactive());
         self
     }
 
     /// The visual density of the button.
-    pub fn visual_density(mut self, value: impl Into<VisualDensity>) -> Self {
-        self.visual_density = Some(value.into());
+    pub fn visual_density(mut self, value: impl IntoReactive<VisualDensity>) -> Self {
+        self.visual_density = Some(value.into_reactive());
         self
     }
 
     /// The padding around the button.
-    pub fn padding(mut self, value: impl Into<EdgeInsets>) -> Self {
-        self.padding = Some(value.into());
+    pub fn padding(mut self, value: impl IntoReactive<EdgeInsets>) -> Self {
+        self.padding = Some(value.into_reactive());
         self
     }
 
     /// The alignment of the icon within the button.
-    pub fn alignment(mut self, value: impl Into<Alignment>) -> Self {
-        self.alignment = Some(value.into());
+    pub fn alignment(mut self, value: impl IntoReactive<Alignment>) -> Self {
+        self.alignment = Some(value.into_reactive());
         self
     }
 
     /// The radius of the splash effect.
-    pub fn splash_radius(mut self, value: impl Into<f64>) -> Self {
-        self.splash_radius = Some(value.into());
+    pub fn splash_radius(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.splash_radius = Some(value.into_reactive());
         self
     }
 
@@ -180,14 +186,14 @@ impl IconButton {
     }
 
     /// The mouse cursor for the button.
-    pub fn mouse_cursor(mut self, value: impl Into<MouseCursor>) -> Self {
-        self.mouse_cursor = Some(value.into());
+    pub fn mouse_cursor(mut self, value: impl IntoReactive<MouseCursor>) -> Self {
+        self.mouse_cursor = Some(value.into_reactive());
         self
     }
 
     /// True if this widget will be selected as the initial focus when no other node in its scope is currently focused.
-    pub fn autofocus(mut self, value: bool) -> Self {
-        self.autofocus = Some(value);
+    pub fn autofocus(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.autofocus = Some(value.into_reactive());
         self
     }
 
@@ -198,26 +204,26 @@ impl IconButton {
     }
 
     /// Whether to enable haptic feedback.
-    pub fn enable_feedback(mut self, value: bool) -> Self {
-        self.enable_feedback = Some(value);
+    pub fn enable_feedback(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.enable_feedback = Some(value.into_reactive());
         self
     }
 
     /// The constraints for the button.
-    pub fn constraints(mut self, value: impl Into<BoxConstraints>) -> Self {
-        self.constraints = Some(value.into());
+    pub fn constraints(mut self, value: impl IntoReactive<BoxConstraints>) -> Self {
+        self.constraints = Some(value.into_reactive());
         self
     }
 
     /// Customizes this button's appearance.
-    pub fn style(mut self, value: impl Into<ButtonStyle>) -> Self {
-        self.style = Some(Box::new(value.into()));
+    pub fn style(mut self, value: impl IntoReactive<ButtonStyle>) -> Self {
+        self.style = Some(value.into_reactive().boxed());
         self
     }
 
     /// Whether the button is selected.
-    pub fn is_selected(mut self, value: bool) -> Self {
-        self.is_selected = Some(value);
+    pub fn is_selected(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.is_selected = Some(value.into_reactive());
         self
     }
 
@@ -232,12 +238,49 @@ impl IconButton {
         self.icon = Some(value.into());
         self
     }
+
+    /// Sets `visible` (envelope): a `bool`, a state path or an expression.
+    pub fn visible(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.visible(value);
+        self
+    }
+
+    /// Sets `enabled` (envelope): a `bool`, a state path or an expression.
+    pub fn enabled(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.enabled(value);
+        self
+    }
+
+    /// Sets `bind` (envelope): the state key the widget reads and writes.
+    pub fn bind(mut self, key: BindKey) -> Self {
+        self.envelope = self.envelope.bind(key);
+        self
+    }
+
+    /// Sets `state` (envelope): the screen state declared by this widget.
+    pub fn state(mut self, block: StateBlock) -> Self {
+        self.envelope = self.envelope.state(block);
+        self
+    }
+
+    /// Sets `globalState` (envelope): the global state declared by this widget.
+    pub fn global_state(mut self, block: GlobalStateBlock) -> Self {
+        self.envelope = self.envelope.global_state(block);
+        self
+    }
+
+    /// Sets `onInit` (envelope): action(s) run when the widget is first built.
+    pub fn on_init(mut self, on_init: impl Into<OnInit>) -> Self {
+        self.envelope = self.envelope.on_init(on_init);
+        self
+    }
 }
 
 impl Serialize for IconButton {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         let mut map = serializer.serialize_map(None)?;
         map.serialize_entry("type", "iconButton")?;
+        self.envelope.serialize_into(&mut map)?;
         if let Some(value) = &self.icon_size {
             map.serialize_entry("iconSize", value)?;
         }
@@ -313,10 +356,14 @@ impl Serialize for IconButton {
 
 impl Validate for IconButton {
     fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
+        self.envelope.validate_at(path, issues);
         self.icon_size.validate_at(&path.key("iconSize"), issues);
         self.visual_density
             .validate_at(&path.key("visualDensity"), issues);
         self.padding.validate_at(&path.key("padding"), issues);
+        if let Some(value) = &self.alignment {
+            value.validate_binding_at(&path.key("alignment"), issues);
+        }
         self.splash_radius
             .validate_at(&path.key("splashRadius"), issues);
         self.color.validate_at(&path.key("color"), issues);
@@ -334,10 +381,22 @@ impl Validate for IconButton {
         self.on_hover.validate_at(&path.key("onHover"), issues);
         self.on_long_press
             .validate_at(&path.key("onLongPress"), issues);
+        if let Some(value) = &self.mouse_cursor {
+            value.validate_binding_at(&path.key("mouseCursor"), issues);
+        }
+        if let Some(value) = &self.autofocus {
+            value.validate_binding_at(&path.key("autofocus"), issues);
+        }
         self.tooltip.validate_at(&path.key("tooltip"), issues);
+        if let Some(value) = &self.enable_feedback {
+            value.validate_binding_at(&path.key("enableFeedback"), issues);
+        }
         self.constraints
             .validate_at(&path.key("constraints"), issues);
         self.style.validate_at(&path.key("style"), issues);
+        if let Some(value) = &self.is_selected {
+            value.validate_binding_at(&path.key("isSelected"), issues);
+        }
         self.selected_icon
             .validate_at(&path.key("selectedIcon"), issues);
         self.icon.validate_at(&path.key("icon"), issues);
@@ -348,6 +407,8 @@ impl StacNode for IconButton {
     const KIND: NodeKind = NodeKind::Widget;
     const TYPE_NAME: &'static str = "iconButton";
 }
+
+impl Plain for IconButton {}
 
 impl From<IconButton> for Widget {
     fn from(value: IconButton) -> Self {

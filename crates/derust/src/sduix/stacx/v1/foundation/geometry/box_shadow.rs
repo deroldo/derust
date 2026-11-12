@@ -8,6 +8,9 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
@@ -15,15 +18,15 @@ use serde::ser::{Serialize, SerializeMap, Serializer};
 #[derive(Debug, Clone, PartialEq)]
 pub struct BoxShadow {
     /// The color of the shadow.
-    pub color: Option<Color>,
+    pub color: Option<Reactive<Color>>,
     /// The blur radius of the shadow in logical pixels.
-    pub blur_radius: Option<f64>,
+    pub blur_radius: Option<Reactive<f64>>,
     /// The offset position of the shadow relative to the element.
-    pub offset: Option<Offset>,
+    pub offset: Option<Reactive<Offset>>,
     /// The spread radius of the shadow in logical pixels.
-    pub spread_radius: Option<f64>,
+    pub spread_radius: Option<Reactive<f64>>,
     /// The style of blur to apply to the shadow.
-    pub blur_style: Option<BlurStyle>,
+    pub blur_style: Option<Reactive<BlurStyle>>,
 }
 
 impl BoxShadow {
@@ -39,32 +42,32 @@ impl BoxShadow {
     }
 
     /// The color of the shadow.
-    pub fn color(mut self, value: impl Into<Color>) -> Self {
-        self.color = Some(value.into());
+    pub fn color(mut self, value: impl IntoReactive<Color>) -> Self {
+        self.color = Some(value.into_reactive());
         self
     }
 
     /// The blur radius of the shadow in logical pixels.
-    pub fn blur_radius(mut self, value: impl Into<f64>) -> Self {
-        self.blur_radius = Some(value.into());
+    pub fn blur_radius(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.blur_radius = Some(value.into_reactive());
         self
     }
 
     /// The offset position of the shadow relative to the element.
-    pub fn offset(mut self, value: impl Into<Offset>) -> Self {
-        self.offset = Some(value.into());
+    pub fn offset(mut self, value: impl IntoReactive<Offset>) -> Self {
+        self.offset = Some(value.into_reactive());
         self
     }
 
     /// The spread radius of the shadow in logical pixels.
-    pub fn spread_radius(mut self, value: impl Into<f64>) -> Self {
-        self.spread_radius = Some(value.into());
+    pub fn spread_radius(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.spread_radius = Some(value.into_reactive());
         self
     }
 
     /// The style of blur to apply to the shadow.
-    pub fn blur_style(mut self, value: impl Into<BlurStyle>) -> Self {
-        self.blur_style = Some(value.into());
+    pub fn blur_style(mut self, value: impl IntoReactive<BlurStyle>) -> Self {
+        self.blur_style = Some(value.into_reactive());
         self
     }
 }
@@ -99,5 +102,10 @@ impl Validate for BoxShadow {
         self.offset.validate_at(&path.key("offset"), issues);
         self.spread_radius
             .validate_at(&path.key("spreadRadius"), issues);
+        if let Some(value) = &self.blur_style {
+            value.validate_binding_at(&path.key("blurStyle"), issues);
+        }
     }
 }
+
+impl Plain for BoxShadow {}

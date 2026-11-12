@@ -8,6 +8,9 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
@@ -15,13 +18,13 @@ use serde::ser::{Serialize, SerializeMap, Serializer};
 #[derive(Debug, Clone, PartialEq)]
 pub struct EdgeInsets {
     /// The left edge inset in logical pixels.
-    pub left: Option<f64>,
+    pub left: Option<Reactive<f64>>,
     /// The top edge inset in logical pixels.
-    pub top: Option<f64>,
+    pub top: Option<Reactive<f64>>,
     /// The right edge inset in logical pixels.
-    pub right: Option<f64>,
+    pub right: Option<Reactive<f64>>,
     /// The bottom edge inset in logical pixels.
-    pub bottom: Option<f64>,
+    pub bottom: Option<Reactive<f64>>,
 }
 
 impl EdgeInsets {
@@ -36,26 +39,26 @@ impl EdgeInsets {
     }
 
     /// The left edge inset in logical pixels.
-    pub fn left(mut self, value: impl Into<f64>) -> Self {
-        self.left = Some(value.into());
+    pub fn left(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.left = Some(value.into_reactive());
         self
     }
 
     /// The top edge inset in logical pixels.
-    pub fn top(mut self, value: impl Into<f64>) -> Self {
-        self.top = Some(value.into());
+    pub fn top(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.top = Some(value.into_reactive());
         self
     }
 
     /// The right edge inset in logical pixels.
-    pub fn right(mut self, value: impl Into<f64>) -> Self {
-        self.right = Some(value.into());
+    pub fn right(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.right = Some(value.into_reactive());
         self
     }
 
     /// The bottom edge inset in logical pixels.
-    pub fn bottom(mut self, value: impl Into<f64>) -> Self {
-        self.bottom = Some(value.into());
+    pub fn bottom(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.bottom = Some(value.into_reactive());
         self
     }
 }
@@ -87,3 +90,5 @@ impl Validate for EdgeInsets {
         self.bottom.validate_at(&path.key("bottom"), issues);
     }
 }
+
+impl Plain for EdgeInsets {}

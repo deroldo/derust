@@ -8,20 +8,25 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
 /// A Stac model representing Flutter's \[FloatingActionButton\] widget.
 #[derive(Debug, Clone, PartialEq)]
 pub struct FloatingActionButton {
+    /// Properties common to every widget (`visible`, `enabled`, `bind`, `state`, `globalState`, `onInit`).
+    pub envelope: Envelope,
     /// Called when the button is tapped or otherwise activated. If null, the button will be disabled.
     pub on_pressed: Option<Action>,
     /// The text style for the button's text.
-    pub text_style: Option<TextStyle>,
+    pub text_style: Option<Reactive<TextStyle>>,
     /// The type of floating action button.
-    pub button_type: Option<FloatingActionButtonType>,
+    pub button_type: Option<Reactive<FloatingActionButtonType>>,
     /// True if this widget will be selected as the initial focus when no other node in its scope is currently focused.
-    pub autofocus: Option<bool>,
+    pub autofocus: Option<Reactive<bool>>,
     /// The icon to display in the button.
     pub icon: Option<Widget>,
     /// The background color of the button.
@@ -35,25 +40,25 @@ pub struct FloatingActionButton {
     /// The splash color of the button.
     pub splash_color: Option<Dyn<String>>,
     /// The text style for extended floating action button text.
-    pub extended_text_style: Option<TextStyle>,
+    pub extended_text_style: Option<Reactive<TextStyle>>,
     /// The elevation of the button.
-    pub elevation: Option<f64>,
+    pub elevation: Option<Reactive<f64>>,
     /// The elevation when the button is focused.
-    pub focus_elevation: Option<f64>,
+    pub focus_elevation: Option<Reactive<f64>>,
     /// The elevation when the button is hovered.
-    pub hover_elevation: Option<f64>,
+    pub hover_elevation: Option<Reactive<f64>>,
     /// The elevation when the button is disabled.
-    pub disabled_elevation: Option<f64>,
+    pub disabled_elevation: Option<Reactive<f64>>,
     /// The elevation when the button is highlighted.
-    pub highlight_elevation: Option<f64>,
+    pub highlight_elevation: Option<Reactive<f64>>,
     /// The spacing between icon and label in extended floating action button.
-    pub extended_icon_label_spacing: Option<f64>,
+    pub extended_icon_label_spacing: Option<Reactive<f64>>,
     /// Whether to enable haptic feedback.
-    pub enable_feedback: Option<bool>,
+    pub enable_feedback: Option<Reactive<bool>>,
     /// The tooltip text for the button.
     pub tooltip: Option<Dyn<String>>,
     /// The hero tag for the button.
-    pub hero_tag: Option<serde_json::Value>,
+    pub hero_tag: Option<Reactive<serde_json::Value>>,
     /// The widget below this widget in the tree. Typically an \[Icon\] widget.
     pub child: Option<Widget>,
 }
@@ -65,6 +70,7 @@ impl FloatingActionButton {
     /// Creates the model with only its required fields set.
     pub fn new() -> Self {
         Self {
+            envelope: Envelope::new(),
             on_pressed: None,
             text_style: None,
             button_type: None,
@@ -96,20 +102,20 @@ impl FloatingActionButton {
     }
 
     /// The text style for the button's text.
-    pub fn text_style(mut self, value: impl Into<TextStyle>) -> Self {
-        self.text_style = Some(value.into());
+    pub fn text_style(mut self, value: impl IntoReactive<TextStyle>) -> Self {
+        self.text_style = Some(value.into_reactive());
         self
     }
 
     /// The type of floating action button.
-    pub fn button_type(mut self, value: impl Into<FloatingActionButtonType>) -> Self {
-        self.button_type = Some(value.into());
+    pub fn button_type(mut self, value: impl IntoReactive<FloatingActionButtonType>) -> Self {
+        self.button_type = Some(value.into_reactive());
         self
     }
 
     /// True if this widget will be selected as the initial focus when no other node in its scope is currently focused.
-    pub fn autofocus(mut self, value: bool) -> Self {
-        self.autofocus = Some(value);
+    pub fn autofocus(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.autofocus = Some(value.into_reactive());
         self
     }
 
@@ -150,50 +156,50 @@ impl FloatingActionButton {
     }
 
     /// The text style for extended floating action button text.
-    pub fn extended_text_style(mut self, value: impl Into<TextStyle>) -> Self {
-        self.extended_text_style = Some(value.into());
+    pub fn extended_text_style(mut self, value: impl IntoReactive<TextStyle>) -> Self {
+        self.extended_text_style = Some(value.into_reactive());
         self
     }
 
     /// The elevation of the button.
-    pub fn elevation(mut self, value: impl Into<f64>) -> Self {
-        self.elevation = Some(value.into());
+    pub fn elevation(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.elevation = Some(value.into_reactive());
         self
     }
 
     /// The elevation when the button is focused.
-    pub fn focus_elevation(mut self, value: impl Into<f64>) -> Self {
-        self.focus_elevation = Some(value.into());
+    pub fn focus_elevation(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.focus_elevation = Some(value.into_reactive());
         self
     }
 
     /// The elevation when the button is hovered.
-    pub fn hover_elevation(mut self, value: impl Into<f64>) -> Self {
-        self.hover_elevation = Some(value.into());
+    pub fn hover_elevation(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.hover_elevation = Some(value.into_reactive());
         self
     }
 
     /// The elevation when the button is disabled.
-    pub fn disabled_elevation(mut self, value: impl Into<f64>) -> Self {
-        self.disabled_elevation = Some(value.into());
+    pub fn disabled_elevation(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.disabled_elevation = Some(value.into_reactive());
         self
     }
 
     /// The elevation when the button is highlighted.
-    pub fn highlight_elevation(mut self, value: impl Into<f64>) -> Self {
-        self.highlight_elevation = Some(value.into());
+    pub fn highlight_elevation(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.highlight_elevation = Some(value.into_reactive());
         self
     }
 
     /// The spacing between icon and label in extended floating action button.
-    pub fn extended_icon_label_spacing(mut self, value: impl Into<f64>) -> Self {
-        self.extended_icon_label_spacing = Some(value.into());
+    pub fn extended_icon_label_spacing(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.extended_icon_label_spacing = Some(value.into_reactive());
         self
     }
 
     /// Whether to enable haptic feedback.
-    pub fn enable_feedback(mut self, value: bool) -> Self {
-        self.enable_feedback = Some(value);
+    pub fn enable_feedback(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.enable_feedback = Some(value.into_reactive());
         self
     }
 
@@ -204,8 +210,8 @@ impl FloatingActionButton {
     }
 
     /// The hero tag for the button.
-    pub fn hero_tag(mut self, value: impl Into<serde_json::Value>) -> Self {
-        self.hero_tag = Some(value.into());
+    pub fn hero_tag(mut self, value: impl IntoReactive<serde_json::Value>) -> Self {
+        self.hero_tag = Some(value.into_reactive());
         self
     }
 
@@ -214,12 +220,49 @@ impl FloatingActionButton {
         self.child = Some(value.into());
         self
     }
+
+    /// Sets `visible` (envelope): a `bool`, a state path or an expression.
+    pub fn visible(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.visible(value);
+        self
+    }
+
+    /// Sets `enabled` (envelope): a `bool`, a state path or an expression.
+    pub fn enabled(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.enabled(value);
+        self
+    }
+
+    /// Sets `bind` (envelope): the state key the widget reads and writes.
+    pub fn bind(mut self, key: BindKey) -> Self {
+        self.envelope = self.envelope.bind(key);
+        self
+    }
+
+    /// Sets `state` (envelope): the screen state declared by this widget.
+    pub fn state(mut self, block: StateBlock) -> Self {
+        self.envelope = self.envelope.state(block);
+        self
+    }
+
+    /// Sets `globalState` (envelope): the global state declared by this widget.
+    pub fn global_state(mut self, block: GlobalStateBlock) -> Self {
+        self.envelope = self.envelope.global_state(block);
+        self
+    }
+
+    /// Sets `onInit` (envelope): action(s) run when the widget is first built.
+    pub fn on_init(mut self, on_init: impl Into<OnInit>) -> Self {
+        self.envelope = self.envelope.on_init(on_init);
+        self
+    }
 }
 
 impl Serialize for FloatingActionButton {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         let mut map = serializer.serialize_map(None)?;
         map.serialize_entry("type", "floatingActionButton")?;
+        self.envelope.serialize_into(&mut map)?;
         if let Some(value) = &self.on_pressed {
             map.serialize_entry("onPressed", value)?;
         }
@@ -289,8 +332,15 @@ impl Serialize for FloatingActionButton {
 
 impl Validate for FloatingActionButton {
     fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
+        self.envelope.validate_at(path, issues);
         self.on_pressed.validate_at(&path.key("onPressed"), issues);
         self.text_style.validate_at(&path.key("textStyle"), issues);
+        if let Some(value) = &self.button_type {
+            value.validate_binding_at(&path.key("buttonType"), issues);
+        }
+        if let Some(value) = &self.autofocus {
+            value.validate_binding_at(&path.key("autofocus"), issues);
+        }
         self.icon.validate_at(&path.key("icon"), issues);
         self.background_color
             .validate_at(&path.key("backgroundColor"), issues);
@@ -315,7 +365,13 @@ impl Validate for FloatingActionButton {
             .validate_at(&path.key("highlightElevation"), issues);
         self.extended_icon_label_spacing
             .validate_at(&path.key("extendedIconLabelSpacing"), issues);
+        if let Some(value) = &self.enable_feedback {
+            value.validate_binding_at(&path.key("enableFeedback"), issues);
+        }
         self.tooltip.validate_at(&path.key("tooltip"), issues);
+        if let Some(value) = &self.hero_tag {
+            value.validate_binding_at(&path.key("heroTag"), issues);
+        }
         self.child.validate_at(&path.key("child"), issues);
     }
 }
@@ -324,6 +380,8 @@ impl StacNode for FloatingActionButton {
     const KIND: NodeKind = NodeKind::Widget;
     const TYPE_NAME: &'static str = "floatingActionButton";
 }
+
+impl Plain for FloatingActionButton {}
 
 impl From<FloatingActionButton> for Widget {
     fn from(value: FloatingActionButton) -> Self {

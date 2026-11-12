@@ -8,40 +8,45 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
 /// A Stac model representing Flutter's \[CustomScrollView\].
 #[derive(Debug, Clone, PartialEq)]
 pub struct CustomScrollView {
+    /// Properties common to every widget (`visible`, `enabled`, `bind`, `state`, `globalState`, `onInit`).
+    pub envelope: Envelope,
     /// The sliver widgets that make up the scrollable area.
     pub slivers: Option<Vec<Widget>>,
     /// The axis along which the scroll view scrolls.
-    pub scroll_direction: Option<Axis>,
+    pub scroll_direction: Option<Reactive<Axis>>,
     /// Whether the scroll view scrolls in the reading direction.
-    pub reverse: Option<bool>,
+    pub reverse: Option<Reactive<bool>>,
     /// Whether the scroll view is the primary scroll view associated with the parent \[PrimaryScrollController\].
-    pub primary: Option<bool>,
+    pub primary: Option<Reactive<bool>>,
     /// The physics to use for the scroll view.
-    pub physics: Option<ScrollPhysics>,
+    pub physics: Option<Reactive<ScrollPhysics>>,
     /// Whether the extent of the scroll view in the scrollDirection should be determined by the contents being viewed.
-    pub shrink_wrap: Option<bool>,
+    pub shrink_wrap: Option<Reactive<bool>>,
     /// The relative position of the zero scroll offset.
-    pub anchor: Option<f64>,
+    pub anchor: Option<Reactive<f64>>,
     /// The number of pixels to cache beyond the current viewport.
-    pub cache_extent: Option<f64>,
+    pub cache_extent: Option<Reactive<f64>>,
     /// The semantic child count for accessibility.
-    pub semantic_child_count: Option<i64>,
+    pub semantic_child_count: Option<Reactive<i64>>,
     /// Determines the way that drag start behavior is handled.
-    pub drag_start_behavior: Option<DragStartBehavior>,
+    pub drag_start_behavior: Option<Reactive<DragStartBehavior>>,
     /// When set to \[StacScrollViewKeyboardDismissBehavior.onDrag\], the keyboard is dismissed on drag.
-    pub keyboard_dismiss_behavior: Option<ScrollViewKeyboardDismissBehavior>,
+    pub keyboard_dismiss_behavior: Option<Reactive<ScrollViewKeyboardDismissBehavior>>,
     /// Restoration ID to save and restore the scroll offset.
     pub restoration_id: Option<Dyn<String>>,
     /// How to clip the content of this scroll view.
-    pub clip_behavior: Option<Clip>,
+    pub clip_behavior: Option<Reactive<Clip>>,
     /// How hit tests are performed during pointer events.
-    pub hit_test_behavior: Option<HitTestBehavior>,
+    pub hit_test_behavior: Option<Reactive<HitTestBehavior>>,
 }
 
 impl CustomScrollView {
@@ -51,6 +56,7 @@ impl CustomScrollView {
     /// Creates the model with only its required fields set.
     pub fn new() -> Self {
         Self {
+            envelope: Envelope::new(),
             slivers: None,
             scroll_direction: None,
             reverse: None,
@@ -75,65 +81,65 @@ impl CustomScrollView {
     }
 
     /// The axis along which the scroll view scrolls.
-    pub fn scroll_direction(mut self, value: impl Into<Axis>) -> Self {
-        self.scroll_direction = Some(value.into());
+    pub fn scroll_direction(mut self, value: impl IntoReactive<Axis>) -> Self {
+        self.scroll_direction = Some(value.into_reactive());
         self
     }
 
     /// Whether the scroll view scrolls in the reading direction.
-    pub fn reverse(mut self, value: bool) -> Self {
-        self.reverse = Some(value);
+    pub fn reverse(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.reverse = Some(value.into_reactive());
         self
     }
 
     /// Whether the scroll view is the primary scroll view associated with the parent \[PrimaryScrollController\].
-    pub fn primary(mut self, value: bool) -> Self {
-        self.primary = Some(value);
+    pub fn primary(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.primary = Some(value.into_reactive());
         self
     }
 
     /// The physics to use for the scroll view.
-    pub fn physics(mut self, value: impl Into<ScrollPhysics>) -> Self {
-        self.physics = Some(value.into());
+    pub fn physics(mut self, value: impl IntoReactive<ScrollPhysics>) -> Self {
+        self.physics = Some(value.into_reactive());
         self
     }
 
     /// Whether the extent of the scroll view in the scrollDirection should be determined by the contents being viewed.
-    pub fn shrink_wrap(mut self, value: bool) -> Self {
-        self.shrink_wrap = Some(value);
+    pub fn shrink_wrap(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.shrink_wrap = Some(value.into_reactive());
         self
     }
 
     /// The relative position of the zero scroll offset.
-    pub fn anchor(mut self, value: impl Into<f64>) -> Self {
-        self.anchor = Some(value.into());
+    pub fn anchor(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.anchor = Some(value.into_reactive());
         self
     }
 
     /// The number of pixels to cache beyond the current viewport.
-    pub fn cache_extent(mut self, value: impl Into<f64>) -> Self {
-        self.cache_extent = Some(value.into());
+    pub fn cache_extent(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.cache_extent = Some(value.into_reactive());
         self
     }
 
     /// The semantic child count for accessibility.
-    pub fn semantic_child_count(mut self, value: impl Into<i64>) -> Self {
-        self.semantic_child_count = Some(value.into());
+    pub fn semantic_child_count(mut self, value: impl IntoReactive<i64>) -> Self {
+        self.semantic_child_count = Some(value.into_reactive());
         self
     }
 
     /// Determines the way that drag start behavior is handled.
-    pub fn drag_start_behavior(mut self, value: impl Into<DragStartBehavior>) -> Self {
-        self.drag_start_behavior = Some(value.into());
+    pub fn drag_start_behavior(mut self, value: impl IntoReactive<DragStartBehavior>) -> Self {
+        self.drag_start_behavior = Some(value.into_reactive());
         self
     }
 
     /// When set to \[StacScrollViewKeyboardDismissBehavior.onDrag\], the keyboard is dismissed on drag.
     pub fn keyboard_dismiss_behavior(
         mut self,
-        value: impl Into<ScrollViewKeyboardDismissBehavior>,
+        value: impl IntoReactive<ScrollViewKeyboardDismissBehavior>,
     ) -> Self {
-        self.keyboard_dismiss_behavior = Some(value.into());
+        self.keyboard_dismiss_behavior = Some(value.into_reactive());
         self
     }
 
@@ -144,14 +150,50 @@ impl CustomScrollView {
     }
 
     /// How to clip the content of this scroll view.
-    pub fn clip_behavior(mut self, value: impl Into<Clip>) -> Self {
-        self.clip_behavior = Some(value.into());
+    pub fn clip_behavior(mut self, value: impl IntoReactive<Clip>) -> Self {
+        self.clip_behavior = Some(value.into_reactive());
         self
     }
 
     /// How hit tests are performed during pointer events.
-    pub fn hit_test_behavior(mut self, value: impl Into<HitTestBehavior>) -> Self {
-        self.hit_test_behavior = Some(value.into());
+    pub fn hit_test_behavior(mut self, value: impl IntoReactive<HitTestBehavior>) -> Self {
+        self.hit_test_behavior = Some(value.into_reactive());
+        self
+    }
+
+    /// Sets `visible` (envelope): a `bool`, a state path or an expression.
+    pub fn visible(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.visible(value);
+        self
+    }
+
+    /// Sets `enabled` (envelope): a `bool`, a state path or an expression.
+    pub fn enabled(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.enabled(value);
+        self
+    }
+
+    /// Sets `bind` (envelope): the state key the widget reads and writes.
+    pub fn bind(mut self, key: BindKey) -> Self {
+        self.envelope = self.envelope.bind(key);
+        self
+    }
+
+    /// Sets `state` (envelope): the screen state declared by this widget.
+    pub fn state(mut self, block: StateBlock) -> Self {
+        self.envelope = self.envelope.state(block);
+        self
+    }
+
+    /// Sets `globalState` (envelope): the global state declared by this widget.
+    pub fn global_state(mut self, block: GlobalStateBlock) -> Self {
+        self.envelope = self.envelope.global_state(block);
+        self
+    }
+
+    /// Sets `onInit` (envelope): action(s) run when the widget is first built.
+    pub fn on_init(mut self, on_init: impl Into<OnInit>) -> Self {
+        self.envelope = self.envelope.on_init(on_init);
         self
     }
 }
@@ -160,6 +202,7 @@ impl Serialize for CustomScrollView {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         let mut map = serializer.serialize_map(None)?;
         map.serialize_entry("type", "customScrollView")?;
+        self.envelope.serialize_into(&mut map)?;
         if let Some(value) = &self.slivers {
             map.serialize_entry("slivers", value)?;
         }
@@ -208,12 +251,43 @@ impl Serialize for CustomScrollView {
 
 impl Validate for CustomScrollView {
     fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
+        self.envelope.validate_at(path, issues);
         self.slivers.validate_at(&path.key("slivers"), issues);
+        if let Some(value) = &self.scroll_direction {
+            value.validate_binding_at(&path.key("scrollDirection"), issues);
+        }
+        if let Some(value) = &self.reverse {
+            value.validate_binding_at(&path.key("reverse"), issues);
+        }
+        if let Some(value) = &self.primary {
+            value.validate_binding_at(&path.key("primary"), issues);
+        }
+        if let Some(value) = &self.physics {
+            value.validate_binding_at(&path.key("physics"), issues);
+        }
+        if let Some(value) = &self.shrink_wrap {
+            value.validate_binding_at(&path.key("shrinkWrap"), issues);
+        }
         self.anchor.validate_at(&path.key("anchor"), issues);
         self.cache_extent
             .validate_at(&path.key("cacheExtent"), issues);
+        if let Some(value) = &self.semantic_child_count {
+            value.validate_binding_at(&path.key("semanticChildCount"), issues);
+        }
+        if let Some(value) = &self.drag_start_behavior {
+            value.validate_binding_at(&path.key("dragStartBehavior"), issues);
+        }
+        if let Some(value) = &self.keyboard_dismiss_behavior {
+            value.validate_binding_at(&path.key("keyboardDismissBehavior"), issues);
+        }
         self.restoration_id
             .validate_at(&path.key("restorationId"), issues);
+        if let Some(value) = &self.clip_behavior {
+            value.validate_binding_at(&path.key("clipBehavior"), issues);
+        }
+        if let Some(value) = &self.hit_test_behavior {
+            value.validate_binding_at(&path.key("hitTestBehavior"), issues);
+        }
     }
 }
 
@@ -221,6 +295,8 @@ impl StacNode for CustomScrollView {
     const KIND: NodeKind = NodeKind::Widget;
     const TYPE_NAME: &'static str = "customScrollView";
 }
+
+impl Plain for CustomScrollView {}
 
 impl From<CustomScrollView> for Widget {
     fn from(value: CustomScrollView) -> Self {

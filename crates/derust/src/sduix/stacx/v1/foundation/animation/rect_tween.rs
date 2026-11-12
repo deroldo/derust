@@ -8,6 +8,9 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
@@ -17,9 +20,9 @@ pub struct RectTween {
     /// The tween type identifier.
     pub type_: Dyn<String>,
     /// The starting rectangle.
-    pub begin: Option<Box<Rect>>,
+    pub begin: Option<Reactive<Box<Rect>>>,
     /// The ending rectangle.
-    pub end: Option<Box<Rect>>,
+    pub end: Option<Reactive<Box<Rect>>>,
 }
 
 impl RectTween {
@@ -39,14 +42,14 @@ impl RectTween {
     }
 
     /// The starting rectangle.
-    pub fn begin(mut self, value: impl Into<Rect>) -> Self {
-        self.begin = Some(Box::new(value.into()));
+    pub fn begin(mut self, value: impl IntoReactive<Rect>) -> Self {
+        self.begin = Some(value.into_reactive().boxed());
         self
     }
 
     /// The ending rectangle.
-    pub fn end(mut self, value: impl Into<Rect>) -> Self {
-        self.end = Some(Box::new(value.into()));
+    pub fn end(mut self, value: impl IntoReactive<Rect>) -> Self {
+        self.end = Some(value.into_reactive().boxed());
         self
     }
 }
@@ -72,3 +75,5 @@ impl Validate for RectTween {
         self.end.validate_at(&path.key("end"), issues);
     }
 }
+
+impl Plain for RectTween {}

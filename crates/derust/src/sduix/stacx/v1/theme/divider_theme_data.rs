@@ -8,6 +8,9 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
@@ -17,13 +20,13 @@ pub struct DividerThemeData {
     /// The color of the divider.
     pub color: Option<Dyn<String>>,
     /// The vertical space around the divider.
-    pub space: Option<f64>,
+    pub space: Option<Reactive<f64>>,
     /// The thickness of the divider line.
-    pub thickness: Option<f64>,
+    pub thickness: Option<Reactive<f64>>,
     /// The amount of empty space to the leading edge of the divider.
-    pub indent: Option<f64>,
+    pub indent: Option<Reactive<f64>>,
     /// The amount of empty space to the trailing edge of the divider.
-    pub end_indent: Option<f64>,
+    pub end_indent: Option<Reactive<f64>>,
 }
 
 impl DividerThemeData {
@@ -45,26 +48,26 @@ impl DividerThemeData {
     }
 
     /// The vertical space around the divider.
-    pub fn space(mut self, value: impl Into<f64>) -> Self {
-        self.space = Some(value.into());
+    pub fn space(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.space = Some(value.into_reactive());
         self
     }
 
     /// The thickness of the divider line.
-    pub fn thickness(mut self, value: impl Into<f64>) -> Self {
-        self.thickness = Some(value.into());
+    pub fn thickness(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.thickness = Some(value.into_reactive());
         self
     }
 
     /// The amount of empty space to the leading edge of the divider.
-    pub fn indent(mut self, value: impl Into<f64>) -> Self {
-        self.indent = Some(value.into());
+    pub fn indent(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.indent = Some(value.into_reactive());
         self
     }
 
     /// The amount of empty space to the trailing edge of the divider.
-    pub fn end_indent(mut self, value: impl Into<f64>) -> Self {
-        self.end_indent = Some(value.into());
+    pub fn end_indent(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.end_indent = Some(value.into_reactive());
         self
     }
 }
@@ -100,3 +103,5 @@ impl Validate for DividerThemeData {
         self.end_indent.validate_at(&path.key("endIndent"), issues);
     }
 }
+
+impl Plain for DividerThemeData {}

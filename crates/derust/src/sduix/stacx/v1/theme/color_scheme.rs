@@ -8,6 +8,9 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
@@ -15,7 +18,7 @@ use serde::ser::{Serialize, SerializeMap, Serializer};
 #[derive(Debug, Clone, PartialEq)]
 pub struct ColorScheme {
     /// The brightness of the color scheme (light or dark).
-    pub brightness: Brightness,
+    pub brightness: Reactive<Brightness>,
     /// The primary color of the theme.
     pub primary: Dyn<String>,
     /// The color to use for content on top of the primary color.
@@ -113,7 +116,7 @@ pub struct ColorScheme {
 impl ColorScheme {
     /// Creates the model with only its required fields set.
     pub fn new(
-        brightness: impl Into<Brightness>,
+        brightness: impl IntoReactive<Brightness>,
         primary: impl Into<Dyn<String>>,
         on_primary: impl Into<Dyn<String>>,
         secondary: impl Into<Dyn<String>>,
@@ -124,7 +127,7 @@ impl ColorScheme {
         on_surface: impl Into<Dyn<String>>,
     ) -> Self {
         Self {
-            brightness: brightness.into(),
+            brightness: brightness.into_reactive(),
             primary: primary.into(),
             on_primary: on_primary.into(),
             primary_container: None,
@@ -175,8 +178,8 @@ impl ColorScheme {
     }
 
     /// The brightness of the color scheme (light or dark).
-    pub fn brightness(mut self, value: impl Into<Brightness>) -> Self {
-        self.brightness = value.into();
+    pub fn brightness(mut self, value: impl IntoReactive<Brightness>) -> Self {
+        self.brightness = value.into_reactive();
         self
     }
 
@@ -589,6 +592,8 @@ impl Serialize for ColorScheme {
 
 impl Validate for ColorScheme {
     fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
+        self.brightness
+            .validate_binding_at(&path.key("brightness"), issues);
         self.primary.validate_at(&path.key("primary"), issues);
         self.on_primary.validate_at(&path.key("onPrimary"), issues);
         self.primary_container
@@ -672,3 +677,5 @@ impl Validate for ColorScheme {
             .validate_at(&path.key("surfaceTint"), issues);
     }
 }
+
+impl Plain for ColorScheme {}

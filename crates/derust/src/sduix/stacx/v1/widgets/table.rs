@@ -8,26 +8,31 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
 /// A Stac model representing Flutter's \[Table\] widget.
 #[derive(Debug, Clone, PartialEq)]
 pub struct Table {
+    /// Properties common to every widget (`visible`, `enabled`, `bind`, `state`, `globalState`, `onInit`).
+    pub envelope: Envelope,
     /// The table rows.
-    pub children: Option<Vec<TableRow>>,
+    pub children: Option<Reactive<Vec<TableRow>>>,
     /// Per-column width configuration.
-    pub column_widths: Option<std::collections::BTreeMap<i64, TableColumnWidth>>,
+    pub column_widths: Option<Reactive<std::collections::BTreeMap<i64, TableColumnWidth>>>,
     /// Default width configuration for columns without explicit config.
-    pub default_column_width: Option<TableColumnWidth>,
+    pub default_column_width: Option<Reactive<TableColumnWidth>>,
     /// Text direction used to interpret start/end in the table.
-    pub text_direction: Option<TextDirection>,
+    pub text_direction: Option<Reactive<TextDirection>>,
     /// Border drawn around and inside the table.
-    pub border: Option<TableBorder>,
+    pub border: Option<Reactive<TableBorder>>,
     /// Default vertical alignment for cells.
-    pub default_vertical_alignment: Option<TableCellVerticalAlignment>,
+    pub default_vertical_alignment: Option<Reactive<TableCellVerticalAlignment>>,
     /// Text baseline used when aligning on baselines.
-    pub text_baseline: Option<TextBaseline>,
+    pub text_baseline: Option<Reactive<TextBaseline>>,
 }
 
 impl Table {
@@ -37,6 +42,7 @@ impl Table {
     /// Creates the model with only its required fields set.
     pub fn new() -> Self {
         Self {
+            envelope: Envelope::new(),
             children: None,
             column_widths: None,
             default_column_width: None,
@@ -48,50 +54,86 @@ impl Table {
     }
 
     /// The table rows.
-    pub fn children(mut self, value: impl IntoIterator<Item = impl Into<TableRow>>) -> Self {
-        self.children = Some(value.into_iter().map(Into::into).collect());
+    pub fn children(mut self, value: impl IntoReactive<Vec<TableRow>>) -> Self {
+        self.children = Some(value.into_reactive());
         self
     }
 
     /// Per-column width configuration.
     pub fn column_widths(
         mut self,
-        value: std::collections::BTreeMap<i64, TableColumnWidth>,
+        value: impl IntoReactive<std::collections::BTreeMap<i64, TableColumnWidth>>,
     ) -> Self {
-        self.column_widths = Some(value);
+        self.column_widths = Some(value.into_reactive());
         self
     }
 
     /// Default width configuration for columns without explicit config.
-    pub fn default_column_width(mut self, value: impl Into<TableColumnWidth>) -> Self {
-        self.default_column_width = Some(value.into());
+    pub fn default_column_width(mut self, value: impl IntoReactive<TableColumnWidth>) -> Self {
+        self.default_column_width = Some(value.into_reactive());
         self
     }
 
     /// Text direction used to interpret start/end in the table.
-    pub fn text_direction(mut self, value: impl Into<TextDirection>) -> Self {
-        self.text_direction = Some(value.into());
+    pub fn text_direction(mut self, value: impl IntoReactive<TextDirection>) -> Self {
+        self.text_direction = Some(value.into_reactive());
         self
     }
 
     /// Border drawn around and inside the table.
-    pub fn border(mut self, value: impl Into<TableBorder>) -> Self {
-        self.border = Some(value.into());
+    pub fn border(mut self, value: impl IntoReactive<TableBorder>) -> Self {
+        self.border = Some(value.into_reactive());
         self
     }
 
     /// Default vertical alignment for cells.
     pub fn default_vertical_alignment(
         mut self,
-        value: impl Into<TableCellVerticalAlignment>,
+        value: impl IntoReactive<TableCellVerticalAlignment>,
     ) -> Self {
-        self.default_vertical_alignment = Some(value.into());
+        self.default_vertical_alignment = Some(value.into_reactive());
         self
     }
 
     /// Text baseline used when aligning on baselines.
-    pub fn text_baseline(mut self, value: impl Into<TextBaseline>) -> Self {
-        self.text_baseline = Some(value.into());
+    pub fn text_baseline(mut self, value: impl IntoReactive<TextBaseline>) -> Self {
+        self.text_baseline = Some(value.into_reactive());
+        self
+    }
+
+    /// Sets `visible` (envelope): a `bool`, a state path or an expression.
+    pub fn visible(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.visible(value);
+        self
+    }
+
+    /// Sets `enabled` (envelope): a `bool`, a state path or an expression.
+    pub fn enabled(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.enabled(value);
+        self
+    }
+
+    /// Sets `bind` (envelope): the state key the widget reads and writes.
+    pub fn bind(mut self, key: BindKey) -> Self {
+        self.envelope = self.envelope.bind(key);
+        self
+    }
+
+    /// Sets `state` (envelope): the screen state declared by this widget.
+    pub fn state(mut self, block: StateBlock) -> Self {
+        self.envelope = self.envelope.state(block);
+        self
+    }
+
+    /// Sets `globalState` (envelope): the global state declared by this widget.
+    pub fn global_state(mut self, block: GlobalStateBlock) -> Self {
+        self.envelope = self.envelope.global_state(block);
+        self
+    }
+
+    /// Sets `onInit` (envelope): action(s) run when the widget is first built.
+    pub fn on_init(mut self, on_init: impl Into<OnInit>) -> Self {
+        self.envelope = self.envelope.on_init(on_init);
         self
     }
 }
@@ -100,6 +142,7 @@ impl Serialize for Table {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         let mut map = serializer.serialize_map(None)?;
         map.serialize_entry("type", "table")?;
+        self.envelope.serialize_into(&mut map)?;
         if let Some(value) = &self.children {
             map.serialize_entry("children", value)?;
         }
@@ -127,12 +170,22 @@ impl Serialize for Table {
 
 impl Validate for Table {
     fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
+        self.envelope.validate_at(path, issues);
         self.children.validate_at(&path.key("children"), issues);
         self.column_widths
             .validate_at(&path.key("columnWidths"), issues);
         self.default_column_width
             .validate_at(&path.key("defaultColumnWidth"), issues);
+        if let Some(value) = &self.text_direction {
+            value.validate_binding_at(&path.key("textDirection"), issues);
+        }
         self.border.validate_at(&path.key("border"), issues);
+        if let Some(value) = &self.default_vertical_alignment {
+            value.validate_binding_at(&path.key("defaultVerticalAlignment"), issues);
+        }
+        if let Some(value) = &self.text_baseline {
+            value.validate_binding_at(&path.key("textBaseline"), issues);
+        }
     }
 }
 
@@ -140,6 +193,8 @@ impl StacNode for Table {
     const KIND: NodeKind = NodeKind::Widget;
     const TYPE_NAME: &'static str = "table";
 }
+
+impl Plain for Table {}
 
 impl From<Table> for Widget {
     fn from(value: Table) -> Self {

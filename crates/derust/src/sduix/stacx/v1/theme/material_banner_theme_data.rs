@@ -8,6 +8,9 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
@@ -23,13 +26,13 @@ pub struct MaterialBannerThemeData {
     /// The color of the divider in the material banner.
     pub divider_color: Option<Dyn<String>>,
     /// The text style for the material banner's content.
-    pub content_text_style: Option<TextStyle>,
+    pub content_text_style: Option<Reactive<TextStyle>>,
     /// The z-coordinate at which to place this material banner relative to its parent.
-    pub elevation: Option<f64>,
+    pub elevation: Option<Reactive<f64>>,
     /// The padding around the material banner's content.
-    pub padding: Option<EdgeInsets>,
+    pub padding: Option<Reactive<EdgeInsets>>,
     /// The padding around the material banner's leading widget.
-    pub leading_padding: Option<EdgeInsets>,
+    pub leading_padding: Option<Reactive<EdgeInsets>>,
 }
 
 impl MaterialBannerThemeData {
@@ -72,26 +75,26 @@ impl MaterialBannerThemeData {
     }
 
     /// The text style for the material banner's content.
-    pub fn content_text_style(mut self, value: impl Into<TextStyle>) -> Self {
-        self.content_text_style = Some(value.into());
+    pub fn content_text_style(mut self, value: impl IntoReactive<TextStyle>) -> Self {
+        self.content_text_style = Some(value.into_reactive());
         self
     }
 
     /// The z-coordinate at which to place this material banner relative to its parent.
-    pub fn elevation(mut self, value: impl Into<f64>) -> Self {
-        self.elevation = Some(value.into());
+    pub fn elevation(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.elevation = Some(value.into_reactive());
         self
     }
 
     /// The padding around the material banner's content.
-    pub fn padding(mut self, value: impl Into<EdgeInsets>) -> Self {
-        self.padding = Some(value.into());
+    pub fn padding(mut self, value: impl IntoReactive<EdgeInsets>) -> Self {
+        self.padding = Some(value.into_reactive());
         self
     }
 
     /// The padding around the material banner's leading widget.
-    pub fn leading_padding(mut self, value: impl Into<EdgeInsets>) -> Self {
-        self.leading_padding = Some(value.into());
+    pub fn leading_padding(mut self, value: impl IntoReactive<EdgeInsets>) -> Self {
+        self.leading_padding = Some(value.into_reactive());
         self
     }
 }
@@ -145,3 +148,5 @@ impl Validate for MaterialBannerThemeData {
             .validate_at(&path.key("leadingPadding"), issues);
     }
 }
+
+impl Plain for MaterialBannerThemeData {}

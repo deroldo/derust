@@ -8,18 +8,23 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
 /// A Stac model representing Flutter's \[SliverFillRemaining\] widget.
 #[derive(Debug, Clone, PartialEq)]
 pub struct SliverFillRemaining {
+    /// Properties common to every widget (`visible`, `enabled`, `bind`, `state`, `globalState`, `onInit`).
+    pub envelope: Envelope,
     /// The widget to display in the remaining space of the scroll view.
     pub child: Option<Widget>,
     /// Whether the \[child\] has a scrollable body.
-    pub has_scroll_body: Option<bool>,
+    pub has_scroll_body: Option<Reactive<bool>>,
     /// Whether the sliver should stretch to fill the over-scroll area.
-    pub fill_overscroll: Option<bool>,
+    pub fill_overscroll: Option<Reactive<bool>>,
 }
 
 impl SliverFillRemaining {
@@ -29,6 +34,7 @@ impl SliverFillRemaining {
     /// Creates the model with only its required fields set.
     pub fn new() -> Self {
         Self {
+            envelope: Envelope::new(),
             child: None,
             has_scroll_body: None,
             fill_overscroll: None,
@@ -42,14 +48,50 @@ impl SliverFillRemaining {
     }
 
     /// Whether the \[child\] has a scrollable body.
-    pub fn has_scroll_body(mut self, value: bool) -> Self {
-        self.has_scroll_body = Some(value);
+    pub fn has_scroll_body(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.has_scroll_body = Some(value.into_reactive());
         self
     }
 
     /// Whether the sliver should stretch to fill the over-scroll area.
-    pub fn fill_overscroll(mut self, value: bool) -> Self {
-        self.fill_overscroll = Some(value);
+    pub fn fill_overscroll(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.fill_overscroll = Some(value.into_reactive());
+        self
+    }
+
+    /// Sets `visible` (envelope): a `bool`, a state path or an expression.
+    pub fn visible(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.visible(value);
+        self
+    }
+
+    /// Sets `enabled` (envelope): a `bool`, a state path or an expression.
+    pub fn enabled(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.enabled(value);
+        self
+    }
+
+    /// Sets `bind` (envelope): the state key the widget reads and writes.
+    pub fn bind(mut self, key: BindKey) -> Self {
+        self.envelope = self.envelope.bind(key);
+        self
+    }
+
+    /// Sets `state` (envelope): the screen state declared by this widget.
+    pub fn state(mut self, block: StateBlock) -> Self {
+        self.envelope = self.envelope.state(block);
+        self
+    }
+
+    /// Sets `globalState` (envelope): the global state declared by this widget.
+    pub fn global_state(mut self, block: GlobalStateBlock) -> Self {
+        self.envelope = self.envelope.global_state(block);
+        self
+    }
+
+    /// Sets `onInit` (envelope): action(s) run when the widget is first built.
+    pub fn on_init(mut self, on_init: impl Into<OnInit>) -> Self {
+        self.envelope = self.envelope.on_init(on_init);
         self
     }
 }
@@ -58,6 +100,7 @@ impl Serialize for SliverFillRemaining {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         let mut map = serializer.serialize_map(None)?;
         map.serialize_entry("type", "sliverFillRemaining")?;
+        self.envelope.serialize_into(&mut map)?;
         if let Some(value) = &self.child {
             map.serialize_entry("child", value)?;
         }
@@ -73,7 +116,14 @@ impl Serialize for SliverFillRemaining {
 
 impl Validate for SliverFillRemaining {
     fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
+        self.envelope.validate_at(path, issues);
         self.child.validate_at(&path.key("child"), issues);
+        if let Some(value) = &self.has_scroll_body {
+            value.validate_binding_at(&path.key("hasScrollBody"), issues);
+        }
+        if let Some(value) = &self.fill_overscroll {
+            value.validate_binding_at(&path.key("fillOverscroll"), issues);
+        }
     }
 }
 
@@ -81,6 +131,8 @@ impl StacNode for SliverFillRemaining {
     const KIND: NodeKind = NodeKind::Widget;
     const TYPE_NAME: &'static str = "sliverFillRemaining";
 }
+
+impl Plain for SliverFillRemaining {}
 
 impl From<SliverFillRemaining> for Widget {
     fn from(value: SliverFillRemaining) -> Self {

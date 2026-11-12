@@ -8,12 +8,17 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
 /// A Stac model for a fixed-height row that typically contains text, a leading or trailing icon, or other widgets. This model corresponds to Flutter's \[ListTile\] widget.
 #[derive(Debug, Clone, PartialEq)]
 pub struct ListTile {
+    /// Properties common to every widget (`visible`, `enabled`, `bind`, `state`, `globalState`, `onInit`).
+    pub envelope: Envelope,
     /// A widget to display before the \[title\].
     pub leading: Option<Widget>,
     /// The primary content of the list tile.
@@ -23,15 +28,15 @@ pub struct ListTile {
     /// A widget to display after the \[title\].
     pub trailing: Option<Widget>,
     /// Whether this list tile is intended to display three lines of text.
-    pub is_three_line: Option<bool>,
+    pub is_three_line: Option<Reactive<bool>>,
     /// Whether this list tile is part of a vertically dense list.
-    pub dense: Option<bool>,
+    pub dense: Option<Reactive<bool>>,
     /// Defines the compactness of the list tile.
-    pub visual_density: Option<VisualDensity>,
+    pub visual_density: Option<Reactive<VisualDensity>>,
     /// The shape of the tile's \[InkWell\].
-    pub shape: Option<ShapeBorder>,
+    pub shape: Option<Reactive<ShapeBorder>>,
     /// Defines the tile's visual style.
-    pub style: Option<ListTileStyle>,
+    pub style: Option<Reactive<ListTileStyle>>,
     /// The color of the tile's text and icons when \[selected\] is true.
     pub selected_color: Option<Dyn<String>>,
     /// The color of the tile's icons when \[selected\] is false.
@@ -39,37 +44,35 @@ pub struct ListTile {
     /// The color of the tile's text when \[selected\] is false.
     pub text_color: Option<Dyn<String>>,
     /// The tile's internal padding.
-    pub content_padding: Option<EdgeInsets>,
-    /// Whether this list tile is interactive.
-    pub enabled: Option<bool>,
+    pub content_padding: Option<Reactive<EdgeInsets>>,
     /// An action to perform when the user taps this list tile.
     pub on_tap: Option<Action>,
     /// An action to perform when the user long-presses this list tile.
     pub on_long_press: Option<Action>,
     /// The cursor for a mouse pointer when it enters or is hovering over the widget.
-    pub mouse_cursor: Option<MouseCursor>,
+    pub mouse_cursor: Option<Reactive<MouseCursor>>,
     /// Whether this tile is selected.
-    pub selected: Option<bool>,
+    pub selected: Option<Reactive<bool>>,
     /// The color for the tile's \[Material\] when it has the input focus.
     pub focus_color: Option<Dyn<String>>,
     /// The color for the tile's \[Material\] when a pointer is hovering over it.
     pub hover_color: Option<Dyn<String>>,
     /// Whether this widget should automatically gain focus when it is visible.
-    pub autofocus: Option<bool>,
+    pub autofocus: Option<Reactive<bool>>,
     /// Defines the background color of the \[ListTile\] when \[selected\] is false.
     pub tile_color: Option<Dyn<String>>,
     /// Defines the background color of the \[ListTile\] when \[selected\] is true.
     pub selected_tile_color: Option<Dyn<String>>,
     /// Whether detected gestures should provide acoustic and/or haptic feedback.
-    pub enable_feedback: Option<bool>,
+    pub enable_feedback: Option<Reactive<bool>>,
     /// The horizontal gap between the \[leading\] or \[trailing\] widget and the \[title\] and \[subtitle\] widgets.
-    pub horizontal_title_gap: Option<f64>,
+    pub horizontal_title_gap: Option<Reactive<f64>>,
     /// The minimum padding on the top and bottom of the title and subtitle widgets.
-    pub min_vertical_padding: Option<f64>,
+    pub min_vertical_padding: Option<Reactive<f64>>,
     /// The minimum width of the \[leading\] widget.
-    pub min_leading_width: Option<f64>,
+    pub min_leading_width: Option<Reactive<f64>>,
     /// Defines how the \[title\] and \[subtitle\] are vertically aligned relative to the \[leading\] and \[trailing\] widgets.
-    pub title_alignment: Option<ListTileTitleAlignment>,
+    pub title_alignment: Option<Reactive<ListTileTitleAlignment>>,
 }
 
 impl ListTile {
@@ -79,6 +82,7 @@ impl ListTile {
     /// Creates the model with only its required fields set.
     pub fn new() -> Self {
         Self {
+            envelope: Envelope::new(),
             leading: None,
             title: None,
             subtitle: None,
@@ -92,7 +96,6 @@ impl ListTile {
             icon_color: None,
             text_color: None,
             content_padding: None,
-            enabled: None,
             on_tap: None,
             on_long_press: None,
             mouse_cursor: None,
@@ -135,32 +138,32 @@ impl ListTile {
     }
 
     /// Whether this list tile is intended to display three lines of text.
-    pub fn is_three_line(mut self, value: bool) -> Self {
-        self.is_three_line = Some(value);
+    pub fn is_three_line(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.is_three_line = Some(value.into_reactive());
         self
     }
 
     /// Whether this list tile is part of a vertically dense list.
-    pub fn dense(mut self, value: bool) -> Self {
-        self.dense = Some(value);
+    pub fn dense(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.dense = Some(value.into_reactive());
         self
     }
 
     /// Defines the compactness of the list tile.
-    pub fn visual_density(mut self, value: impl Into<VisualDensity>) -> Self {
-        self.visual_density = Some(value.into());
+    pub fn visual_density(mut self, value: impl IntoReactive<VisualDensity>) -> Self {
+        self.visual_density = Some(value.into_reactive());
         self
     }
 
     /// The shape of the tile's \[InkWell\].
-    pub fn shape(mut self, value: impl Into<ShapeBorder>) -> Self {
-        self.shape = Some(value.into());
+    pub fn shape(mut self, value: impl IntoReactive<ShapeBorder>) -> Self {
+        self.shape = Some(value.into_reactive());
         self
     }
 
     /// Defines the tile's visual style.
-    pub fn style(mut self, value: impl Into<ListTileStyle>) -> Self {
-        self.style = Some(value.into());
+    pub fn style(mut self, value: impl IntoReactive<ListTileStyle>) -> Self {
+        self.style = Some(value.into_reactive());
         self
     }
 
@@ -183,14 +186,8 @@ impl ListTile {
     }
 
     /// The tile's internal padding.
-    pub fn content_padding(mut self, value: impl Into<EdgeInsets>) -> Self {
-        self.content_padding = Some(value.into());
-        self
-    }
-
-    /// Whether this list tile is interactive.
-    pub fn enabled(mut self, value: bool) -> Self {
-        self.enabled = Some(value);
+    pub fn content_padding(mut self, value: impl IntoReactive<EdgeInsets>) -> Self {
+        self.content_padding = Some(value.into_reactive());
         self
     }
 
@@ -207,14 +204,14 @@ impl ListTile {
     }
 
     /// The cursor for a mouse pointer when it enters or is hovering over the widget.
-    pub fn mouse_cursor(mut self, value: impl Into<MouseCursor>) -> Self {
-        self.mouse_cursor = Some(value.into());
+    pub fn mouse_cursor(mut self, value: impl IntoReactive<MouseCursor>) -> Self {
+        self.mouse_cursor = Some(value.into_reactive());
         self
     }
 
     /// Whether this tile is selected.
-    pub fn selected(mut self, value: bool) -> Self {
-        self.selected = Some(value);
+    pub fn selected(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.selected = Some(value.into_reactive());
         self
     }
 
@@ -231,8 +228,8 @@ impl ListTile {
     }
 
     /// Whether this widget should automatically gain focus when it is visible.
-    pub fn autofocus(mut self, value: bool) -> Self {
-        self.autofocus = Some(value);
+    pub fn autofocus(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.autofocus = Some(value.into_reactive());
         self
     }
 
@@ -249,32 +246,68 @@ impl ListTile {
     }
 
     /// Whether detected gestures should provide acoustic and/or haptic feedback.
-    pub fn enable_feedback(mut self, value: bool) -> Self {
-        self.enable_feedback = Some(value);
+    pub fn enable_feedback(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.enable_feedback = Some(value.into_reactive());
         self
     }
 
     /// The horizontal gap between the \[leading\] or \[trailing\] widget and the \[title\] and \[subtitle\] widgets.
-    pub fn horizontal_title_gap(mut self, value: impl Into<f64>) -> Self {
-        self.horizontal_title_gap = Some(value.into());
+    pub fn horizontal_title_gap(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.horizontal_title_gap = Some(value.into_reactive());
         self
     }
 
     /// The minimum padding on the top and bottom of the title and subtitle widgets.
-    pub fn min_vertical_padding(mut self, value: impl Into<f64>) -> Self {
-        self.min_vertical_padding = Some(value.into());
+    pub fn min_vertical_padding(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.min_vertical_padding = Some(value.into_reactive());
         self
     }
 
     /// The minimum width of the \[leading\] widget.
-    pub fn min_leading_width(mut self, value: impl Into<f64>) -> Self {
-        self.min_leading_width = Some(value.into());
+    pub fn min_leading_width(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.min_leading_width = Some(value.into_reactive());
         self
     }
 
     /// Defines how the \[title\] and \[subtitle\] are vertically aligned relative to the \[leading\] and \[trailing\] widgets.
-    pub fn title_alignment(mut self, value: impl Into<ListTileTitleAlignment>) -> Self {
-        self.title_alignment = Some(value.into());
+    pub fn title_alignment(mut self, value: impl IntoReactive<ListTileTitleAlignment>) -> Self {
+        self.title_alignment = Some(value.into_reactive());
+        self
+    }
+
+    /// Sets `visible` (envelope): a `bool`, a state path or an expression.
+    pub fn visible(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.visible(value);
+        self
+    }
+
+    /// Sets `enabled` (envelope): a `bool`, a state path or an expression.
+    pub fn enabled(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.enabled(value);
+        self
+    }
+
+    /// Sets `bind` (envelope): the state key the widget reads and writes.
+    pub fn bind(mut self, key: BindKey) -> Self {
+        self.envelope = self.envelope.bind(key);
+        self
+    }
+
+    /// Sets `state` (envelope): the screen state declared by this widget.
+    pub fn state(mut self, block: StateBlock) -> Self {
+        self.envelope = self.envelope.state(block);
+        self
+    }
+
+    /// Sets `globalState` (envelope): the global state declared by this widget.
+    pub fn global_state(mut self, block: GlobalStateBlock) -> Self {
+        self.envelope = self.envelope.global_state(block);
+        self
+    }
+
+    /// Sets `onInit` (envelope): action(s) run when the widget is first built.
+    pub fn on_init(mut self, on_init: impl Into<OnInit>) -> Self {
+        self.envelope = self.envelope.on_init(on_init);
         self
     }
 }
@@ -283,6 +316,7 @@ impl Serialize for ListTile {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         let mut map = serializer.serialize_map(None)?;
         map.serialize_entry("type", "listTile")?;
+        self.envelope.serialize_into(&mut map)?;
         if let Some(value) = &self.leading {
             map.serialize_entry("leading", value)?;
         }
@@ -321,9 +355,6 @@ impl Serialize for ListTile {
         }
         if let Some(value) = &self.content_padding {
             map.serialize_entry("contentPadding", value)?;
-        }
-        if let Some(value) = &self.enabled {
-            map.serialize_entry("enabled", value)?;
         }
         if let Some(value) = &self.on_tap {
             map.serialize_entry("onTap", value)?;
@@ -373,13 +404,23 @@ impl Serialize for ListTile {
 
 impl Validate for ListTile {
     fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
+        self.envelope.validate_at(path, issues);
         self.leading.validate_at(&path.key("leading"), issues);
         self.title.validate_at(&path.key("title"), issues);
         self.subtitle.validate_at(&path.key("subtitle"), issues);
         self.trailing.validate_at(&path.key("trailing"), issues);
+        if let Some(value) = &self.is_three_line {
+            value.validate_binding_at(&path.key("isThreeLine"), issues);
+        }
+        if let Some(value) = &self.dense {
+            value.validate_binding_at(&path.key("dense"), issues);
+        }
         self.visual_density
             .validate_at(&path.key("visualDensity"), issues);
         self.shape.validate_at(&path.key("shape"), issues);
+        if let Some(value) = &self.style {
+            value.validate_binding_at(&path.key("style"), issues);
+        }
         self.selected_color
             .validate_at(&path.key("selectedColor"), issues);
         self.icon_color.validate_at(&path.key("iconColor"), issues);
@@ -389,19 +430,34 @@ impl Validate for ListTile {
         self.on_tap.validate_at(&path.key("onTap"), issues);
         self.on_long_press
             .validate_at(&path.key("onLongPress"), issues);
+        if let Some(value) = &self.mouse_cursor {
+            value.validate_binding_at(&path.key("mouseCursor"), issues);
+        }
+        if let Some(value) = &self.selected {
+            value.validate_binding_at(&path.key("selected"), issues);
+        }
         self.focus_color
             .validate_at(&path.key("focusColor"), issues);
         self.hover_color
             .validate_at(&path.key("hoverColor"), issues);
+        if let Some(value) = &self.autofocus {
+            value.validate_binding_at(&path.key("autofocus"), issues);
+        }
         self.tile_color.validate_at(&path.key("tileColor"), issues);
         self.selected_tile_color
             .validate_at(&path.key("selectedTileColor"), issues);
+        if let Some(value) = &self.enable_feedback {
+            value.validate_binding_at(&path.key("enableFeedback"), issues);
+        }
         self.horizontal_title_gap
             .validate_at(&path.key("horizontalTitleGap"), issues);
         self.min_vertical_padding
             .validate_at(&path.key("minVerticalPadding"), issues);
         self.min_leading_width
             .validate_at(&path.key("minLeadingWidth"), issues);
+        if let Some(value) = &self.title_alignment {
+            value.validate_binding_at(&path.key("titleAlignment"), issues);
+        }
     }
 }
 
@@ -409,6 +465,8 @@ impl StacNode for ListTile {
     const KIND: NodeKind = NodeKind::Widget;
     const TYPE_NAME: &'static str = "listTile";
 }
+
+impl Plain for ListTile {}
 
 impl From<ListTile> for Widget {
     fn from(value: ListTile) -> Self {

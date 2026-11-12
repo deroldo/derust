@@ -8,6 +8,9 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
@@ -15,11 +18,11 @@ use serde::ser::{Serialize, SerializeMap, Serializer};
 #[derive(Debug, Clone, PartialEq)]
 pub struct NavigationBarThemeData {
     /// The height of the navigation bar.
-    pub height: Option<f64>,
+    pub height: Option<Reactive<f64>>,
     /// The background color of the navigation bar.
     pub background_color: Option<Dyn<String>>,
     /// The z-coordinate at which to place this navigation bar relative to its parent.
-    pub elevation: Option<f64>,
+    pub elevation: Option<Reactive<f64>>,
     /// The color of the shadow below the navigation bar.
     pub shadow_color: Option<Dyn<String>>,
     /// The color used to tint the surface of this navigation bar.
@@ -27,13 +30,13 @@ pub struct NavigationBarThemeData {
     /// The color of the indicator for the selected destination.
     pub indicator_color: Option<Dyn<String>>,
     /// The shape of the indicator.
-    pub indicator_shape: Option<Box<Border>>,
+    pub indicator_shape: Option<Reactive<Box<Border>>>,
     /// The text style for navigation bar labels.
-    pub label_text_style: Option<TextStyle>,
+    pub label_text_style: Option<Reactive<TextStyle>>,
     /// The icon theme for navigation bar icons.
-    pub icon_theme: Option<Box<IconThemeData>>,
+    pub icon_theme: Option<Reactive<Box<IconThemeData>>>,
     /// The behavior for showing labels.
-    pub label_behavior: Option<NavigationDestinationLabelBehavior>,
+    pub label_behavior: Option<Reactive<NavigationDestinationLabelBehavior>>,
 }
 
 impl NavigationBarThemeData {
@@ -54,8 +57,8 @@ impl NavigationBarThemeData {
     }
 
     /// The height of the navigation bar.
-    pub fn height(mut self, value: impl Into<f64>) -> Self {
-        self.height = Some(value.into());
+    pub fn height(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.height = Some(value.into_reactive());
         self
     }
 
@@ -66,8 +69,8 @@ impl NavigationBarThemeData {
     }
 
     /// The z-coordinate at which to place this navigation bar relative to its parent.
-    pub fn elevation(mut self, value: impl Into<f64>) -> Self {
-        self.elevation = Some(value.into());
+    pub fn elevation(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.elevation = Some(value.into_reactive());
         self
     }
 
@@ -90,26 +93,29 @@ impl NavigationBarThemeData {
     }
 
     /// The shape of the indicator.
-    pub fn indicator_shape(mut self, value: impl Into<Border>) -> Self {
-        self.indicator_shape = Some(Box::new(value.into()));
+    pub fn indicator_shape(mut self, value: impl IntoReactive<Border>) -> Self {
+        self.indicator_shape = Some(value.into_reactive().boxed());
         self
     }
 
     /// The text style for navigation bar labels.
-    pub fn label_text_style(mut self, value: impl Into<TextStyle>) -> Self {
-        self.label_text_style = Some(value.into());
+    pub fn label_text_style(mut self, value: impl IntoReactive<TextStyle>) -> Self {
+        self.label_text_style = Some(value.into_reactive());
         self
     }
 
     /// The icon theme for navigation bar icons.
-    pub fn icon_theme(mut self, value: impl Into<IconThemeData>) -> Self {
-        self.icon_theme = Some(Box::new(value.into()));
+    pub fn icon_theme(mut self, value: impl IntoReactive<IconThemeData>) -> Self {
+        self.icon_theme = Some(value.into_reactive().boxed());
         self
     }
 
     /// The behavior for showing labels.
-    pub fn label_behavior(mut self, value: impl Into<NavigationDestinationLabelBehavior>) -> Self {
-        self.label_behavior = Some(value.into());
+    pub fn label_behavior(
+        mut self,
+        value: impl IntoReactive<NavigationDestinationLabelBehavior>,
+    ) -> Self {
+        self.label_behavior = Some(value.into_reactive());
         self
     }
 }
@@ -168,5 +174,10 @@ impl Validate for NavigationBarThemeData {
         self.label_text_style
             .validate_at(&path.key("labelTextStyle"), issues);
         self.icon_theme.validate_at(&path.key("iconTheme"), issues);
+        if let Some(value) = &self.label_behavior {
+            value.validate_binding_at(&path.key("labelBehavior"), issues);
+        }
     }
 }
+
+impl Plain for NavigationBarThemeData {}

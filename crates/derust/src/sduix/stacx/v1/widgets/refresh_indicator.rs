@@ -8,32 +8,37 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
 /// A Stac model representing Flutter's \[RefreshIndicator\] widget.
 #[derive(Debug, Clone, PartialEq)]
 pub struct RefreshIndicator {
+    /// Properties common to every widget (`visible`, `enabled`, `bind`, `state`, `globalState`, `onInit`).
+    pub envelope: Envelope,
     /// The widget below this widget in the tree.
     pub child: Option<Widget>,
     /// A StacAction that's called when the user has dragged the refresh indicator far enough to demonstrate that they want the app to refresh.
     pub on_refresh: Option<Action>,
     /// The distance from the child's top or bottom edge indicates how far the refresh indicator can be dragged to trigger a refresh. Defaults to 40.0 in the Flutter widget.
-    pub displacement: Option<f64>,
+    pub displacement: Option<Reactive<f64>>,
     /// The offset where the refresh indicator appears from the edge of the scrollable content. Defaults to 0.0 in the Flutter widget.
-    pub edge_offset: Option<f64>,
+    pub edge_offset: Option<Reactive<f64>>,
     /// The progress indicator's foreground color.
-    pub color: Option<Color>,
+    pub color: Option<Reactive<Color>>,
     /// The progress indicator's background color.
-    pub background_color: Option<Color>,
+    pub background_color: Option<Reactive<Color>>,
     /// The semantic label for the indicator.
     pub semantics_label: Option<Dyn<String>>,
     /// The semantic value for the indicator.
     pub semantics_value: Option<Dyn<String>>,
     /// The thickness of the `RefreshProgressIndicator` circle, in logical pixels. Defaults to `RefreshProgressIndicator.defaultStrokeWidth` (2.0) in the Flutter widget.
-    pub stroke_width: Option<f64>,
+    pub stroke_width: Option<Reactive<f64>>,
     /// Defines how this widget can be triggered. Defaults to \[StacRefreshIndicatorTriggerMode.onEdge\] in the Flutter widget.
-    pub trigger_mode: Option<RefreshIndicatorTriggerMode>,
+    pub trigger_mode: Option<Reactive<RefreshIndicatorTriggerMode>>,
 }
 
 impl RefreshIndicator {
@@ -43,6 +48,7 @@ impl RefreshIndicator {
     /// Creates the model with only its required fields set.
     pub fn new() -> Self {
         Self {
+            envelope: Envelope::new(),
             child: None,
             on_refresh: None,
             displacement: None,
@@ -69,26 +75,26 @@ impl RefreshIndicator {
     }
 
     /// The distance from the child's top or bottom edge indicates how far the refresh indicator can be dragged to trigger a refresh. Defaults to 40.0 in the Flutter widget.
-    pub fn displacement(mut self, value: impl Into<f64>) -> Self {
-        self.displacement = Some(value.into());
+    pub fn displacement(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.displacement = Some(value.into_reactive());
         self
     }
 
     /// The offset where the refresh indicator appears from the edge of the scrollable content. Defaults to 0.0 in the Flutter widget.
-    pub fn edge_offset(mut self, value: impl Into<f64>) -> Self {
-        self.edge_offset = Some(value.into());
+    pub fn edge_offset(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.edge_offset = Some(value.into_reactive());
         self
     }
 
     /// The progress indicator's foreground color.
-    pub fn color(mut self, value: impl Into<Color>) -> Self {
-        self.color = Some(value.into());
+    pub fn color(mut self, value: impl IntoReactive<Color>) -> Self {
+        self.color = Some(value.into_reactive());
         self
     }
 
     /// The progress indicator's background color.
-    pub fn background_color(mut self, value: impl Into<Color>) -> Self {
-        self.background_color = Some(value.into());
+    pub fn background_color(mut self, value: impl IntoReactive<Color>) -> Self {
+        self.background_color = Some(value.into_reactive());
         self
     }
 
@@ -105,14 +111,50 @@ impl RefreshIndicator {
     }
 
     /// The thickness of the `RefreshProgressIndicator` circle, in logical pixels. Defaults to `RefreshProgressIndicator.defaultStrokeWidth` (2.0) in the Flutter widget.
-    pub fn stroke_width(mut self, value: impl Into<f64>) -> Self {
-        self.stroke_width = Some(value.into());
+    pub fn stroke_width(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.stroke_width = Some(value.into_reactive());
         self
     }
 
     /// Defines how this widget can be triggered. Defaults to \[StacRefreshIndicatorTriggerMode.onEdge\] in the Flutter widget.
-    pub fn trigger_mode(mut self, value: impl Into<RefreshIndicatorTriggerMode>) -> Self {
-        self.trigger_mode = Some(value.into());
+    pub fn trigger_mode(mut self, value: impl IntoReactive<RefreshIndicatorTriggerMode>) -> Self {
+        self.trigger_mode = Some(value.into_reactive());
+        self
+    }
+
+    /// Sets `visible` (envelope): a `bool`, a state path or an expression.
+    pub fn visible(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.visible(value);
+        self
+    }
+
+    /// Sets `enabled` (envelope): a `bool`, a state path or an expression.
+    pub fn enabled(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.enabled(value);
+        self
+    }
+
+    /// Sets `bind` (envelope): the state key the widget reads and writes.
+    pub fn bind(mut self, key: BindKey) -> Self {
+        self.envelope = self.envelope.bind(key);
+        self
+    }
+
+    /// Sets `state` (envelope): the screen state declared by this widget.
+    pub fn state(mut self, block: StateBlock) -> Self {
+        self.envelope = self.envelope.state(block);
+        self
+    }
+
+    /// Sets `globalState` (envelope): the global state declared by this widget.
+    pub fn global_state(mut self, block: GlobalStateBlock) -> Self {
+        self.envelope = self.envelope.global_state(block);
+        self
+    }
+
+    /// Sets `onInit` (envelope): action(s) run when the widget is first built.
+    pub fn on_init(mut self, on_init: impl Into<OnInit>) -> Self {
+        self.envelope = self.envelope.on_init(on_init);
         self
     }
 }
@@ -121,6 +163,7 @@ impl Serialize for RefreshIndicator {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         let mut map = serializer.serialize_map(None)?;
         map.serialize_entry("type", "refreshIndicator")?;
+        self.envelope.serialize_into(&mut map)?;
         if let Some(value) = &self.child {
             map.serialize_entry("child", value)?;
         }
@@ -157,6 +200,7 @@ impl Serialize for RefreshIndicator {
 
 impl Validate for RefreshIndicator {
     fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
+        self.envelope.validate_at(path, issues);
         self.child.validate_at(&path.key("child"), issues);
         self.on_refresh.validate_at(&path.key("onRefresh"), issues);
         self.displacement
@@ -172,6 +216,9 @@ impl Validate for RefreshIndicator {
             .validate_at(&path.key("semanticsValue"), issues);
         self.stroke_width
             .validate_at(&path.key("strokeWidth"), issues);
+        if let Some(value) = &self.trigger_mode {
+            value.validate_binding_at(&path.key("triggerMode"), issues);
+        }
     }
 }
 
@@ -179,6 +226,8 @@ impl StacNode for RefreshIndicator {
     const KIND: NodeKind = NodeKind::Widget;
     const TYPE_NAME: &'static str = "refreshIndicator";
 }
+
+impl Plain for RefreshIndicator {}
 
 impl From<RefreshIndicator> for Widget {
     fn from(value: RefreshIndicator) -> Self {

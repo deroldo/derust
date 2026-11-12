@@ -8,28 +8,31 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
 /// A Stac model representing Flutter's \[SliverVisibility\] widget.
 #[derive(Debug, Clone, PartialEq)]
 pub struct SliverVisibility {
+    /// Properties common to every widget (`visible`, `enabled`, `bind`, `state`, `globalState`, `onInit`).
+    pub envelope: Envelope,
     /// The sliver whose visibility is controlled.
     pub sliver: Widget,
     /// The sliver to display when \[visible\] is false.
     pub replacement_sliver: Option<Widget>,
-    /// Whether the sliver is visible.
-    pub visible: Option<bool>,
     /// Whether to maintain the state of the sliver when hidden.
-    pub maintain_state: Option<bool>,
+    pub maintain_state: Option<Reactive<bool>>,
     /// Whether to maintain animations when the sliver is hidden.
-    pub maintain_animation: Option<bool>,
+    pub maintain_animation: Option<Reactive<bool>>,
     /// Whether to maintain layout space when the sliver is hidden.
-    pub maintain_size: Option<bool>,
+    pub maintain_size: Option<Reactive<bool>>,
     /// Whether to maintain semantics when the sliver is hidden.
-    pub maintain_semantics: Option<bool>,
+    pub maintain_semantics: Option<Reactive<bool>>,
     /// Whether to maintain interactivity when the sliver is hidden.
-    pub maintain_interactivity: Option<bool>,
+    pub maintain_interactivity: Option<Reactive<bool>>,
 }
 
 impl SliverVisibility {
@@ -39,9 +42,9 @@ impl SliverVisibility {
     /// Creates the model with only its required fields set.
     pub fn new(sliver: impl Into<Widget>) -> Self {
         Self {
+            envelope: Envelope::new(),
             sliver: sliver.into(),
             replacement_sliver: None,
-            visible: None,
             maintain_state: None,
             maintain_animation: None,
             maintain_size: None,
@@ -62,39 +65,69 @@ impl SliverVisibility {
         self
     }
 
-    /// Whether the sliver is visible.
-    pub fn visible(mut self, value: bool) -> Self {
-        self.visible = Some(value);
-        self
-    }
-
     /// Whether to maintain the state of the sliver when hidden.
-    pub fn maintain_state(mut self, value: bool) -> Self {
-        self.maintain_state = Some(value);
+    pub fn maintain_state(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.maintain_state = Some(value.into_reactive());
         self
     }
 
     /// Whether to maintain animations when the sliver is hidden.
-    pub fn maintain_animation(mut self, value: bool) -> Self {
-        self.maintain_animation = Some(value);
+    pub fn maintain_animation(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.maintain_animation = Some(value.into_reactive());
         self
     }
 
     /// Whether to maintain layout space when the sliver is hidden.
-    pub fn maintain_size(mut self, value: bool) -> Self {
-        self.maintain_size = Some(value);
+    pub fn maintain_size(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.maintain_size = Some(value.into_reactive());
         self
     }
 
     /// Whether to maintain semantics when the sliver is hidden.
-    pub fn maintain_semantics(mut self, value: bool) -> Self {
-        self.maintain_semantics = Some(value);
+    pub fn maintain_semantics(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.maintain_semantics = Some(value.into_reactive());
         self
     }
 
     /// Whether to maintain interactivity when the sliver is hidden.
-    pub fn maintain_interactivity(mut self, value: bool) -> Self {
-        self.maintain_interactivity = Some(value);
+    pub fn maintain_interactivity(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.maintain_interactivity = Some(value.into_reactive());
+        self
+    }
+
+    /// Sets `visible` (envelope): a `bool`, a state path or an expression.
+    pub fn visible(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.visible(value);
+        self
+    }
+
+    /// Sets `enabled` (envelope): a `bool`, a state path or an expression.
+    pub fn enabled(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.enabled(value);
+        self
+    }
+
+    /// Sets `bind` (envelope): the state key the widget reads and writes.
+    pub fn bind(mut self, key: BindKey) -> Self {
+        self.envelope = self.envelope.bind(key);
+        self
+    }
+
+    /// Sets `state` (envelope): the screen state declared by this widget.
+    pub fn state(mut self, block: StateBlock) -> Self {
+        self.envelope = self.envelope.state(block);
+        self
+    }
+
+    /// Sets `globalState` (envelope): the global state declared by this widget.
+    pub fn global_state(mut self, block: GlobalStateBlock) -> Self {
+        self.envelope = self.envelope.global_state(block);
+        self
+    }
+
+    /// Sets `onInit` (envelope): action(s) run when the widget is first built.
+    pub fn on_init(mut self, on_init: impl Into<OnInit>) -> Self {
+        self.envelope = self.envelope.on_init(on_init);
         self
     }
 }
@@ -103,12 +136,10 @@ impl Serialize for SliverVisibility {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         let mut map = serializer.serialize_map(None)?;
         map.serialize_entry("type", "sliverVisibility")?;
+        self.envelope.serialize_into(&mut map)?;
         map.serialize_entry("sliver", &self.sliver)?;
         if let Some(value) = &self.replacement_sliver {
             map.serialize_entry("replacementSliver", value)?;
-        }
-        if let Some(value) = &self.visible {
-            map.serialize_entry("visible", value)?;
         }
         if let Some(value) = &self.maintain_state {
             map.serialize_entry("maintainState", value)?;
@@ -131,9 +162,25 @@ impl Serialize for SliverVisibility {
 
 impl Validate for SliverVisibility {
     fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
+        self.envelope.validate_at(path, issues);
         self.sliver.validate_at(&path.key("sliver"), issues);
         self.replacement_sliver
             .validate_at(&path.key("replacementSliver"), issues);
+        if let Some(value) = &self.maintain_state {
+            value.validate_binding_at(&path.key("maintainState"), issues);
+        }
+        if let Some(value) = &self.maintain_animation {
+            value.validate_binding_at(&path.key("maintainAnimation"), issues);
+        }
+        if let Some(value) = &self.maintain_size {
+            value.validate_binding_at(&path.key("maintainSize"), issues);
+        }
+        if let Some(value) = &self.maintain_semantics {
+            value.validate_binding_at(&path.key("maintainSemantics"), issues);
+        }
+        if let Some(value) = &self.maintain_interactivity {
+            value.validate_binding_at(&path.key("maintainInteractivity"), issues);
+        }
     }
 }
 
@@ -141,6 +188,8 @@ impl StacNode for SliverVisibility {
     const KIND: NodeKind = NodeKind::Widget;
     const TYPE_NAME: &'static str = "sliverVisibility";
 }
+
+impl Plain for SliverVisibility {}
 
 impl From<SliverVisibility> for Widget {
     fn from(value: SliverVisibility) -> Self {

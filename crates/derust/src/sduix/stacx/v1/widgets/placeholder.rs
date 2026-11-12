@@ -8,18 +8,23 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
 /// A Stac model representing Flutter's \[Placeholder\] widget.
 #[derive(Debug, Clone, PartialEq)]
 pub struct Placeholder {
+    /// Properties common to every widget (`visible`, `enabled`, `bind`, `state`, `globalState`, `onInit`).
+    pub envelope: Envelope,
     /// The width to use when the placeholder has unconstrained width.
-    pub fallback_width: Option<f64>,
+    pub fallback_width: Option<Reactive<f64>>,
     /// The height to use when the placeholder has unconstrained height.
-    pub fallback_height: Option<f64>,
+    pub fallback_height: Option<Reactive<f64>>,
     /// The stroke width used to draw the placeholder borders.
-    pub stroke_width: Option<f64>,
+    pub stroke_width: Option<Reactive<f64>>,
     /// The color of the placeholder's stroke.
     pub color: Option<Dyn<String>>,
     /// Optional child to display inside the placeholder.
@@ -33,6 +38,7 @@ impl Placeholder {
     /// Creates the model with only its required fields set.
     pub fn new() -> Self {
         Self {
+            envelope: Envelope::new(),
             fallback_width: None,
             fallback_height: None,
             stroke_width: None,
@@ -42,20 +48,20 @@ impl Placeholder {
     }
 
     /// The width to use when the placeholder has unconstrained width.
-    pub fn fallback_width(mut self, value: impl Into<f64>) -> Self {
-        self.fallback_width = Some(value.into());
+    pub fn fallback_width(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.fallback_width = Some(value.into_reactive());
         self
     }
 
     /// The height to use when the placeholder has unconstrained height.
-    pub fn fallback_height(mut self, value: impl Into<f64>) -> Self {
-        self.fallback_height = Some(value.into());
+    pub fn fallback_height(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.fallback_height = Some(value.into_reactive());
         self
     }
 
     /// The stroke width used to draw the placeholder borders.
-    pub fn stroke_width(mut self, value: impl Into<f64>) -> Self {
-        self.stroke_width = Some(value.into());
+    pub fn stroke_width(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.stroke_width = Some(value.into_reactive());
         self
     }
 
@@ -70,12 +76,49 @@ impl Placeholder {
         self.child = Some(value.into());
         self
     }
+
+    /// Sets `visible` (envelope): a `bool`, a state path or an expression.
+    pub fn visible(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.visible(value);
+        self
+    }
+
+    /// Sets `enabled` (envelope): a `bool`, a state path or an expression.
+    pub fn enabled(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.enabled(value);
+        self
+    }
+
+    /// Sets `bind` (envelope): the state key the widget reads and writes.
+    pub fn bind(mut self, key: BindKey) -> Self {
+        self.envelope = self.envelope.bind(key);
+        self
+    }
+
+    /// Sets `state` (envelope): the screen state declared by this widget.
+    pub fn state(mut self, block: StateBlock) -> Self {
+        self.envelope = self.envelope.state(block);
+        self
+    }
+
+    /// Sets `globalState` (envelope): the global state declared by this widget.
+    pub fn global_state(mut self, block: GlobalStateBlock) -> Self {
+        self.envelope = self.envelope.global_state(block);
+        self
+    }
+
+    /// Sets `onInit` (envelope): action(s) run when the widget is first built.
+    pub fn on_init(mut self, on_init: impl Into<OnInit>) -> Self {
+        self.envelope = self.envelope.on_init(on_init);
+        self
+    }
 }
 
 impl Serialize for Placeholder {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         let mut map = serializer.serialize_map(None)?;
         map.serialize_entry("type", "placeholder")?;
+        self.envelope.serialize_into(&mut map)?;
         if let Some(value) = &self.fallback_width {
             map.serialize_entry("fallbackWidth", value)?;
         }
@@ -97,6 +140,7 @@ impl Serialize for Placeholder {
 
 impl Validate for Placeholder {
     fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
+        self.envelope.validate_at(path, issues);
         self.fallback_width
             .validate_at(&path.key("fallbackWidth"), issues);
         self.fallback_height
@@ -112,6 +156,8 @@ impl StacNode for Placeholder {
     const KIND: NodeKind = NodeKind::Widget;
     const TYPE_NAME: &'static str = "placeholder";
 }
+
+impl Plain for Placeholder {}
 
 impl From<Placeholder> for Widget {
     fn from(value: Placeholder) -> Self {

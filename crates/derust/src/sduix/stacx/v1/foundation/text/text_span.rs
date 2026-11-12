@@ -8,6 +8,9 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
@@ -17,9 +20,9 @@ pub struct TextSpan {
     /// The text content of this span.
     pub text: Option<Dyn<String>>,
     /// The style to apply to the text in this span.
-    pub style: Option<TextStyle>,
+    pub style: Option<Reactive<TextStyle>>,
     /// Additional text spans to include as children.
-    pub children: Option<Vec<TextSpan>>,
+    pub children: Option<Reactive<Vec<TextSpan>>>,
     /// Action to perform when this text span is tapped.
     pub on_tap: Option<Action>,
 }
@@ -42,14 +45,14 @@ impl TextSpan {
     }
 
     /// The style to apply to the text in this span.
-    pub fn style(mut self, value: impl Into<TextStyle>) -> Self {
-        self.style = Some(value.into());
+    pub fn style(mut self, value: impl IntoReactive<TextStyle>) -> Self {
+        self.style = Some(value.into_reactive());
         self
     }
 
     /// Additional text spans to include as children.
-    pub fn children(mut self, value: impl IntoIterator<Item = impl Into<TextSpan>>) -> Self {
-        self.children = Some(value.into_iter().map(Into::into).collect());
+    pub fn children(mut self, value: impl IntoReactive<Vec<TextSpan>>) -> Self {
+        self.children = Some(value.into_reactive());
         self
     }
 
@@ -87,3 +90,5 @@ impl Validate for TextSpan {
         self.on_tap.validate_at(&path.key("onTap"), issues);
     }
 }
+
+impl Plain for TextSpan {}

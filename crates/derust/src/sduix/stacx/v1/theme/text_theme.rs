@@ -8,6 +8,9 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
@@ -15,35 +18,35 @@ use serde::ser::{Serialize, SerializeMap, Serializer};
 #[derive(Debug, Clone, PartialEq)]
 pub struct TextTheme {
     /// The style for display large text.
-    pub display_large: Option<TextStyle>,
+    pub display_large: Option<Reactive<TextStyle>>,
     /// The style for display medium text.
-    pub display_medium: Option<TextStyle>,
+    pub display_medium: Option<Reactive<TextStyle>>,
     /// The style for display small text.
-    pub display_small: Option<TextStyle>,
+    pub display_small: Option<Reactive<TextStyle>>,
     /// The style for headline large text.
-    pub headline_large: Option<TextStyle>,
+    pub headline_large: Option<Reactive<TextStyle>>,
     /// The style for headline medium text.
-    pub headline_medium: Option<TextStyle>,
+    pub headline_medium: Option<Reactive<TextStyle>>,
     /// The style for headline small text.
-    pub headline_small: Option<TextStyle>,
+    pub headline_small: Option<Reactive<TextStyle>>,
     /// The style for title large text.
-    pub title_large: Option<TextStyle>,
+    pub title_large: Option<Reactive<TextStyle>>,
     /// The style for title medium text.
-    pub title_medium: Option<TextStyle>,
+    pub title_medium: Option<Reactive<TextStyle>>,
     /// The style for title small text.
-    pub title_small: Option<TextStyle>,
+    pub title_small: Option<Reactive<TextStyle>>,
     /// The style for body large text.
-    pub body_large: Option<TextStyle>,
+    pub body_large: Option<Reactive<TextStyle>>,
     /// The style for body medium text.
-    pub body_medium: Option<TextStyle>,
+    pub body_medium: Option<Reactive<TextStyle>>,
     /// The style for body small text.
-    pub body_small: Option<TextStyle>,
+    pub body_small: Option<Reactive<TextStyle>>,
     /// The style for label large text.
-    pub label_large: Option<TextStyle>,
+    pub label_large: Option<Reactive<TextStyle>>,
     /// The style for label medium text.
-    pub label_medium: Option<TextStyle>,
+    pub label_medium: Option<Reactive<TextStyle>>,
     /// The style for label small text.
-    pub label_small: Option<TextStyle>,
+    pub label_small: Option<Reactive<TextStyle>>,
 }
 
 impl TextTheme {
@@ -69,92 +72,92 @@ impl TextTheme {
     }
 
     /// The style for display large text.
-    pub fn display_large(mut self, value: impl Into<TextStyle>) -> Self {
-        self.display_large = Some(value.into());
+    pub fn display_large(mut self, value: impl IntoReactive<TextStyle>) -> Self {
+        self.display_large = Some(value.into_reactive());
         self
     }
 
     /// The style for display medium text.
-    pub fn display_medium(mut self, value: impl Into<TextStyle>) -> Self {
-        self.display_medium = Some(value.into());
+    pub fn display_medium(mut self, value: impl IntoReactive<TextStyle>) -> Self {
+        self.display_medium = Some(value.into_reactive());
         self
     }
 
     /// The style for display small text.
-    pub fn display_small(mut self, value: impl Into<TextStyle>) -> Self {
-        self.display_small = Some(value.into());
+    pub fn display_small(mut self, value: impl IntoReactive<TextStyle>) -> Self {
+        self.display_small = Some(value.into_reactive());
         self
     }
 
     /// The style for headline large text.
-    pub fn headline_large(mut self, value: impl Into<TextStyle>) -> Self {
-        self.headline_large = Some(value.into());
+    pub fn headline_large(mut self, value: impl IntoReactive<TextStyle>) -> Self {
+        self.headline_large = Some(value.into_reactive());
         self
     }
 
     /// The style for headline medium text.
-    pub fn headline_medium(mut self, value: impl Into<TextStyle>) -> Self {
-        self.headline_medium = Some(value.into());
+    pub fn headline_medium(mut self, value: impl IntoReactive<TextStyle>) -> Self {
+        self.headline_medium = Some(value.into_reactive());
         self
     }
 
     /// The style for headline small text.
-    pub fn headline_small(mut self, value: impl Into<TextStyle>) -> Self {
-        self.headline_small = Some(value.into());
+    pub fn headline_small(mut self, value: impl IntoReactive<TextStyle>) -> Self {
+        self.headline_small = Some(value.into_reactive());
         self
     }
 
     /// The style for title large text.
-    pub fn title_large(mut self, value: impl Into<TextStyle>) -> Self {
-        self.title_large = Some(value.into());
+    pub fn title_large(mut self, value: impl IntoReactive<TextStyle>) -> Self {
+        self.title_large = Some(value.into_reactive());
         self
     }
 
     /// The style for title medium text.
-    pub fn title_medium(mut self, value: impl Into<TextStyle>) -> Self {
-        self.title_medium = Some(value.into());
+    pub fn title_medium(mut self, value: impl IntoReactive<TextStyle>) -> Self {
+        self.title_medium = Some(value.into_reactive());
         self
     }
 
     /// The style for title small text.
-    pub fn title_small(mut self, value: impl Into<TextStyle>) -> Self {
-        self.title_small = Some(value.into());
+    pub fn title_small(mut self, value: impl IntoReactive<TextStyle>) -> Self {
+        self.title_small = Some(value.into_reactive());
         self
     }
 
     /// The style for body large text.
-    pub fn body_large(mut self, value: impl Into<TextStyle>) -> Self {
-        self.body_large = Some(value.into());
+    pub fn body_large(mut self, value: impl IntoReactive<TextStyle>) -> Self {
+        self.body_large = Some(value.into_reactive());
         self
     }
 
     /// The style for body medium text.
-    pub fn body_medium(mut self, value: impl Into<TextStyle>) -> Self {
-        self.body_medium = Some(value.into());
+    pub fn body_medium(mut self, value: impl IntoReactive<TextStyle>) -> Self {
+        self.body_medium = Some(value.into_reactive());
         self
     }
 
     /// The style for body small text.
-    pub fn body_small(mut self, value: impl Into<TextStyle>) -> Self {
-        self.body_small = Some(value.into());
+    pub fn body_small(mut self, value: impl IntoReactive<TextStyle>) -> Self {
+        self.body_small = Some(value.into_reactive());
         self
     }
 
     /// The style for label large text.
-    pub fn label_large(mut self, value: impl Into<TextStyle>) -> Self {
-        self.label_large = Some(value.into());
+    pub fn label_large(mut self, value: impl IntoReactive<TextStyle>) -> Self {
+        self.label_large = Some(value.into_reactive());
         self
     }
 
     /// The style for label medium text.
-    pub fn label_medium(mut self, value: impl Into<TextStyle>) -> Self {
-        self.label_medium = Some(value.into());
+    pub fn label_medium(mut self, value: impl IntoReactive<TextStyle>) -> Self {
+        self.label_medium = Some(value.into_reactive());
         self
     }
 
     /// The style for label small text.
-    pub fn label_small(mut self, value: impl Into<TextStyle>) -> Self {
-        self.label_small = Some(value.into());
+    pub fn label_small(mut self, value: impl IntoReactive<TextStyle>) -> Self {
+        self.label_small = Some(value.into_reactive());
         self
     }
 }
@@ -243,3 +246,5 @@ impl Validate for TextTheme {
             .validate_at(&path.key("labelSmall"), issues);
     }
 }
+
+impl Plain for TextTheme {}

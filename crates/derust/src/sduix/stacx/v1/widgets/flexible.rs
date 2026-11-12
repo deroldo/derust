@@ -8,16 +8,21 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
 /// A Stac model representing Flutter's \[Flexible\] widget.
 #[derive(Debug, Clone, PartialEq)]
 pub struct Flexible {
+    /// Properties common to every widget (`visible`, `enabled`, `bind`, `state`, `globalState`, `onInit`).
+    pub envelope: Envelope,
     /// The flex factor to use for this child.
-    pub flex: Option<i64>,
+    pub flex: Option<Reactive<i64>>,
     /// How this child is inscribed into the allocated space.
-    pub fit: Option<FlexFit>,
+    pub fit: Option<Reactive<FlexFit>>,
     /// The widget controlled by this \[Flexible\].
     pub child: Option<Widget>,
 }
@@ -29,6 +34,7 @@ impl Flexible {
     /// Creates the model with only its required fields set.
     pub fn new() -> Self {
         Self {
+            envelope: Envelope::new(),
             flex: None,
             fit: None,
             child: None,
@@ -36,14 +42,14 @@ impl Flexible {
     }
 
     /// The flex factor to use for this child.
-    pub fn flex(mut self, value: impl Into<i64>) -> Self {
-        self.flex = Some(value.into());
+    pub fn flex(mut self, value: impl IntoReactive<i64>) -> Self {
+        self.flex = Some(value.into_reactive());
         self
     }
 
     /// How this child is inscribed into the allocated space.
-    pub fn fit(mut self, value: impl Into<FlexFit>) -> Self {
-        self.fit = Some(value.into());
+    pub fn fit(mut self, value: impl IntoReactive<FlexFit>) -> Self {
+        self.fit = Some(value.into_reactive());
         self
     }
 
@@ -52,12 +58,49 @@ impl Flexible {
         self.child = Some(value.into());
         self
     }
+
+    /// Sets `visible` (envelope): a `bool`, a state path or an expression.
+    pub fn visible(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.visible(value);
+        self
+    }
+
+    /// Sets `enabled` (envelope): a `bool`, a state path or an expression.
+    pub fn enabled(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.enabled(value);
+        self
+    }
+
+    /// Sets `bind` (envelope): the state key the widget reads and writes.
+    pub fn bind(mut self, key: BindKey) -> Self {
+        self.envelope = self.envelope.bind(key);
+        self
+    }
+
+    /// Sets `state` (envelope): the screen state declared by this widget.
+    pub fn state(mut self, block: StateBlock) -> Self {
+        self.envelope = self.envelope.state(block);
+        self
+    }
+
+    /// Sets `globalState` (envelope): the global state declared by this widget.
+    pub fn global_state(mut self, block: GlobalStateBlock) -> Self {
+        self.envelope = self.envelope.global_state(block);
+        self
+    }
+
+    /// Sets `onInit` (envelope): action(s) run when the widget is first built.
+    pub fn on_init(mut self, on_init: impl Into<OnInit>) -> Self {
+        self.envelope = self.envelope.on_init(on_init);
+        self
+    }
 }
 
 impl Serialize for Flexible {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         let mut map = serializer.serialize_map(None)?;
         map.serialize_entry("type", "flexible")?;
+        self.envelope.serialize_into(&mut map)?;
         if let Some(value) = &self.flex {
             map.serialize_entry("flex", value)?;
         }
@@ -73,6 +116,13 @@ impl Serialize for Flexible {
 
 impl Validate for Flexible {
     fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
+        self.envelope.validate_at(path, issues);
+        if let Some(value) = &self.flex {
+            value.validate_binding_at(&path.key("flex"), issues);
+        }
+        if let Some(value) = &self.fit {
+            value.validate_binding_at(&path.key("fit"), issues);
+        }
         self.child.validate_at(&path.key("child"), issues);
     }
 }
@@ -81,6 +131,8 @@ impl StacNode for Flexible {
     const KIND: NodeKind = NodeKind::Widget;
     const TYPE_NAME: &'static str = "flexible";
 }
+
+impl Plain for Flexible {}
 
 impl From<Flexible> for Widget {
     fn from(value: Flexible) -> Self {

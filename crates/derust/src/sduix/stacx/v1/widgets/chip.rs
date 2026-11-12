@@ -8,20 +8,25 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
 /// A Stac model representing Flutter's \[Chip\] widget.
 #[derive(Debug, Clone, PartialEq)]
 pub struct Chip {
+    /// Properties common to every widget (`visible`, `enabled`, `bind`, `state`, `globalState`, `onInit`).
+    pub envelope: Envelope,
     /// Optional leading avatar widget.
     pub avatar: Option<Widget>,
     /// The primary label widget.
     pub label: Widget,
     /// Text style for the label.
-    pub label_style: Option<TextStyle>,
+    pub label_style: Option<Reactive<TextStyle>>,
     /// Padding around the label.
-    pub label_padding: Option<EdgeInsets>,
+    pub label_padding: Option<Reactive<EdgeInsets>>,
     /// Optional delete icon widget.
     pub delete_icon: Option<Widget>,
     /// Action to perform when the chip's delete button is pressed.
@@ -31,33 +36,33 @@ pub struct Chip {
     /// Tooltip for the delete button.
     pub delete_button_tooltip_message: Option<Dyn<String>>,
     /// Border side of the chip.
-    pub side: Option<BorderSide>,
+    pub side: Option<Reactive<BorderSide>>,
     /// Shape of the chip.
-    pub shape: Option<ShapeBorder>,
+    pub shape: Option<Reactive<ShapeBorder>>,
     /// How to clip the content.
-    pub clip_behavior: Option<Clip>,
+    pub clip_behavior: Option<Reactive<Clip>>,
     /// Whether this widget should focus itself if nothing else is focused.
-    pub autofocus: Option<bool>,
+    pub autofocus: Option<Reactive<bool>>,
     /// Foreground color for the chip's content.
     pub color: Option<Dyn<String>>,
     /// Background color of the chip.
     pub background_color: Option<Dyn<String>>,
     /// Inner padding for the chip's content.
-    pub padding: Option<EdgeInsets>,
+    pub padding: Option<Reactive<EdgeInsets>>,
     /// Visual density configuration.
-    pub visual_density: Option<VisualDensity>,
+    pub visual_density: Option<Reactive<VisualDensity>>,
     /// Tap target size configuration.
-    pub material_tap_target_size: Option<MaterialTapTargetSize>,
+    pub material_tap_target_size: Option<Reactive<MaterialTapTargetSize>>,
     /// Elevation of the chip.
-    pub elevation: Option<f64>,
+    pub elevation: Option<Reactive<f64>>,
     /// Shadow color for the chip.
     pub shadow_color: Option<Dyn<String>>,
     /// Surface tint color for the chip.
     pub surface_tint_color: Option<Dyn<String>>,
     /// Constraints for the avatar widget.
-    pub avatar_box_constraints: Option<BoxConstraints>,
+    pub avatar_box_constraints: Option<Reactive<BoxConstraints>>,
     /// Constraints for the delete icon widget.
-    pub delete_icon_box_constraints: Option<BoxConstraints>,
+    pub delete_icon_box_constraints: Option<Reactive<BoxConstraints>>,
 }
 
 impl Chip {
@@ -67,6 +72,7 @@ impl Chip {
     /// Creates the model with only its required fields set.
     pub fn new(label: impl Into<Widget>) -> Self {
         Self {
+            envelope: Envelope::new(),
             avatar: None,
             label: label.into(),
             label_style: None,
@@ -105,14 +111,14 @@ impl Chip {
     }
 
     /// Text style for the label.
-    pub fn label_style(mut self, value: impl Into<TextStyle>) -> Self {
-        self.label_style = Some(value.into());
+    pub fn label_style(mut self, value: impl IntoReactive<TextStyle>) -> Self {
+        self.label_style = Some(value.into_reactive());
         self
     }
 
     /// Padding around the label.
-    pub fn label_padding(mut self, value: impl Into<EdgeInsets>) -> Self {
-        self.label_padding = Some(value.into());
+    pub fn label_padding(mut self, value: impl IntoReactive<EdgeInsets>) -> Self {
+        self.label_padding = Some(value.into_reactive());
         self
     }
 
@@ -141,26 +147,26 @@ impl Chip {
     }
 
     /// Border side of the chip.
-    pub fn side(mut self, value: impl Into<BorderSide>) -> Self {
-        self.side = Some(value.into());
+    pub fn side(mut self, value: impl IntoReactive<BorderSide>) -> Self {
+        self.side = Some(value.into_reactive());
         self
     }
 
     /// Shape of the chip.
-    pub fn shape(mut self, value: impl Into<ShapeBorder>) -> Self {
-        self.shape = Some(value.into());
+    pub fn shape(mut self, value: impl IntoReactive<ShapeBorder>) -> Self {
+        self.shape = Some(value.into_reactive());
         self
     }
 
     /// How to clip the content.
-    pub fn clip_behavior(mut self, value: impl Into<Clip>) -> Self {
-        self.clip_behavior = Some(value.into());
+    pub fn clip_behavior(mut self, value: impl IntoReactive<Clip>) -> Self {
+        self.clip_behavior = Some(value.into_reactive());
         self
     }
 
     /// Whether this widget should focus itself if nothing else is focused.
-    pub fn autofocus(mut self, value: bool) -> Self {
-        self.autofocus = Some(value);
+    pub fn autofocus(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.autofocus = Some(value.into_reactive());
         self
     }
 
@@ -177,26 +183,29 @@ impl Chip {
     }
 
     /// Inner padding for the chip's content.
-    pub fn padding(mut self, value: impl Into<EdgeInsets>) -> Self {
-        self.padding = Some(value.into());
+    pub fn padding(mut self, value: impl IntoReactive<EdgeInsets>) -> Self {
+        self.padding = Some(value.into_reactive());
         self
     }
 
     /// Visual density configuration.
-    pub fn visual_density(mut self, value: impl Into<VisualDensity>) -> Self {
-        self.visual_density = Some(value.into());
+    pub fn visual_density(mut self, value: impl IntoReactive<VisualDensity>) -> Self {
+        self.visual_density = Some(value.into_reactive());
         self
     }
 
     /// Tap target size configuration.
-    pub fn material_tap_target_size(mut self, value: impl Into<MaterialTapTargetSize>) -> Self {
-        self.material_tap_target_size = Some(value.into());
+    pub fn material_tap_target_size(
+        mut self,
+        value: impl IntoReactive<MaterialTapTargetSize>,
+    ) -> Self {
+        self.material_tap_target_size = Some(value.into_reactive());
         self
     }
 
     /// Elevation of the chip.
-    pub fn elevation(mut self, value: impl Into<f64>) -> Self {
-        self.elevation = Some(value.into());
+    pub fn elevation(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.elevation = Some(value.into_reactive());
         self
     }
 
@@ -213,14 +222,50 @@ impl Chip {
     }
 
     /// Constraints for the avatar widget.
-    pub fn avatar_box_constraints(mut self, value: impl Into<BoxConstraints>) -> Self {
-        self.avatar_box_constraints = Some(value.into());
+    pub fn avatar_box_constraints(mut self, value: impl IntoReactive<BoxConstraints>) -> Self {
+        self.avatar_box_constraints = Some(value.into_reactive());
         self
     }
 
     /// Constraints for the delete icon widget.
-    pub fn delete_icon_box_constraints(mut self, value: impl Into<BoxConstraints>) -> Self {
-        self.delete_icon_box_constraints = Some(value.into());
+    pub fn delete_icon_box_constraints(mut self, value: impl IntoReactive<BoxConstraints>) -> Self {
+        self.delete_icon_box_constraints = Some(value.into_reactive());
+        self
+    }
+
+    /// Sets `visible` (envelope): a `bool`, a state path or an expression.
+    pub fn visible(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.visible(value);
+        self
+    }
+
+    /// Sets `enabled` (envelope): a `bool`, a state path or an expression.
+    pub fn enabled(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.enabled(value);
+        self
+    }
+
+    /// Sets `bind` (envelope): the state key the widget reads and writes.
+    pub fn bind(mut self, key: BindKey) -> Self {
+        self.envelope = self.envelope.bind(key);
+        self
+    }
+
+    /// Sets `state` (envelope): the screen state declared by this widget.
+    pub fn state(mut self, block: StateBlock) -> Self {
+        self.envelope = self.envelope.state(block);
+        self
+    }
+
+    /// Sets `globalState` (envelope): the global state declared by this widget.
+    pub fn global_state(mut self, block: GlobalStateBlock) -> Self {
+        self.envelope = self.envelope.global_state(block);
+        self
+    }
+
+    /// Sets `onInit` (envelope): action(s) run when the widget is first built.
+    pub fn on_init(mut self, on_init: impl Into<OnInit>) -> Self {
+        self.envelope = self.envelope.on_init(on_init);
         self
     }
 }
@@ -229,6 +274,7 @@ impl Serialize for Chip {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         let mut map = serializer.serialize_map(None)?;
         map.serialize_entry("type", "chip")?;
+        self.envelope.serialize_into(&mut map)?;
         if let Some(value) = &self.avatar {
             map.serialize_entry("avatar", value)?;
         }
@@ -299,6 +345,7 @@ impl Serialize for Chip {
 
 impl Validate for Chip {
     fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
+        self.envelope.validate_at(path, issues);
         self.avatar.validate_at(&path.key("avatar"), issues);
         self.label.validate_at(&path.key("label"), issues);
         self.label_style
@@ -314,12 +361,21 @@ impl Validate for Chip {
             .validate_at(&path.key("deleteButtonTooltipMessage"), issues);
         self.side.validate_at(&path.key("side"), issues);
         self.shape.validate_at(&path.key("shape"), issues);
+        if let Some(value) = &self.clip_behavior {
+            value.validate_binding_at(&path.key("clipBehavior"), issues);
+        }
+        if let Some(value) = &self.autofocus {
+            value.validate_binding_at(&path.key("autofocus"), issues);
+        }
         self.color.validate_at(&path.key("color"), issues);
         self.background_color
             .validate_at(&path.key("backgroundColor"), issues);
         self.padding.validate_at(&path.key("padding"), issues);
         self.visual_density
             .validate_at(&path.key("visualDensity"), issues);
+        if let Some(value) = &self.material_tap_target_size {
+            value.validate_binding_at(&path.key("materialTapTargetSize"), issues);
+        }
         self.elevation.validate_at(&path.key("elevation"), issues);
         self.shadow_color
             .validate_at(&path.key("shadowColor"), issues);
@@ -336,6 +392,8 @@ impl StacNode for Chip {
     const KIND: NodeKind = NodeKind::Widget;
     const TYPE_NAME: &'static str = "chip";
 }
+
+impl Plain for Chip {}
 
 impl From<Chip> for Widget {
     fn from(value: Chip) -> Self {

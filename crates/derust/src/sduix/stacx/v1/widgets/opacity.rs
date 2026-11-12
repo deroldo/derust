@@ -8,16 +8,21 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
 /// A Stac model representing Flutter's \[Opacity\] widget.
 #[derive(Debug, Clone, PartialEq)]
 pub struct Opacity {
+    /// Properties common to every widget (`visible`, `enabled`, `bind`, `state`, `globalState`, `onInit`).
+    pub envelope: Envelope,
     /// The fraction to scale the child's alpha value. An opacity of 1.0 is fully opaque. An opacity of 0.0 is fully transparent.
-    pub opacity: f64,
+    pub opacity: Reactive<f64>,
     /// Whether to include the opacity widget in the semantics tree. Defaults to false.
-    pub always_include_semantics: Option<bool>,
+    pub always_include_semantics: Option<Reactive<bool>>,
     /// The widget below this widget in the tree.
     pub child: Option<Widget>,
 }
@@ -27,23 +32,24 @@ impl Opacity {
     pub const TYPE: &'static str = "opacity";
 
     /// Creates the model with only its required fields set.
-    pub fn new(opacity: impl Into<f64>) -> Self {
+    pub fn new(opacity: impl IntoReactive<f64>) -> Self {
         Self {
-            opacity: opacity.into(),
+            envelope: Envelope::new(),
+            opacity: opacity.into_reactive(),
             always_include_semantics: None,
             child: None,
         }
     }
 
     /// The fraction to scale the child's alpha value. An opacity of 1.0 is fully opaque. An opacity of 0.0 is fully transparent.
-    pub fn opacity(mut self, value: impl Into<f64>) -> Self {
-        self.opacity = value.into();
+    pub fn opacity(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.opacity = value.into_reactive();
         self
     }
 
     /// Whether to include the opacity widget in the semantics tree. Defaults to false.
-    pub fn always_include_semantics(mut self, value: bool) -> Self {
-        self.always_include_semantics = Some(value);
+    pub fn always_include_semantics(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.always_include_semantics = Some(value.into_reactive());
         self
     }
 
@@ -52,12 +58,49 @@ impl Opacity {
         self.child = Some(value.into());
         self
     }
+
+    /// Sets `visible` (envelope): a `bool`, a state path or an expression.
+    pub fn visible(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.visible(value);
+        self
+    }
+
+    /// Sets `enabled` (envelope): a `bool`, a state path or an expression.
+    pub fn enabled(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.enabled(value);
+        self
+    }
+
+    /// Sets `bind` (envelope): the state key the widget reads and writes.
+    pub fn bind(mut self, key: BindKey) -> Self {
+        self.envelope = self.envelope.bind(key);
+        self
+    }
+
+    /// Sets `state` (envelope): the screen state declared by this widget.
+    pub fn state(mut self, block: StateBlock) -> Self {
+        self.envelope = self.envelope.state(block);
+        self
+    }
+
+    /// Sets `globalState` (envelope): the global state declared by this widget.
+    pub fn global_state(mut self, block: GlobalStateBlock) -> Self {
+        self.envelope = self.envelope.global_state(block);
+        self
+    }
+
+    /// Sets `onInit` (envelope): action(s) run when the widget is first built.
+    pub fn on_init(mut self, on_init: impl Into<OnInit>) -> Self {
+        self.envelope = self.envelope.on_init(on_init);
+        self
+    }
 }
 
 impl Serialize for Opacity {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         let mut map = serializer.serialize_map(None)?;
         map.serialize_entry("type", "opacity")?;
+        self.envelope.serialize_into(&mut map)?;
         map.serialize_entry("opacity", &self.opacity)?;
         if let Some(value) = &self.always_include_semantics {
             map.serialize_entry("alwaysIncludeSemantics", value)?;
@@ -71,7 +114,11 @@ impl Serialize for Opacity {
 
 impl Validate for Opacity {
     fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
+        self.envelope.validate_at(path, issues);
         self.opacity.validate_at(&path.key("opacity"), issues);
+        if let Some(value) = &self.always_include_semantics {
+            value.validate_binding_at(&path.key("alwaysIncludeSemantics"), issues);
+        }
         self.child.validate_at(&path.key("child"), issues);
     }
 }
@@ -80,6 +127,8 @@ impl StacNode for Opacity {
     const KIND: NodeKind = NodeKind::Widget;
     const TYPE_NAME: &'static str = "opacity";
 }
+
+impl Plain for Opacity {}
 
 impl From<Opacity> for Widget {
     fn from(value: Opacity) -> Self {

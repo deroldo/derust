@@ -8,12 +8,17 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
 /// A Stac widget that implements the basic material design visual layout structure.
 #[derive(Debug, Clone, PartialEq)]
 pub struct Scaffold {
+    /// Properties common to every widget (`visible`, `enabled`, `bind`, `state`, `globalState`, `onInit`).
+    pub envelope: Envelope,
     /// An app bar to display at the top of the scaffold.
     pub app_bar: Option<Widget>,
     /// The background color of the scaffold.
@@ -27,37 +32,37 @@ pub struct Scaffold {
     /// A panel displayed to the side of the body, often hidden on mobile.
     pub drawer: Option<Widget>,
     /// Determines the way that drag start behavior is handled for the drawer.
-    pub drawer_drag_start_behavior: Option<DragStartBehavior>,
+    pub drawer_drag_start_behavior: Option<Reactive<DragStartBehavior>>,
     /// The width of the area within which a horizontal swipe will open the drawer.
-    pub drawer_edge_drag_width: Option<f64>,
+    pub drawer_edge_drag_width: Option<Reactive<f64>>,
     /// Whether the drawer can be opened with a drag gesture.
-    pub drawer_enable_open_drag_gesture: Option<bool>,
+    pub drawer_enable_open_drag_gesture: Option<Reactive<bool>>,
     /// The color to use for the scrim that obscures primary content while a drawer is open.
     pub drawer_scrim_color: Option<Dyn<String>>,
     /// A panel displayed to the side of the body, typically on the right.
     pub end_drawer: Option<Widget>,
     /// Whether the end drawer can be opened with a drag gesture.
-    pub end_drawer_enable_open_drag_gesture: Option<bool>,
+    pub end_drawer_enable_open_drag_gesture: Option<Reactive<bool>>,
     /// Whether the body should extend to the bottom of the scaffold.
-    pub extend_body: Option<bool>,
+    pub extend_body: Option<Reactive<bool>>,
     /// Whether the body should extend behind the app bar.
-    pub extend_body_behind_app_bar: Option<bool>,
+    pub extend_body_behind_app_bar: Option<Reactive<bool>>,
     /// A floating action button to display.
     pub floating_action_button: Option<Widget>,
     /// Where to position the floating action button.
-    pub floating_action_button_location: Option<FloatingActionButtonLocation>,
+    pub floating_action_button_location: Option<Reactive<FloatingActionButtonLocation>>,
     /// Action called when the drawer is opened or closed.
     pub on_drawer_changed: Option<Action>,
     /// Action called when the end drawer is opened or closed.
     pub on_end_drawer_changed: Option<Action>,
     /// The alignment of the persistent footer buttons.
-    pub persistent_footer_alignment: Option<AlignmentDirectional>,
+    pub persistent_footer_alignment: Option<Reactive<AlignmentDirectional>>,
     /// A list of buttons to display in a row below the body.
     pub persistent_footer_buttons: Option<Vec<Widget>>,
     /// Whether this scaffold is being displayed at the top of the screen.
-    pub primary: Option<bool>,
+    pub primary: Option<Reactive<bool>>,
     /// Whether the body should size itself to avoid the window's bottom inset.
-    pub resize_to_avoid_bottom_inset: Option<bool>,
+    pub resize_to_avoid_bottom_inset: Option<Reactive<bool>>,
     /// Restoration ID to save and restore the state of the scaffold.
     pub restoration_id: Option<Dyn<String>>,
 }
@@ -69,6 +74,7 @@ impl Scaffold {
     /// Creates the model with only its required fields set.
     pub fn new() -> Self {
         Self {
+            envelope: Envelope::new(),
             app_bar: None,
             background_color: None,
             body: None,
@@ -132,20 +138,23 @@ impl Scaffold {
     }
 
     /// Determines the way that drag start behavior is handled for the drawer.
-    pub fn drawer_drag_start_behavior(mut self, value: impl Into<DragStartBehavior>) -> Self {
-        self.drawer_drag_start_behavior = Some(value.into());
+    pub fn drawer_drag_start_behavior(
+        mut self,
+        value: impl IntoReactive<DragStartBehavior>,
+    ) -> Self {
+        self.drawer_drag_start_behavior = Some(value.into_reactive());
         self
     }
 
     /// The width of the area within which a horizontal swipe will open the drawer.
-    pub fn drawer_edge_drag_width(mut self, value: impl Into<f64>) -> Self {
-        self.drawer_edge_drag_width = Some(value.into());
+    pub fn drawer_edge_drag_width(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.drawer_edge_drag_width = Some(value.into_reactive());
         self
     }
 
     /// Whether the drawer can be opened with a drag gesture.
-    pub fn drawer_enable_open_drag_gesture(mut self, value: bool) -> Self {
-        self.drawer_enable_open_drag_gesture = Some(value);
+    pub fn drawer_enable_open_drag_gesture(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.drawer_enable_open_drag_gesture = Some(value.into_reactive());
         self
     }
 
@@ -162,20 +171,20 @@ impl Scaffold {
     }
 
     /// Whether the end drawer can be opened with a drag gesture.
-    pub fn end_drawer_enable_open_drag_gesture(mut self, value: bool) -> Self {
-        self.end_drawer_enable_open_drag_gesture = Some(value);
+    pub fn end_drawer_enable_open_drag_gesture(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.end_drawer_enable_open_drag_gesture = Some(value.into_reactive());
         self
     }
 
     /// Whether the body should extend to the bottom of the scaffold.
-    pub fn extend_body(mut self, value: bool) -> Self {
-        self.extend_body = Some(value);
+    pub fn extend_body(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.extend_body = Some(value.into_reactive());
         self
     }
 
     /// Whether the body should extend behind the app bar.
-    pub fn extend_body_behind_app_bar(mut self, value: bool) -> Self {
-        self.extend_body_behind_app_bar = Some(value);
+    pub fn extend_body_behind_app_bar(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.extend_body_behind_app_bar = Some(value.into_reactive());
         self
     }
 
@@ -188,9 +197,9 @@ impl Scaffold {
     /// Where to position the floating action button.
     pub fn floating_action_button_location(
         mut self,
-        value: impl Into<FloatingActionButtonLocation>,
+        value: impl IntoReactive<FloatingActionButtonLocation>,
     ) -> Self {
-        self.floating_action_button_location = Some(value.into());
+        self.floating_action_button_location = Some(value.into_reactive());
         self
     }
 
@@ -207,8 +216,11 @@ impl Scaffold {
     }
 
     /// The alignment of the persistent footer buttons.
-    pub fn persistent_footer_alignment(mut self, value: impl Into<AlignmentDirectional>) -> Self {
-        self.persistent_footer_alignment = Some(value.into());
+    pub fn persistent_footer_alignment(
+        mut self,
+        value: impl IntoReactive<AlignmentDirectional>,
+    ) -> Self {
+        self.persistent_footer_alignment = Some(value.into_reactive());
         self
     }
 
@@ -222,14 +234,14 @@ impl Scaffold {
     }
 
     /// Whether this scaffold is being displayed at the top of the screen.
-    pub fn primary(mut self, value: bool) -> Self {
-        self.primary = Some(value);
+    pub fn primary(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.primary = Some(value.into_reactive());
         self
     }
 
     /// Whether the body should size itself to avoid the window's bottom inset.
-    pub fn resize_to_avoid_bottom_inset(mut self, value: bool) -> Self {
-        self.resize_to_avoid_bottom_inset = Some(value);
+    pub fn resize_to_avoid_bottom_inset(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.resize_to_avoid_bottom_inset = Some(value.into_reactive());
         self
     }
 
@@ -238,12 +250,49 @@ impl Scaffold {
         self.restoration_id = Some(value.into());
         self
     }
+
+    /// Sets `visible` (envelope): a `bool`, a state path or an expression.
+    pub fn visible(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.visible(value);
+        self
+    }
+
+    /// Sets `enabled` (envelope): a `bool`, a state path or an expression.
+    pub fn enabled(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.enabled(value);
+        self
+    }
+
+    /// Sets `bind` (envelope): the state key the widget reads and writes.
+    pub fn bind(mut self, key: BindKey) -> Self {
+        self.envelope = self.envelope.bind(key);
+        self
+    }
+
+    /// Sets `state` (envelope): the screen state declared by this widget.
+    pub fn state(mut self, block: StateBlock) -> Self {
+        self.envelope = self.envelope.state(block);
+        self
+    }
+
+    /// Sets `globalState` (envelope): the global state declared by this widget.
+    pub fn global_state(mut self, block: GlobalStateBlock) -> Self {
+        self.envelope = self.envelope.global_state(block);
+        self
+    }
+
+    /// Sets `onInit` (envelope): action(s) run when the widget is first built.
+    pub fn on_init(mut self, on_init: impl Into<OnInit>) -> Self {
+        self.envelope = self.envelope.on_init(on_init);
+        self
+    }
 }
 
 impl Serialize for Scaffold {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         let mut map = serializer.serialize_map(None)?;
         map.serialize_entry("type", "scaffold")?;
+        self.envelope.serialize_into(&mut map)?;
         if let Some(value) = &self.app_bar {
             map.serialize_entry("appBar", value)?;
         }
@@ -319,6 +368,7 @@ impl Serialize for Scaffold {
 
 impl Validate for Scaffold {
     fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
+        self.envelope.validate_at(path, issues);
         self.app_bar.validate_at(&path.key("appBar"), issues);
         self.background_color
             .validate_at(&path.key("backgroundColor"), issues);
@@ -328,19 +378,46 @@ impl Validate for Scaffold {
         self.bottom_sheet
             .validate_at(&path.key("bottomSheet"), issues);
         self.drawer.validate_at(&path.key("drawer"), issues);
+        if let Some(value) = &self.drawer_drag_start_behavior {
+            value.validate_binding_at(&path.key("drawerDragStartBehavior"), issues);
+        }
         self.drawer_edge_drag_width
             .validate_at(&path.key("drawerEdgeDragWidth"), issues);
+        if let Some(value) = &self.drawer_enable_open_drag_gesture {
+            value.validate_binding_at(&path.key("drawerEnableOpenDragGesture"), issues);
+        }
         self.drawer_scrim_color
             .validate_at(&path.key("drawerScrimColor"), issues);
         self.end_drawer.validate_at(&path.key("endDrawer"), issues);
+        if let Some(value) = &self.end_drawer_enable_open_drag_gesture {
+            value.validate_binding_at(&path.key("endDrawerEnableOpenDragGesture"), issues);
+        }
+        if let Some(value) = &self.extend_body {
+            value.validate_binding_at(&path.key("extendBody"), issues);
+        }
+        if let Some(value) = &self.extend_body_behind_app_bar {
+            value.validate_binding_at(&path.key("extendBodyBehindAppBar"), issues);
+        }
         self.floating_action_button
             .validate_at(&path.key("floatingActionButton"), issues);
+        if let Some(value) = &self.floating_action_button_location {
+            value.validate_binding_at(&path.key("floatingActionButtonLocation"), issues);
+        }
         self.on_drawer_changed
             .validate_at(&path.key("onDrawerChanged"), issues);
         self.on_end_drawer_changed
             .validate_at(&path.key("onEndDrawerChanged"), issues);
+        if let Some(value) = &self.persistent_footer_alignment {
+            value.validate_binding_at(&path.key("persistentFooterAlignment"), issues);
+        }
         self.persistent_footer_buttons
             .validate_at(&path.key("persistentFooterButtons"), issues);
+        if let Some(value) = &self.primary {
+            value.validate_binding_at(&path.key("primary"), issues);
+        }
+        if let Some(value) = &self.resize_to_avoid_bottom_inset {
+            value.validate_binding_at(&path.key("resizeToAvoidBottomInset"), issues);
+        }
         self.restoration_id
             .validate_at(&path.key("restorationId"), issues);
     }
@@ -350,6 +427,8 @@ impl StacNode for Scaffold {
     const KIND: NodeKind = NodeKind::Widget;
     const TYPE_NAME: &'static str = "scaffold";
 }
+
+impl Plain for Scaffold {}
 
 impl From<Scaffold> for Widget {
     fn from(value: Scaffold) -> Self {

@@ -8,16 +8,21 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
 /// A Stac model representing Flutter's \[IntrinsicWidth\] widget.
 #[derive(Debug, Clone, PartialEq)]
 pub struct IntrinsicWidth {
+    /// Properties common to every widget (`visible`, `enabled`, `bind`, `state`, `globalState`, `onInit`).
+    pub envelope: Envelope,
     /// If non-null, force the child's width to be a multiple of this value.
-    pub step_width: Option<f64>,
+    pub step_width: Option<Reactive<f64>>,
     /// If non-null, force the child's height to be a multiple of this value.
-    pub step_height: Option<f64>,
+    pub step_height: Option<Reactive<f64>>,
     /// The widget below this widget in the tree.
     pub child: Option<Widget>,
 }
@@ -29,6 +34,7 @@ impl IntrinsicWidth {
     /// Creates the model with only its required fields set.
     pub fn new() -> Self {
         Self {
+            envelope: Envelope::new(),
             step_width: None,
             step_height: None,
             child: None,
@@ -36,14 +42,14 @@ impl IntrinsicWidth {
     }
 
     /// If non-null, force the child's width to be a multiple of this value.
-    pub fn step_width(mut self, value: impl Into<f64>) -> Self {
-        self.step_width = Some(value.into());
+    pub fn step_width(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.step_width = Some(value.into_reactive());
         self
     }
 
     /// If non-null, force the child's height to be a multiple of this value.
-    pub fn step_height(mut self, value: impl Into<f64>) -> Self {
-        self.step_height = Some(value.into());
+    pub fn step_height(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.step_height = Some(value.into_reactive());
         self
     }
 
@@ -52,12 +58,49 @@ impl IntrinsicWidth {
         self.child = Some(value.into());
         self
     }
+
+    /// Sets `visible` (envelope): a `bool`, a state path or an expression.
+    pub fn visible(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.visible(value);
+        self
+    }
+
+    /// Sets `enabled` (envelope): a `bool`, a state path or an expression.
+    pub fn enabled(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.enabled(value);
+        self
+    }
+
+    /// Sets `bind` (envelope): the state key the widget reads and writes.
+    pub fn bind(mut self, key: BindKey) -> Self {
+        self.envelope = self.envelope.bind(key);
+        self
+    }
+
+    /// Sets `state` (envelope): the screen state declared by this widget.
+    pub fn state(mut self, block: StateBlock) -> Self {
+        self.envelope = self.envelope.state(block);
+        self
+    }
+
+    /// Sets `globalState` (envelope): the global state declared by this widget.
+    pub fn global_state(mut self, block: GlobalStateBlock) -> Self {
+        self.envelope = self.envelope.global_state(block);
+        self
+    }
+
+    /// Sets `onInit` (envelope): action(s) run when the widget is first built.
+    pub fn on_init(mut self, on_init: impl Into<OnInit>) -> Self {
+        self.envelope = self.envelope.on_init(on_init);
+        self
+    }
 }
 
 impl Serialize for IntrinsicWidth {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         let mut map = serializer.serialize_map(None)?;
         map.serialize_entry("type", "intrinsicWidth")?;
+        self.envelope.serialize_into(&mut map)?;
         if let Some(value) = &self.step_width {
             map.serialize_entry("stepWidth", value)?;
         }
@@ -73,6 +116,7 @@ impl Serialize for IntrinsicWidth {
 
 impl Validate for IntrinsicWidth {
     fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
+        self.envelope.validate_at(path, issues);
         self.step_width.validate_at(&path.key("stepWidth"), issues);
         self.step_height
             .validate_at(&path.key("stepHeight"), issues);
@@ -84,6 +128,8 @@ impl StacNode for IntrinsicWidth {
     const KIND: NodeKind = NodeKind::Widget;
     const TYPE_NAME: &'static str = "intrinsicWidth";
 }
+
+impl Plain for IntrinsicWidth {}
 
 impl From<IntrinsicWidth> for Widget {
     fn from(value: IntrinsicWidth) -> Self {

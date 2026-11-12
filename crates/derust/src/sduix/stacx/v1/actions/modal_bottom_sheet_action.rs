@@ -8,16 +8,21 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
 /// Core model for the "showModalBottomSheet" action.
 #[derive(Debug, Clone, PartialEq)]
 pub struct ModalBottomSheetAction {
+    /// Run the action only when this is true (state path or expression).
+    pub condition: Option<Reactive<bool>>,
     /// Content widget to display inside the bottom sheet.
     pub widget: Option<Widget>,
     /// Network request to fetch widget content.
-    pub request: Option<Box<NetworkRequest>>,
+    pub request: Option<Reactive<Box<NetworkRequest>>>,
     /// Path to a local asset JSON for the widget.
     pub asset_path: Option<Dyn<String>>,
     /// Background color hex for the sheet.
@@ -25,25 +30,25 @@ pub struct ModalBottomSheetAction {
     /// Semantics label for the modal barrier.
     pub barrier_label: Option<Dyn<String>>,
     /// Elevation of the bottom sheet.
-    pub elevation: Option<f64>,
+    pub elevation: Option<Reactive<f64>>,
     /// Shape border of the bottom sheet.
-    pub shape: Option<Box<Border>>,
+    pub shape: Option<Reactive<Box<Border>>>,
     /// Box constraints applied to the sheet.
-    pub constraints: Option<BoxConstraints>,
+    pub constraints: Option<Reactive<BoxConstraints>>,
     /// Barrier color hex behind the sheet.
     pub barrier_color: Option<Dyn<String>>,
     /// Whether the sheet can take full height when scrolled.
-    pub is_scroll_controlled: Option<bool>,
+    pub is_scroll_controlled: Option<Reactive<bool>>,
     /// Whether to use the root navigator.
-    pub use_root_navigator: Option<bool>,
+    pub use_root_navigator: Option<Reactive<bool>>,
     /// Whether the sheet is dismissible by tapping the barrier.
-    pub is_dismissible: Option<bool>,
+    pub is_dismissible: Option<Reactive<bool>>,
     /// Whether the sheet is draggable.
-    pub enable_drag: Option<bool>,
+    pub enable_drag: Option<Reactive<bool>>,
     /// Whether to show the drag handle.
-    pub show_drag_handle: Option<bool>,
+    pub show_drag_handle: Option<Reactive<bool>>,
     /// Whether to respect the safe area.
-    pub use_safe_area: Option<bool>,
+    pub use_safe_area: Option<Reactive<bool>>,
 }
 
 impl ModalBottomSheetAction {
@@ -53,6 +58,7 @@ impl ModalBottomSheetAction {
     /// Creates the model with only its required fields set.
     pub fn new() -> Self {
         Self {
+            condition: None,
             widget: None,
             request: None,
             asset_path: None,
@@ -71,6 +77,12 @@ impl ModalBottomSheetAction {
         }
     }
 
+    /// Run the action only when this is true (state path or expression).
+    pub fn condition(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.condition = Some(value.into_reactive());
+        self
+    }
+
     /// Content widget to display inside the bottom sheet.
     pub fn widget(mut self, value: impl Into<Widget>) -> Self {
         self.widget = Some(value.into());
@@ -78,8 +90,8 @@ impl ModalBottomSheetAction {
     }
 
     /// Network request to fetch widget content.
-    pub fn request(mut self, value: impl Into<NetworkRequest>) -> Self {
-        self.request = Some(Box::new(value.into()));
+    pub fn request(mut self, value: impl IntoReactive<NetworkRequest>) -> Self {
+        self.request = Some(value.into_reactive().boxed());
         self
     }
 
@@ -102,20 +114,20 @@ impl ModalBottomSheetAction {
     }
 
     /// Elevation of the bottom sheet.
-    pub fn elevation(mut self, value: impl Into<f64>) -> Self {
-        self.elevation = Some(value.into());
+    pub fn elevation(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.elevation = Some(value.into_reactive());
         self
     }
 
     /// Shape border of the bottom sheet.
-    pub fn shape(mut self, value: impl Into<Border>) -> Self {
-        self.shape = Some(Box::new(value.into()));
+    pub fn shape(mut self, value: impl IntoReactive<Border>) -> Self {
+        self.shape = Some(value.into_reactive().boxed());
         self
     }
 
     /// Box constraints applied to the sheet.
-    pub fn constraints(mut self, value: impl Into<BoxConstraints>) -> Self {
-        self.constraints = Some(value.into());
+    pub fn constraints(mut self, value: impl IntoReactive<BoxConstraints>) -> Self {
+        self.constraints = Some(value.into_reactive());
         self
     }
 
@@ -126,38 +138,38 @@ impl ModalBottomSheetAction {
     }
 
     /// Whether the sheet can take full height when scrolled.
-    pub fn is_scroll_controlled(mut self, value: bool) -> Self {
-        self.is_scroll_controlled = Some(value);
+    pub fn is_scroll_controlled(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.is_scroll_controlled = Some(value.into_reactive());
         self
     }
 
     /// Whether to use the root navigator.
-    pub fn use_root_navigator(mut self, value: bool) -> Self {
-        self.use_root_navigator = Some(value);
+    pub fn use_root_navigator(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.use_root_navigator = Some(value.into_reactive());
         self
     }
 
     /// Whether the sheet is dismissible by tapping the barrier.
-    pub fn is_dismissible(mut self, value: bool) -> Self {
-        self.is_dismissible = Some(value);
+    pub fn is_dismissible(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.is_dismissible = Some(value.into_reactive());
         self
     }
 
     /// Whether the sheet is draggable.
-    pub fn enable_drag(mut self, value: bool) -> Self {
-        self.enable_drag = Some(value);
+    pub fn enable_drag(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.enable_drag = Some(value.into_reactive());
         self
     }
 
     /// Whether to show the drag handle.
-    pub fn show_drag_handle(mut self, value: bool) -> Self {
-        self.show_drag_handle = Some(value);
+    pub fn show_drag_handle(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.show_drag_handle = Some(value.into_reactive());
         self
     }
 
     /// Whether to respect the safe area.
-    pub fn use_safe_area(mut self, value: bool) -> Self {
-        self.use_safe_area = Some(value);
+    pub fn use_safe_area(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.use_safe_area = Some(value.into_reactive());
         self
     }
 }
@@ -166,6 +178,9 @@ impl Serialize for ModalBottomSheetAction {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         let mut map = serializer.serialize_map(None)?;
         map.serialize_entry("actionType", "showModalBottomSheet")?;
+        if let Some(value) = &self.condition {
+            map.serialize_entry("condition", value)?;
+        }
         if let Some(value) = &self.widget {
             map.serialize_entry("widget", value)?;
         }
@@ -217,6 +232,7 @@ impl Serialize for ModalBottomSheetAction {
 
 impl Validate for ModalBottomSheetAction {
     fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
+        self.condition.validate_at(&path.key("condition"), issues);
         self.widget.validate_at(&path.key("widget"), issues);
         self.request.validate_at(&path.key("request"), issues);
         self.asset_path.validate_at(&path.key("assetPath"), issues);
@@ -230,6 +246,24 @@ impl Validate for ModalBottomSheetAction {
             .validate_at(&path.key("constraints"), issues);
         self.barrier_color
             .validate_at(&path.key("barrierColor"), issues);
+        if let Some(value) = &self.is_scroll_controlled {
+            value.validate_binding_at(&path.key("isScrollControlled"), issues);
+        }
+        if let Some(value) = &self.use_root_navigator {
+            value.validate_binding_at(&path.key("useRootNavigator"), issues);
+        }
+        if let Some(value) = &self.is_dismissible {
+            value.validate_binding_at(&path.key("isDismissible"), issues);
+        }
+        if let Some(value) = &self.enable_drag {
+            value.validate_binding_at(&path.key("enableDrag"), issues);
+        }
+        if let Some(value) = &self.show_drag_handle {
+            value.validate_binding_at(&path.key("showDragHandle"), issues);
+        }
+        if let Some(value) = &self.use_safe_area {
+            value.validate_binding_at(&path.key("useSafeArea"), issues);
+        }
     }
 }
 
@@ -237,6 +271,8 @@ impl StacNode for ModalBottomSheetAction {
     const KIND: NodeKind = NodeKind::Action;
     const TYPE_NAME: &'static str = "showModalBottomSheet";
 }
+
+impl Plain for ModalBottomSheetAction {}
 
 impl From<ModalBottomSheetAction> for Action {
     fn from(value: ModalBottomSheetAction) -> Self {

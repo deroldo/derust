@@ -8,38 +8,43 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
 /// A Stac model representing Flutter's \[CarouselView\] widget.
 #[derive(Debug, Clone, PartialEq)]
 pub struct CarouselView {
+    /// Properties common to every widget (`visible`, `enabled`, `bind`, `state`, `globalState`, `onInit`).
+    pub envelope: Envelope,
     /// The type of the carousel. Defaults to \[StacCarouselViewType.regular\].
-    pub carousel_type: Option<CarouselViewType>,
+    pub carousel_type: Option<Reactive<CarouselViewType>>,
     /// The amount of space by which to inset the carousel.
-    pub padding: Option<EdgeInsets>,
+    pub padding: Option<Reactive<EdgeInsets>>,
     /// The background color of the carousel.
-    pub background_color: Option<Color>,
+    pub background_color: Option<Reactive<Color>>,
     /// The z-coordinate at which to place this carousel.
-    pub elevation: Option<f64>,
+    pub elevation: Option<Reactive<f64>>,
     /// The overlay color of the carousel items.
-    pub overlay_color: Option<Color>,
+    pub overlay_color: Option<Reactive<Color>>,
     /// Whether the items should snap into place. Defaults to false.
-    pub item_snapping: Option<bool>,
+    pub item_snapping: Option<Reactive<bool>>,
     /// The amount by which to shrink the carousel. Defaults to 0.0.
-    pub shrink_extent: Option<f64>,
+    pub shrink_extent: Option<Reactive<f64>>,
     /// The axis along which the carousel scrolls. Defaults to \[StacAxis.horizontal\].
-    pub scroll_direction: Option<Axis>,
+    pub scroll_direction: Option<Reactive<Axis>>,
     /// Whether the carousel scrolls in the reverse direction. Defaults to false.
-    pub reverse: Option<bool>,
+    pub reverse: Option<Reactive<bool>>,
     /// The callback to invoke when an item is tapped.
     pub on_tap: Option<Action>,
     /// Whether to enable splash effect on tap. Defaults to true.
-    pub enable_splash: Option<bool>,
+    pub enable_splash: Option<Reactive<bool>>,
     /// The extent of each item in the carousel (regular type only).
-    pub item_extent: Option<f64>,
+    pub item_extent: Option<Reactive<f64>>,
     /// The flex weights for the items in the carousel (weighted type only).
-    pub flex_weights: Option<Vec<i64>>,
+    pub flex_weights: Option<Reactive<Vec<i64>>>,
     /// The widgets below this widget in the tree.
     pub children: Option<Vec<Widget>>,
 }
@@ -51,6 +56,7 @@ impl CarouselView {
     /// Creates the model with only its required fields set.
     pub fn new() -> Self {
         Self {
+            envelope: Envelope::new(),
             carousel_type: None,
             padding: None,
             background_color: None,
@@ -69,56 +75,56 @@ impl CarouselView {
     }
 
     /// The type of the carousel. Defaults to \[StacCarouselViewType.regular\].
-    pub fn carousel_type(mut self, value: impl Into<CarouselViewType>) -> Self {
-        self.carousel_type = Some(value.into());
+    pub fn carousel_type(mut self, value: impl IntoReactive<CarouselViewType>) -> Self {
+        self.carousel_type = Some(value.into_reactive());
         self
     }
 
     /// The amount of space by which to inset the carousel.
-    pub fn padding(mut self, value: impl Into<EdgeInsets>) -> Self {
-        self.padding = Some(value.into());
+    pub fn padding(mut self, value: impl IntoReactive<EdgeInsets>) -> Self {
+        self.padding = Some(value.into_reactive());
         self
     }
 
     /// The background color of the carousel.
-    pub fn background_color(mut self, value: impl Into<Color>) -> Self {
-        self.background_color = Some(value.into());
+    pub fn background_color(mut self, value: impl IntoReactive<Color>) -> Self {
+        self.background_color = Some(value.into_reactive());
         self
     }
 
     /// The z-coordinate at which to place this carousel.
-    pub fn elevation(mut self, value: impl Into<f64>) -> Self {
-        self.elevation = Some(value.into());
+    pub fn elevation(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.elevation = Some(value.into_reactive());
         self
     }
 
     /// The overlay color of the carousel items.
-    pub fn overlay_color(mut self, value: impl Into<Color>) -> Self {
-        self.overlay_color = Some(value.into());
+    pub fn overlay_color(mut self, value: impl IntoReactive<Color>) -> Self {
+        self.overlay_color = Some(value.into_reactive());
         self
     }
 
     /// Whether the items should snap into place. Defaults to false.
-    pub fn item_snapping(mut self, value: bool) -> Self {
-        self.item_snapping = Some(value);
+    pub fn item_snapping(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.item_snapping = Some(value.into_reactive());
         self
     }
 
     /// The amount by which to shrink the carousel. Defaults to 0.0.
-    pub fn shrink_extent(mut self, value: impl Into<f64>) -> Self {
-        self.shrink_extent = Some(value.into());
+    pub fn shrink_extent(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.shrink_extent = Some(value.into_reactive());
         self
     }
 
     /// The axis along which the carousel scrolls. Defaults to \[StacAxis.horizontal\].
-    pub fn scroll_direction(mut self, value: impl Into<Axis>) -> Self {
-        self.scroll_direction = Some(value.into());
+    pub fn scroll_direction(mut self, value: impl IntoReactive<Axis>) -> Self {
+        self.scroll_direction = Some(value.into_reactive());
         self
     }
 
     /// Whether the carousel scrolls in the reverse direction. Defaults to false.
-    pub fn reverse(mut self, value: bool) -> Self {
-        self.reverse = Some(value);
+    pub fn reverse(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.reverse = Some(value.into_reactive());
         self
     }
 
@@ -129,20 +135,20 @@ impl CarouselView {
     }
 
     /// Whether to enable splash effect on tap. Defaults to true.
-    pub fn enable_splash(mut self, value: bool) -> Self {
-        self.enable_splash = Some(value);
+    pub fn enable_splash(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.enable_splash = Some(value.into_reactive());
         self
     }
 
     /// The extent of each item in the carousel (regular type only).
-    pub fn item_extent(mut self, value: impl Into<f64>) -> Self {
-        self.item_extent = Some(value.into());
+    pub fn item_extent(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.item_extent = Some(value.into_reactive());
         self
     }
 
     /// The flex weights for the items in the carousel (weighted type only).
-    pub fn flex_weights(mut self, value: impl IntoIterator<Item = impl Into<i64>>) -> Self {
-        self.flex_weights = Some(value.into_iter().map(Into::into).collect());
+    pub fn flex_weights(mut self, value: impl IntoReactive<Vec<i64>>) -> Self {
+        self.flex_weights = Some(value.into_reactive());
         self
     }
 
@@ -151,12 +157,49 @@ impl CarouselView {
         self.children = Some(value.into_iter().map(Into::into).collect());
         self
     }
+
+    /// Sets `visible` (envelope): a `bool`, a state path or an expression.
+    pub fn visible(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.visible(value);
+        self
+    }
+
+    /// Sets `enabled` (envelope): a `bool`, a state path or an expression.
+    pub fn enabled(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.enabled(value);
+        self
+    }
+
+    /// Sets `bind` (envelope): the state key the widget reads and writes.
+    pub fn bind(mut self, key: BindKey) -> Self {
+        self.envelope = self.envelope.bind(key);
+        self
+    }
+
+    /// Sets `state` (envelope): the screen state declared by this widget.
+    pub fn state(mut self, block: StateBlock) -> Self {
+        self.envelope = self.envelope.state(block);
+        self
+    }
+
+    /// Sets `globalState` (envelope): the global state declared by this widget.
+    pub fn global_state(mut self, block: GlobalStateBlock) -> Self {
+        self.envelope = self.envelope.global_state(block);
+        self
+    }
+
+    /// Sets `onInit` (envelope): action(s) run when the widget is first built.
+    pub fn on_init(mut self, on_init: impl Into<OnInit>) -> Self {
+        self.envelope = self.envelope.on_init(on_init);
+        self
+    }
 }
 
 impl Serialize for CarouselView {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         let mut map = serializer.serialize_map(None)?;
         map.serialize_entry("type", "carouselView")?;
+        self.envelope.serialize_into(&mut map)?;
         if let Some(value) = &self.carousel_type {
             map.serialize_entry("carouselType", value)?;
         }
@@ -205,17 +248,36 @@ impl Serialize for CarouselView {
 
 impl Validate for CarouselView {
     fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
+        self.envelope.validate_at(path, issues);
+        if let Some(value) = &self.carousel_type {
+            value.validate_binding_at(&path.key("carouselType"), issues);
+        }
         self.padding.validate_at(&path.key("padding"), issues);
         self.background_color
             .validate_at(&path.key("backgroundColor"), issues);
         self.elevation.validate_at(&path.key("elevation"), issues);
         self.overlay_color
             .validate_at(&path.key("overlayColor"), issues);
+        if let Some(value) = &self.item_snapping {
+            value.validate_binding_at(&path.key("itemSnapping"), issues);
+        }
         self.shrink_extent
             .validate_at(&path.key("shrinkExtent"), issues);
+        if let Some(value) = &self.scroll_direction {
+            value.validate_binding_at(&path.key("scrollDirection"), issues);
+        }
+        if let Some(value) = &self.reverse {
+            value.validate_binding_at(&path.key("reverse"), issues);
+        }
         self.on_tap.validate_at(&path.key("onTap"), issues);
+        if let Some(value) = &self.enable_splash {
+            value.validate_binding_at(&path.key("enableSplash"), issues);
+        }
         self.item_extent
             .validate_at(&path.key("itemExtent"), issues);
+        if let Some(value) = &self.flex_weights {
+            value.validate_binding_at(&path.key("flexWeights"), issues);
+        }
         self.children.validate_at(&path.key("children"), issues);
     }
 }
@@ -224,6 +286,8 @@ impl StacNode for CarouselView {
     const KIND: NodeKind = NodeKind::Widget;
     const TYPE_NAME: &'static str = "carouselView";
 }
+
+impl Plain for CarouselView {}
 
 impl From<CarouselView> for Widget {
     fn from(value: CarouselView) -> Self {

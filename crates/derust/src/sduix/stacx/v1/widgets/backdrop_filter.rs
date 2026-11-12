@@ -8,20 +8,23 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
 /// A Stac model representing Flutter's \[BackdropFilter\] widget.
 #[derive(Debug, Clone, PartialEq)]
 pub struct BackdropFilter {
+    /// Properties common to every widget (`visible`, `enabled`, `bind`, `state`, `globalState`, `onInit`).
+    pub envelope: Envelope,
     /// The image filter to apply to the painted content behind \[child\].
-    pub filter: ImageFilter,
+    pub filter: Reactive<ImageFilter>,
     /// The widget painted after applying the filter.
     pub child: Option<Widget>,
-    /// Whether the filter should be applied.
-    pub enabled: Option<bool>,
     /// The blend mode to apply when blending the filter with existing content.
-    pub blend_mode: Option<BlendMode>,
+    pub blend_mode: Option<Reactive<BlendMode>>,
 }
 
 impl BackdropFilter {
@@ -29,18 +32,18 @@ impl BackdropFilter {
     pub const TYPE: &'static str = "backdropFilter";
 
     /// Creates the model with only its required fields set.
-    pub fn new(filter: impl Into<ImageFilter>) -> Self {
+    pub fn new(filter: impl IntoReactive<ImageFilter>) -> Self {
         Self {
-            filter: filter.into(),
+            envelope: Envelope::new(),
+            filter: filter.into_reactive(),
             child: None,
-            enabled: None,
             blend_mode: None,
         }
     }
 
     /// The image filter to apply to the painted content behind \[child\].
-    pub fn filter(mut self, value: impl Into<ImageFilter>) -> Self {
-        self.filter = value.into();
+    pub fn filter(mut self, value: impl IntoReactive<ImageFilter>) -> Self {
+        self.filter = value.into_reactive();
         self
     }
 
@@ -50,15 +53,45 @@ impl BackdropFilter {
         self
     }
 
-    /// Whether the filter should be applied.
-    pub fn enabled(mut self, value: bool) -> Self {
-        self.enabled = Some(value);
+    /// The blend mode to apply when blending the filter with existing content.
+    pub fn blend_mode(mut self, value: impl IntoReactive<BlendMode>) -> Self {
+        self.blend_mode = Some(value.into_reactive());
         self
     }
 
-    /// The blend mode to apply when blending the filter with existing content.
-    pub fn blend_mode(mut self, value: impl Into<BlendMode>) -> Self {
-        self.blend_mode = Some(value.into());
+    /// Sets `visible` (envelope): a `bool`, a state path or an expression.
+    pub fn visible(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.visible(value);
+        self
+    }
+
+    /// Sets `enabled` (envelope): a `bool`, a state path or an expression.
+    pub fn enabled(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.enabled(value);
+        self
+    }
+
+    /// Sets `bind` (envelope): the state key the widget reads and writes.
+    pub fn bind(mut self, key: BindKey) -> Self {
+        self.envelope = self.envelope.bind(key);
+        self
+    }
+
+    /// Sets `state` (envelope): the screen state declared by this widget.
+    pub fn state(mut self, block: StateBlock) -> Self {
+        self.envelope = self.envelope.state(block);
+        self
+    }
+
+    /// Sets `globalState` (envelope): the global state declared by this widget.
+    pub fn global_state(mut self, block: GlobalStateBlock) -> Self {
+        self.envelope = self.envelope.global_state(block);
+        self
+    }
+
+    /// Sets `onInit` (envelope): action(s) run when the widget is first built.
+    pub fn on_init(mut self, on_init: impl Into<OnInit>) -> Self {
+        self.envelope = self.envelope.on_init(on_init);
         self
     }
 }
@@ -67,12 +100,10 @@ impl Serialize for BackdropFilter {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         let mut map = serializer.serialize_map(None)?;
         map.serialize_entry("type", "backdropFilter")?;
+        self.envelope.serialize_into(&mut map)?;
         map.serialize_entry("filter", &self.filter)?;
         if let Some(value) = &self.child {
             map.serialize_entry("child", value)?;
-        }
-        if let Some(value) = &self.enabled {
-            map.serialize_entry("enabled", value)?;
         }
         if let Some(value) = &self.blend_mode {
             map.serialize_entry("blendMode", value)?;
@@ -83,8 +114,12 @@ impl Serialize for BackdropFilter {
 
 impl Validate for BackdropFilter {
     fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
+        self.envelope.validate_at(path, issues);
         self.filter.validate_at(&path.key("filter"), issues);
         self.child.validate_at(&path.key("child"), issues);
+        if let Some(value) = &self.blend_mode {
+            value.validate_binding_at(&path.key("blendMode"), issues);
+        }
     }
 }
 
@@ -92,6 +127,8 @@ impl StacNode for BackdropFilter {
     const KIND: NodeKind = NodeKind::Widget;
     const TYPE_NAME: &'static str = "backdropFilter";
 }
+
+impl Plain for BackdropFilter {}
 
 impl From<BackdropFilter> for Widget {
     fn from(value: BackdropFilter) -> Self {

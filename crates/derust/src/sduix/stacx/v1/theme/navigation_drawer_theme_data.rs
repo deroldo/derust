@@ -8,6 +8,9 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
@@ -15,11 +18,11 @@ use serde::ser::{Serialize, SerializeMap, Serializer};
 #[derive(Debug, Clone, PartialEq)]
 pub struct NavigationDrawerThemeData {
     /// The height of each navigation drawer tile.
-    pub tile_height: Option<f64>,
+    pub tile_height: Option<Reactive<f64>>,
     /// The background color of the navigation drawer.
     pub background_color: Option<Dyn<String>>,
     /// The z-coordinate at which to place this navigation drawer relative to its parent.
-    pub elevation: Option<f64>,
+    pub elevation: Option<Reactive<f64>>,
     /// The color of the shadow below the navigation drawer.
     pub shadow_color: Option<Dyn<String>>,
     /// The color used to tint the surface of this navigation drawer.
@@ -27,13 +30,13 @@ pub struct NavigationDrawerThemeData {
     /// The color of the indicator for the selected destination.
     pub indicator_color: Option<Dyn<String>>,
     /// The shape of the indicator.
-    pub indicator_shape: Option<ShapeBorder>,
+    pub indicator_shape: Option<Reactive<ShapeBorder>>,
     /// The size of the indicator.
-    pub indicator_size: Option<Size>,
+    pub indicator_size: Option<Reactive<Size>>,
     /// The text style for navigation drawer labels.
-    pub label_text_style: Option<TextStyle>,
+    pub label_text_style: Option<Reactive<TextStyle>>,
     /// The icon theme for navigation drawer icons.
-    pub icon_theme: Option<Box<IconThemeData>>,
+    pub icon_theme: Option<Reactive<Box<IconThemeData>>>,
 }
 
 impl NavigationDrawerThemeData {
@@ -54,8 +57,8 @@ impl NavigationDrawerThemeData {
     }
 
     /// The height of each navigation drawer tile.
-    pub fn tile_height(mut self, value: impl Into<f64>) -> Self {
-        self.tile_height = Some(value.into());
+    pub fn tile_height(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.tile_height = Some(value.into_reactive());
         self
     }
 
@@ -66,8 +69,8 @@ impl NavigationDrawerThemeData {
     }
 
     /// The z-coordinate at which to place this navigation drawer relative to its parent.
-    pub fn elevation(mut self, value: impl Into<f64>) -> Self {
-        self.elevation = Some(value.into());
+    pub fn elevation(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.elevation = Some(value.into_reactive());
         self
     }
 
@@ -90,26 +93,26 @@ impl NavigationDrawerThemeData {
     }
 
     /// The shape of the indicator.
-    pub fn indicator_shape(mut self, value: impl Into<ShapeBorder>) -> Self {
-        self.indicator_shape = Some(value.into());
+    pub fn indicator_shape(mut self, value: impl IntoReactive<ShapeBorder>) -> Self {
+        self.indicator_shape = Some(value.into_reactive());
         self
     }
 
     /// The size of the indicator.
-    pub fn indicator_size(mut self, value: impl Into<Size>) -> Self {
-        self.indicator_size = Some(value.into());
+    pub fn indicator_size(mut self, value: impl IntoReactive<Size>) -> Self {
+        self.indicator_size = Some(value.into_reactive());
         self
     }
 
     /// The text style for navigation drawer labels.
-    pub fn label_text_style(mut self, value: impl Into<TextStyle>) -> Self {
-        self.label_text_style = Some(value.into());
+    pub fn label_text_style(mut self, value: impl IntoReactive<TextStyle>) -> Self {
+        self.label_text_style = Some(value.into_reactive());
         self
     }
 
     /// The icon theme for navigation drawer icons.
-    pub fn icon_theme(mut self, value: impl Into<IconThemeData>) -> Self {
-        self.icon_theme = Some(Box::new(value.into()));
+    pub fn icon_theme(mut self, value: impl IntoReactive<IconThemeData>) -> Self {
+        self.icon_theme = Some(value.into_reactive().boxed());
         self
     }
 }
@@ -173,3 +176,5 @@ impl Validate for NavigationDrawerThemeData {
         self.icon_theme.validate_at(&path.key("iconTheme"), issues);
     }
 }
+
+impl Plain for NavigationDrawerThemeData {}

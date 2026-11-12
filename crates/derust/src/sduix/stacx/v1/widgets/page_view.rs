@@ -8,38 +8,43 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
 /// A Stac model representing Flutter's \[PageView\] widget.
 #[derive(Debug, Clone, PartialEq)]
 pub struct PageView {
+    /// Properties common to every widget (`visible`, `enabled`, `bind`, `state`, `globalState`, `onInit`).
+    pub envelope: Envelope,
     /// The axis along which the page view scrolls.
-    pub scroll_direction: Option<Axis>,
+    pub scroll_direction: Option<Reactive<Axis>>,
     /// Whether the page view scrolls in the reading direction.
-    pub reverse: Option<bool>,
+    pub reverse: Option<Reactive<bool>>,
     /// The scroll physics to use for the page view.
-    pub physics: Option<ScrollPhysics>,
+    pub physics: Option<Reactive<ScrollPhysics>>,
     /// Whether to snap to page boundaries during scrolling.
-    pub page_snapping: Option<bool>,
+    pub page_snapping: Option<Reactive<bool>>,
     /// Action invoked when the page changes.
     pub on_page_changed: Option<Action>,
     /// The drag start behavior for drag gestures.
-    pub drag_start_behavior: Option<DragStartBehavior>,
+    pub drag_start_behavior: Option<Reactive<DragStartBehavior>>,
     /// Whether to allow implicit scrolling.
-    pub allow_implicit_scrolling: Option<bool>,
+    pub allow_implicit_scrolling: Option<Reactive<bool>>,
     /// The restoration ID to restore scroll offset across app launches.
     pub restoration_id: Option<Dyn<String>>,
     /// The clip behavior for the content.
-    pub clip_behavior: Option<Clip>,
+    pub clip_behavior: Option<Reactive<Clip>>,
     /// Whether to add padding to the ends of the list.
-    pub pad_ends: Option<bool>,
+    pub pad_ends: Option<Reactive<bool>>,
     /// The initial page to display.
-    pub initial_page: Option<i64>,
+    pub initial_page: Option<Reactive<i64>>,
     /// Whether to save the current page with the \[PageController\].
-    pub keep_page: Option<bool>,
+    pub keep_page: Option<Reactive<bool>>,
     /// Fraction of the viewport that each page should occupy.
-    pub viewport_fraction: Option<f64>,
+    pub viewport_fraction: Option<Reactive<f64>>,
     /// The list of pages to display.
     pub children: Option<Vec<Widget>>,
 }
@@ -51,6 +56,7 @@ impl PageView {
     /// Creates the model with only its required fields set.
     pub fn new() -> Self {
         Self {
+            envelope: Envelope::new(),
             scroll_direction: None,
             reverse: None,
             physics: None,
@@ -69,26 +75,26 @@ impl PageView {
     }
 
     /// The axis along which the page view scrolls.
-    pub fn scroll_direction(mut self, value: impl Into<Axis>) -> Self {
-        self.scroll_direction = Some(value.into());
+    pub fn scroll_direction(mut self, value: impl IntoReactive<Axis>) -> Self {
+        self.scroll_direction = Some(value.into_reactive());
         self
     }
 
     /// Whether the page view scrolls in the reading direction.
-    pub fn reverse(mut self, value: bool) -> Self {
-        self.reverse = Some(value);
+    pub fn reverse(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.reverse = Some(value.into_reactive());
         self
     }
 
     /// The scroll physics to use for the page view.
-    pub fn physics(mut self, value: impl Into<ScrollPhysics>) -> Self {
-        self.physics = Some(value.into());
+    pub fn physics(mut self, value: impl IntoReactive<ScrollPhysics>) -> Self {
+        self.physics = Some(value.into_reactive());
         self
     }
 
     /// Whether to snap to page boundaries during scrolling.
-    pub fn page_snapping(mut self, value: bool) -> Self {
-        self.page_snapping = Some(value);
+    pub fn page_snapping(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.page_snapping = Some(value.into_reactive());
         self
     }
 
@@ -99,14 +105,14 @@ impl PageView {
     }
 
     /// The drag start behavior for drag gestures.
-    pub fn drag_start_behavior(mut self, value: impl Into<DragStartBehavior>) -> Self {
-        self.drag_start_behavior = Some(value.into());
+    pub fn drag_start_behavior(mut self, value: impl IntoReactive<DragStartBehavior>) -> Self {
+        self.drag_start_behavior = Some(value.into_reactive());
         self
     }
 
     /// Whether to allow implicit scrolling.
-    pub fn allow_implicit_scrolling(mut self, value: bool) -> Self {
-        self.allow_implicit_scrolling = Some(value);
+    pub fn allow_implicit_scrolling(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.allow_implicit_scrolling = Some(value.into_reactive());
         self
     }
 
@@ -117,32 +123,32 @@ impl PageView {
     }
 
     /// The clip behavior for the content.
-    pub fn clip_behavior(mut self, value: impl Into<Clip>) -> Self {
-        self.clip_behavior = Some(value.into());
+    pub fn clip_behavior(mut self, value: impl IntoReactive<Clip>) -> Self {
+        self.clip_behavior = Some(value.into_reactive());
         self
     }
 
     /// Whether to add padding to the ends of the list.
-    pub fn pad_ends(mut self, value: bool) -> Self {
-        self.pad_ends = Some(value);
+    pub fn pad_ends(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.pad_ends = Some(value.into_reactive());
         self
     }
 
     /// The initial page to display.
-    pub fn initial_page(mut self, value: impl Into<i64>) -> Self {
-        self.initial_page = Some(value.into());
+    pub fn initial_page(mut self, value: impl IntoReactive<i64>) -> Self {
+        self.initial_page = Some(value.into_reactive());
         self
     }
 
     /// Whether to save the current page with the \[PageController\].
-    pub fn keep_page(mut self, value: bool) -> Self {
-        self.keep_page = Some(value);
+    pub fn keep_page(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.keep_page = Some(value.into_reactive());
         self
     }
 
     /// Fraction of the viewport that each page should occupy.
-    pub fn viewport_fraction(mut self, value: impl Into<f64>) -> Self {
-        self.viewport_fraction = Some(value.into());
+    pub fn viewport_fraction(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.viewport_fraction = Some(value.into_reactive());
         self
     }
 
@@ -151,12 +157,49 @@ impl PageView {
         self.children = Some(value.into_iter().map(Into::into).collect());
         self
     }
+
+    /// Sets `visible` (envelope): a `bool`, a state path or an expression.
+    pub fn visible(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.visible(value);
+        self
+    }
+
+    /// Sets `enabled` (envelope): a `bool`, a state path or an expression.
+    pub fn enabled(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.enabled(value);
+        self
+    }
+
+    /// Sets `bind` (envelope): the state key the widget reads and writes.
+    pub fn bind(mut self, key: BindKey) -> Self {
+        self.envelope = self.envelope.bind(key);
+        self
+    }
+
+    /// Sets `state` (envelope): the screen state declared by this widget.
+    pub fn state(mut self, block: StateBlock) -> Self {
+        self.envelope = self.envelope.state(block);
+        self
+    }
+
+    /// Sets `globalState` (envelope): the global state declared by this widget.
+    pub fn global_state(mut self, block: GlobalStateBlock) -> Self {
+        self.envelope = self.envelope.global_state(block);
+        self
+    }
+
+    /// Sets `onInit` (envelope): action(s) run when the widget is first built.
+    pub fn on_init(mut self, on_init: impl Into<OnInit>) -> Self {
+        self.envelope = self.envelope.on_init(on_init);
+        self
+    }
 }
 
 impl Serialize for PageView {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         let mut map = serializer.serialize_map(None)?;
         map.serialize_entry("type", "pageView")?;
+        self.envelope.serialize_into(&mut map)?;
         if let Some(value) = &self.scroll_direction {
             map.serialize_entry("scrollDirection", value)?;
         }
@@ -205,10 +248,41 @@ impl Serialize for PageView {
 
 impl Validate for PageView {
     fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
+        self.envelope.validate_at(path, issues);
+        if let Some(value) = &self.scroll_direction {
+            value.validate_binding_at(&path.key("scrollDirection"), issues);
+        }
+        if let Some(value) = &self.reverse {
+            value.validate_binding_at(&path.key("reverse"), issues);
+        }
+        if let Some(value) = &self.physics {
+            value.validate_binding_at(&path.key("physics"), issues);
+        }
+        if let Some(value) = &self.page_snapping {
+            value.validate_binding_at(&path.key("pageSnapping"), issues);
+        }
         self.on_page_changed
             .validate_at(&path.key("onPageChanged"), issues);
+        if let Some(value) = &self.drag_start_behavior {
+            value.validate_binding_at(&path.key("dragStartBehavior"), issues);
+        }
+        if let Some(value) = &self.allow_implicit_scrolling {
+            value.validate_binding_at(&path.key("allowImplicitScrolling"), issues);
+        }
         self.restoration_id
             .validate_at(&path.key("restorationId"), issues);
+        if let Some(value) = &self.clip_behavior {
+            value.validate_binding_at(&path.key("clipBehavior"), issues);
+        }
+        if let Some(value) = &self.pad_ends {
+            value.validate_binding_at(&path.key("padEnds"), issues);
+        }
+        if let Some(value) = &self.initial_page {
+            value.validate_binding_at(&path.key("initialPage"), issues);
+        }
+        if let Some(value) = &self.keep_page {
+            value.validate_binding_at(&path.key("keepPage"), issues);
+        }
         self.viewport_fraction
             .validate_at(&path.key("viewportFraction"), issues);
         self.children.validate_at(&path.key("children"), issues);
@@ -219,6 +293,8 @@ impl StacNode for PageView {
     const KIND: NodeKind = NodeKind::Widget;
     const TYPE_NAME: &'static str = "pageView";
 }
+
+impl Plain for PageView {}
 
 impl From<PageView> for Widget {
     fn from(value: PageView) -> Self {

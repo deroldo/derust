@@ -57,6 +57,70 @@ EXTRA_FIELDS = {
     "StacBeveledRectangleBorder": [("side", "StacBorderSide?")],
 }
 
+# Native fields that collide with a property of the reactive envelope (`visible` / `enabled`, see
+# `v1/state/envelope.rs`). The field is removed from the struct; the envelope setter of the same
+# name writes the same JSON key (typed `Reactive<bool>`, a plain `bool` is still accepted).
+SKIP_FIELDS = {
+    ("StacVisibility", "visible"), ("StacSliverVisibility", "visible"),
+    ("StacBackdropFilter", "enabled"), ("StacDropdownMenu", "enabled"), ("StacListTile", "enabled"),
+    ("StacRadio", "enabled"), ("StacTextField", "enabled"), ("StacTextFormField", "enabled"),
+}
+# JSON keys written by the envelope of every widget (`Envelope::serialize_into`).
+ENVELOPE_KEYS = ("visible", "enabled", "bind", "state", "globalState", "onInit")
+# Setters added to every widget for the envelope (rust name).
+ENVELOPE_SETTERS = ("visible", "enabled", "bind", "state", "global_state", "on_init")
+
+# Hand written actions of the fork linked to the `Action` enum: (Variant, "actionType", rust path).
+# The generator adds the variant, the `Serialize` / `Validate` / `type_name` arms and the `From`.
+EXTRA_ACTIONS = []
+
+# Pseudo types usable in FIELD_TYPE_OVERRIDES / EXTRA_FIELDS (they exist only in the fork); the
+# value is the hand written Rust type (in `v1/state`). They are not wrapped in `Reactive`.
+PSEUDO_TYPES = {
+    "Data": "crate::sduix::stacx::v1::state::Data",
+    "Actions": "crate::sduix::stacx::v1::state::Actions",
+    "StringList": "crate::sduix::stacx::v1::state::StringList",
+    "ItemTemplate": "crate::sduix::stacx::v1::state::ItemTemplate",
+}
+
+ENVELOPE_SETTERS_RS = """
+    /// Sets `visible` (envelope): a `bool`, a state path or an expression.
+    pub fn visible(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.visible(value);
+        self
+    }
+
+    /// Sets `enabled` (envelope): a `bool`, a state path or an expression.
+    pub fn enabled(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.enabled(value);
+        self
+    }
+
+    /// Sets `bind` (envelope): the state key the widget reads and writes.
+    pub fn bind(mut self, key: BindKey) -> Self {
+        self.envelope = self.envelope.bind(key);
+        self
+    }
+
+    /// Sets `state` (envelope): the screen state declared by this widget.
+    pub fn state(mut self, block: StateBlock) -> Self {
+        self.envelope = self.envelope.state(block);
+        self
+    }
+
+    /// Sets `globalState` (envelope): the global state declared by this widget.
+    pub fn global_state(mut self, block: GlobalStateBlock) -> Self {
+        self.envelope = self.envelope.global_state(block);
+        self
+    }
+
+    /// Sets `onInit` (envelope): action(s) run when the widget is first built.
+    pub fn on_init(mut self, on_init: impl Into<OnInit>) -> Self {
+        self.envelope = self.envelope.on_init(on_init);
+        self
+    }
+"""
+
 NAME_OVERRIDES = {"StacColor": "Color"}
 POLY_BASES = {"StacWidget": "Widget", "StacAction": "Action", "StacTextStyle": "TextStyle",
               "StacShapeBorder": "ShapeBorder"}
@@ -82,6 +146,10 @@ def parse_type(t):
     t = t.strip()
     nullable = t.endswith("?")
     core = t.rstrip("?").strip()
+    if core.startswith("Reactive<") and core.endswith(">"):
+        return ("reactive", parse_type(core[9:-1])[0]), nullable
+    if core in PSEUDO_TYPES:
+        return ("pseudo", core), nullable
     if core.startswith("List<"):
         inner = parse_type(core[5:-1])[0]
         return ("list", inner), nullable
@@ -131,18 +199,34 @@ class Gen:
             elif c.get("super_type"):
                 disc = ("type", c["super_type"]["value"])
             fields = []
+            fields_all = []  # `fields` plus the SKIP_FIELDS (the fixtures still carry them)
+            skipped = set()
             for fl in c["fields"]:
                 if fl["name"] in ("jsonData",):
                     continue
-                fields.append(self.make_field(name, fl["name"], fl["dart_type"], fl["required"], fl["doc"],
-                                              fl["nullable"], fl["has_default"]))
-            for fname, ftype in EXTRA_FIELDS.get(name, []):
-                fields.append(self.make_field(name, fname, ftype, False, [], True, False))
+                mf = self.make_field(name, fl["name"], fl["dart_type"], fl["required"], fl["doc"],
+                                     fl["nullable"], fl["has_default"])
+                fields_all.append(mf)
+                if (name, fl["name"]) in SKIP_FIELDS:
+                    skipped.add(fl["name"])
+                    if not mf["opt"] or mf["ast"] != ("prim", "bool"):
+                        raise SystemExit("SKIP_FIELDS %s.%s must be an optional bool" % (name, fl["name"]))
+                    continue
+                fields.append(mf)
+            for entry in EXTRA_FIELDS.get(name, []):
+                fname, ftype = entry[0], entry[1]
+                mf = self.make_field(name, fname, ftype, False, [], True, False,
+                                     fork=len(entry) > 2 and entry[2] == "fork")
+                fields.append(mf)
+                fields_all.append(mf)
             keys = [k for k in c["json_keys"] if k not in ("type", "actionType")
                     or (k == "type" and any(f["json"] == "type" for f in fields))]
-            have = {f["json"] for f in fields}
+            keys = [k for k in keys if k not in skipped]
+            have = {f["json"] for f in fields if not f["fork"]}
             if set(keys) != have:
                 raise SystemExit("%s: toJson keys %s != fields %s" % (name, sorted(keys), sorted(have)))
+            if skipped != {fn for (cn, fn) in SKIP_FIELDS if cn == name}:
+                raise SystemExit("%s: SKIP_FIELDS names a field that does not exist" % name)
             variant_of = None
             if disc and disc[0] == "type" and c["extends"] == "StacWidget":
                 variant_of = "Widget"
@@ -152,10 +236,21 @@ class Gen:
                 variant_of = "ShapeBorder"
             if c["extends"] == "StacTextStyle":
                 variant_of = "TextStyle"
+            if variant_of == "Widget":
+                # properties of the envelope (flattened right after `type`), see v1/state/envelope.rs
+                for f in fields:
+                    if f["json"] in ENVELOPE_KEYS or f["ident"] in ENVELOPE_SETTERS + ("envelope",):
+                        raise SystemExit("%s.%s collides with the envelope; add it to SKIP_FIELDS" % (name, f["json"]))
+            if variant_of == "Action":
+                for f in fields:
+                    if f["json"] == "condition" or f["ident"] == "condition":
+                        raise SystemExit("%s.%s collides with the action `condition`" % (name, f["json"]))
+                fields.insert(0, self.condition_field())
+                fields_all.insert(0, fields[0])
             self.comps[name] = {
-                "dart": name, "rust": rname(name), "cat": cat, "item": it, "fields": fields, "disc": disc,
-                "variant_of": variant_of, "doc": clean_doc(c["doc"]), "dart_path": c["dart_path"],
-                "needs_box": False,
+                "dart": name, "rust": rname(name), "cat": cat, "item": it, "fields": fields, "fixture_fields": fields_all,
+                "disc": disc, "variant_of": variant_of, "doc": clean_doc(c["doc"]), "dart_path": c["dart_path"],
+                "needs_box": False, "envelope": variant_of == "Widget",
             }
         for name, e in self.enums.items():
             self.comps[name] = {"dart": name, "rust": rname(name), "cat": self.items_by_name[name]["category"],
@@ -217,6 +312,8 @@ class Gen:
             return 24
         if k == "json":
             return 32
+        if k in ("pseudo", "reactive"):
+            return 32
         n = ast[1]
         if n in self.enums:
             return 2
@@ -250,27 +347,64 @@ class Gen:
                 return
 
     def field_type(self, f):
-        t = self.rust_type(f["ast"])
+        t = self.rust_type(f["ast"], f["ast"][0] == "reactive")
         if f.get("boxed"):
             t = "Box<%s>" % t
+        if f["react"]:
+            t = "Reactive<%s>" % t
         return "Option<%s>" % t if f["opt"] else t
 
     def field_conv(self, f, var="value"):
+        """Expression turning the setter argument into the stored field value."""
+        inner = self.reactive_inner(f)
+        if inner is not None:
+            return "%s.into_reactive()%s" % (var, ".boxed()" if f.get("boxed") else "")
         c = self.setter_conv(f["ast"], var)
         return "Box::new(%s)" % c if f.get("boxed") else c
 
-    def make_field(self, cls, name, dart_type, required, doc, nullable, has_default):
+    def reactive_inner(self, f):
+        """`T` of the `IntoReactive<T>` accepted by the setter, or None when not reactive."""
+        if f["react"]:
+            return self.rust_type(f["ast"])
+        if f["ast"][0] == "reactive":
+            return self.rust_type(f["ast"][1], True)
+        return None
+
+    def make_field(self, cls, name, dart_type, required, doc, nullable, has_default, fork=False):
         dart_type = FIELD_OVERRIDES_TYPE(cls, name, dart_type)
         ast, nullable_t = parse_type(dart_type)
         nullable = nullable_t
         opt = (not required) or nullable
-        if not required and not nullable and not has_default and False:
-            opt = True
         rid = ident(name)
         if rid in RESERVED_METHODS:
             raise SystemExit("field %s.%s collides with an inherent method" % (cls, name))
+        fork = fork or ast[0] in ("pseudo", "reactive")
+        if fork and not opt:
+            raise SystemExit("field %s.%s of the fork vocabulary must be optional" % (cls, name))
         return {"json": name, "ident": rid, "ast": ast, "opt": opt, "required": required and not nullable,
-                "doc": clean_doc(doc, strip_type=True), "dart_type": dart_type}
+                "doc": clean_doc(doc, strip_type=True), "dart_type": dart_type, "fork": fork,
+                "react": self.wants_reactive(ast), "validate_always": False}
+
+    def condition_field(self):
+        """`condition` added to every registered action (envelope of actions, see decision 7)."""
+        return {"json": "condition", "ident": "condition", "ast": ("prim", "bool"), "opt": True,
+                "required": False, "doc": ["Run the action only when this is true (state path or expression)."],
+                "dart_type": "bool?", "fork": True, "react": True, "validate_always": True}
+
+    @staticmethod
+    def wants_reactive(ast):
+        """True when a leaf property is stored as `Reactive<T>` (literal or binding)."""
+        k = ast[0]
+        if k in ("pseudo", "reactive"):
+            return False
+        if k == "prim":
+            return ast[1] != "String"  # strings stay `Dyn<String>` (`{{key}}` or a binding)
+        if k == "list":
+            inner = ast[1]
+            return not (inner[0] == "named" and inner[1] in ("StacWidget", "StacAction"))
+        if k == "named":
+            return ast[1] not in ("StacWidget", "StacAction")
+        return True  # map / imap / json
 
     # ------------------------------------------------------------------ rust types
     def rust_named(self, dart):
@@ -297,6 +431,10 @@ class Gen:
             return "std::collections::BTreeMap<i64, %s>" % self.rust_type(ast[1], True)
         if k == "json":
             return "serde_json::Value"
+        if k == "pseudo":
+            return PSEUDO_TYPES[ast[1]]
+        if k == "reactive":
+            return "Reactive<%s>" % self.rust_type(ast[1], True)
         raise AssertionError(ast)
 
     def is_enum(self, ast):
@@ -315,12 +453,18 @@ class Gen:
             return self.needs_validate(inner)
         if k == "imap":
             return self.needs_validate(ast[1])
+        if k == "pseudo":
+            return True
+        if k == "reactive":
+            return self.needs_validate(ast[1])
         return False
 
-    def setter_param(self, ast):
+    def setter_param(self, f):
+        inner = self.reactive_inner(f)
+        if inner is not None:
+            return "impl IntoReactive<%s>" % inner
+        ast = f["ast"]
         k = ast[0]
-        if k == "prim" and ast[1] == "bool":
-            return "bool"
         if k == "imap":
             return self.rust_type(ast)
         if k == "list":
@@ -330,8 +474,6 @@ class Gen:
 
     def setter_conv(self, ast, var="value"):
         k = ast[0]
-        if k == "prim" and ast[1] == "bool":
-            return var
         if k == "imap":
             return var
         if k == "list":
@@ -344,14 +486,21 @@ class Gen:
                 "#![allow(unused_imports, clippy::too_many_arguments, clippy::new_without_default, "
                 "clippy::large_enum_variant, clippy::enum_variant_names, clippy::module_name_repetitions)]\n"
                 "use crate::sduix::stacx::common::*;\n"
+                "use crate::sduix::stacx::v1::state::{\n"
+                "    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,\n"
+                "};\n"
                 "use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};\n"
                 "use serde::ser::{Serialize, SerializeMap, Serializer};\n\n")
 
     def emit_struct(self, comp):
         r = comp["rust"]
+        has_env = comp.get("envelope")
         out = [self.header()]
         out.append(doc_lines(comp["doc"], "") or "/// Stac `%s` model.\n" % comp["dart"])
         out.append("#[derive(Debug, Clone, PartialEq)]\npub struct %s {\n" % r)
+        if has_env:
+            out.append("    /// Properties common to every widget (`visible`, `enabled`, `bind`, `state`, "
+                       "`globalState`, `onInit`).\n    pub envelope: Envelope,\n")
         for f in comp["fields"]:
             out.append(doc_lines(f["doc"], "    "))
             out.append("    pub %s: %s,\n" % (f["ident"], self.field_type(f)))
@@ -362,8 +511,10 @@ class Gen:
             out.append("    /// Value of the `%s` discriminator.\n    pub const TYPE: &'static str = \"%s\";\n\n"
                        % comp["disc"])
         out.append("    /// Creates the model with only its required fields set.\n")
-        params = ", ".join("%s: %s" % (f["ident"], self.setter_param(f["ast"])) for f in req)
+        params = ", ".join("%s: %s" % (f["ident"], self.setter_param(f)) for f in req)
         out.append("    pub fn new(%s) -> Self {\n        Self {\n" % params)
+        if has_env:
+            out.append("            envelope: Envelope::new(),\n")
         for f in comp["fields"]:
             if f["opt"]:
                 out.append("            %s: None,\n" % f["ident"])
@@ -371,14 +522,14 @@ class Gen:
                 out.append("            %s: %s,\n" % (f["ident"], self.field_conv(f, f["ident"])))
         out.append("        }\n    }\n")
         for f in comp["fields"]:
-            if not f["opt"] and False:
-                continue
             doc = doc_lines(f["doc"], "    ") or "    /// Sets `%s`.\n" % f["json"]
             out.append("\n" + doc)
             conv = self.field_conv(f)
             val = "Some(%s)" % conv if f["opt"] else conv
             out.append("    pub fn %s(mut self, value: %s) -> Self {\n        self.%s = %s;\n        self\n    }\n"
-                       % (f["ident"], self.setter_param(f["ast"]), f["ident"], val))
+                       % (f["ident"], self.setter_param(f), f["ident"], val))
+        if has_env:
+            out.append(ENVELOPE_SETTERS_RS)
         out.append("}\n\n")
         # Serialize
         out.append("impl Serialize for %s {\n" % r)
@@ -386,6 +537,8 @@ class Gen:
         out.append("        let mut map = serializer.serialize_map(None)?;\n")
         if comp["disc"]:
             out.append("        map.serialize_entry(\"%s\", \"%s\")?;\n" % comp["disc"])
+        if has_env:
+            out.append("        self.envelope.serialize_into(&mut map)?;\n")
         for f in comp["fields"]:
             if f["opt"]:
                 out.append("        if let Some(value) = &self.%s {\n            map.serialize_entry(\"%s\", value)?;\n"
@@ -395,31 +548,49 @@ class Gen:
         out.append("        map.end()\n    }\n}\n\n")
         # Validate
         out.append("impl Validate for %s {\n" % r)
-        vf = [f for f in comp["fields"] if self.needs_validate(f["ast"])]
-        pn = "path" if vf else "_path"
-        isn = "issues" if (vf or self.custom_checks(comp)) else "_issues"
-        out.append("    fn validate_at(&self, %s: &Path<'_>, %s: &mut Vec<ValidationIssue>) {\n" % (pn, isn))
-        for f in vf:
-            out.append("        self.%s.validate_at(&path.key(\"%s\"), issues);\n" % (f["ident"], f["json"]))
-        out.append(self.custom_checks(comp))
+        lines = []
+        if has_env:
+            lines.append("        self.envelope.validate_at(path, issues);\n")
+        for f in comp["fields"]:
+            key = '&path.key("%s")' % f["json"]
+            if f["validate_always"] or self.needs_validate(f["ast"]):
+                lines.append("        self.%s.validate_at(%s, issues);\n" % (f["ident"], key))
+            elif f["react"] or f["ast"][0] == "reactive":
+                # the literal needs no check, but a binding may be malformed
+                if f["opt"]:
+                    lines.append("        if let Some(value) = &self.%s {\n"
+                                 "            value.validate_binding_at(%s, issues);\n        }\n" % (f["ident"], key))
+                else:
+                    lines.append("        self.%s.validate_binding_at(%s, issues);\n" % (f["ident"], key))
+        checks = self.custom_checks(comp)
+        used = bool(lines) or bool(checks)
+        out.append("    fn validate_at(&self, %s: &Path<'_>, %s: &mut Vec<ValidationIssue>) {\n"
+                   % ("path" if used else "_path", "issues" if used else "_issues"))
+        out.extend(lines)
+        out.append(checks)
         out.append("    }\n}\n")
         if comp["disc"] and comp["cat"] in ("widget", "action"):
             kind = "Widget" if comp["disc"][0] == "type" else "Action"
             out.append("\nimpl StacNode for %s {\n    const KIND: NodeKind = NodeKind::%s;\n"
                        "    const TYPE_NAME: &'static str = \"%s\";\n}\n" % (r, kind, comp["disc"][1]))
+        out.append("\nimpl Plain for %s {}\n" % r)
         if comp["variant_of"]:
             base = comp["variant_of"]
             out.append("\nimpl From<%s> for %s {\n    fn from(value: %s) -> Self {\n        %s::%s(Box::new(value))\n"
                        "    }\n}\n" % (r, base, r, base, r))
+            if base in ("TextStyle", "ShapeBorder"):
+                # polymorphic leaf properties (`Reactive<TextStyle>`) keep accepting the variants
+                out.append("\nimpl IntoReactive<%s> for %s {\n    fn into_reactive(self) -> Reactive<%s> {\n"
+                           "        Reactive::Value(%s::from(self))\n    }\n}\n" % (base, r, base, base))
         return "".join(out)
 
     def custom_checks(self, comp):
         if comp["dart"] == "StacBadge":
-            return ("        if let Some(count) = self.count.as_ref() {\n"
+            return ("        if let Some(Reactive::Value(count)) = self.count.as_ref() {\n"
                     "            if *count < 0 {\n"
                     "                issues.push(ValidationIssue::new(&path.key(\"count\"), "
                     "\"count must be non-negative\"));\n            }\n        }\n"
-                    "        if let Some(max_count) = self.max_count.as_ref() {\n"
+                    "        if let Some(Reactive::Value(max_count)) = self.max_count.as_ref() {\n"
                     "            if *max_count <= 0 {\n"
                     "                issues.push(ValidationIssue::new(&path.key(\"maxCount\"), "
                     "\"maxCount must be positive\"));\n            }\n        }\n")
@@ -436,15 +607,17 @@ class Gen:
                    "        match self {\n" % comp["rust"])
         for v, j in zip(e["values"], e["json_values"]):
             out.append("            Self::%s => \"%s\",\n" % (pascal(v), j))
-        out.append("        }\n    }\n}\n")
+        out.append("        }\n    }\n}\n\nimpl Plain for %s {}\n" % comp["rust"])
         return "".join(out)
 
-    def emit_poly_enum(self, rust, tag_key, members, doc, custom=None):
+    def emit_poly_enum(self, rust, tag_key, members, doc, custom=None, extras=()):
         """members: list of (variant, json_value); custom: (trait, constructor) adds a `Custom`
-        variant holding application defined nodes (see `common/custom.rs`)."""
+        variant holding application defined nodes (see `common/custom.rs`); extras: hand written
+        nodes of the fork, (variant, json_value, rust path)."""
         out = [self.header(), doc, "#[derive(Debug, Clone, PartialEq)]\npub enum %s {\n" % rust]
-        for v, _ in members:
-            out.append("    %s(Box<%s>),\n" % (v, v))
+        allm = [(v, j, v) for v, j in members] + [tuple(e) for e in extras]
+        for v, _, ty in allm:
+            out.append("    %s(Box<%s>),\n" % (v, ty))
         if custom:
             out.append("    /// Node of a custom parser registered in the Flutter app (see [`%s`]).\n"
                        "    Custom(CustomNode),\n" % custom[0])
@@ -452,21 +625,25 @@ class Gen:
         extra = ["Custom"] if custom else []
         out.append("impl Serialize for %s {\n    fn serialize<S: Serializer>(&self, serializer: S) -> "
                    "Result<S::Ok, S::Error> {\n        match self {\n" % rust)
-        for v in [m[0] for m in members] + extra:
+        for v in [m[0] for m in allm] + extra:
             out.append("            %s::%s(value) => value.serialize(serializer),\n" % (rust, v))
         out.append("        }\n    }\n}\n\n")
         out.append("impl Validate for %s {\n    fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {\n"
                    "        match self {\n" % rust)
-        for v in [m[0] for m in members] + extra:
+        for v in [m[0] for m in allm] + extra:
             out.append("            %s::%s(value) => value.validate_at(path, issues),\n" % (rust, v))
         out.append("        }\n    }\n}\n\n")
         out.append("impl %s {\n    /// Value of the `%s` discriminator of the wrapped node.\n"
                    "    pub fn type_name(&self) -> &'static str {\n        match self {\n" % (rust, tag_key))
-        for v, j in members:
+        for v, j, _ in allm:
             out.append("            %s::%s(_) => \"%s\",\n" % (rust, v, j))
         if custom:
             out.append("            %s::Custom(value) => value.type_name(),\n" % rust)
         out.append("        }\n    }\n}\n")
+        for v, _, ty in allm[len(members):]:
+            out.append("\nimpl From<%s> for %s {\n    fn from(value: %s) -> Self {\n        %s::%s(Box::new(value))\n"
+                       "    }\n}\n" % (ty, rust, ty, rust, v))
+        out.append("\nimpl Plain for %s {}\n" % rust)
         if custom:
             out.append("\nimpl<T: %s> From<T> for %s {\n    fn from(value: T) -> Self {\n"
                        "        %s::Custom(CustomNode::%s(value))\n    }\n}\n" % (custom[0], rust, rust, custom[1]))
@@ -509,6 +686,10 @@ class Gen:
         actions = sorted((c for c in self.comps.values() if c.get("variant_of") == "Action"), key=lambda c: c["rust"])
         shapes = sorted((c for c in self.comps.values() if c.get("variant_of") == "ShapeBorder"), key=lambda c: c["rust"])
         styles = sorted((c for c in self.comps.values() if c.get("variant_of") == "TextStyle"), key=lambda c: c["rust"])
+        taken = {c["rust"] for c in actions} | {c["disc"][1] for c in actions}
+        for variant, atype, _path in EXTRA_ACTIONS:
+            if variant in taken or atype in taken:
+                raise SystemExit("EXTRA_ACTIONS: %s / %s clashes with a generated action" % (variant, atype))
         self.write(os.path.join(self.v1, "widgets", "widget.rs"), self.emit_poly_enum(
             "Widget", "type", [(c["rust"], c["disc"][1]) for c in widgets],
             "/// Any Stac widget (discriminated by `type`), or a [`CustomWidget`] of the app.\n",
@@ -517,7 +698,7 @@ class Gen:
         self.write(os.path.join(self.v1, "actions", "action.rs"), self.emit_poly_enum(
             "Action", "actionType", [(c["rust"], c["disc"][1]) for c in actions],
             "/// Any Stac action (discriminated by `actionType`), or a [`CustomAction`] of the app.\n",
-            custom=("CustomAction", "action")))
+            custom=("CustomAction", "action"), extras=EXTRA_ACTIONS))
         modules[("actions", None)].append(("action", "Action"))
         self.write(os.path.join(self.v1, "foundation", "borders", "shape_border.rs"), self.emit_poly_enum(
             "ShapeBorder", "type", [(c["rust"], c["disc"][1]) for c in shapes],
@@ -582,6 +763,7 @@ class Gen:
                "//! Shortcut constructors, e.g. `column()`, `text(\"Hello\")`, `navigate()`.\n\n"
                "#![allow(unused_imports, clippy::too_many_arguments)]\n"
                "use crate::sduix::stacx::common::*;\n"
+               "use crate::sduix::stacx::v1::state::IntoReactive;\n"
                "use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};\n\n"]
         used = set()
         for comp in widgets + actions:
@@ -595,7 +777,7 @@ class Gen:
                 name += "_"
             used.add(name)
             req = [f for f in comp["fields"] if not f["opt"]]
-            params = ", ".join("%s: %s" % (f["ident"], self.setter_param(f["ast"])) for f in req)
+            params = ", ".join("%s: %s" % (f["ident"], self.setter_param(f)) for f in req)
             args = ", ".join(f["ident"] for f in req)
             out.append("/// Shortcut for [`%s::new`].\npub fn %s(%s) -> %s {\n    %s::new(%s)\n}\n\n"
                        % (comp["rust"], name, params, comp["rust"], comp["rust"], args))

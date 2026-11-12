@@ -8,43 +8,48 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
 /// A Stac model representing Flutter's \[ListView.separated\] widget.
 #[derive(Debug, Clone, PartialEq)]
 pub struct ListView {
+    /// Properties common to every widget (`visible`, `enabled`, `bind`, `state`, `globalState`, `onInit`).
+    pub envelope: Envelope,
     /// The axis along which the scroll view scrolls.
-    pub scroll_direction: Option<Axis>,
+    pub scroll_direction: Option<Reactive<Axis>>,
     /// Whether the scroll view scrolls in the reading direction.
-    pub reverse: Option<bool>,
+    pub reverse: Option<Reactive<bool>>,
     /// Whether this is the primary scroll view associated with the parent \[PrimaryScrollController\].
-    pub primary: Option<bool>,
+    pub primary: Option<Reactive<bool>>,
     /// How the scroll view should respond to user input.
-    pub physics: Option<ScrollPhysics>,
+    pub physics: Option<Reactive<ScrollPhysics>>,
     /// Whether the extent of the scroll view in the \[scrollDirection\] should be determined by the contents being viewed.
-    pub shrink_wrap: Option<bool>,
+    pub shrink_wrap: Option<Reactive<bool>>,
     /// The amount of space by which to inset the children.
-    pub padding: Option<EdgeInsets>,
+    pub padding: Option<Reactive<EdgeInsets>>,
     /// Whether to wrap each child in an \[AutomaticKeepAlive\].
-    pub add_automatic_keep_alives: Option<bool>,
+    pub add_automatic_keep_alives: Option<Reactive<bool>>,
     /// Whether to wrap each child in a \[RepaintBoundary\].
-    pub add_repaint_boundaries: Option<bool>,
+    pub add_repaint_boundaries: Option<Reactive<bool>>,
     /// Whether to wrap each child in an \[IndexedSemantics\].
-    pub add_semantic_indexes: Option<bool>,
+    pub add_semantic_indexes: Option<Reactive<bool>>,
     /// The cache extent of the ListView.
-    pub cache_extent: Option<f64>,
+    pub cache_extent: Option<Reactive<f64>>,
     /// The StacWidgets to display in the list.
     pub children: Option<Vec<Widget>>,
     /// The StacWidget to display between list items as a separator.
     pub separator: Option<Widget>,
     /// The number of children that will contribute semantic information.
-    pub semantic_child_count: Option<i64>,
+    pub semantic_child_count: Option<Reactive<i64>>,
     /// Determines the way that drag start behavior is handled.
-    pub drag_start_behavior: Option<DragStartBehavior>,
-    pub keyboard_dismiss_behavior: Option<ScrollViewKeyboardDismissBehavior>,
+    pub drag_start_behavior: Option<Reactive<DragStartBehavior>>,
+    pub keyboard_dismiss_behavior: Option<Reactive<ScrollViewKeyboardDismissBehavior>>,
     pub restoration_id: Option<Dyn<String>>,
-    pub clip_behavior: Option<Clip>,
+    pub clip_behavior: Option<Reactive<Clip>>,
 }
 
 impl ListView {
@@ -54,6 +59,7 @@ impl ListView {
     /// Creates the model with only its required fields set.
     pub fn new() -> Self {
         Self {
+            envelope: Envelope::new(),
             scroll_direction: None,
             reverse: None,
             primary: None,
@@ -75,62 +81,62 @@ impl ListView {
     }
 
     /// The axis along which the scroll view scrolls.
-    pub fn scroll_direction(mut self, value: impl Into<Axis>) -> Self {
-        self.scroll_direction = Some(value.into());
+    pub fn scroll_direction(mut self, value: impl IntoReactive<Axis>) -> Self {
+        self.scroll_direction = Some(value.into_reactive());
         self
     }
 
     /// Whether the scroll view scrolls in the reading direction.
-    pub fn reverse(mut self, value: bool) -> Self {
-        self.reverse = Some(value);
+    pub fn reverse(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.reverse = Some(value.into_reactive());
         self
     }
 
     /// Whether this is the primary scroll view associated with the parent \[PrimaryScrollController\].
-    pub fn primary(mut self, value: bool) -> Self {
-        self.primary = Some(value);
+    pub fn primary(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.primary = Some(value.into_reactive());
         self
     }
 
     /// How the scroll view should respond to user input.
-    pub fn physics(mut self, value: impl Into<ScrollPhysics>) -> Self {
-        self.physics = Some(value.into());
+    pub fn physics(mut self, value: impl IntoReactive<ScrollPhysics>) -> Self {
+        self.physics = Some(value.into_reactive());
         self
     }
 
     /// Whether the extent of the scroll view in the \[scrollDirection\] should be determined by the contents being viewed.
-    pub fn shrink_wrap(mut self, value: bool) -> Self {
-        self.shrink_wrap = Some(value);
+    pub fn shrink_wrap(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.shrink_wrap = Some(value.into_reactive());
         self
     }
 
     /// The amount of space by which to inset the children.
-    pub fn padding(mut self, value: impl Into<EdgeInsets>) -> Self {
-        self.padding = Some(value.into());
+    pub fn padding(mut self, value: impl IntoReactive<EdgeInsets>) -> Self {
+        self.padding = Some(value.into_reactive());
         self
     }
 
     /// Whether to wrap each child in an \[AutomaticKeepAlive\].
-    pub fn add_automatic_keep_alives(mut self, value: bool) -> Self {
-        self.add_automatic_keep_alives = Some(value);
+    pub fn add_automatic_keep_alives(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.add_automatic_keep_alives = Some(value.into_reactive());
         self
     }
 
     /// Whether to wrap each child in a \[RepaintBoundary\].
-    pub fn add_repaint_boundaries(mut self, value: bool) -> Self {
-        self.add_repaint_boundaries = Some(value);
+    pub fn add_repaint_boundaries(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.add_repaint_boundaries = Some(value.into_reactive());
         self
     }
 
     /// Whether to wrap each child in an \[IndexedSemantics\].
-    pub fn add_semantic_indexes(mut self, value: bool) -> Self {
-        self.add_semantic_indexes = Some(value);
+    pub fn add_semantic_indexes(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.add_semantic_indexes = Some(value.into_reactive());
         self
     }
 
     /// The cache extent of the ListView.
-    pub fn cache_extent(mut self, value: impl Into<f64>) -> Self {
-        self.cache_extent = Some(value.into());
+    pub fn cache_extent(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.cache_extent = Some(value.into_reactive());
         self
     }
 
@@ -147,23 +153,23 @@ impl ListView {
     }
 
     /// The number of children that will contribute semantic information.
-    pub fn semantic_child_count(mut self, value: impl Into<i64>) -> Self {
-        self.semantic_child_count = Some(value.into());
+    pub fn semantic_child_count(mut self, value: impl IntoReactive<i64>) -> Self {
+        self.semantic_child_count = Some(value.into_reactive());
         self
     }
 
     /// Determines the way that drag start behavior is handled.
-    pub fn drag_start_behavior(mut self, value: impl Into<DragStartBehavior>) -> Self {
-        self.drag_start_behavior = Some(value.into());
+    pub fn drag_start_behavior(mut self, value: impl IntoReactive<DragStartBehavior>) -> Self {
+        self.drag_start_behavior = Some(value.into_reactive());
         self
     }
 
     /// Sets `keyboardDismissBehavior`.
     pub fn keyboard_dismiss_behavior(
         mut self,
-        value: impl Into<ScrollViewKeyboardDismissBehavior>,
+        value: impl IntoReactive<ScrollViewKeyboardDismissBehavior>,
     ) -> Self {
-        self.keyboard_dismiss_behavior = Some(value.into());
+        self.keyboard_dismiss_behavior = Some(value.into_reactive());
         self
     }
 
@@ -174,8 +180,44 @@ impl ListView {
     }
 
     /// Sets `clipBehavior`.
-    pub fn clip_behavior(mut self, value: impl Into<Clip>) -> Self {
-        self.clip_behavior = Some(value.into());
+    pub fn clip_behavior(mut self, value: impl IntoReactive<Clip>) -> Self {
+        self.clip_behavior = Some(value.into_reactive());
+        self
+    }
+
+    /// Sets `visible` (envelope): a `bool`, a state path or an expression.
+    pub fn visible(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.visible(value);
+        self
+    }
+
+    /// Sets `enabled` (envelope): a `bool`, a state path or an expression.
+    pub fn enabled(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.enabled(value);
+        self
+    }
+
+    /// Sets `bind` (envelope): the state key the widget reads and writes.
+    pub fn bind(mut self, key: BindKey) -> Self {
+        self.envelope = self.envelope.bind(key);
+        self
+    }
+
+    /// Sets `state` (envelope): the screen state declared by this widget.
+    pub fn state(mut self, block: StateBlock) -> Self {
+        self.envelope = self.envelope.state(block);
+        self
+    }
+
+    /// Sets `globalState` (envelope): the global state declared by this widget.
+    pub fn global_state(mut self, block: GlobalStateBlock) -> Self {
+        self.envelope = self.envelope.global_state(block);
+        self
+    }
+
+    /// Sets `onInit` (envelope): action(s) run when the widget is first built.
+    pub fn on_init(mut self, on_init: impl Into<OnInit>) -> Self {
+        self.envelope = self.envelope.on_init(on_init);
         self
     }
 }
@@ -184,6 +226,7 @@ impl Serialize for ListView {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         let mut map = serializer.serialize_map(None)?;
         map.serialize_entry("type", "listView")?;
+        self.envelope.serialize_into(&mut map)?;
         if let Some(value) = &self.scroll_direction {
             map.serialize_entry("scrollDirection", value)?;
         }
@@ -241,13 +284,50 @@ impl Serialize for ListView {
 
 impl Validate for ListView {
     fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
+        self.envelope.validate_at(path, issues);
+        if let Some(value) = &self.scroll_direction {
+            value.validate_binding_at(&path.key("scrollDirection"), issues);
+        }
+        if let Some(value) = &self.reverse {
+            value.validate_binding_at(&path.key("reverse"), issues);
+        }
+        if let Some(value) = &self.primary {
+            value.validate_binding_at(&path.key("primary"), issues);
+        }
+        if let Some(value) = &self.physics {
+            value.validate_binding_at(&path.key("physics"), issues);
+        }
+        if let Some(value) = &self.shrink_wrap {
+            value.validate_binding_at(&path.key("shrinkWrap"), issues);
+        }
         self.padding.validate_at(&path.key("padding"), issues);
+        if let Some(value) = &self.add_automatic_keep_alives {
+            value.validate_binding_at(&path.key("addAutomaticKeepAlives"), issues);
+        }
+        if let Some(value) = &self.add_repaint_boundaries {
+            value.validate_binding_at(&path.key("addRepaintBoundaries"), issues);
+        }
+        if let Some(value) = &self.add_semantic_indexes {
+            value.validate_binding_at(&path.key("addSemanticIndexes"), issues);
+        }
         self.cache_extent
             .validate_at(&path.key("cacheExtent"), issues);
         self.children.validate_at(&path.key("children"), issues);
         self.separator.validate_at(&path.key("separator"), issues);
+        if let Some(value) = &self.semantic_child_count {
+            value.validate_binding_at(&path.key("semanticChildCount"), issues);
+        }
+        if let Some(value) = &self.drag_start_behavior {
+            value.validate_binding_at(&path.key("dragStartBehavior"), issues);
+        }
+        if let Some(value) = &self.keyboard_dismiss_behavior {
+            value.validate_binding_at(&path.key("keyboardDismissBehavior"), issues);
+        }
         self.restoration_id
             .validate_at(&path.key("restorationId"), issues);
+        if let Some(value) = &self.clip_behavior {
+            value.validate_binding_at(&path.key("clipBehavior"), issues);
+        }
     }
 }
 
@@ -255,6 +335,8 @@ impl StacNode for ListView {
     const KIND: NodeKind = NodeKind::Widget;
     const TYPE_NAME: &'static str = "listView";
 }
+
+impl Plain for ListView {}
 
 impl From<ListView> for Widget {
     fn from(value: ListView) -> Self {

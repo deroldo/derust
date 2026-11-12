@@ -1,4 +1,5 @@
 use crate::sduix::stacx::common::{Dyn, Path, StateRef, Validate, ValidationIssue};
+use crate::sduix::stacx::v1::state::{IntoReactive, Plain, Reactive};
 use serde::{Serialize, Serializer};
 
 /// Stac color (`StacColor`, a `String` typedef in Dart).
@@ -51,6 +52,21 @@ impl From<StateRef> for Color {
         Self::new(value)
     }
 }
+
+impl Plain for Color {}
+
+/// Setters of `Reactive<Color>` properties keep accepting what `impl Into<Color>` accepted.
+macro_rules! color_into_reactive {
+    ($($from:ty),* $(,)?) => {
+        $(impl IntoReactive<Color> for $from {
+            fn into_reactive(self) -> Reactive<Color> {
+                Reactive::Value(Color::from(self))
+            }
+        })*
+    };
+}
+
+color_into_reactive!(&str, String, StateRef);
 
 impl Serialize for Color {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {

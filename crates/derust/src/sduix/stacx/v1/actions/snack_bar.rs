@@ -8,46 +8,51 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
 /// Core model for the SnackBar action.
 #[derive(Debug, Clone, PartialEq)]
 pub struct SnackBar {
+    /// Run the action only when this is true (state path or expression).
+    pub condition: Option<Reactive<bool>>,
     /// Widget JSON rendered inside the SnackBar.
     pub content: Widget,
     /// Background color hex.
     pub background_color: Option<Dyn<String>>,
     /// Elevation of the SnackBar.
-    pub elevation: Option<f64>,
+    pub elevation: Option<Reactive<f64>>,
     /// Outer margin.
-    pub margin: Option<EdgeInsets>,
+    pub margin: Option<Reactive<EdgeInsets>>,
     /// Inner padding.
-    pub padding: Option<EdgeInsets>,
+    pub padding: Option<Reactive<EdgeInsets>>,
     /// Fixed width.
-    pub width: Option<f64>,
+    pub width: Option<Reactive<f64>>,
     /// Shape border for the SnackBar.
-    pub shape: Option<ShapeBorder>,
+    pub shape: Option<Reactive<ShapeBorder>>,
     /// Hit test behavior.
-    pub hit_test_behavior: Option<HitTestBehavior>,
+    pub hit_test_behavior: Option<Reactive<HitTestBehavior>>,
     /// Behavior: fixed or floating.
-    pub behavior: Option<SnackBarBehavior>,
+    pub behavior: Option<Reactive<SnackBarBehavior>>,
     /// Optional action button.
-    pub action: Option<Box<SnackBarAction>>,
+    pub action: Option<Reactive<Box<SnackBarAction>>>,
     /// Threshold for overflowing actions.
-    pub action_overflow_threshold: Option<f64>,
+    pub action_overflow_threshold: Option<Reactive<f64>>,
     /// Whether to show the close icon.
-    pub show_close_icon: Option<bool>,
+    pub show_close_icon: Option<Reactive<bool>>,
     /// Close icon color.
     pub close_icon_color: Option<Dyn<String>>,
     /// Display duration.
-    pub duration: Option<Duration>,
+    pub duration: Option<Reactive<Duration>>,
     /// Callback action when SnackBar becomes visible.
     pub on_visible: Option<Action>,
     /// Dismiss direction.
-    pub dismiss_direction: Option<DismissDirection>,
+    pub dismiss_direction: Option<Reactive<DismissDirection>>,
     /// Clip behavior.
-    pub clip_behavior: Option<Clip>,
+    pub clip_behavior: Option<Reactive<Clip>>,
 }
 
 impl SnackBar {
@@ -57,6 +62,7 @@ impl SnackBar {
     /// Creates the model with only its required fields set.
     pub fn new(content: impl Into<Widget>) -> Self {
         Self {
+            condition: None,
             content: content.into(),
             background_color: None,
             elevation: None,
@@ -77,6 +83,12 @@ impl SnackBar {
         }
     }
 
+    /// Run the action only when this is true (state path or expression).
+    pub fn condition(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.condition = Some(value.into_reactive());
+        self
+    }
+
     /// Widget JSON rendered inside the SnackBar.
     pub fn content(mut self, value: impl Into<Widget>) -> Self {
         self.content = value.into();
@@ -90,62 +102,62 @@ impl SnackBar {
     }
 
     /// Elevation of the SnackBar.
-    pub fn elevation(mut self, value: impl Into<f64>) -> Self {
-        self.elevation = Some(value.into());
+    pub fn elevation(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.elevation = Some(value.into_reactive());
         self
     }
 
     /// Outer margin.
-    pub fn margin(mut self, value: impl Into<EdgeInsets>) -> Self {
-        self.margin = Some(value.into());
+    pub fn margin(mut self, value: impl IntoReactive<EdgeInsets>) -> Self {
+        self.margin = Some(value.into_reactive());
         self
     }
 
     /// Inner padding.
-    pub fn padding(mut self, value: impl Into<EdgeInsets>) -> Self {
-        self.padding = Some(value.into());
+    pub fn padding(mut self, value: impl IntoReactive<EdgeInsets>) -> Self {
+        self.padding = Some(value.into_reactive());
         self
     }
 
     /// Fixed width.
-    pub fn width(mut self, value: impl Into<f64>) -> Self {
-        self.width = Some(value.into());
+    pub fn width(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.width = Some(value.into_reactive());
         self
     }
 
     /// Shape border for the SnackBar.
-    pub fn shape(mut self, value: impl Into<ShapeBorder>) -> Self {
-        self.shape = Some(value.into());
+    pub fn shape(mut self, value: impl IntoReactive<ShapeBorder>) -> Self {
+        self.shape = Some(value.into_reactive());
         self
     }
 
     /// Hit test behavior.
-    pub fn hit_test_behavior(mut self, value: impl Into<HitTestBehavior>) -> Self {
-        self.hit_test_behavior = Some(value.into());
+    pub fn hit_test_behavior(mut self, value: impl IntoReactive<HitTestBehavior>) -> Self {
+        self.hit_test_behavior = Some(value.into_reactive());
         self
     }
 
     /// Behavior: fixed or floating.
-    pub fn behavior(mut self, value: impl Into<SnackBarBehavior>) -> Self {
-        self.behavior = Some(value.into());
+    pub fn behavior(mut self, value: impl IntoReactive<SnackBarBehavior>) -> Self {
+        self.behavior = Some(value.into_reactive());
         self
     }
 
     /// Optional action button.
-    pub fn action(mut self, value: impl Into<SnackBarAction>) -> Self {
-        self.action = Some(Box::new(value.into()));
+    pub fn action(mut self, value: impl IntoReactive<SnackBarAction>) -> Self {
+        self.action = Some(value.into_reactive().boxed());
         self
     }
 
     /// Threshold for overflowing actions.
-    pub fn action_overflow_threshold(mut self, value: impl Into<f64>) -> Self {
-        self.action_overflow_threshold = Some(value.into());
+    pub fn action_overflow_threshold(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.action_overflow_threshold = Some(value.into_reactive());
         self
     }
 
     /// Whether to show the close icon.
-    pub fn show_close_icon(mut self, value: bool) -> Self {
-        self.show_close_icon = Some(value);
+    pub fn show_close_icon(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.show_close_icon = Some(value.into_reactive());
         self
     }
 
@@ -156,8 +168,8 @@ impl SnackBar {
     }
 
     /// Display duration.
-    pub fn duration(mut self, value: impl Into<Duration>) -> Self {
-        self.duration = Some(value.into());
+    pub fn duration(mut self, value: impl IntoReactive<Duration>) -> Self {
+        self.duration = Some(value.into_reactive());
         self
     }
 
@@ -168,14 +180,14 @@ impl SnackBar {
     }
 
     /// Dismiss direction.
-    pub fn dismiss_direction(mut self, value: impl Into<DismissDirection>) -> Self {
-        self.dismiss_direction = Some(value.into());
+    pub fn dismiss_direction(mut self, value: impl IntoReactive<DismissDirection>) -> Self {
+        self.dismiss_direction = Some(value.into_reactive());
         self
     }
 
     /// Clip behavior.
-    pub fn clip_behavior(mut self, value: impl Into<Clip>) -> Self {
-        self.clip_behavior = Some(value.into());
+    pub fn clip_behavior(mut self, value: impl IntoReactive<Clip>) -> Self {
+        self.clip_behavior = Some(value.into_reactive());
         self
     }
 }
@@ -184,6 +196,9 @@ impl Serialize for SnackBar {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         let mut map = serializer.serialize_map(None)?;
         map.serialize_entry("actionType", "showSnackBar")?;
+        if let Some(value) = &self.condition {
+            map.serialize_entry("condition", value)?;
+        }
         map.serialize_entry("content", &self.content)?;
         if let Some(value) = &self.background_color {
             map.serialize_entry("backgroundColor", value)?;
@@ -239,6 +254,7 @@ impl Serialize for SnackBar {
 
 impl Validate for SnackBar {
     fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
+        self.condition.validate_at(&path.key("condition"), issues);
         self.content.validate_at(&path.key("content"), issues);
         self.background_color
             .validate_at(&path.key("backgroundColor"), issues);
@@ -247,13 +263,28 @@ impl Validate for SnackBar {
         self.padding.validate_at(&path.key("padding"), issues);
         self.width.validate_at(&path.key("width"), issues);
         self.shape.validate_at(&path.key("shape"), issues);
+        if let Some(value) = &self.hit_test_behavior {
+            value.validate_binding_at(&path.key("hitTestBehavior"), issues);
+        }
+        if let Some(value) = &self.behavior {
+            value.validate_binding_at(&path.key("behavior"), issues);
+        }
         self.action.validate_at(&path.key("action"), issues);
         self.action_overflow_threshold
             .validate_at(&path.key("actionOverflowThreshold"), issues);
+        if let Some(value) = &self.show_close_icon {
+            value.validate_binding_at(&path.key("showCloseIcon"), issues);
+        }
         self.close_icon_color
             .validate_at(&path.key("closeIconColor"), issues);
         self.duration.validate_at(&path.key("duration"), issues);
         self.on_visible.validate_at(&path.key("onVisible"), issues);
+        if let Some(value) = &self.dismiss_direction {
+            value.validate_binding_at(&path.key("dismissDirection"), issues);
+        }
+        if let Some(value) = &self.clip_behavior {
+            value.validate_binding_at(&path.key("clipBehavior"), issues);
+        }
     }
 }
 
@@ -261,6 +292,8 @@ impl StacNode for SnackBar {
     const KIND: NodeKind = NodeKind::Action;
     const TYPE_NAME: &'static str = "showSnackBar";
 }
+
+impl Plain for SnackBar {}
 
 impl From<SnackBar> for Action {
     fn from(value: SnackBar) -> Self {

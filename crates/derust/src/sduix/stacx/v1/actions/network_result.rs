@@ -8,6 +8,9 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
@@ -15,23 +18,23 @@ use serde::ser::{Serialize, SerializeMap, Serializer};
 #[derive(Debug, Clone, PartialEq)]
 pub struct NetworkResult {
     /// The HTTP status code to match (e.g., 200, 400, 500).
-    pub status_code: i64,
+    pub status_code: Reactive<i64>,
     /// The action to execute when \[statusCode\] matches.
     pub action: Action,
 }
 
 impl NetworkResult {
     /// Creates the model with only its required fields set.
-    pub fn new(status_code: impl Into<i64>, action: impl Into<Action>) -> Self {
+    pub fn new(status_code: impl IntoReactive<i64>, action: impl Into<Action>) -> Self {
         Self {
-            status_code: status_code.into(),
+            status_code: status_code.into_reactive(),
             action: action.into(),
         }
     }
 
     /// The HTTP status code to match (e.g., 200, 400, 500).
-    pub fn status_code(mut self, value: impl Into<i64>) -> Self {
-        self.status_code = value.into();
+    pub fn status_code(mut self, value: impl IntoReactive<i64>) -> Self {
+        self.status_code = value.into_reactive();
         self
     }
 
@@ -53,6 +56,10 @@ impl Serialize for NetworkResult {
 
 impl Validate for NetworkResult {
     fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
+        self.status_code
+            .validate_binding_at(&path.key("statusCode"), issues);
         self.action.validate_at(&path.key("action"), issues);
     }
 }
+
+impl Plain for NetworkResult {}

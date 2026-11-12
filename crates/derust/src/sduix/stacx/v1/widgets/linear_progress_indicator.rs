@@ -8,26 +8,31 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
 /// A Stac model representing Flutter's \[LinearProgressIndicator\] widget.
 #[derive(Debug, Clone, PartialEq)]
 pub struct LinearProgressIndicator {
+    /// Properties common to every widget (`visible`, `enabled`, `bind`, `state`, `globalState`, `onInit`).
+    pub envelope: Envelope,
     /// Progress value from 0.0 to 1.0 for determinate mode; null for indeterminate.
-    pub value: Option<f64>,
+    pub value: Option<Reactive<f64>>,
     /// Background color of the linear track.
-    pub background_color: Option<Color>,
+    pub background_color: Option<Reactive<Color>>,
     /// Foreground color of the progress indicator.
-    pub color: Option<Color>,
+    pub color: Option<Reactive<Color>>,
     /// Minimum height of the progress indicator.
-    pub min_height: Option<f64>,
+    pub min_height: Option<Reactive<f64>>,
     /// Semantics label for accessibility.
     pub semantics_label: Option<Dyn<String>>,
     /// Semantics value for accessibility.
     pub semantics_value: Option<Dyn<String>>,
     /// Border radius of the progress indicator.
-    pub border_radius: Option<BorderRadius>,
+    pub border_radius: Option<Reactive<BorderRadius>>,
 }
 
 impl LinearProgressIndicator {
@@ -37,6 +42,7 @@ impl LinearProgressIndicator {
     /// Creates the model with only its required fields set.
     pub fn new() -> Self {
         Self {
+            envelope: Envelope::new(),
             value: None,
             background_color: None,
             color: None,
@@ -48,26 +54,26 @@ impl LinearProgressIndicator {
     }
 
     /// Progress value from 0.0 to 1.0 for determinate mode; null for indeterminate.
-    pub fn value(mut self, value: impl Into<f64>) -> Self {
-        self.value = Some(value.into());
+    pub fn value(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.value = Some(value.into_reactive());
         self
     }
 
     /// Background color of the linear track.
-    pub fn background_color(mut self, value: impl Into<Color>) -> Self {
-        self.background_color = Some(value.into());
+    pub fn background_color(mut self, value: impl IntoReactive<Color>) -> Self {
+        self.background_color = Some(value.into_reactive());
         self
     }
 
     /// Foreground color of the progress indicator.
-    pub fn color(mut self, value: impl Into<Color>) -> Self {
-        self.color = Some(value.into());
+    pub fn color(mut self, value: impl IntoReactive<Color>) -> Self {
+        self.color = Some(value.into_reactive());
         self
     }
 
     /// Minimum height of the progress indicator.
-    pub fn min_height(mut self, value: impl Into<f64>) -> Self {
-        self.min_height = Some(value.into());
+    pub fn min_height(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.min_height = Some(value.into_reactive());
         self
     }
 
@@ -84,8 +90,44 @@ impl LinearProgressIndicator {
     }
 
     /// Border radius of the progress indicator.
-    pub fn border_radius(mut self, value: impl Into<BorderRadius>) -> Self {
-        self.border_radius = Some(value.into());
+    pub fn border_radius(mut self, value: impl IntoReactive<BorderRadius>) -> Self {
+        self.border_radius = Some(value.into_reactive());
+        self
+    }
+
+    /// Sets `visible` (envelope): a `bool`, a state path or an expression.
+    pub fn visible(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.visible(value);
+        self
+    }
+
+    /// Sets `enabled` (envelope): a `bool`, a state path or an expression.
+    pub fn enabled(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.enabled(value);
+        self
+    }
+
+    /// Sets `bind` (envelope): the state key the widget reads and writes.
+    pub fn bind(mut self, key: BindKey) -> Self {
+        self.envelope = self.envelope.bind(key);
+        self
+    }
+
+    /// Sets `state` (envelope): the screen state declared by this widget.
+    pub fn state(mut self, block: StateBlock) -> Self {
+        self.envelope = self.envelope.state(block);
+        self
+    }
+
+    /// Sets `globalState` (envelope): the global state declared by this widget.
+    pub fn global_state(mut self, block: GlobalStateBlock) -> Self {
+        self.envelope = self.envelope.global_state(block);
+        self
+    }
+
+    /// Sets `onInit` (envelope): action(s) run when the widget is first built.
+    pub fn on_init(mut self, on_init: impl Into<OnInit>) -> Self {
+        self.envelope = self.envelope.on_init(on_init);
         self
     }
 }
@@ -94,6 +136,7 @@ impl Serialize for LinearProgressIndicator {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         let mut map = serializer.serialize_map(None)?;
         map.serialize_entry("type", "linearProgressIndicator")?;
+        self.envelope.serialize_into(&mut map)?;
         if let Some(value) = &self.value {
             map.serialize_entry("value", value)?;
         }
@@ -121,6 +164,7 @@ impl Serialize for LinearProgressIndicator {
 
 impl Validate for LinearProgressIndicator {
     fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
+        self.envelope.validate_at(path, issues);
         self.value.validate_at(&path.key("value"), issues);
         self.background_color
             .validate_at(&path.key("backgroundColor"), issues);
@@ -139,6 +183,8 @@ impl StacNode for LinearProgressIndicator {
     const KIND: NodeKind = NodeKind::Widget;
     const TYPE_NAME: &'static str = "linearProgressIndicator";
 }
+
+impl Plain for LinearProgressIndicator {}
 
 impl From<LinearProgressIndicator> for Widget {
     fn from(value: LinearProgressIndicator) -> Self {

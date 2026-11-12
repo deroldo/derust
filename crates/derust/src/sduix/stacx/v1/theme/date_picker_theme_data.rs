@@ -8,6 +8,9 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
@@ -17,25 +20,25 @@ pub struct DatePickerThemeData {
     /// The background color of the date picker.
     pub background_color: Option<Dyn<String>>,
     /// The z-coordinate at which to place this date picker relative to its parent.
-    pub elevation: Option<f64>,
+    pub elevation: Option<Reactive<f64>>,
     /// The color of the shadow below the date picker.
     pub shadow_color: Option<Dyn<String>>,
     /// The color used to tint the surface of this date picker.
     pub surface_tint_color: Option<Dyn<String>>,
     /// The shape of the date picker's border.
-    pub shape: Option<ShapeBorder>,
+    pub shape: Option<Reactive<ShapeBorder>>,
     /// The background color of the date picker header.
     pub header_background_color: Option<Dyn<String>>,
     /// The foreground color of the date picker header.
     pub header_foreground_color: Option<Dyn<String>>,
     /// The text style for the date picker header headline.
-    pub header_headline_style: Option<TextStyle>,
+    pub header_headline_style: Option<Reactive<TextStyle>>,
     /// The text style for the date picker header help text.
-    pub header_help_style: Option<TextStyle>,
+    pub header_help_style: Option<Reactive<TextStyle>>,
     /// The text style for weekday labels.
-    pub weekday_style: Option<TextStyle>,
+    pub weekday_style: Option<Reactive<TextStyle>>,
     /// The text style for day labels.
-    pub day_style: Option<TextStyle>,
+    pub day_style: Option<Reactive<TextStyle>>,
     /// The foreground color for day cells.
     pub day_foreground_color: Option<Dyn<String>>,
     /// The background color for day cells.
@@ -43,15 +46,15 @@ pub struct DatePickerThemeData {
     /// The overlay color for day cells.
     pub day_overlay_color: Option<Dyn<String>>,
     /// The shape of day cell borders.
-    pub day_shape: Option<ShapeBorder>,
+    pub day_shape: Option<Reactive<ShapeBorder>>,
     /// The foreground color for today's date.
     pub today_foreground_color: Option<Dyn<String>>,
     /// The background color for today's date.
     pub today_background_color: Option<Dyn<String>>,
     /// The border for today's date.
-    pub today_border: Option<BorderSide>,
+    pub today_border: Option<Reactive<BorderSide>>,
     /// The text style for year labels.
-    pub year_style: Option<TextStyle>,
+    pub year_style: Option<Reactive<TextStyle>>,
     /// The foreground color for year cells.
     pub year_foreground_color: Option<Dyn<String>>,
     /// The background color for year cells.
@@ -61,21 +64,21 @@ pub struct DatePickerThemeData {
     /// The background color of the range picker.
     pub range_picker_background_color: Option<Dyn<String>>,
     /// The z-coordinate at which to place the range picker.
-    pub range_picker_elevation: Option<f64>,
+    pub range_picker_elevation: Option<Reactive<f64>>,
     /// The color of the shadow below the range picker.
     pub range_picker_shadow_color: Option<Dyn<String>>,
     /// The color used to tint the surface of the range picker.
     pub range_picker_surface_tint_color: Option<Dyn<String>>,
     /// The shape of the range picker's border.
-    pub range_picker_shape: Option<ShapeBorder>,
+    pub range_picker_shape: Option<Reactive<ShapeBorder>>,
     /// The background color of the range picker header.
     pub range_picker_header_background_color: Option<Dyn<String>>,
     /// The foreground color of the range picker header.
     pub range_picker_header_foreground_color: Option<Dyn<String>>,
     /// The text style for the range picker header headline.
-    pub range_picker_header_headline_style: Option<TextStyle>,
+    pub range_picker_header_headline_style: Option<Reactive<TextStyle>>,
     /// The text style for the range picker header help text.
-    pub range_picker_header_help_style: Option<TextStyle>,
+    pub range_picker_header_help_style: Option<Reactive<TextStyle>>,
     /// The background color for range selection.
     pub range_selection_background_color: Option<Dyn<String>>,
     /// The overlay color for range selection.
@@ -83,11 +86,11 @@ pub struct DatePickerThemeData {
     /// The color of dividers in the date picker.
     pub divider_color: Option<Dyn<String>>,
     /// The input decoration theme for date picker inputs.
-    pub input_decoration_theme: Option<Box<InputDecorationTheme>>,
+    pub input_decoration_theme: Option<Reactive<Box<InputDecorationTheme>>>,
     /// The button style for the cancel button.
-    pub cancel_button_style: Option<Box<ButtonStyle>>,
+    pub cancel_button_style: Option<Reactive<Box<ButtonStyle>>>,
     /// The button style for the confirm button.
-    pub confirm_button_style: Option<Box<ButtonStyle>>,
+    pub confirm_button_style: Option<Reactive<Box<ButtonStyle>>>,
 }
 
 impl DatePickerThemeData {
@@ -141,8 +144,8 @@ impl DatePickerThemeData {
     }
 
     /// The z-coordinate at which to place this date picker relative to its parent.
-    pub fn elevation(mut self, value: impl Into<f64>) -> Self {
-        self.elevation = Some(value.into());
+    pub fn elevation(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.elevation = Some(value.into_reactive());
         self
     }
 
@@ -159,8 +162,8 @@ impl DatePickerThemeData {
     }
 
     /// The shape of the date picker's border.
-    pub fn shape(mut self, value: impl Into<ShapeBorder>) -> Self {
-        self.shape = Some(value.into());
+    pub fn shape(mut self, value: impl IntoReactive<ShapeBorder>) -> Self {
+        self.shape = Some(value.into_reactive());
         self
     }
 
@@ -177,26 +180,26 @@ impl DatePickerThemeData {
     }
 
     /// The text style for the date picker header headline.
-    pub fn header_headline_style(mut self, value: impl Into<TextStyle>) -> Self {
-        self.header_headline_style = Some(value.into());
+    pub fn header_headline_style(mut self, value: impl IntoReactive<TextStyle>) -> Self {
+        self.header_headline_style = Some(value.into_reactive());
         self
     }
 
     /// The text style for the date picker header help text.
-    pub fn header_help_style(mut self, value: impl Into<TextStyle>) -> Self {
-        self.header_help_style = Some(value.into());
+    pub fn header_help_style(mut self, value: impl IntoReactive<TextStyle>) -> Self {
+        self.header_help_style = Some(value.into_reactive());
         self
     }
 
     /// The text style for weekday labels.
-    pub fn weekday_style(mut self, value: impl Into<TextStyle>) -> Self {
-        self.weekday_style = Some(value.into());
+    pub fn weekday_style(mut self, value: impl IntoReactive<TextStyle>) -> Self {
+        self.weekday_style = Some(value.into_reactive());
         self
     }
 
     /// The text style for day labels.
-    pub fn day_style(mut self, value: impl Into<TextStyle>) -> Self {
-        self.day_style = Some(value.into());
+    pub fn day_style(mut self, value: impl IntoReactive<TextStyle>) -> Self {
+        self.day_style = Some(value.into_reactive());
         self
     }
 
@@ -219,8 +222,8 @@ impl DatePickerThemeData {
     }
 
     /// The shape of day cell borders.
-    pub fn day_shape(mut self, value: impl Into<ShapeBorder>) -> Self {
-        self.day_shape = Some(value.into());
+    pub fn day_shape(mut self, value: impl IntoReactive<ShapeBorder>) -> Self {
+        self.day_shape = Some(value.into_reactive());
         self
     }
 
@@ -237,14 +240,14 @@ impl DatePickerThemeData {
     }
 
     /// The border for today's date.
-    pub fn today_border(mut self, value: impl Into<BorderSide>) -> Self {
-        self.today_border = Some(value.into());
+    pub fn today_border(mut self, value: impl IntoReactive<BorderSide>) -> Self {
+        self.today_border = Some(value.into_reactive());
         self
     }
 
     /// The text style for year labels.
-    pub fn year_style(mut self, value: impl Into<TextStyle>) -> Self {
-        self.year_style = Some(value.into());
+    pub fn year_style(mut self, value: impl IntoReactive<TextStyle>) -> Self {
+        self.year_style = Some(value.into_reactive());
         self
     }
 
@@ -273,8 +276,8 @@ impl DatePickerThemeData {
     }
 
     /// The z-coordinate at which to place the range picker.
-    pub fn range_picker_elevation(mut self, value: impl Into<f64>) -> Self {
-        self.range_picker_elevation = Some(value.into());
+    pub fn range_picker_elevation(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.range_picker_elevation = Some(value.into_reactive());
         self
     }
 
@@ -291,8 +294,8 @@ impl DatePickerThemeData {
     }
 
     /// The shape of the range picker's border.
-    pub fn range_picker_shape(mut self, value: impl Into<ShapeBorder>) -> Self {
-        self.range_picker_shape = Some(value.into());
+    pub fn range_picker_shape(mut self, value: impl IntoReactive<ShapeBorder>) -> Self {
+        self.range_picker_shape = Some(value.into_reactive());
         self
     }
 
@@ -309,14 +312,17 @@ impl DatePickerThemeData {
     }
 
     /// The text style for the range picker header headline.
-    pub fn range_picker_header_headline_style(mut self, value: impl Into<TextStyle>) -> Self {
-        self.range_picker_header_headline_style = Some(value.into());
+    pub fn range_picker_header_headline_style(
+        mut self,
+        value: impl IntoReactive<TextStyle>,
+    ) -> Self {
+        self.range_picker_header_headline_style = Some(value.into_reactive());
         self
     }
 
     /// The text style for the range picker header help text.
-    pub fn range_picker_header_help_style(mut self, value: impl Into<TextStyle>) -> Self {
-        self.range_picker_header_help_style = Some(value.into());
+    pub fn range_picker_header_help_style(mut self, value: impl IntoReactive<TextStyle>) -> Self {
+        self.range_picker_header_help_style = Some(value.into_reactive());
         self
     }
 
@@ -339,20 +345,23 @@ impl DatePickerThemeData {
     }
 
     /// The input decoration theme for date picker inputs.
-    pub fn input_decoration_theme(mut self, value: impl Into<InputDecorationTheme>) -> Self {
-        self.input_decoration_theme = Some(Box::new(value.into()));
+    pub fn input_decoration_theme(
+        mut self,
+        value: impl IntoReactive<InputDecorationTheme>,
+    ) -> Self {
+        self.input_decoration_theme = Some(value.into_reactive().boxed());
         self
     }
 
     /// The button style for the cancel button.
-    pub fn cancel_button_style(mut self, value: impl Into<ButtonStyle>) -> Self {
-        self.cancel_button_style = Some(Box::new(value.into()));
+    pub fn cancel_button_style(mut self, value: impl IntoReactive<ButtonStyle>) -> Self {
+        self.cancel_button_style = Some(value.into_reactive().boxed());
         self
     }
 
     /// The button style for the confirm button.
-    pub fn confirm_button_style(mut self, value: impl Into<ButtonStyle>) -> Self {
-        self.confirm_button_style = Some(Box::new(value.into()));
+    pub fn confirm_button_style(mut self, value: impl IntoReactive<ButtonStyle>) -> Self {
+        self.confirm_button_style = Some(value.into_reactive().boxed());
         self
     }
 }
@@ -548,3 +557,5 @@ impl Validate for DatePickerThemeData {
             .validate_at(&path.key("confirmButtonStyle"), issues);
     }
 }
+
+impl Plain for DatePickerThemeData {}

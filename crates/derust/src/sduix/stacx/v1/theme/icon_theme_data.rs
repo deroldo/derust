@@ -8,6 +8,9 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
@@ -15,21 +18,21 @@ use serde::ser::{Serialize, SerializeMap, Serializer};
 #[derive(Debug, Clone, PartialEq)]
 pub struct IconThemeData {
     /// The size of the icon in logical pixels.
-    pub size: Option<f64>,
+    pub size: Option<Reactive<f64>>,
     /// The fill value for the icon (0.0 to 1.0).
-    pub fill: Option<f64>,
+    pub fill: Option<Reactive<f64>>,
     /// The weight value for the icon (100 to 900).
-    pub weight: Option<f64>,
+    pub weight: Option<Reactive<f64>>,
     /// The grade value for the icon (-25 to 200).
-    pub grade: Option<f64>,
+    pub grade: Option<Reactive<f64>>,
     /// The optical size for the icon in logical pixels.
-    pub optical_size: Option<f64>,
+    pub optical_size: Option<Reactive<f64>>,
     /// The color of the icon.
     pub color: Option<Dyn<String>>,
     /// The opacity of the icon (0.0 to 1.0).
-    pub opacity: Option<f64>,
+    pub opacity: Option<Reactive<f64>>,
     /// The list of shadows to apply to the icon.
-    pub shadows: Option<Vec<Shadow>>,
+    pub shadows: Option<Reactive<Vec<Shadow>>>,
 }
 
 impl IconThemeData {
@@ -48,32 +51,32 @@ impl IconThemeData {
     }
 
     /// The size of the icon in logical pixels.
-    pub fn size(mut self, value: impl Into<f64>) -> Self {
-        self.size = Some(value.into());
+    pub fn size(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.size = Some(value.into_reactive());
         self
     }
 
     /// The fill value for the icon (0.0 to 1.0).
-    pub fn fill(mut self, value: impl Into<f64>) -> Self {
-        self.fill = Some(value.into());
+    pub fn fill(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.fill = Some(value.into_reactive());
         self
     }
 
     /// The weight value for the icon (100 to 900).
-    pub fn weight(mut self, value: impl Into<f64>) -> Self {
-        self.weight = Some(value.into());
+    pub fn weight(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.weight = Some(value.into_reactive());
         self
     }
 
     /// The grade value for the icon (-25 to 200).
-    pub fn grade(mut self, value: impl Into<f64>) -> Self {
-        self.grade = Some(value.into());
+    pub fn grade(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.grade = Some(value.into_reactive());
         self
     }
 
     /// The optical size for the icon in logical pixels.
-    pub fn optical_size(mut self, value: impl Into<f64>) -> Self {
-        self.optical_size = Some(value.into());
+    pub fn optical_size(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.optical_size = Some(value.into_reactive());
         self
     }
 
@@ -84,14 +87,14 @@ impl IconThemeData {
     }
 
     /// The opacity of the icon (0.0 to 1.0).
-    pub fn opacity(mut self, value: impl Into<f64>) -> Self {
-        self.opacity = Some(value.into());
+    pub fn opacity(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.opacity = Some(value.into_reactive());
         self
     }
 
     /// The list of shadows to apply to the icon.
-    pub fn shadows(mut self, value: impl IntoIterator<Item = impl Into<Shadow>>) -> Self {
-        self.shadows = Some(value.into_iter().map(Into::into).collect());
+    pub fn shadows(mut self, value: impl IntoReactive<Vec<Shadow>>) -> Self {
+        self.shadows = Some(value.into_reactive());
         self
     }
 }
@@ -140,3 +143,5 @@ impl Validate for IconThemeData {
         self.shadows.validate_at(&path.key("shadows"), issues);
     }
 }
+
+impl Plain for IconThemeData {}

@@ -8,14 +8,19 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
 /// A Stac action that sets or updates values in state.
 #[derive(Debug, Clone, PartialEq)]
 pub struct SetValueAction {
+    /// Run the action only when this is true (state path or expression).
+    pub condition: Option<Reactive<bool>>,
     /// A list of maps representing key-value pairs to write to state.
-    pub values: Option<Vec<StateEntry>>,
+    pub values: Option<Reactive<Vec<StateEntry>>>,
     /// An optional action to execute after the values are written.
     pub action: Option<Action>,
 }
@@ -27,14 +32,21 @@ impl SetValueAction {
     /// Creates the model with only its required fields set.
     pub fn new() -> Self {
         Self {
+            condition: None,
             values: None,
             action: None,
         }
     }
 
+    /// Run the action only when this is true (state path or expression).
+    pub fn condition(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.condition = Some(value.into_reactive());
+        self
+    }
+
     /// A list of maps representing key-value pairs to write to state.
-    pub fn values(mut self, value: impl IntoIterator<Item = impl Into<StateEntry>>) -> Self {
-        self.values = Some(value.into_iter().map(Into::into).collect());
+    pub fn values(mut self, value: impl IntoReactive<Vec<StateEntry>>) -> Self {
+        self.values = Some(value.into_reactive());
         self
     }
 
@@ -49,6 +61,9 @@ impl Serialize for SetValueAction {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         let mut map = serializer.serialize_map(None)?;
         map.serialize_entry("actionType", "setValue")?;
+        if let Some(value) = &self.condition {
+            map.serialize_entry("condition", value)?;
+        }
         if let Some(value) = &self.values {
             map.serialize_entry("values", value)?;
         }
@@ -61,6 +76,7 @@ impl Serialize for SetValueAction {
 
 impl Validate for SetValueAction {
     fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
+        self.condition.validate_at(&path.key("condition"), issues);
         self.values.validate_at(&path.key("values"), issues);
         self.action.validate_at(&path.key("action"), issues);
     }
@@ -70,6 +86,8 @@ impl StacNode for SetValueAction {
     const KIND: NodeKind = NodeKind::Action;
     const TYPE_NAME: &'static str = "setValue";
 }
+
+impl Plain for SetValueAction {}
 
 impl From<SetValueAction> for Action {
     fn from(value: SetValueAction) -> Self {

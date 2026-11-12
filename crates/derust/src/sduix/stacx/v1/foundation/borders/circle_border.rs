@@ -8,6 +8,9 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
@@ -15,8 +18,8 @@ use serde::ser::{Serialize, SerializeMap, Serializer};
 #[derive(Debug, Clone, PartialEq)]
 pub struct CircleBorder {
     /// The eccentricity of the circle.
-    pub eccentricity: Option<f64>,
-    pub side: Option<BorderSide>,
+    pub eccentricity: Option<Reactive<f64>>,
+    pub side: Option<Reactive<BorderSide>>,
 }
 
 impl CircleBorder {
@@ -32,14 +35,14 @@ impl CircleBorder {
     }
 
     /// The eccentricity of the circle.
-    pub fn eccentricity(mut self, value: impl Into<f64>) -> Self {
-        self.eccentricity = Some(value.into());
+    pub fn eccentricity(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.eccentricity = Some(value.into_reactive());
         self
     }
 
     /// Sets `side`.
-    pub fn side(mut self, value: impl Into<BorderSide>) -> Self {
-        self.side = Some(value.into());
+    pub fn side(mut self, value: impl IntoReactive<BorderSide>) -> Self {
+        self.side = Some(value.into_reactive());
         self
     }
 }
@@ -66,8 +69,16 @@ impl Validate for CircleBorder {
     }
 }
 
+impl Plain for CircleBorder {}
+
 impl From<CircleBorder> for ShapeBorder {
     fn from(value: CircleBorder) -> Self {
         ShapeBorder::CircleBorder(Box::new(value))
+    }
+}
+
+impl IntoReactive<ShapeBorder> for CircleBorder {
+    fn into_reactive(self) -> Reactive<ShapeBorder> {
+        Reactive::Value(ShapeBorder::from(self))
     }
 }

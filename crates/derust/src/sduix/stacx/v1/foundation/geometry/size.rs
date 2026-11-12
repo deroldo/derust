@@ -8,6 +8,9 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
@@ -15,29 +18,29 @@ use serde::ser::{Serialize, SerializeMap, Serializer};
 #[derive(Debug, Clone, PartialEq)]
 pub struct Size {
     /// The width in logical pixels.
-    pub width: f64,
+    pub width: Reactive<f64>,
     /// The height in logical pixels.
-    pub height: f64,
+    pub height: Reactive<f64>,
 }
 
 impl Size {
     /// Creates the model with only its required fields set.
-    pub fn new(width: impl Into<f64>, height: impl Into<f64>) -> Self {
+    pub fn new(width: impl IntoReactive<f64>, height: impl IntoReactive<f64>) -> Self {
         Self {
-            width: width.into(),
-            height: height.into(),
+            width: width.into_reactive(),
+            height: height.into_reactive(),
         }
     }
 
     /// The width in logical pixels.
-    pub fn width(mut self, value: impl Into<f64>) -> Self {
-        self.width = value.into();
+    pub fn width(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.width = value.into_reactive();
         self
     }
 
     /// The height in logical pixels.
-    pub fn height(mut self, value: impl Into<f64>) -> Self {
-        self.height = value.into();
+    pub fn height(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.height = value.into_reactive();
         self
     }
 }
@@ -57,3 +60,5 @@ impl Validate for Size {
         self.height.validate_at(&path.key("height"), issues);
     }
 }
+
+impl Plain for Size {}

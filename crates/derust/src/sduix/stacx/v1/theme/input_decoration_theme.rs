@@ -8,6 +8,9 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
@@ -15,69 +18,69 @@ use serde::ser::{Serialize, SerializeMap, Serializer};
 #[derive(Debug, Clone, PartialEq)]
 pub struct InputDecorationTheme {
     /// The style for input field labels.
-    pub label_style: Option<TextStyle>,
+    pub label_style: Option<Reactive<TextStyle>>,
     /// The style for floating labels when they are floating.
-    pub floating_label_style: Option<TextStyle>,
+    pub floating_label_style: Option<Reactive<TextStyle>>,
     /// The style for helper text.
-    pub helper_style: Option<TextStyle>,
+    pub helper_style: Option<Reactive<TextStyle>>,
     /// The maximum number of lines for helper text.
-    pub helper_max_lines: Option<i64>,
+    pub helper_max_lines: Option<Reactive<i64>>,
     /// The style for hint text.
-    pub hint_style: Option<TextStyle>,
+    pub hint_style: Option<Reactive<TextStyle>>,
     /// The style for error text.
-    pub error_style: Option<TextStyle>,
+    pub error_style: Option<Reactive<TextStyle>>,
     /// The maximum number of lines for error text.
-    pub error_max_lines: Option<i64>,
+    pub error_max_lines: Option<Reactive<i64>>,
     /// How floating labels should behave.
     pub floating_label_behavior: Option<Dyn<String>>,
     /// How floating labels should be aligned.
     pub floating_label_alignment: Option<Dyn<String>>,
     /// Whether the input decoration is dense.
-    pub is_dense: Option<bool>,
+    pub is_dense: Option<Reactive<bool>>,
     /// The padding for the input content.
-    pub content_padding: Option<EdgeInsets>,
+    pub content_padding: Option<Reactive<EdgeInsets>>,
     /// Whether the input decoration is collapsed.
-    pub is_collapsed: Option<bool>,
+    pub is_collapsed: Option<Reactive<bool>>,
     /// The color of the icon.
     pub icon_color: Option<Dyn<String>>,
     /// The style for prefix text.
-    pub prefix_style: Option<TextStyle>,
+    pub prefix_style: Option<Reactive<TextStyle>>,
     /// The color of the prefix icon.
     pub prefix_icon_color: Option<Dyn<String>>,
     /// The style for suffix text.
-    pub suffix_style: Option<TextStyle>,
+    pub suffix_style: Option<Reactive<TextStyle>>,
     /// The color of the suffix icon.
     pub suffix_icon_color: Option<Dyn<String>>,
     /// The style for counter text.
-    pub counter_style: Option<TextStyle>,
+    pub counter_style: Option<Reactive<TextStyle>>,
     /// Whether the input field should be filled.
-    pub filled: Option<bool>,
+    pub filled: Option<Reactive<bool>>,
     /// The fill color for the input field.
     pub fill_color: Option<Dyn<String>>,
     /// The border for active indicators.
-    pub active_indicator_border: Option<BorderSide>,
+    pub active_indicator_border: Option<Reactive<BorderSide>>,
     /// The outline border.
-    pub outline_border: Option<BorderSide>,
+    pub outline_border: Option<Reactive<BorderSide>>,
     /// The color when the input is focused.
     pub focus_color: Option<Dyn<String>>,
     /// The color when the input is hovered.
     pub hover_color: Option<Dyn<String>>,
     /// The border when there is an error.
-    pub error_border: Option<Box<InputBorder>>,
+    pub error_border: Option<Reactive<Box<InputBorder>>>,
     /// The border when the input is focused.
-    pub focused_border: Option<Box<InputBorder>>,
+    pub focused_border: Option<Reactive<Box<InputBorder>>>,
     /// The border when focused and there is an error.
-    pub focused_error_border: Option<Box<InputBorder>>,
+    pub focused_error_border: Option<Reactive<Box<InputBorder>>>,
     /// The border when the input is disabled.
-    pub disabled_border: Option<Box<InputBorder>>,
+    pub disabled_border: Option<Reactive<Box<InputBorder>>>,
     /// The border when the input is enabled.
-    pub enabled_border: Option<Box<InputBorder>>,
+    pub enabled_border: Option<Reactive<Box<InputBorder>>>,
     /// The default border.
-    pub border: Option<Box<InputBorder>>,
+    pub border: Option<Reactive<Box<InputBorder>>>,
     /// Whether to align the label with the hint.
-    pub align_label_with_hint: Option<bool>,
+    pub align_label_with_hint: Option<Reactive<bool>>,
     /// The constraints for the input decoration.
-    pub constraints: Option<BoxConstraints>,
+    pub constraints: Option<Reactive<BoxConstraints>>,
 }
 
 impl InputDecorationTheme {
@@ -120,44 +123,44 @@ impl InputDecorationTheme {
     }
 
     /// The style for input field labels.
-    pub fn label_style(mut self, value: impl Into<TextStyle>) -> Self {
-        self.label_style = Some(value.into());
+    pub fn label_style(mut self, value: impl IntoReactive<TextStyle>) -> Self {
+        self.label_style = Some(value.into_reactive());
         self
     }
 
     /// The style for floating labels when they are floating.
-    pub fn floating_label_style(mut self, value: impl Into<TextStyle>) -> Self {
-        self.floating_label_style = Some(value.into());
+    pub fn floating_label_style(mut self, value: impl IntoReactive<TextStyle>) -> Self {
+        self.floating_label_style = Some(value.into_reactive());
         self
     }
 
     /// The style for helper text.
-    pub fn helper_style(mut self, value: impl Into<TextStyle>) -> Self {
-        self.helper_style = Some(value.into());
+    pub fn helper_style(mut self, value: impl IntoReactive<TextStyle>) -> Self {
+        self.helper_style = Some(value.into_reactive());
         self
     }
 
     /// The maximum number of lines for helper text.
-    pub fn helper_max_lines(mut self, value: impl Into<i64>) -> Self {
-        self.helper_max_lines = Some(value.into());
+    pub fn helper_max_lines(mut self, value: impl IntoReactive<i64>) -> Self {
+        self.helper_max_lines = Some(value.into_reactive());
         self
     }
 
     /// The style for hint text.
-    pub fn hint_style(mut self, value: impl Into<TextStyle>) -> Self {
-        self.hint_style = Some(value.into());
+    pub fn hint_style(mut self, value: impl IntoReactive<TextStyle>) -> Self {
+        self.hint_style = Some(value.into_reactive());
         self
     }
 
     /// The style for error text.
-    pub fn error_style(mut self, value: impl Into<TextStyle>) -> Self {
-        self.error_style = Some(value.into());
+    pub fn error_style(mut self, value: impl IntoReactive<TextStyle>) -> Self {
+        self.error_style = Some(value.into_reactive());
         self
     }
 
     /// The maximum number of lines for error text.
-    pub fn error_max_lines(mut self, value: impl Into<i64>) -> Self {
-        self.error_max_lines = Some(value.into());
+    pub fn error_max_lines(mut self, value: impl IntoReactive<i64>) -> Self {
+        self.error_max_lines = Some(value.into_reactive());
         self
     }
 
@@ -174,20 +177,20 @@ impl InputDecorationTheme {
     }
 
     /// Whether the input decoration is dense.
-    pub fn is_dense(mut self, value: bool) -> Self {
-        self.is_dense = Some(value);
+    pub fn is_dense(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.is_dense = Some(value.into_reactive());
         self
     }
 
     /// The padding for the input content.
-    pub fn content_padding(mut self, value: impl Into<EdgeInsets>) -> Self {
-        self.content_padding = Some(value.into());
+    pub fn content_padding(mut self, value: impl IntoReactive<EdgeInsets>) -> Self {
+        self.content_padding = Some(value.into_reactive());
         self
     }
 
     /// Whether the input decoration is collapsed.
-    pub fn is_collapsed(mut self, value: bool) -> Self {
-        self.is_collapsed = Some(value);
+    pub fn is_collapsed(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.is_collapsed = Some(value.into_reactive());
         self
     }
 
@@ -198,8 +201,8 @@ impl InputDecorationTheme {
     }
 
     /// The style for prefix text.
-    pub fn prefix_style(mut self, value: impl Into<TextStyle>) -> Self {
-        self.prefix_style = Some(value.into());
+    pub fn prefix_style(mut self, value: impl IntoReactive<TextStyle>) -> Self {
+        self.prefix_style = Some(value.into_reactive());
         self
     }
 
@@ -210,8 +213,8 @@ impl InputDecorationTheme {
     }
 
     /// The style for suffix text.
-    pub fn suffix_style(mut self, value: impl Into<TextStyle>) -> Self {
-        self.suffix_style = Some(value.into());
+    pub fn suffix_style(mut self, value: impl IntoReactive<TextStyle>) -> Self {
+        self.suffix_style = Some(value.into_reactive());
         self
     }
 
@@ -222,14 +225,14 @@ impl InputDecorationTheme {
     }
 
     /// The style for counter text.
-    pub fn counter_style(mut self, value: impl Into<TextStyle>) -> Self {
-        self.counter_style = Some(value.into());
+    pub fn counter_style(mut self, value: impl IntoReactive<TextStyle>) -> Self {
+        self.counter_style = Some(value.into_reactive());
         self
     }
 
     /// Whether the input field should be filled.
-    pub fn filled(mut self, value: bool) -> Self {
-        self.filled = Some(value);
+    pub fn filled(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.filled = Some(value.into_reactive());
         self
     }
 
@@ -240,14 +243,14 @@ impl InputDecorationTheme {
     }
 
     /// The border for active indicators.
-    pub fn active_indicator_border(mut self, value: impl Into<BorderSide>) -> Self {
-        self.active_indicator_border = Some(value.into());
+    pub fn active_indicator_border(mut self, value: impl IntoReactive<BorderSide>) -> Self {
+        self.active_indicator_border = Some(value.into_reactive());
         self
     }
 
     /// The outline border.
-    pub fn outline_border(mut self, value: impl Into<BorderSide>) -> Self {
-        self.outline_border = Some(value.into());
+    pub fn outline_border(mut self, value: impl IntoReactive<BorderSide>) -> Self {
+        self.outline_border = Some(value.into_reactive());
         self
     }
 
@@ -264,50 +267,50 @@ impl InputDecorationTheme {
     }
 
     /// The border when there is an error.
-    pub fn error_border(mut self, value: impl Into<InputBorder>) -> Self {
-        self.error_border = Some(Box::new(value.into()));
+    pub fn error_border(mut self, value: impl IntoReactive<InputBorder>) -> Self {
+        self.error_border = Some(value.into_reactive().boxed());
         self
     }
 
     /// The border when the input is focused.
-    pub fn focused_border(mut self, value: impl Into<InputBorder>) -> Self {
-        self.focused_border = Some(Box::new(value.into()));
+    pub fn focused_border(mut self, value: impl IntoReactive<InputBorder>) -> Self {
+        self.focused_border = Some(value.into_reactive().boxed());
         self
     }
 
     /// The border when focused and there is an error.
-    pub fn focused_error_border(mut self, value: impl Into<InputBorder>) -> Self {
-        self.focused_error_border = Some(Box::new(value.into()));
+    pub fn focused_error_border(mut self, value: impl IntoReactive<InputBorder>) -> Self {
+        self.focused_error_border = Some(value.into_reactive().boxed());
         self
     }
 
     /// The border when the input is disabled.
-    pub fn disabled_border(mut self, value: impl Into<InputBorder>) -> Self {
-        self.disabled_border = Some(Box::new(value.into()));
+    pub fn disabled_border(mut self, value: impl IntoReactive<InputBorder>) -> Self {
+        self.disabled_border = Some(value.into_reactive().boxed());
         self
     }
 
     /// The border when the input is enabled.
-    pub fn enabled_border(mut self, value: impl Into<InputBorder>) -> Self {
-        self.enabled_border = Some(Box::new(value.into()));
+    pub fn enabled_border(mut self, value: impl IntoReactive<InputBorder>) -> Self {
+        self.enabled_border = Some(value.into_reactive().boxed());
         self
     }
 
     /// The default border.
-    pub fn border(mut self, value: impl Into<InputBorder>) -> Self {
-        self.border = Some(Box::new(value.into()));
+    pub fn border(mut self, value: impl IntoReactive<InputBorder>) -> Self {
+        self.border = Some(value.into_reactive().boxed());
         self
     }
 
     /// Whether to align the label with the hint.
-    pub fn align_label_with_hint(mut self, value: bool) -> Self {
-        self.align_label_with_hint = Some(value);
+    pub fn align_label_with_hint(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.align_label_with_hint = Some(value.into_reactive());
         self
     }
 
     /// The constraints for the input decoration.
-    pub fn constraints(mut self, value: impl Into<BoxConstraints>) -> Self {
-        self.constraints = Some(value.into());
+    pub fn constraints(mut self, value: impl IntoReactive<BoxConstraints>) -> Self {
+        self.constraints = Some(value.into_reactive());
         self
     }
 }
@@ -423,15 +426,27 @@ impl Validate for InputDecorationTheme {
             .validate_at(&path.key("floatingLabelStyle"), issues);
         self.helper_style
             .validate_at(&path.key("helperStyle"), issues);
+        if let Some(value) = &self.helper_max_lines {
+            value.validate_binding_at(&path.key("helperMaxLines"), issues);
+        }
         self.hint_style.validate_at(&path.key("hintStyle"), issues);
         self.error_style
             .validate_at(&path.key("errorStyle"), issues);
+        if let Some(value) = &self.error_max_lines {
+            value.validate_binding_at(&path.key("errorMaxLines"), issues);
+        }
         self.floating_label_behavior
             .validate_at(&path.key("floatingLabelBehavior"), issues);
         self.floating_label_alignment
             .validate_at(&path.key("floatingLabelAlignment"), issues);
+        if let Some(value) = &self.is_dense {
+            value.validate_binding_at(&path.key("isDense"), issues);
+        }
         self.content_padding
             .validate_at(&path.key("contentPadding"), issues);
+        if let Some(value) = &self.is_collapsed {
+            value.validate_binding_at(&path.key("isCollapsed"), issues);
+        }
         self.icon_color.validate_at(&path.key("iconColor"), issues);
         self.prefix_style
             .validate_at(&path.key("prefixStyle"), issues);
@@ -443,6 +458,9 @@ impl Validate for InputDecorationTheme {
             .validate_at(&path.key("suffixIconColor"), issues);
         self.counter_style
             .validate_at(&path.key("counterStyle"), issues);
+        if let Some(value) = &self.filled {
+            value.validate_binding_at(&path.key("filled"), issues);
+        }
         self.fill_color.validate_at(&path.key("fillColor"), issues);
         self.active_indicator_border
             .validate_at(&path.key("activeIndicatorBorder"), issues);
@@ -463,7 +481,12 @@ impl Validate for InputDecorationTheme {
         self.enabled_border
             .validate_at(&path.key("enabledBorder"), issues);
         self.border.validate_at(&path.key("border"), issues);
+        if let Some(value) = &self.align_label_with_hint {
+            value.validate_binding_at(&path.key("alignLabelWithHint"), issues);
+        }
         self.constraints
             .validate_at(&path.key("constraints"), issues);
     }
 }
+
+impl Plain for InputDecorationTheme {}

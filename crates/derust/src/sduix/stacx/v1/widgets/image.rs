@@ -8,34 +8,39 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
 /// A Stac widget that displays an image.
 #[derive(Debug, Clone, PartialEq)]
 pub struct Image {
+    /// Properties common to every widget (`visible`, `enabled`, `bind`, `state`, `globalState`, `onInit`).
+    pub envelope: Envelope,
     /// The source path or URL of the image to display.
     pub src: Dyn<String>,
     /// How to align the image within its bounds.
-    pub alignment: Option<Alignment>,
+    pub alignment: Option<Reactive<Alignment>>,
     /// The type of image source (asset, network, etc.).
-    pub image_type: Option<ImageType>,
+    pub image_type: Option<Reactive<ImageType>>,
     /// A color filter to apply to the image.
-    pub color: Option<Color>,
+    pub color: Option<Reactive<Color>>,
     /// The width of the image in logical pixels.
-    pub width: Option<f64>,
+    pub width: Option<Reactive<f64>>,
     /// The height of the image in logical pixels.
-    pub height: Option<f64>,
+    pub height: Option<Reactive<f64>>,
     /// How the image should be inscribed into the space allocated during layout.
-    pub fit: Option<BoxFit>,
+    pub fit: Option<Reactive<BoxFit>>,
     /// How the image should be repeated if it doesn't fill its layout bounds.
-    pub repeat: Option<ImageRepeat>,
+    pub repeat: Option<Reactive<ImageRepeat>>,
     /// The quality level for image filtering operations.
-    pub filter_quality: Option<FilterQuality>,
+    pub filter_quality: Option<Reactive<FilterQuality>>,
     /// A semantic description of the image for accessibility.
     pub semantic_label: Option<Dyn<String>>,
     /// Whether to exclude this image from semantics.
-    pub exclude_from_semantics: Option<bool>,
+    pub exclude_from_semantics: Option<Reactive<bool>>,
 }
 
 impl Image {
@@ -45,6 +50,7 @@ impl Image {
     /// Creates the model with only its required fields set.
     pub fn new(src: impl Into<Dyn<String>>) -> Self {
         Self {
+            envelope: Envelope::new(),
             src: src.into(),
             alignment: None,
             image_type: None,
@@ -66,50 +72,50 @@ impl Image {
     }
 
     /// How to align the image within its bounds.
-    pub fn alignment(mut self, value: impl Into<Alignment>) -> Self {
-        self.alignment = Some(value.into());
+    pub fn alignment(mut self, value: impl IntoReactive<Alignment>) -> Self {
+        self.alignment = Some(value.into_reactive());
         self
     }
 
     /// The type of image source (asset, network, etc.).
-    pub fn image_type(mut self, value: impl Into<ImageType>) -> Self {
-        self.image_type = Some(value.into());
+    pub fn image_type(mut self, value: impl IntoReactive<ImageType>) -> Self {
+        self.image_type = Some(value.into_reactive());
         self
     }
 
     /// A color filter to apply to the image.
-    pub fn color(mut self, value: impl Into<Color>) -> Self {
-        self.color = Some(value.into());
+    pub fn color(mut self, value: impl IntoReactive<Color>) -> Self {
+        self.color = Some(value.into_reactive());
         self
     }
 
     /// The width of the image in logical pixels.
-    pub fn width(mut self, value: impl Into<f64>) -> Self {
-        self.width = Some(value.into());
+    pub fn width(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.width = Some(value.into_reactive());
         self
     }
 
     /// The height of the image in logical pixels.
-    pub fn height(mut self, value: impl Into<f64>) -> Self {
-        self.height = Some(value.into());
+    pub fn height(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.height = Some(value.into_reactive());
         self
     }
 
     /// How the image should be inscribed into the space allocated during layout.
-    pub fn fit(mut self, value: impl Into<BoxFit>) -> Self {
-        self.fit = Some(value.into());
+    pub fn fit(mut self, value: impl IntoReactive<BoxFit>) -> Self {
+        self.fit = Some(value.into_reactive());
         self
     }
 
     /// How the image should be repeated if it doesn't fill its layout bounds.
-    pub fn repeat(mut self, value: impl Into<ImageRepeat>) -> Self {
-        self.repeat = Some(value.into());
+    pub fn repeat(mut self, value: impl IntoReactive<ImageRepeat>) -> Self {
+        self.repeat = Some(value.into_reactive());
         self
     }
 
     /// The quality level for image filtering operations.
-    pub fn filter_quality(mut self, value: impl Into<FilterQuality>) -> Self {
-        self.filter_quality = Some(value.into());
+    pub fn filter_quality(mut self, value: impl IntoReactive<FilterQuality>) -> Self {
+        self.filter_quality = Some(value.into_reactive());
         self
     }
 
@@ -120,8 +126,44 @@ impl Image {
     }
 
     /// Whether to exclude this image from semantics.
-    pub fn exclude_from_semantics(mut self, value: bool) -> Self {
-        self.exclude_from_semantics = Some(value);
+    pub fn exclude_from_semantics(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.exclude_from_semantics = Some(value.into_reactive());
+        self
+    }
+
+    /// Sets `visible` (envelope): a `bool`, a state path or an expression.
+    pub fn visible(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.visible(value);
+        self
+    }
+
+    /// Sets `enabled` (envelope): a `bool`, a state path or an expression.
+    pub fn enabled(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.enabled(value);
+        self
+    }
+
+    /// Sets `bind` (envelope): the state key the widget reads and writes.
+    pub fn bind(mut self, key: BindKey) -> Self {
+        self.envelope = self.envelope.bind(key);
+        self
+    }
+
+    /// Sets `state` (envelope): the screen state declared by this widget.
+    pub fn state(mut self, block: StateBlock) -> Self {
+        self.envelope = self.envelope.state(block);
+        self
+    }
+
+    /// Sets `globalState` (envelope): the global state declared by this widget.
+    pub fn global_state(mut self, block: GlobalStateBlock) -> Self {
+        self.envelope = self.envelope.global_state(block);
+        self
+    }
+
+    /// Sets `onInit` (envelope): action(s) run when the widget is first built.
+    pub fn on_init(mut self, on_init: impl Into<OnInit>) -> Self {
+        self.envelope = self.envelope.on_init(on_init);
         self
     }
 }
@@ -130,6 +172,7 @@ impl Serialize for Image {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         let mut map = serializer.serialize_map(None)?;
         map.serialize_entry("type", "image")?;
+        self.envelope.serialize_into(&mut map)?;
         map.serialize_entry("src", &self.src)?;
         if let Some(value) = &self.alignment {
             map.serialize_entry("alignment", value)?;
@@ -167,12 +210,31 @@ impl Serialize for Image {
 
 impl Validate for Image {
     fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
+        self.envelope.validate_at(path, issues);
         self.src.validate_at(&path.key("src"), issues);
+        if let Some(value) = &self.alignment {
+            value.validate_binding_at(&path.key("alignment"), issues);
+        }
+        if let Some(value) = &self.image_type {
+            value.validate_binding_at(&path.key("imageType"), issues);
+        }
         self.color.validate_at(&path.key("color"), issues);
         self.width.validate_at(&path.key("width"), issues);
         self.height.validate_at(&path.key("height"), issues);
+        if let Some(value) = &self.fit {
+            value.validate_binding_at(&path.key("fit"), issues);
+        }
+        if let Some(value) = &self.repeat {
+            value.validate_binding_at(&path.key("repeat"), issues);
+        }
+        if let Some(value) = &self.filter_quality {
+            value.validate_binding_at(&path.key("filterQuality"), issues);
+        }
         self.semantic_label
             .validate_at(&path.key("semanticLabel"), issues);
+        if let Some(value) = &self.exclude_from_semantics {
+            value.validate_binding_at(&path.key("excludeFromSemantics"), issues);
+        }
     }
 }
 
@@ -180,6 +242,8 @@ impl StacNode for Image {
     const KIND: NodeKind = NodeKind::Widget;
     const TYPE_NAME: &'static str = "image";
 }
+
+impl Plain for Image {}
 
 impl From<Image> for Widget {
     fn from(value: Image) -> Self {

@@ -8,52 +8,57 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
 /// A widget that displays a string of text with a single style.
 #[derive(Debug, Clone, PartialEq)]
 pub struct SelectableText {
+    /// Properties common to every widget (`visible`, `enabled`, `bind`, `state`, `globalState`, `onInit`).
+    pub envelope: Envelope,
     /// The text to display.
     pub data: Dyn<String>,
     /// The list of text spans to display.
-    pub children: Option<Vec<TextSpan>>,
+    pub children: Option<Reactive<Vec<TextSpan>>>,
     /// The style to apply to the text.
-    pub style: Option<TextStyle>,
+    pub style: Option<Reactive<TextStyle>>,
     /// The style to merge with the existing style.
-    pub copy_with_style: Option<Box<CustomTextStyle>>,
+    pub copy_with_style: Option<Reactive<Box<CustomTextStyle>>>,
     /// How the text should be aligned horizontally.
-    pub text_align: Option<TextAlign>,
+    pub text_align: Option<Reactive<TextAlign>>,
     /// The directionality of the text.
-    pub text_direction: Option<TextDirection>,
+    pub text_direction: Option<Reactive<TextDirection>>,
     /// The font scaling strategy to use.
-    pub text_scaler: Option<f64>,
+    pub text_scaler: Option<Reactive<f64>>,
     /// Whether to show the cursor.
-    pub show_cursor: Option<bool>,
+    pub show_cursor: Option<Reactive<bool>>,
     /// Whether this widget should focus itself if nothing else is already focused.
-    pub autofocus: Option<bool>,
+    pub autofocus: Option<Reactive<bool>>,
     /// The minimum number of lines to occupy when the content spans fewer lines.
-    pub min_lines: Option<i64>,
+    pub min_lines: Option<Reactive<i64>>,
     /// The maximum number of lines to display.
-    pub max_lines: Option<i64>,
+    pub max_lines: Option<Reactive<i64>>,
     /// The thickness of the cursor.
-    pub cursor_width: Option<f64>,
+    pub cursor_width: Option<Reactive<f64>>,
     /// The height of the cursor.
-    pub cursor_height: Option<f64>,
+    pub cursor_height: Option<Reactive<f64>>,
     /// The radius of the cursor.
-    pub cursor_radius: Option<f64>,
+    pub cursor_radius: Option<Reactive<f64>>,
     /// The color of the cursor.
-    pub cursor_color: Option<Color>,
+    pub cursor_color: Option<Reactive<Color>>,
     /// Whether to enable interactive selection.
-    pub enable_interactive_selection: Option<bool>,
+    pub enable_interactive_selection: Option<Reactive<bool>>,
     /// Called when the user taps on the text.
     pub on_tap: Option<Action>,
     /// An alternative semantics label for the text.
     pub semantics_label: Option<Dyn<String>>,
     /// Defines how the paragraph will measure the width of the text.
-    pub text_width_basis: Option<TextWidthBasis>,
+    pub text_width_basis: Option<Reactive<TextWidthBasis>>,
     /// The color to use when painting the selection.
-    pub selection_color: Option<Color>,
+    pub selection_color: Option<Reactive<Color>>,
 }
 
 impl SelectableText {
@@ -63,6 +68,7 @@ impl SelectableText {
     /// Creates the model with only its required fields set.
     pub fn new(data: impl Into<Dyn<String>>) -> Self {
         Self {
+            envelope: Envelope::new(),
             data: data.into(),
             children: None,
             style: None,
@@ -93,92 +99,92 @@ impl SelectableText {
     }
 
     /// The list of text spans to display.
-    pub fn children(mut self, value: impl IntoIterator<Item = impl Into<TextSpan>>) -> Self {
-        self.children = Some(value.into_iter().map(Into::into).collect());
+    pub fn children(mut self, value: impl IntoReactive<Vec<TextSpan>>) -> Self {
+        self.children = Some(value.into_reactive());
         self
     }
 
     /// The style to apply to the text.
-    pub fn style(mut self, value: impl Into<TextStyle>) -> Self {
-        self.style = Some(value.into());
+    pub fn style(mut self, value: impl IntoReactive<TextStyle>) -> Self {
+        self.style = Some(value.into_reactive());
         self
     }
 
     /// The style to merge with the existing style.
-    pub fn copy_with_style(mut self, value: impl Into<CustomTextStyle>) -> Self {
-        self.copy_with_style = Some(Box::new(value.into()));
+    pub fn copy_with_style(mut self, value: impl IntoReactive<CustomTextStyle>) -> Self {
+        self.copy_with_style = Some(value.into_reactive().boxed());
         self
     }
 
     /// How the text should be aligned horizontally.
-    pub fn text_align(mut self, value: impl Into<TextAlign>) -> Self {
-        self.text_align = Some(value.into());
+    pub fn text_align(mut self, value: impl IntoReactive<TextAlign>) -> Self {
+        self.text_align = Some(value.into_reactive());
         self
     }
 
     /// The directionality of the text.
-    pub fn text_direction(mut self, value: impl Into<TextDirection>) -> Self {
-        self.text_direction = Some(value.into());
+    pub fn text_direction(mut self, value: impl IntoReactive<TextDirection>) -> Self {
+        self.text_direction = Some(value.into_reactive());
         self
     }
 
     /// The font scaling strategy to use.
-    pub fn text_scaler(mut self, value: impl Into<f64>) -> Self {
-        self.text_scaler = Some(value.into());
+    pub fn text_scaler(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.text_scaler = Some(value.into_reactive());
         self
     }
 
     /// Whether to show the cursor.
-    pub fn show_cursor(mut self, value: bool) -> Self {
-        self.show_cursor = Some(value);
+    pub fn show_cursor(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.show_cursor = Some(value.into_reactive());
         self
     }
 
     /// Whether this widget should focus itself if nothing else is already focused.
-    pub fn autofocus(mut self, value: bool) -> Self {
-        self.autofocus = Some(value);
+    pub fn autofocus(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.autofocus = Some(value.into_reactive());
         self
     }
 
     /// The minimum number of lines to occupy when the content spans fewer lines.
-    pub fn min_lines(mut self, value: impl Into<i64>) -> Self {
-        self.min_lines = Some(value.into());
+    pub fn min_lines(mut self, value: impl IntoReactive<i64>) -> Self {
+        self.min_lines = Some(value.into_reactive());
         self
     }
 
     /// The maximum number of lines to display.
-    pub fn max_lines(mut self, value: impl Into<i64>) -> Self {
-        self.max_lines = Some(value.into());
+    pub fn max_lines(mut self, value: impl IntoReactive<i64>) -> Self {
+        self.max_lines = Some(value.into_reactive());
         self
     }
 
     /// The thickness of the cursor.
-    pub fn cursor_width(mut self, value: impl Into<f64>) -> Self {
-        self.cursor_width = Some(value.into());
+    pub fn cursor_width(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.cursor_width = Some(value.into_reactive());
         self
     }
 
     /// The height of the cursor.
-    pub fn cursor_height(mut self, value: impl Into<f64>) -> Self {
-        self.cursor_height = Some(value.into());
+    pub fn cursor_height(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.cursor_height = Some(value.into_reactive());
         self
     }
 
     /// The radius of the cursor.
-    pub fn cursor_radius(mut self, value: impl Into<f64>) -> Self {
-        self.cursor_radius = Some(value.into());
+    pub fn cursor_radius(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.cursor_radius = Some(value.into_reactive());
         self
     }
 
     /// The color of the cursor.
-    pub fn cursor_color(mut self, value: impl Into<Color>) -> Self {
-        self.cursor_color = Some(value.into());
+    pub fn cursor_color(mut self, value: impl IntoReactive<Color>) -> Self {
+        self.cursor_color = Some(value.into_reactive());
         self
     }
 
     /// Whether to enable interactive selection.
-    pub fn enable_interactive_selection(mut self, value: bool) -> Self {
-        self.enable_interactive_selection = Some(value);
+    pub fn enable_interactive_selection(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.enable_interactive_selection = Some(value.into_reactive());
         self
     }
 
@@ -195,14 +201,50 @@ impl SelectableText {
     }
 
     /// Defines how the paragraph will measure the width of the text.
-    pub fn text_width_basis(mut self, value: impl Into<TextWidthBasis>) -> Self {
-        self.text_width_basis = Some(value.into());
+    pub fn text_width_basis(mut self, value: impl IntoReactive<TextWidthBasis>) -> Self {
+        self.text_width_basis = Some(value.into_reactive());
         self
     }
 
     /// The color to use when painting the selection.
-    pub fn selection_color(mut self, value: impl Into<Color>) -> Self {
-        self.selection_color = Some(value.into());
+    pub fn selection_color(mut self, value: impl IntoReactive<Color>) -> Self {
+        self.selection_color = Some(value.into_reactive());
+        self
+    }
+
+    /// Sets `visible` (envelope): a `bool`, a state path or an expression.
+    pub fn visible(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.visible(value);
+        self
+    }
+
+    /// Sets `enabled` (envelope): a `bool`, a state path or an expression.
+    pub fn enabled(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.enabled(value);
+        self
+    }
+
+    /// Sets `bind` (envelope): the state key the widget reads and writes.
+    pub fn bind(mut self, key: BindKey) -> Self {
+        self.envelope = self.envelope.bind(key);
+        self
+    }
+
+    /// Sets `state` (envelope): the screen state declared by this widget.
+    pub fn state(mut self, block: StateBlock) -> Self {
+        self.envelope = self.envelope.state(block);
+        self
+    }
+
+    /// Sets `globalState` (envelope): the global state declared by this widget.
+    pub fn global_state(mut self, block: GlobalStateBlock) -> Self {
+        self.envelope = self.envelope.global_state(block);
+        self
+    }
+
+    /// Sets `onInit` (envelope): action(s) run when the widget is first built.
+    pub fn on_init(mut self, on_init: impl Into<OnInit>) -> Self {
+        self.envelope = self.envelope.on_init(on_init);
         self
     }
 }
@@ -211,6 +253,7 @@ impl Serialize for SelectableText {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         let mut map = serializer.serialize_map(None)?;
         map.serialize_entry("type", "selectableText")?;
+        self.envelope.serialize_into(&mut map)?;
         map.serialize_entry("data", &self.data)?;
         if let Some(value) = &self.children {
             map.serialize_entry("children", value)?;
@@ -275,13 +318,32 @@ impl Serialize for SelectableText {
 
 impl Validate for SelectableText {
     fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
+        self.envelope.validate_at(path, issues);
         self.data.validate_at(&path.key("data"), issues);
         self.children.validate_at(&path.key("children"), issues);
         self.style.validate_at(&path.key("style"), issues);
         self.copy_with_style
             .validate_at(&path.key("copyWithStyle"), issues);
+        if let Some(value) = &self.text_align {
+            value.validate_binding_at(&path.key("textAlign"), issues);
+        }
+        if let Some(value) = &self.text_direction {
+            value.validate_binding_at(&path.key("textDirection"), issues);
+        }
         self.text_scaler
             .validate_at(&path.key("textScaler"), issues);
+        if let Some(value) = &self.show_cursor {
+            value.validate_binding_at(&path.key("showCursor"), issues);
+        }
+        if let Some(value) = &self.autofocus {
+            value.validate_binding_at(&path.key("autofocus"), issues);
+        }
+        if let Some(value) = &self.min_lines {
+            value.validate_binding_at(&path.key("minLines"), issues);
+        }
+        if let Some(value) = &self.max_lines {
+            value.validate_binding_at(&path.key("maxLines"), issues);
+        }
         self.cursor_width
             .validate_at(&path.key("cursorWidth"), issues);
         self.cursor_height
@@ -290,9 +352,15 @@ impl Validate for SelectableText {
             .validate_at(&path.key("cursorRadius"), issues);
         self.cursor_color
             .validate_at(&path.key("cursorColor"), issues);
+        if let Some(value) = &self.enable_interactive_selection {
+            value.validate_binding_at(&path.key("enableInteractiveSelection"), issues);
+        }
         self.on_tap.validate_at(&path.key("onTap"), issues);
         self.semantics_label
             .validate_at(&path.key("semanticsLabel"), issues);
+        if let Some(value) = &self.text_width_basis {
+            value.validate_binding_at(&path.key("textWidthBasis"), issues);
+        }
         self.selection_color
             .validate_at(&path.key("selectionColor"), issues);
     }
@@ -302,6 +370,8 @@ impl StacNode for SelectableText {
     const KIND: NodeKind = NodeKind::Widget;
     const TYPE_NAME: &'static str = "selectableText";
 }
+
+impl Plain for SelectableText {}
 
 impl From<SelectableText> for Widget {
     fn from(value: SelectableText) -> Self {

@@ -8,12 +8,17 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
 /// A Stac action that validates form data and executes conditional actions.
 #[derive(Debug, Clone, PartialEq)]
 pub struct FormValidate {
+    /// Run the action only when this is true (state path or expression).
+    pub condition: Option<Reactive<bool>>,
     /// Action to execute when form validation passes.
     pub is_valid: Option<Action>,
     /// Action to execute when form validation fails.
@@ -27,9 +32,16 @@ impl FormValidate {
     /// Creates the model with only its required fields set.
     pub fn new() -> Self {
         Self {
+            condition: None,
             is_valid: None,
             is_not_valid: None,
         }
+    }
+
+    /// Run the action only when this is true (state path or expression).
+    pub fn condition(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.condition = Some(value.into_reactive());
+        self
     }
 
     /// Action to execute when form validation passes.
@@ -49,6 +61,9 @@ impl Serialize for FormValidate {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         let mut map = serializer.serialize_map(None)?;
         map.serialize_entry("actionType", "validateForm")?;
+        if let Some(value) = &self.condition {
+            map.serialize_entry("condition", value)?;
+        }
         if let Some(value) = &self.is_valid {
             map.serialize_entry("isValid", value)?;
         }
@@ -61,6 +76,7 @@ impl Serialize for FormValidate {
 
 impl Validate for FormValidate {
     fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
+        self.condition.validate_at(&path.key("condition"), issues);
         self.is_valid.validate_at(&path.key("isValid"), issues);
         self.is_not_valid
             .validate_at(&path.key("isNotValid"), issues);
@@ -71,6 +87,8 @@ impl StacNode for FormValidate {
     const KIND: NodeKind = NodeKind::Action;
     const TYPE_NAME: &'static str = "validateForm";
 }
+
+impl Plain for FormValidate {}
 
 impl From<FormValidate> for Action {
     fn from(value: FormValidate) -> Self {

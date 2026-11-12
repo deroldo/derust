@@ -8,12 +8,17 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
 /// A Stac model for a widget that detects gestures.
 #[derive(Debug, Clone, PartialEq)]
 pub struct GestureDetector {
+    /// Properties common to every widget (`visible`, `enabled`, `bind`, `state`, `globalState`, `onInit`).
+    pub envelope: Envelope,
     /// The widget below this widget in the tree.
     pub child: Option<Widget>,
     /// An action to perform when a tap has occurred.
@@ -131,11 +136,11 @@ pub struct GestureDetector {
     /// An action to perform when the pointers are no longer in contact with the screen.
     pub on_scale_end: Option<Action>,
     /// How this gesture detector should behave during hit testing. This defaults to \[StacHitTestBehavior.deferToChild\] if \[child\] is not null and \[StacHitTestBehavior.translucent\] if \[child\] is null.
-    pub behavior: Option<HitTestBehavior>,
+    pub behavior: Option<Reactive<HitTestBehavior>>,
     /// Whether to exclude these gestures from the semantics tree.
-    pub exclude_from_semantics: Option<bool>,
+    pub exclude_from_semantics: Option<Reactive<bool>>,
     /// Determines the way that drag start behavior is handled. Defaults to \[StacDragStartBehavior.start\].
-    pub drag_start_behavior: Option<DragStartBehavior>,
+    pub drag_start_behavior: Option<Reactive<DragStartBehavior>>,
 }
 
 impl GestureDetector {
@@ -145,6 +150,7 @@ impl GestureDetector {
     /// Creates the model with only its required fields set.
     pub fn new() -> Self {
         Self {
+            envelope: Envelope::new(),
             child: None,
             on_tap: None,
             on_tap_down: None,
@@ -558,20 +564,56 @@ impl GestureDetector {
     }
 
     /// How this gesture detector should behave during hit testing. This defaults to \[StacHitTestBehavior.deferToChild\] if \[child\] is not null and \[StacHitTestBehavior.translucent\] if \[child\] is null.
-    pub fn behavior(mut self, value: impl Into<HitTestBehavior>) -> Self {
-        self.behavior = Some(value.into());
+    pub fn behavior(mut self, value: impl IntoReactive<HitTestBehavior>) -> Self {
+        self.behavior = Some(value.into_reactive());
         self
     }
 
     /// Whether to exclude these gestures from the semantics tree.
-    pub fn exclude_from_semantics(mut self, value: bool) -> Self {
-        self.exclude_from_semantics = Some(value);
+    pub fn exclude_from_semantics(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.exclude_from_semantics = Some(value.into_reactive());
         self
     }
 
     /// Determines the way that drag start behavior is handled. Defaults to \[StacDragStartBehavior.start\].
-    pub fn drag_start_behavior(mut self, value: impl Into<DragStartBehavior>) -> Self {
-        self.drag_start_behavior = Some(value.into());
+    pub fn drag_start_behavior(mut self, value: impl IntoReactive<DragStartBehavior>) -> Self {
+        self.drag_start_behavior = Some(value.into_reactive());
+        self
+    }
+
+    /// Sets `visible` (envelope): a `bool`, a state path or an expression.
+    pub fn visible(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.visible(value);
+        self
+    }
+
+    /// Sets `enabled` (envelope): a `bool`, a state path or an expression.
+    pub fn enabled(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.enabled(value);
+        self
+    }
+
+    /// Sets `bind` (envelope): the state key the widget reads and writes.
+    pub fn bind(mut self, key: BindKey) -> Self {
+        self.envelope = self.envelope.bind(key);
+        self
+    }
+
+    /// Sets `state` (envelope): the screen state declared by this widget.
+    pub fn state(mut self, block: StateBlock) -> Self {
+        self.envelope = self.envelope.state(block);
+        self
+    }
+
+    /// Sets `globalState` (envelope): the global state declared by this widget.
+    pub fn global_state(mut self, block: GlobalStateBlock) -> Self {
+        self.envelope = self.envelope.global_state(block);
+        self
+    }
+
+    /// Sets `onInit` (envelope): action(s) run when the widget is first built.
+    pub fn on_init(mut self, on_init: impl Into<OnInit>) -> Self {
+        self.envelope = self.envelope.on_init(on_init);
         self
     }
 }
@@ -580,6 +622,7 @@ impl Serialize for GestureDetector {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         let mut map = serializer.serialize_map(None)?;
         map.serialize_entry("type", "gestureDetector")?;
+        self.envelope.serialize_into(&mut map)?;
         if let Some(value) = &self.child {
             map.serialize_entry("child", value)?;
         }
@@ -769,6 +812,7 @@ impl Serialize for GestureDetector {
 
 impl Validate for GestureDetector {
     fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
+        self.envelope.validate_at(path, issues);
         self.child.validate_at(&path.key("child"), issues);
         self.on_tap.validate_at(&path.key("onTap"), issues);
         self.on_tap_down.validate_at(&path.key("onTapDown"), issues);
@@ -879,6 +923,15 @@ impl Validate for GestureDetector {
             .validate_at(&path.key("onScaleUpdate"), issues);
         self.on_scale_end
             .validate_at(&path.key("onScaleEnd"), issues);
+        if let Some(value) = &self.behavior {
+            value.validate_binding_at(&path.key("behavior"), issues);
+        }
+        if let Some(value) = &self.exclude_from_semantics {
+            value.validate_binding_at(&path.key("excludeFromSemantics"), issues);
+        }
+        if let Some(value) = &self.drag_start_behavior {
+            value.validate_binding_at(&path.key("dragStartBehavior"), issues);
+        }
     }
 }
 
@@ -886,6 +939,8 @@ impl StacNode for GestureDetector {
     const KIND: NodeKind = NodeKind::Widget;
     const TYPE_NAME: &'static str = "gestureDetector";
 }
+
+impl Plain for GestureDetector {}
 
 impl From<GestureDetector> for Widget {
     fn from(value: GestureDetector) -> Self {

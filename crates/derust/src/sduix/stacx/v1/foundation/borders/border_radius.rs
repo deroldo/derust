@@ -8,6 +8,9 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
@@ -15,13 +18,13 @@ use serde::ser::{Serialize, SerializeMap, Serializer};
 #[derive(Debug, Clone, PartialEq)]
 pub struct BorderRadius {
     /// The radius for the top-left corner in logical pixels.
-    pub top_left: Option<f64>,
+    pub top_left: Option<Reactive<f64>>,
     /// The radius for the top-right corner in logical pixels.
-    pub top_right: Option<f64>,
+    pub top_right: Option<Reactive<f64>>,
     /// The radius for the bottom-left corner in logical pixels.
-    pub bottom_left: Option<f64>,
+    pub bottom_left: Option<Reactive<f64>>,
     /// The radius for the bottom-right corner in logical pixels.
-    pub bottom_right: Option<f64>,
+    pub bottom_right: Option<Reactive<f64>>,
 }
 
 impl BorderRadius {
@@ -36,26 +39,26 @@ impl BorderRadius {
     }
 
     /// The radius for the top-left corner in logical pixels.
-    pub fn top_left(mut self, value: impl Into<f64>) -> Self {
-        self.top_left = Some(value.into());
+    pub fn top_left(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.top_left = Some(value.into_reactive());
         self
     }
 
     /// The radius for the top-right corner in logical pixels.
-    pub fn top_right(mut self, value: impl Into<f64>) -> Self {
-        self.top_right = Some(value.into());
+    pub fn top_right(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.top_right = Some(value.into_reactive());
         self
     }
 
     /// The radius for the bottom-left corner in logical pixels.
-    pub fn bottom_left(mut self, value: impl Into<f64>) -> Self {
-        self.bottom_left = Some(value.into());
+    pub fn bottom_left(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.bottom_left = Some(value.into_reactive());
         self
     }
 
     /// The radius for the bottom-right corner in logical pixels.
-    pub fn bottom_right(mut self, value: impl Into<f64>) -> Self {
-        self.bottom_right = Some(value.into());
+    pub fn bottom_right(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.bottom_right = Some(value.into_reactive());
         self
     }
 }
@@ -89,3 +92,5 @@ impl Validate for BorderRadius {
             .validate_at(&path.key("bottomRight"), issues);
     }
 }
+
+impl Plain for BorderRadius {}

@@ -94,7 +94,7 @@ fn modal_bottom_sheet_action() {
                 .elevation(1.5)
                 .shape(
                     Border::new()
-                        .color("#FF0000")
+                        .color(Color::from("#FF0000"))
                         .border_style(BorderStyle::None)
                         .width(1.5)
                         .stroke_align(1.5)

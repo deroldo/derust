@@ -8,22 +8,27 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
 /// A Stac model representing Flutter's \[TabBarView\] widget.
 #[derive(Debug, Clone, PartialEq)]
 pub struct TabBarView {
+    /// Properties common to every widget (`visible`, `enabled`, `bind`, `state`, `globalState`, `onInit`).
+    pub envelope: Envelope,
     /// The pages to display; typically one per tab.
     pub children: Vec<Widget>,
     /// Drag start behavior for horizontal drags.
-    pub drag_start_behavior: Option<DragStartBehavior>,
+    pub drag_start_behavior: Option<Reactive<DragStartBehavior>>,
     /// Scroll physics for the page view.
-    pub physics: Option<ScrollPhysics>,
+    pub physics: Option<Reactive<ScrollPhysics>>,
     /// Fraction of the viewport that each page should occupy.
-    pub viewport_fraction: Option<f64>,
+    pub viewport_fraction: Option<Reactive<f64>>,
     /// The clipping behavior for content.
-    pub clip_behavior: Option<Clip>,
+    pub clip_behavior: Option<Reactive<Clip>>,
 }
 
 impl TabBarView {
@@ -33,6 +38,7 @@ impl TabBarView {
     /// Creates the model with only its required fields set.
     pub fn new(children: impl IntoIterator<Item = impl Into<Widget>>) -> Self {
         Self {
+            envelope: Envelope::new(),
             children: children.into_iter().map(Into::into).collect(),
             drag_start_behavior: None,
             physics: None,
@@ -48,26 +54,62 @@ impl TabBarView {
     }
 
     /// Drag start behavior for horizontal drags.
-    pub fn drag_start_behavior(mut self, value: impl Into<DragStartBehavior>) -> Self {
-        self.drag_start_behavior = Some(value.into());
+    pub fn drag_start_behavior(mut self, value: impl IntoReactive<DragStartBehavior>) -> Self {
+        self.drag_start_behavior = Some(value.into_reactive());
         self
     }
 
     /// Scroll physics for the page view.
-    pub fn physics(mut self, value: impl Into<ScrollPhysics>) -> Self {
-        self.physics = Some(value.into());
+    pub fn physics(mut self, value: impl IntoReactive<ScrollPhysics>) -> Self {
+        self.physics = Some(value.into_reactive());
         self
     }
 
     /// Fraction of the viewport that each page should occupy.
-    pub fn viewport_fraction(mut self, value: impl Into<f64>) -> Self {
-        self.viewport_fraction = Some(value.into());
+    pub fn viewport_fraction(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.viewport_fraction = Some(value.into_reactive());
         self
     }
 
     /// The clipping behavior for content.
-    pub fn clip_behavior(mut self, value: impl Into<Clip>) -> Self {
-        self.clip_behavior = Some(value.into());
+    pub fn clip_behavior(mut self, value: impl IntoReactive<Clip>) -> Self {
+        self.clip_behavior = Some(value.into_reactive());
+        self
+    }
+
+    /// Sets `visible` (envelope): a `bool`, a state path or an expression.
+    pub fn visible(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.visible(value);
+        self
+    }
+
+    /// Sets `enabled` (envelope): a `bool`, a state path or an expression.
+    pub fn enabled(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.enabled(value);
+        self
+    }
+
+    /// Sets `bind` (envelope): the state key the widget reads and writes.
+    pub fn bind(mut self, key: BindKey) -> Self {
+        self.envelope = self.envelope.bind(key);
+        self
+    }
+
+    /// Sets `state` (envelope): the screen state declared by this widget.
+    pub fn state(mut self, block: StateBlock) -> Self {
+        self.envelope = self.envelope.state(block);
+        self
+    }
+
+    /// Sets `globalState` (envelope): the global state declared by this widget.
+    pub fn global_state(mut self, block: GlobalStateBlock) -> Self {
+        self.envelope = self.envelope.global_state(block);
+        self
+    }
+
+    /// Sets `onInit` (envelope): action(s) run when the widget is first built.
+    pub fn on_init(mut self, on_init: impl Into<OnInit>) -> Self {
+        self.envelope = self.envelope.on_init(on_init);
         self
     }
 }
@@ -76,6 +118,7 @@ impl Serialize for TabBarView {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         let mut map = serializer.serialize_map(None)?;
         map.serialize_entry("type", "tabBarView")?;
+        self.envelope.serialize_into(&mut map)?;
         map.serialize_entry("children", &self.children)?;
         if let Some(value) = &self.drag_start_behavior {
             map.serialize_entry("dragStartBehavior", value)?;
@@ -95,9 +138,19 @@ impl Serialize for TabBarView {
 
 impl Validate for TabBarView {
     fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
+        self.envelope.validate_at(path, issues);
         self.children.validate_at(&path.key("children"), issues);
+        if let Some(value) = &self.drag_start_behavior {
+            value.validate_binding_at(&path.key("dragStartBehavior"), issues);
+        }
+        if let Some(value) = &self.physics {
+            value.validate_binding_at(&path.key("physics"), issues);
+        }
         self.viewport_fraction
             .validate_at(&path.key("viewportFraction"), issues);
+        if let Some(value) = &self.clip_behavior {
+            value.validate_binding_at(&path.key("clipBehavior"), issues);
+        }
     }
 }
 
@@ -105,6 +158,8 @@ impl StacNode for TabBarView {
     const KIND: NodeKind = NodeKind::Widget;
     const TYPE_NAME: &'static str = "tabBarView";
 }
+
+impl Plain for TabBarView {}
 
 impl From<TabBarView> for Widget {
     fn from(value: TabBarView) -> Self {

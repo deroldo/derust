@@ -8,6 +8,9 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
@@ -19,17 +22,17 @@ pub struct SystemUIOverlayStyle {
     /// The color of the divider between the navigation bar and content.
     pub system_navigation_bar_divider_color: Option<Dyn<String>>,
     /// The brightness of icons in the system navigation bar.
-    pub system_navigation_bar_icon_brightness: Option<Brightness>,
+    pub system_navigation_bar_icon_brightness: Option<Reactive<Brightness>>,
     /// Whether contrast enforcement is enabled for the navigation bar.
-    pub system_navigation_bar_contrast_enforced: Option<bool>,
+    pub system_navigation_bar_contrast_enforced: Option<Reactive<bool>>,
     /// The color of the status bar.
     pub status_bar_color: Option<Dyn<String>>,
     /// The brightness of the status bar background.
-    pub status_bar_brightness: Option<Brightness>,
+    pub status_bar_brightness: Option<Reactive<Brightness>>,
     /// The brightness of icons in the status bar.
-    pub status_bar_icon_brightness: Option<Brightness>,
+    pub status_bar_icon_brightness: Option<Reactive<Brightness>>,
     /// Whether contrast enforcement is enabled for the status bar.
-    pub system_status_bar_contrast_enforced: Option<bool>,
+    pub system_status_bar_contrast_enforced: Option<Reactive<bool>>,
 }
 
 impl SystemUIOverlayStyle {
@@ -60,14 +63,20 @@ impl SystemUIOverlayStyle {
     }
 
     /// The brightness of icons in the system navigation bar.
-    pub fn system_navigation_bar_icon_brightness(mut self, value: impl Into<Brightness>) -> Self {
-        self.system_navigation_bar_icon_brightness = Some(value.into());
+    pub fn system_navigation_bar_icon_brightness(
+        mut self,
+        value: impl IntoReactive<Brightness>,
+    ) -> Self {
+        self.system_navigation_bar_icon_brightness = Some(value.into_reactive());
         self
     }
 
     /// Whether contrast enforcement is enabled for the navigation bar.
-    pub fn system_navigation_bar_contrast_enforced(mut self, value: bool) -> Self {
-        self.system_navigation_bar_contrast_enforced = Some(value);
+    pub fn system_navigation_bar_contrast_enforced(
+        mut self,
+        value: impl IntoReactive<bool>,
+    ) -> Self {
+        self.system_navigation_bar_contrast_enforced = Some(value.into_reactive());
         self
     }
 
@@ -78,20 +87,20 @@ impl SystemUIOverlayStyle {
     }
 
     /// The brightness of the status bar background.
-    pub fn status_bar_brightness(mut self, value: impl Into<Brightness>) -> Self {
-        self.status_bar_brightness = Some(value.into());
+    pub fn status_bar_brightness(mut self, value: impl IntoReactive<Brightness>) -> Self {
+        self.status_bar_brightness = Some(value.into_reactive());
         self
     }
 
     /// The brightness of icons in the status bar.
-    pub fn status_bar_icon_brightness(mut self, value: impl Into<Brightness>) -> Self {
-        self.status_bar_icon_brightness = Some(value.into());
+    pub fn status_bar_icon_brightness(mut self, value: impl IntoReactive<Brightness>) -> Self {
+        self.status_bar_icon_brightness = Some(value.into_reactive());
         self
     }
 
     /// Whether contrast enforcement is enabled for the status bar.
-    pub fn system_status_bar_contrast_enforced(mut self, value: bool) -> Self {
-        self.system_status_bar_contrast_enforced = Some(value);
+    pub fn system_status_bar_contrast_enforced(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.system_status_bar_contrast_enforced = Some(value.into_reactive());
         self
     }
 }
@@ -133,7 +142,24 @@ impl Validate for SystemUIOverlayStyle {
             .validate_at(&path.key("systemNavigationBarColor"), issues);
         self.system_navigation_bar_divider_color
             .validate_at(&path.key("systemNavigationBarDividerColor"), issues);
+        if let Some(value) = &self.system_navigation_bar_icon_brightness {
+            value.validate_binding_at(&path.key("systemNavigationBarIconBrightness"), issues);
+        }
+        if let Some(value) = &self.system_navigation_bar_contrast_enforced {
+            value.validate_binding_at(&path.key("systemNavigationBarContrastEnforced"), issues);
+        }
         self.status_bar_color
             .validate_at(&path.key("statusBarColor"), issues);
+        if let Some(value) = &self.status_bar_brightness {
+            value.validate_binding_at(&path.key("statusBarBrightness"), issues);
+        }
+        if let Some(value) = &self.status_bar_icon_brightness {
+            value.validate_binding_at(&path.key("statusBarIconBrightness"), issues);
+        }
+        if let Some(value) = &self.system_status_bar_contrast_enforced {
+            value.validate_binding_at(&path.key("systemStatusBarContrastEnforced"), issues);
+        }
     }
 }
+
+impl Plain for SystemUIOverlayStyle {}

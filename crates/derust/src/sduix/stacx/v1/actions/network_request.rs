@@ -8,26 +8,31 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
 /// A Stac action that performs HTTP network requests.
 #[derive(Debug, Clone, PartialEq)]
 pub struct NetworkRequest {
+    /// Run the action only when this is true (state path or expression).
+    pub condition: Option<Reactive<bool>>,
     /// The absolute or relative URL to request.
     pub url: Dyn<String>,
     /// The HTTP method to use. Defaults to \[Method.get\].
-    pub method: Option<Method>,
+    pub method: Option<Reactive<Method>>,
     /// Optional key-value pairs appended to the URL as query parameters.
-    pub query_parameters: Option<serde_json::Map<String, serde_json::Value>>,
+    pub query_parameters: Option<Reactive<serde_json::Map<String, serde_json::Value>>>,
     /// Optional request headers.
-    pub headers: Option<serde_json::Map<String, serde_json::Value>>,
+    pub headers: Option<Reactive<serde_json::Map<String, serde_json::Value>>>,
     /// The Content-Type header value (e.g., `application/json`).
     pub content_type: Option<Dyn<String>>,
     /// The request payload. Can be a map, list, string, or bytes depending on encoder.
-    pub body: Option<serde_json::Value>,
+    pub body: Option<Reactive<serde_json::Value>>,
     /// List of conditional results that map a response status code to an action.
-    pub results: Option<Vec<NetworkResult>>,
+    pub results: Option<Reactive<Vec<NetworkResult>>>,
 }
 
 impl NetworkRequest {
@@ -37,6 +42,7 @@ impl NetworkRequest {
     /// Creates the model with only its required fields set.
     pub fn new(url: impl Into<Dyn<String>>) -> Self {
         Self {
+            condition: None,
             url: url.into(),
             method: None,
             query_parameters: None,
@@ -47,6 +53,12 @@ impl NetworkRequest {
         }
     }
 
+    /// Run the action only when this is true (state path or expression).
+    pub fn condition(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.condition = Some(value.into_reactive());
+        self
+    }
+
     /// The absolute or relative URL to request.
     pub fn url(mut self, value: impl Into<Dyn<String>>) -> Self {
         self.url = value.into();
@@ -54,23 +66,26 @@ impl NetworkRequest {
     }
 
     /// The HTTP method to use. Defaults to \[Method.get\].
-    pub fn method(mut self, value: impl Into<Method>) -> Self {
-        self.method = Some(value.into());
+    pub fn method(mut self, value: impl IntoReactive<Method>) -> Self {
+        self.method = Some(value.into_reactive());
         self
     }
 
     /// Optional key-value pairs appended to the URL as query parameters.
     pub fn query_parameters(
         mut self,
-        value: impl Into<serde_json::Map<String, serde_json::Value>>,
+        value: impl IntoReactive<serde_json::Map<String, serde_json::Value>>,
     ) -> Self {
-        self.query_parameters = Some(value.into());
+        self.query_parameters = Some(value.into_reactive());
         self
     }
 
     /// Optional request headers.
-    pub fn headers(mut self, value: impl Into<serde_json::Map<String, serde_json::Value>>) -> Self {
-        self.headers = Some(value.into());
+    pub fn headers(
+        mut self,
+        value: impl IntoReactive<serde_json::Map<String, serde_json::Value>>,
+    ) -> Self {
+        self.headers = Some(value.into_reactive());
         self
     }
 
@@ -81,14 +96,14 @@ impl NetworkRequest {
     }
 
     /// The request payload. Can be a map, list, string, or bytes depending on encoder.
-    pub fn body(mut self, value: impl Into<serde_json::Value>) -> Self {
-        self.body = Some(value.into());
+    pub fn body(mut self, value: impl IntoReactive<serde_json::Value>) -> Self {
+        self.body = Some(value.into_reactive());
         self
     }
 
     /// List of conditional results that map a response status code to an action.
-    pub fn results(mut self, value: impl IntoIterator<Item = impl Into<NetworkResult>>) -> Self {
-        self.results = Some(value.into_iter().map(Into::into).collect());
+    pub fn results(mut self, value: impl IntoReactive<Vec<NetworkResult>>) -> Self {
+        self.results = Some(value.into_reactive());
         self
     }
 }
@@ -97,6 +112,9 @@ impl Serialize for NetworkRequest {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         let mut map = serializer.serialize_map(None)?;
         map.serialize_entry("actionType", "networkRequest")?;
+        if let Some(value) = &self.condition {
+            map.serialize_entry("condition", value)?;
+        }
         map.serialize_entry("url", &self.url)?;
         if let Some(value) = &self.method {
             map.serialize_entry("method", value)?;
@@ -122,9 +140,22 @@ impl Serialize for NetworkRequest {
 
 impl Validate for NetworkRequest {
     fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
+        self.condition.validate_at(&path.key("condition"), issues);
         self.url.validate_at(&path.key("url"), issues);
+        if let Some(value) = &self.method {
+            value.validate_binding_at(&path.key("method"), issues);
+        }
+        if let Some(value) = &self.query_parameters {
+            value.validate_binding_at(&path.key("queryParameters"), issues);
+        }
+        if let Some(value) = &self.headers {
+            value.validate_binding_at(&path.key("headers"), issues);
+        }
         self.content_type
             .validate_at(&path.key("contentType"), issues);
+        if let Some(value) = &self.body {
+            value.validate_binding_at(&path.key("body"), issues);
+        }
         self.results.validate_at(&path.key("results"), issues);
     }
 }
@@ -133,6 +164,8 @@ impl StacNode for NetworkRequest {
     const KIND: NodeKind = NodeKind::Action;
     const TYPE_NAME: &'static str = "networkRequest";
 }
+
+impl Plain for NetworkRequest {}
 
 impl From<NetworkRequest> for Action {
     fn from(value: NetworkRequest) -> Self {

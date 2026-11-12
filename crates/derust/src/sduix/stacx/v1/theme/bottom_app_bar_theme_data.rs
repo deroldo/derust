@@ -8,6 +8,9 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
@@ -17,15 +20,15 @@ pub struct BottomAppBarThemeData {
     /// The background color of the bottom app bar.
     pub color: Option<Dyn<String>>,
     /// The z-coordinate at which to place this bottom app bar relative to its parent.
-    pub elevation: Option<f64>,
+    pub elevation: Option<Reactive<f64>>,
     /// The height of the bottom app bar.
-    pub height: Option<f64>,
+    pub height: Option<Reactive<f64>>,
     /// The color used to tint the surface of this bottom app bar.
     pub surface_tint_color: Option<Dyn<String>>,
     /// The color of the shadow below the bottom app bar.
     pub shadow_color: Option<Dyn<String>>,
     /// The padding around the bottom app bar's content.
-    pub padding: Option<EdgeInsets>,
+    pub padding: Option<Reactive<EdgeInsets>>,
 }
 
 impl BottomAppBarThemeData {
@@ -48,14 +51,14 @@ impl BottomAppBarThemeData {
     }
 
     /// The z-coordinate at which to place this bottom app bar relative to its parent.
-    pub fn elevation(mut self, value: impl Into<f64>) -> Self {
-        self.elevation = Some(value.into());
+    pub fn elevation(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.elevation = Some(value.into_reactive());
         self
     }
 
     /// The height of the bottom app bar.
-    pub fn height(mut self, value: impl Into<f64>) -> Self {
-        self.height = Some(value.into());
+    pub fn height(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.height = Some(value.into_reactive());
         self
     }
 
@@ -72,8 +75,8 @@ impl BottomAppBarThemeData {
     }
 
     /// The padding around the bottom app bar's content.
-    pub fn padding(mut self, value: impl Into<EdgeInsets>) -> Self {
-        self.padding = Some(value.into());
+    pub fn padding(mut self, value: impl IntoReactive<EdgeInsets>) -> Self {
+        self.padding = Some(value.into_reactive());
         self
     }
 }
@@ -115,3 +118,5 @@ impl Validate for BottomAppBarThemeData {
         self.padding.validate_at(&path.key("padding"), issues);
     }
 }
+
+impl Plain for BottomAppBarThemeData {}

@@ -8,22 +8,27 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
 /// A Stac model representing Flutter's \[Divider\] widget.
 #[derive(Debug, Clone, PartialEq)]
 pub struct Divider {
+    /// Properties common to every widget (`visible`, `enabled`, `bind`, `state`, `globalState`, `onInit`).
+    pub envelope: Envelope,
     /// The divider's height extent.
-    pub height: Option<f64>,
+    pub height: Option<Reactive<f64>>,
     /// The thickness of the line drawn within the divider.
-    pub thickness: Option<f64>,
+    pub thickness: Option<Reactive<f64>>,
     /// The amount of empty space to the leading edge of the divider.
-    pub indent: Option<f64>,
+    pub indent: Option<Reactive<f64>>,
     /// The amount of empty space to the trailing edge of the divider.
-    pub end_indent: Option<f64>,
+    pub end_indent: Option<Reactive<f64>>,
     /// The color to use when painting the line.
-    pub color: Option<Color>,
+    pub color: Option<Reactive<Color>>,
 }
 
 impl Divider {
@@ -33,6 +38,7 @@ impl Divider {
     /// Creates the model with only its required fields set.
     pub fn new() -> Self {
         Self {
+            envelope: Envelope::new(),
             height: None,
             thickness: None,
             indent: None,
@@ -42,32 +48,68 @@ impl Divider {
     }
 
     /// The divider's height extent.
-    pub fn height(mut self, value: impl Into<f64>) -> Self {
-        self.height = Some(value.into());
+    pub fn height(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.height = Some(value.into_reactive());
         self
     }
 
     /// The thickness of the line drawn within the divider.
-    pub fn thickness(mut self, value: impl Into<f64>) -> Self {
-        self.thickness = Some(value.into());
+    pub fn thickness(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.thickness = Some(value.into_reactive());
         self
     }
 
     /// The amount of empty space to the leading edge of the divider.
-    pub fn indent(mut self, value: impl Into<f64>) -> Self {
-        self.indent = Some(value.into());
+    pub fn indent(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.indent = Some(value.into_reactive());
         self
     }
 
     /// The amount of empty space to the trailing edge of the divider.
-    pub fn end_indent(mut self, value: impl Into<f64>) -> Self {
-        self.end_indent = Some(value.into());
+    pub fn end_indent(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.end_indent = Some(value.into_reactive());
         self
     }
 
     /// The color to use when painting the line.
-    pub fn color(mut self, value: impl Into<Color>) -> Self {
-        self.color = Some(value.into());
+    pub fn color(mut self, value: impl IntoReactive<Color>) -> Self {
+        self.color = Some(value.into_reactive());
+        self
+    }
+
+    /// Sets `visible` (envelope): a `bool`, a state path or an expression.
+    pub fn visible(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.visible(value);
+        self
+    }
+
+    /// Sets `enabled` (envelope): a `bool`, a state path or an expression.
+    pub fn enabled(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.enabled(value);
+        self
+    }
+
+    /// Sets `bind` (envelope): the state key the widget reads and writes.
+    pub fn bind(mut self, key: BindKey) -> Self {
+        self.envelope = self.envelope.bind(key);
+        self
+    }
+
+    /// Sets `state` (envelope): the screen state declared by this widget.
+    pub fn state(mut self, block: StateBlock) -> Self {
+        self.envelope = self.envelope.state(block);
+        self
+    }
+
+    /// Sets `globalState` (envelope): the global state declared by this widget.
+    pub fn global_state(mut self, block: GlobalStateBlock) -> Self {
+        self.envelope = self.envelope.global_state(block);
+        self
+    }
+
+    /// Sets `onInit` (envelope): action(s) run when the widget is first built.
+    pub fn on_init(mut self, on_init: impl Into<OnInit>) -> Self {
+        self.envelope = self.envelope.on_init(on_init);
         self
     }
 }
@@ -76,6 +118,7 @@ impl Serialize for Divider {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         let mut map = serializer.serialize_map(None)?;
         map.serialize_entry("type", "divider")?;
+        self.envelope.serialize_into(&mut map)?;
         if let Some(value) = &self.height {
             map.serialize_entry("height", value)?;
         }
@@ -97,6 +140,7 @@ impl Serialize for Divider {
 
 impl Validate for Divider {
     fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
+        self.envelope.validate_at(path, issues);
         self.height.validate_at(&path.key("height"), issues);
         self.thickness.validate_at(&path.key("thickness"), issues);
         self.indent.validate_at(&path.key("indent"), issues);
@@ -109,6 +153,8 @@ impl StacNode for Divider {
     const KIND: NodeKind = NodeKind::Widget;
     const TYPE_NAME: &'static str = "divider";
 }
+
+impl Plain for Divider {}
 
 impl From<Divider> for Widget {
     fn from(value: Divider) -> Self {

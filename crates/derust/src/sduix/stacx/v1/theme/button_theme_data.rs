@@ -8,6 +8,9 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
@@ -15,19 +18,19 @@ use serde::ser::{Serialize, SerializeMap, Serializer};
 #[derive(Debug, Clone, PartialEq)]
 pub struct ButtonThemeData {
     /// The text theme for button labels.
-    pub text_theme: Option<ButtonTextTheme>,
+    pub text_theme: Option<Reactive<ButtonTextTheme>>,
     /// The minimum width of the button.
-    pub min_width: Option<f64>,
+    pub min_width: Option<Reactive<f64>>,
     /// The height of the button.
-    pub height: Option<f64>,
+    pub height: Option<Reactive<f64>>,
     /// The internal padding for the button's content.
-    pub padding: Option<EdgeInsets>,
+    pub padding: Option<Reactive<EdgeInsets>>,
     /// The shape of the button's border.
-    pub shape: Option<ShapeBorder>,
+    pub shape: Option<Reactive<ShapeBorder>>,
     /// The layout behavior for button bars.
-    pub layout_behavior: Option<ButtonBarLayoutBehavior>,
+    pub layout_behavior: Option<Reactive<ButtonBarLayoutBehavior>>,
     /// Whether dropdown buttons should be aligned.
-    pub aligned_dropdown: Option<bool>,
+    pub aligned_dropdown: Option<Reactive<bool>>,
     /// The default background color for buttons.
     pub button_color: Option<Dyn<String>>,
     /// The color to use for disabled buttons.
@@ -41,9 +44,9 @@ pub struct ButtonThemeData {
     /// The splash color for the button.
     pub splash_color: Option<Dyn<String>>,
     /// The color scheme to use for buttons.
-    pub color_scheme: Option<Box<ColorScheme>>,
+    pub color_scheme: Option<Reactive<Box<ColorScheme>>>,
     /// The minimum size of the tap target.
-    pub material_tap_target_size: Option<MaterialTapTargetSize>,
+    pub material_tap_target_size: Option<Reactive<MaterialTapTargetSize>>,
 }
 
 impl ButtonThemeData {
@@ -69,44 +72,44 @@ impl ButtonThemeData {
     }
 
     /// The text theme for button labels.
-    pub fn text_theme(mut self, value: impl Into<ButtonTextTheme>) -> Self {
-        self.text_theme = Some(value.into());
+    pub fn text_theme(mut self, value: impl IntoReactive<ButtonTextTheme>) -> Self {
+        self.text_theme = Some(value.into_reactive());
         self
     }
 
     /// The minimum width of the button.
-    pub fn min_width(mut self, value: impl Into<f64>) -> Self {
-        self.min_width = Some(value.into());
+    pub fn min_width(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.min_width = Some(value.into_reactive());
         self
     }
 
     /// The height of the button.
-    pub fn height(mut self, value: impl Into<f64>) -> Self {
-        self.height = Some(value.into());
+    pub fn height(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.height = Some(value.into_reactive());
         self
     }
 
     /// The internal padding for the button's content.
-    pub fn padding(mut self, value: impl Into<EdgeInsets>) -> Self {
-        self.padding = Some(value.into());
+    pub fn padding(mut self, value: impl IntoReactive<EdgeInsets>) -> Self {
+        self.padding = Some(value.into_reactive());
         self
     }
 
     /// The shape of the button's border.
-    pub fn shape(mut self, value: impl Into<ShapeBorder>) -> Self {
-        self.shape = Some(value.into());
+    pub fn shape(mut self, value: impl IntoReactive<ShapeBorder>) -> Self {
+        self.shape = Some(value.into_reactive());
         self
     }
 
     /// The layout behavior for button bars.
-    pub fn layout_behavior(mut self, value: impl Into<ButtonBarLayoutBehavior>) -> Self {
-        self.layout_behavior = Some(value.into());
+    pub fn layout_behavior(mut self, value: impl IntoReactive<ButtonBarLayoutBehavior>) -> Self {
+        self.layout_behavior = Some(value.into_reactive());
         self
     }
 
     /// Whether dropdown buttons should be aligned.
-    pub fn aligned_dropdown(mut self, value: bool) -> Self {
-        self.aligned_dropdown = Some(value);
+    pub fn aligned_dropdown(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.aligned_dropdown = Some(value.into_reactive());
         self
     }
 
@@ -147,14 +150,17 @@ impl ButtonThemeData {
     }
 
     /// The color scheme to use for buttons.
-    pub fn color_scheme(mut self, value: impl Into<ColorScheme>) -> Self {
-        self.color_scheme = Some(Box::new(value.into()));
+    pub fn color_scheme(mut self, value: impl IntoReactive<ColorScheme>) -> Self {
+        self.color_scheme = Some(value.into_reactive().boxed());
         self
     }
 
     /// The minimum size of the tap target.
-    pub fn material_tap_target_size(mut self, value: impl Into<MaterialTapTargetSize>) -> Self {
-        self.material_tap_target_size = Some(value.into());
+    pub fn material_tap_target_size(
+        mut self,
+        value: impl IntoReactive<MaterialTapTargetSize>,
+    ) -> Self {
+        self.material_tap_target_size = Some(value.into_reactive());
         self
     }
 }
@@ -213,10 +219,19 @@ impl Serialize for ButtonThemeData {
 
 impl Validate for ButtonThemeData {
     fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
+        if let Some(value) = &self.text_theme {
+            value.validate_binding_at(&path.key("textTheme"), issues);
+        }
         self.min_width.validate_at(&path.key("minWidth"), issues);
         self.height.validate_at(&path.key("height"), issues);
         self.padding.validate_at(&path.key("padding"), issues);
         self.shape.validate_at(&path.key("shape"), issues);
+        if let Some(value) = &self.layout_behavior {
+            value.validate_binding_at(&path.key("layoutBehavior"), issues);
+        }
+        if let Some(value) = &self.aligned_dropdown {
+            value.validate_binding_at(&path.key("alignedDropdown"), issues);
+        }
         self.button_color
             .validate_at(&path.key("buttonColor"), issues);
         self.disabled_color
@@ -231,5 +246,10 @@ impl Validate for ButtonThemeData {
             .validate_at(&path.key("splashColor"), issues);
         self.color_scheme
             .validate_at(&path.key("colorScheme"), issues);
+        if let Some(value) = &self.material_tap_target_size {
+            value.validate_binding_at(&path.key("materialTapTargetSize"), issues);
+        }
     }
 }
+
+impl Plain for ButtonThemeData {}

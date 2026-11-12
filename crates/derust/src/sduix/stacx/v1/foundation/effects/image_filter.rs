@@ -8,6 +8,9 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
@@ -15,28 +18,28 @@ use serde::ser::{Serialize, SerializeMap, Serializer};
 #[derive(Debug, Clone, PartialEq)]
 pub struct ImageFilter {
     /// The type of image filter to apply.
-    pub type_: ImageFilterType,
+    pub type_: Reactive<ImageFilterType>,
     /// Standard deviation for blur in the horizontal direction.
-    pub sigma_x: Option<f64>,
+    pub sigma_x: Option<Reactive<f64>>,
     /// Standard deviation for blur in the vertical direction.
-    pub sigma_y: Option<f64>,
+    pub sigma_y: Option<Reactive<f64>>,
     /// Horizontal radius for dilate/erode filters.
-    pub radius_x: Option<f64>,
+    pub radius_x: Option<Reactive<f64>>,
     /// Vertical radius for dilate/erode filters.
-    pub radius_y: Option<f64>,
+    pub radius_y: Option<Reactive<f64>>,
     /// 4x4 transformation matrix for matrix filters (length 16).
-    pub matrix: Option<Vec<f64>>,
+    pub matrix: Option<Reactive<Vec<f64>>>,
     /// Inner filter for compose operations (applied first).
-    pub inner: Option<Box<ImageFilter>>,
+    pub inner: Option<Reactive<Box<ImageFilter>>>,
     /// Outer filter for compose operations (applied second).
-    pub outer: Option<Box<ImageFilter>>,
+    pub outer: Option<Reactive<Box<ImageFilter>>>,
 }
 
 impl ImageFilter {
     /// Creates the model with only its required fields set.
-    pub fn new(type_: impl Into<ImageFilterType>) -> Self {
+    pub fn new(type_: impl IntoReactive<ImageFilterType>) -> Self {
         Self {
-            type_: type_.into(),
+            type_: type_.into_reactive(),
             sigma_x: None,
             sigma_y: None,
             radius_x: None,
@@ -48,50 +51,50 @@ impl ImageFilter {
     }
 
     /// The type of image filter to apply.
-    pub fn type_(mut self, value: impl Into<ImageFilterType>) -> Self {
-        self.type_ = value.into();
+    pub fn type_(mut self, value: impl IntoReactive<ImageFilterType>) -> Self {
+        self.type_ = value.into_reactive();
         self
     }
 
     /// Standard deviation for blur in the horizontal direction.
-    pub fn sigma_x(mut self, value: impl Into<f64>) -> Self {
-        self.sigma_x = Some(value.into());
+    pub fn sigma_x(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.sigma_x = Some(value.into_reactive());
         self
     }
 
     /// Standard deviation for blur in the vertical direction.
-    pub fn sigma_y(mut self, value: impl Into<f64>) -> Self {
-        self.sigma_y = Some(value.into());
+    pub fn sigma_y(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.sigma_y = Some(value.into_reactive());
         self
     }
 
     /// Horizontal radius for dilate/erode filters.
-    pub fn radius_x(mut self, value: impl Into<f64>) -> Self {
-        self.radius_x = Some(value.into());
+    pub fn radius_x(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.radius_x = Some(value.into_reactive());
         self
     }
 
     /// Vertical radius for dilate/erode filters.
-    pub fn radius_y(mut self, value: impl Into<f64>) -> Self {
-        self.radius_y = Some(value.into());
+    pub fn radius_y(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.radius_y = Some(value.into_reactive());
         self
     }
 
     /// 4x4 transformation matrix for matrix filters (length 16).
-    pub fn matrix(mut self, value: impl IntoIterator<Item = impl Into<f64>>) -> Self {
-        self.matrix = Some(value.into_iter().map(Into::into).collect());
+    pub fn matrix(mut self, value: impl IntoReactive<Vec<f64>>) -> Self {
+        self.matrix = Some(value.into_reactive());
         self
     }
 
     /// Inner filter for compose operations (applied first).
-    pub fn inner(mut self, value: impl Into<ImageFilter>) -> Self {
-        self.inner = Some(Box::new(value.into()));
+    pub fn inner(mut self, value: impl IntoReactive<ImageFilter>) -> Self {
+        self.inner = Some(value.into_reactive().boxed());
         self
     }
 
     /// Outer filter for compose operations (applied second).
-    pub fn outer(mut self, value: impl Into<ImageFilter>) -> Self {
-        self.outer = Some(Box::new(value.into()));
+    pub fn outer(mut self, value: impl IntoReactive<ImageFilter>) -> Self {
+        self.outer = Some(value.into_reactive().boxed());
         self
     }
 }
@@ -127,6 +130,7 @@ impl Serialize for ImageFilter {
 
 impl Validate for ImageFilter {
     fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
+        self.type_.validate_binding_at(&path.key("type"), issues);
         self.sigma_x.validate_at(&path.key("sigmaX"), issues);
         self.sigma_y.validate_at(&path.key("sigmaY"), issues);
         self.radius_x.validate_at(&path.key("radiusX"), issues);
@@ -136,3 +140,5 @@ impl Validate for ImageFilter {
         self.outer.validate_at(&path.key("outer"), issues);
     }
 }
+
+impl Plain for ImageFilter {}

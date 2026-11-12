@@ -8,6 +8,9 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
@@ -15,29 +18,29 @@ use serde::ser::{Serialize, SerializeMap, Serializer};
 #[derive(Debug, Clone, PartialEq)]
 pub struct AlignmentGeometry {
     /// The horizontal alignment value. -1.0 represents the start (left in LTR, right in RTL) 0.0 represents the center 1.0 represents the end (right in LTR, left in RTL)
-    pub dx: f64,
+    pub dx: Reactive<f64>,
     /// The vertical alignment value. -1.0 represents the top 0.0 represents the center 1.0 represents the bottom
-    pub dy: f64,
+    pub dy: Reactive<f64>,
 }
 
 impl AlignmentGeometry {
     /// Creates the model with only its required fields set.
-    pub fn new(dx: impl Into<f64>, dy: impl Into<f64>) -> Self {
+    pub fn new(dx: impl IntoReactive<f64>, dy: impl IntoReactive<f64>) -> Self {
         Self {
-            dx: dx.into(),
-            dy: dy.into(),
+            dx: dx.into_reactive(),
+            dy: dy.into_reactive(),
         }
     }
 
     /// The horizontal alignment value. -1.0 represents the start (left in LTR, right in RTL) 0.0 represents the center 1.0 represents the end (right in LTR, left in RTL)
-    pub fn dx(mut self, value: impl Into<f64>) -> Self {
-        self.dx = value.into();
+    pub fn dx(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.dx = value.into_reactive();
         self
     }
 
     /// The vertical alignment value. -1.0 represents the top 0.0 represents the center 1.0 represents the bottom
-    pub fn dy(mut self, value: impl Into<f64>) -> Self {
-        self.dy = value.into();
+    pub fn dy(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.dy = value.into_reactive();
         self
     }
 }
@@ -57,3 +60,5 @@ impl Validate for AlignmentGeometry {
         self.dy.validate_at(&path.key("dy"), issues);
     }
 }
+
+impl Plain for AlignmentGeometry {}

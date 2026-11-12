@@ -8,6 +8,9 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
@@ -15,17 +18,17 @@ use serde::ser::{Serialize, SerializeMap, Serializer};
 #[derive(Debug, Clone, PartialEq)]
 pub struct Duration {
     /// The number of days in this duration.
-    pub days: Option<i64>,
+    pub days: Option<Reactive<i64>>,
     /// The number of hours in this duration.
-    pub hours: Option<i64>,
+    pub hours: Option<Reactive<i64>>,
     /// The number of minutes in this duration.
-    pub minutes: Option<i64>,
+    pub minutes: Option<Reactive<i64>>,
     /// The number of seconds in this duration.
-    pub seconds: Option<i64>,
+    pub seconds: Option<Reactive<i64>>,
     /// The number of milliseconds in this duration.
-    pub milliseconds: Option<i64>,
+    pub milliseconds: Option<Reactive<i64>>,
     /// The number of microseconds in this duration.
-    pub microseconds: Option<i64>,
+    pub microseconds: Option<Reactive<i64>>,
 }
 
 impl Duration {
@@ -42,38 +45,38 @@ impl Duration {
     }
 
     /// The number of days in this duration.
-    pub fn days(mut self, value: impl Into<i64>) -> Self {
-        self.days = Some(value.into());
+    pub fn days(mut self, value: impl IntoReactive<i64>) -> Self {
+        self.days = Some(value.into_reactive());
         self
     }
 
     /// The number of hours in this duration.
-    pub fn hours(mut self, value: impl Into<i64>) -> Self {
-        self.hours = Some(value.into());
+    pub fn hours(mut self, value: impl IntoReactive<i64>) -> Self {
+        self.hours = Some(value.into_reactive());
         self
     }
 
     /// The number of minutes in this duration.
-    pub fn minutes(mut self, value: impl Into<i64>) -> Self {
-        self.minutes = Some(value.into());
+    pub fn minutes(mut self, value: impl IntoReactive<i64>) -> Self {
+        self.minutes = Some(value.into_reactive());
         self
     }
 
     /// The number of seconds in this duration.
-    pub fn seconds(mut self, value: impl Into<i64>) -> Self {
-        self.seconds = Some(value.into());
+    pub fn seconds(mut self, value: impl IntoReactive<i64>) -> Self {
+        self.seconds = Some(value.into_reactive());
         self
     }
 
     /// The number of milliseconds in this duration.
-    pub fn milliseconds(mut self, value: impl Into<i64>) -> Self {
-        self.milliseconds = Some(value.into());
+    pub fn milliseconds(mut self, value: impl IntoReactive<i64>) -> Self {
+        self.milliseconds = Some(value.into_reactive());
         self
     }
 
     /// The number of microseconds in this duration.
-    pub fn microseconds(mut self, value: impl Into<i64>) -> Self {
-        self.microseconds = Some(value.into());
+    pub fn microseconds(mut self, value: impl IntoReactive<i64>) -> Self {
+        self.microseconds = Some(value.into_reactive());
         self
     }
 }
@@ -104,5 +107,26 @@ impl Serialize for Duration {
 }
 
 impl Validate for Duration {
-    fn validate_at(&self, _path: &Path<'_>, _issues: &mut Vec<ValidationIssue>) {}
+    fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
+        if let Some(value) = &self.days {
+            value.validate_binding_at(&path.key("days"), issues);
+        }
+        if let Some(value) = &self.hours {
+            value.validate_binding_at(&path.key("hours"), issues);
+        }
+        if let Some(value) = &self.minutes {
+            value.validate_binding_at(&path.key("minutes"), issues);
+        }
+        if let Some(value) = &self.seconds {
+            value.validate_binding_at(&path.key("seconds"), issues);
+        }
+        if let Some(value) = &self.milliseconds {
+            value.validate_binding_at(&path.key("milliseconds"), issues);
+        }
+        if let Some(value) = &self.microseconds {
+            value.validate_binding_at(&path.key("microseconds"), issues);
+        }
+    }
 }
+
+impl Plain for Duration {}

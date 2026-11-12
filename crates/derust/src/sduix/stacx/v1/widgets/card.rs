@@ -8,32 +8,37 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
 /// A Stac model representing Flutter's \[Card\] widget.
 #[derive(Debug, Clone, PartialEq)]
 pub struct Card {
+    /// Properties common to every widget (`visible`, `enabled`, `bind`, `state`, `globalState`, `onInit`).
+    pub envelope: Envelope,
     /// The background color of the card.
-    pub color: Option<Color>,
+    pub color: Option<Reactive<Color>>,
     /// The color of the card's shadow.
-    pub shadow_color: Option<Color>,
+    pub shadow_color: Option<Reactive<Color>>,
     /// The color used to tint the surface of this card.
-    pub surface_tint_color: Option<Color>,
+    pub surface_tint_color: Option<Reactive<Color>>,
     /// The z-coordinate of this card relative to its parent.
-    pub elevation: Option<f64>,
+    pub elevation: Option<Reactive<f64>>,
     /// The shape of the card's material.
-    pub shape: Option<ShapeBorder>,
+    pub shape: Option<Reactive<ShapeBorder>>,
     /// Whether to paint the border in front of the child.
-    pub border_on_foreground: Option<bool>,
+    pub border_on_foreground: Option<Reactive<bool>>,
     /// Empty space to surround the card.
-    pub margin: Option<EdgeInsets>,
+    pub margin: Option<Reactive<EdgeInsets>>,
     /// How to clip the content.
-    pub clip_behavior: Option<Clip>,
+    pub clip_behavior: Option<Reactive<Clip>>,
     /// The widget below this card in the tree.
     pub child: Option<Widget>,
     /// Whether this card represents a semantic container.
-    pub semantic_container: Option<bool>,
+    pub semantic_container: Option<Reactive<bool>>,
 }
 
 impl Card {
@@ -43,6 +48,7 @@ impl Card {
     /// Creates the model with only its required fields set.
     pub fn new() -> Self {
         Self {
+            envelope: Envelope::new(),
             color: None,
             shadow_color: None,
             surface_tint_color: None,
@@ -57,50 +63,50 @@ impl Card {
     }
 
     /// The background color of the card.
-    pub fn color(mut self, value: impl Into<Color>) -> Self {
-        self.color = Some(value.into());
+    pub fn color(mut self, value: impl IntoReactive<Color>) -> Self {
+        self.color = Some(value.into_reactive());
         self
     }
 
     /// The color of the card's shadow.
-    pub fn shadow_color(mut self, value: impl Into<Color>) -> Self {
-        self.shadow_color = Some(value.into());
+    pub fn shadow_color(mut self, value: impl IntoReactive<Color>) -> Self {
+        self.shadow_color = Some(value.into_reactive());
         self
     }
 
     /// The color used to tint the surface of this card.
-    pub fn surface_tint_color(mut self, value: impl Into<Color>) -> Self {
-        self.surface_tint_color = Some(value.into());
+    pub fn surface_tint_color(mut self, value: impl IntoReactive<Color>) -> Self {
+        self.surface_tint_color = Some(value.into_reactive());
         self
     }
 
     /// The z-coordinate of this card relative to its parent.
-    pub fn elevation(mut self, value: impl Into<f64>) -> Self {
-        self.elevation = Some(value.into());
+    pub fn elevation(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.elevation = Some(value.into_reactive());
         self
     }
 
     /// The shape of the card's material.
-    pub fn shape(mut self, value: impl Into<ShapeBorder>) -> Self {
-        self.shape = Some(value.into());
+    pub fn shape(mut self, value: impl IntoReactive<ShapeBorder>) -> Self {
+        self.shape = Some(value.into_reactive());
         self
     }
 
     /// Whether to paint the border in front of the child.
-    pub fn border_on_foreground(mut self, value: bool) -> Self {
-        self.border_on_foreground = Some(value);
+    pub fn border_on_foreground(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.border_on_foreground = Some(value.into_reactive());
         self
     }
 
     /// Empty space to surround the card.
-    pub fn margin(mut self, value: impl Into<EdgeInsets>) -> Self {
-        self.margin = Some(value.into());
+    pub fn margin(mut self, value: impl IntoReactive<EdgeInsets>) -> Self {
+        self.margin = Some(value.into_reactive());
         self
     }
 
     /// How to clip the content.
-    pub fn clip_behavior(mut self, value: impl Into<Clip>) -> Self {
-        self.clip_behavior = Some(value.into());
+    pub fn clip_behavior(mut self, value: impl IntoReactive<Clip>) -> Self {
+        self.clip_behavior = Some(value.into_reactive());
         self
     }
 
@@ -111,8 +117,44 @@ impl Card {
     }
 
     /// Whether this card represents a semantic container.
-    pub fn semantic_container(mut self, value: bool) -> Self {
-        self.semantic_container = Some(value);
+    pub fn semantic_container(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.semantic_container = Some(value.into_reactive());
+        self
+    }
+
+    /// Sets `visible` (envelope): a `bool`, a state path or an expression.
+    pub fn visible(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.visible(value);
+        self
+    }
+
+    /// Sets `enabled` (envelope): a `bool`, a state path or an expression.
+    pub fn enabled(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.enabled(value);
+        self
+    }
+
+    /// Sets `bind` (envelope): the state key the widget reads and writes.
+    pub fn bind(mut self, key: BindKey) -> Self {
+        self.envelope = self.envelope.bind(key);
+        self
+    }
+
+    /// Sets `state` (envelope): the screen state declared by this widget.
+    pub fn state(mut self, block: StateBlock) -> Self {
+        self.envelope = self.envelope.state(block);
+        self
+    }
+
+    /// Sets `globalState` (envelope): the global state declared by this widget.
+    pub fn global_state(mut self, block: GlobalStateBlock) -> Self {
+        self.envelope = self.envelope.global_state(block);
+        self
+    }
+
+    /// Sets `onInit` (envelope): action(s) run when the widget is first built.
+    pub fn on_init(mut self, on_init: impl Into<OnInit>) -> Self {
+        self.envelope = self.envelope.on_init(on_init);
         self
     }
 }
@@ -121,6 +163,7 @@ impl Serialize for Card {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         let mut map = serializer.serialize_map(None)?;
         map.serialize_entry("type", "card")?;
+        self.envelope.serialize_into(&mut map)?;
         if let Some(value) = &self.color {
             map.serialize_entry("color", value)?;
         }
@@ -157,6 +200,7 @@ impl Serialize for Card {
 
 impl Validate for Card {
     fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
+        self.envelope.validate_at(path, issues);
         self.color.validate_at(&path.key("color"), issues);
         self.shadow_color
             .validate_at(&path.key("shadowColor"), issues);
@@ -164,8 +208,17 @@ impl Validate for Card {
             .validate_at(&path.key("surfaceTintColor"), issues);
         self.elevation.validate_at(&path.key("elevation"), issues);
         self.shape.validate_at(&path.key("shape"), issues);
+        if let Some(value) = &self.border_on_foreground {
+            value.validate_binding_at(&path.key("borderOnForeground"), issues);
+        }
         self.margin.validate_at(&path.key("margin"), issues);
+        if let Some(value) = &self.clip_behavior {
+            value.validate_binding_at(&path.key("clipBehavior"), issues);
+        }
         self.child.validate_at(&path.key("child"), issues);
+        if let Some(value) = &self.semantic_container {
+            value.validate_binding_at(&path.key("semanticContainer"), issues);
+        }
     }
 }
 
@@ -173,6 +226,8 @@ impl StacNode for Card {
     const KIND: NodeKind = NodeKind::Widget;
     const TYPE_NAME: &'static str = "card";
 }
+
+impl Plain for Card {}
 
 impl From<Card> for Widget {
     fn from(value: Card) -> Self {

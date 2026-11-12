@@ -8,6 +8,9 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
@@ -123,3 +126,5 @@ impl StacNode for SnackBarAction {
     const KIND: NodeKind = NodeKind::Action;
     const TYPE_NAME: &'static str = "showSnackBar";
 }
+
+impl Plain for SnackBarAction {}

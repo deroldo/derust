@@ -8,6 +8,9 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
@@ -15,21 +18,21 @@ use serde::ser::{Serialize, SerializeMap, Serializer};
 #[derive(Debug, Clone, PartialEq)]
 pub struct BoxDecoration {
     /// The background color of the box.
-    pub color: Option<Color>,
+    pub color: Option<Reactive<Color>>,
     /// A background image for the box.
-    pub image: Option<Box<DecorationImage>>,
+    pub image: Option<Reactive<Box<DecorationImage>>>,
     /// The border to draw around the box.
-    pub border: Option<Box<Border>>,
+    pub border: Option<Reactive<Box<Border>>>,
     /// The border radius for rounded corners.
-    pub border_radius: Option<BorderRadius>,
+    pub border_radius: Option<Reactive<BorderRadius>>,
     /// A list of shadows to cast behind the box.
-    pub box_shadow: Option<Vec<BoxShadow>>,
+    pub box_shadow: Option<Reactive<Vec<BoxShadow>>>,
     /// A gradient to use as the background.
-    pub gradient: Option<Gradient>,
+    pub gradient: Option<Reactive<Gradient>>,
     /// The blend mode to apply when painting the background color or gradient.
-    pub background_blend_mode: Option<BlendMode>,
+    pub background_blend_mode: Option<Reactive<BlendMode>>,
     /// The shape of the box (rectangle or circle).
-    pub shape: Option<BoxShape>,
+    pub shape: Option<Reactive<BoxShape>>,
 }
 
 impl BoxDecoration {
@@ -48,50 +51,50 @@ impl BoxDecoration {
     }
 
     /// The background color of the box.
-    pub fn color(mut self, value: impl Into<Color>) -> Self {
-        self.color = Some(value.into());
+    pub fn color(mut self, value: impl IntoReactive<Color>) -> Self {
+        self.color = Some(value.into_reactive());
         self
     }
 
     /// A background image for the box.
-    pub fn image(mut self, value: impl Into<DecorationImage>) -> Self {
-        self.image = Some(Box::new(value.into()));
+    pub fn image(mut self, value: impl IntoReactive<DecorationImage>) -> Self {
+        self.image = Some(value.into_reactive().boxed());
         self
     }
 
     /// The border to draw around the box.
-    pub fn border(mut self, value: impl Into<Border>) -> Self {
-        self.border = Some(Box::new(value.into()));
+    pub fn border(mut self, value: impl IntoReactive<Border>) -> Self {
+        self.border = Some(value.into_reactive().boxed());
         self
     }
 
     /// The border radius for rounded corners.
-    pub fn border_radius(mut self, value: impl Into<BorderRadius>) -> Self {
-        self.border_radius = Some(value.into());
+    pub fn border_radius(mut self, value: impl IntoReactive<BorderRadius>) -> Self {
+        self.border_radius = Some(value.into_reactive());
         self
     }
 
     /// A list of shadows to cast behind the box.
-    pub fn box_shadow(mut self, value: impl IntoIterator<Item = impl Into<BoxShadow>>) -> Self {
-        self.box_shadow = Some(value.into_iter().map(Into::into).collect());
+    pub fn box_shadow(mut self, value: impl IntoReactive<Vec<BoxShadow>>) -> Self {
+        self.box_shadow = Some(value.into_reactive());
         self
     }
 
     /// A gradient to use as the background.
-    pub fn gradient(mut self, value: impl Into<Gradient>) -> Self {
-        self.gradient = Some(value.into());
+    pub fn gradient(mut self, value: impl IntoReactive<Gradient>) -> Self {
+        self.gradient = Some(value.into_reactive());
         self
     }
 
     /// The blend mode to apply when painting the background color or gradient.
-    pub fn background_blend_mode(mut self, value: impl Into<BlendMode>) -> Self {
-        self.background_blend_mode = Some(value.into());
+    pub fn background_blend_mode(mut self, value: impl IntoReactive<BlendMode>) -> Self {
+        self.background_blend_mode = Some(value.into_reactive());
         self
     }
 
     /// The shape of the box (rectangle or circle).
-    pub fn shape(mut self, value: impl Into<BoxShape>) -> Self {
-        self.shape = Some(value.into());
+    pub fn shape(mut self, value: impl IntoReactive<BoxShape>) -> Self {
+        self.shape = Some(value.into_reactive());
         self
     }
 }
@@ -136,5 +139,13 @@ impl Validate for BoxDecoration {
             .validate_at(&path.key("borderRadius"), issues);
         self.box_shadow.validate_at(&path.key("boxShadow"), issues);
         self.gradient.validate_at(&path.key("gradient"), issues);
+        if let Some(value) = &self.background_blend_mode {
+            value.validate_binding_at(&path.key("backgroundBlendMode"), issues);
+        }
+        if let Some(value) = &self.shape {
+            value.validate_binding_at(&path.key("shape"), issues);
+        }
     }
 }
+
+impl Plain for BoxDecoration {}

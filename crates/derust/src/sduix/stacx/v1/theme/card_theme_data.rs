@@ -8,6 +8,9 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
@@ -15,7 +18,7 @@ use serde::ser::{Serialize, SerializeMap, Serializer};
 #[derive(Debug, Clone, PartialEq)]
 pub struct CardThemeData {
     /// How to clip the card's content.
-    pub clip_behavior: Option<Clip>,
+    pub clip_behavior: Option<Reactive<Clip>>,
     /// The background color of the card.
     pub color: Option<Dyn<String>>,
     /// The color of the card's shadow.
@@ -23,11 +26,11 @@ pub struct CardThemeData {
     /// The color used to tint the surface of this card.
     pub surface_tint_color: Option<Dyn<String>>,
     /// The z-coordinate at which to place this card relative to its parent.
-    pub elevation: Option<f64>,
+    pub elevation: Option<Reactive<f64>>,
     /// Empty space to surround the card.
-    pub margin: Option<EdgeInsets>,
+    pub margin: Option<Reactive<EdgeInsets>>,
     /// The shape of the card's \[Material\].
-    pub shape: Option<Box<Border>>,
+    pub shape: Option<Reactive<Box<Border>>>,
 }
 
 impl CardThemeData {
@@ -45,8 +48,8 @@ impl CardThemeData {
     }
 
     /// How to clip the card's content.
-    pub fn clip_behavior(mut self, value: impl Into<Clip>) -> Self {
-        self.clip_behavior = Some(value.into());
+    pub fn clip_behavior(mut self, value: impl IntoReactive<Clip>) -> Self {
+        self.clip_behavior = Some(value.into_reactive());
         self
     }
 
@@ -69,20 +72,20 @@ impl CardThemeData {
     }
 
     /// The z-coordinate at which to place this card relative to its parent.
-    pub fn elevation(mut self, value: impl Into<f64>) -> Self {
-        self.elevation = Some(value.into());
+    pub fn elevation(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.elevation = Some(value.into_reactive());
         self
     }
 
     /// Empty space to surround the card.
-    pub fn margin(mut self, value: impl Into<EdgeInsets>) -> Self {
-        self.margin = Some(value.into());
+    pub fn margin(mut self, value: impl IntoReactive<EdgeInsets>) -> Self {
+        self.margin = Some(value.into_reactive());
         self
     }
 
     /// The shape of the card's \[Material\].
-    pub fn shape(mut self, value: impl Into<Border>) -> Self {
-        self.shape = Some(Box::new(value.into()));
+    pub fn shape(mut self, value: impl IntoReactive<Border>) -> Self {
+        self.shape = Some(value.into_reactive().boxed());
         self
     }
 }
@@ -117,6 +120,9 @@ impl Serialize for CardThemeData {
 
 impl Validate for CardThemeData {
     fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
+        if let Some(value) = &self.clip_behavior {
+            value.validate_binding_at(&path.key("clipBehavior"), issues);
+        }
         self.color.validate_at(&path.key("color"), issues);
         self.shadow_color
             .validate_at(&path.key("shadowColor"), issues);
@@ -127,3 +133,5 @@ impl Validate for CardThemeData {
         self.shape.validate_at(&path.key("shape"), issues);
     }
 }
+
+impl Plain for CardThemeData {}

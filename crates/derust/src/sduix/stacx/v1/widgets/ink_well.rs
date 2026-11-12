@@ -8,12 +8,17 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
 /// A Stac model representing Flutter's \[InkWell\] widget.
 #[derive(Debug, Clone, PartialEq)]
 pub struct InkWell {
+    /// Properties common to every widget (`visible`, `enabled`, `bind`, `state`, `globalState`, `onInit`).
+    pub envelope: Envelope,
     /// The widget below this widget in the tree.
     pub child: Option<Widget>,
     /// Called when the user taps this part of the material.
@@ -41,34 +46,34 @@ pub struct InkWell {
     /// Called when a pointer enters or exits the ink response area.
     pub on_hover: Option<Action>,
     /// The cursor for a mouse pointer when it enters or is hovering over the widget.
-    pub mouse_cursor: Option<MouseCursor>,
+    pub mouse_cursor: Option<Reactive<MouseCursor>>,
     /// The color of the ink response when the widget has input focus.
-    pub focus_color: Option<Color>,
+    pub focus_color: Option<Reactive<Color>>,
     /// The color of the ink response when a pointer is hovering over it.
-    pub hover_color: Option<Color>,
+    pub hover_color: Option<Reactive<Color>>,
     /// The highlight color of the ink response when pressed.
-    pub highlight_color: Option<Color>,
-    pub overlay_color: Option<Color>,
+    pub highlight_color: Option<Reactive<Color>>,
+    pub overlay_color: Option<Reactive<Color>>,
     /// The splash color of the ink response.
-    pub splash_color: Option<Color>,
+    pub splash_color: Option<Reactive<Color>>,
     /// The radius of the ink splash.
-    pub radius: Option<f64>,
+    pub radius: Option<Reactive<f64>>,
     /// The border radius of the containing rectangle.
-    pub border_radius: Option<BorderRadius>,
+    pub border_radius: Option<Reactive<BorderRadius>>,
     /// The custom border to match the ink response.
-    pub custom_border: Option<ShapeBorder>,
+    pub custom_border: Option<Reactive<ShapeBorder>>,
     /// Whether detected gestures should provide acoustic and/or haptic feedback.
-    pub enable_feedback: Option<bool>,
+    pub enable_feedback: Option<Reactive<bool>>,
     /// Whether to exclude the gestures introduced by this widget from the semantics tree.
-    pub exclude_from_semantics: Option<bool>,
+    pub exclude_from_semantics: Option<Reactive<bool>>,
     /// Whether this widget can be focused.
-    pub can_request_focus: Option<bool>,
+    pub can_request_focus: Option<Reactive<bool>>,
     /// Handler for focus state changes.
     pub on_focus_change: Option<Action>,
     /// Whether this widget should focus itself if nothing else is already focused.
-    pub autofocus: Option<bool>,
+    pub autofocus: Option<Reactive<bool>>,
     /// The duration for the hover state to be considered active.
-    pub hover_duration: Option<Duration>,
+    pub hover_duration: Option<Reactive<Duration>>,
 }
 
 impl InkWell {
@@ -78,6 +83,7 @@ impl InkWell {
     /// Creates the model with only its required fields set.
     pub fn new() -> Self {
         Self {
+            envelope: Envelope::new(),
             child: None,
             on_tap: None,
             on_double_tap: None,
@@ -188,74 +194,74 @@ impl InkWell {
     }
 
     /// The cursor for a mouse pointer when it enters or is hovering over the widget.
-    pub fn mouse_cursor(mut self, value: impl Into<MouseCursor>) -> Self {
-        self.mouse_cursor = Some(value.into());
+    pub fn mouse_cursor(mut self, value: impl IntoReactive<MouseCursor>) -> Self {
+        self.mouse_cursor = Some(value.into_reactive());
         self
     }
 
     /// The color of the ink response when the widget has input focus.
-    pub fn focus_color(mut self, value: impl Into<Color>) -> Self {
-        self.focus_color = Some(value.into());
+    pub fn focus_color(mut self, value: impl IntoReactive<Color>) -> Self {
+        self.focus_color = Some(value.into_reactive());
         self
     }
 
     /// The color of the ink response when a pointer is hovering over it.
-    pub fn hover_color(mut self, value: impl Into<Color>) -> Self {
-        self.hover_color = Some(value.into());
+    pub fn hover_color(mut self, value: impl IntoReactive<Color>) -> Self {
+        self.hover_color = Some(value.into_reactive());
         self
     }
 
     /// The highlight color of the ink response when pressed.
-    pub fn highlight_color(mut self, value: impl Into<Color>) -> Self {
-        self.highlight_color = Some(value.into());
+    pub fn highlight_color(mut self, value: impl IntoReactive<Color>) -> Self {
+        self.highlight_color = Some(value.into_reactive());
         self
     }
 
     /// Sets `overlayColor`.
-    pub fn overlay_color(mut self, value: impl Into<Color>) -> Self {
-        self.overlay_color = Some(value.into());
+    pub fn overlay_color(mut self, value: impl IntoReactive<Color>) -> Self {
+        self.overlay_color = Some(value.into_reactive());
         self
     }
 
     /// The splash color of the ink response.
-    pub fn splash_color(mut self, value: impl Into<Color>) -> Self {
-        self.splash_color = Some(value.into());
+    pub fn splash_color(mut self, value: impl IntoReactive<Color>) -> Self {
+        self.splash_color = Some(value.into_reactive());
         self
     }
 
     /// The radius of the ink splash.
-    pub fn radius(mut self, value: impl Into<f64>) -> Self {
-        self.radius = Some(value.into());
+    pub fn radius(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.radius = Some(value.into_reactive());
         self
     }
 
     /// The border radius of the containing rectangle.
-    pub fn border_radius(mut self, value: impl Into<BorderRadius>) -> Self {
-        self.border_radius = Some(value.into());
+    pub fn border_radius(mut self, value: impl IntoReactive<BorderRadius>) -> Self {
+        self.border_radius = Some(value.into_reactive());
         self
     }
 
     /// The custom border to match the ink response.
-    pub fn custom_border(mut self, value: impl Into<ShapeBorder>) -> Self {
-        self.custom_border = Some(value.into());
+    pub fn custom_border(mut self, value: impl IntoReactive<ShapeBorder>) -> Self {
+        self.custom_border = Some(value.into_reactive());
         self
     }
 
     /// Whether detected gestures should provide acoustic and/or haptic feedback.
-    pub fn enable_feedback(mut self, value: bool) -> Self {
-        self.enable_feedback = Some(value);
+    pub fn enable_feedback(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.enable_feedback = Some(value.into_reactive());
         self
     }
 
     /// Whether to exclude the gestures introduced by this widget from the semantics tree.
-    pub fn exclude_from_semantics(mut self, value: bool) -> Self {
-        self.exclude_from_semantics = Some(value);
+    pub fn exclude_from_semantics(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.exclude_from_semantics = Some(value.into_reactive());
         self
     }
 
     /// Whether this widget can be focused.
-    pub fn can_request_focus(mut self, value: bool) -> Self {
-        self.can_request_focus = Some(value);
+    pub fn can_request_focus(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.can_request_focus = Some(value.into_reactive());
         self
     }
 
@@ -266,14 +272,50 @@ impl InkWell {
     }
 
     /// Whether this widget should focus itself if nothing else is already focused.
-    pub fn autofocus(mut self, value: bool) -> Self {
-        self.autofocus = Some(value);
+    pub fn autofocus(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.autofocus = Some(value.into_reactive());
         self
     }
 
     /// The duration for the hover state to be considered active.
-    pub fn hover_duration(mut self, value: impl Into<Duration>) -> Self {
-        self.hover_duration = Some(value.into());
+    pub fn hover_duration(mut self, value: impl IntoReactive<Duration>) -> Self {
+        self.hover_duration = Some(value.into_reactive());
+        self
+    }
+
+    /// Sets `visible` (envelope): a `bool`, a state path or an expression.
+    pub fn visible(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.visible(value);
+        self
+    }
+
+    /// Sets `enabled` (envelope): a `bool`, a state path or an expression.
+    pub fn enabled(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.enabled(value);
+        self
+    }
+
+    /// Sets `bind` (envelope): the state key the widget reads and writes.
+    pub fn bind(mut self, key: BindKey) -> Self {
+        self.envelope = self.envelope.bind(key);
+        self
+    }
+
+    /// Sets `state` (envelope): the screen state declared by this widget.
+    pub fn state(mut self, block: StateBlock) -> Self {
+        self.envelope = self.envelope.state(block);
+        self
+    }
+
+    /// Sets `globalState` (envelope): the global state declared by this widget.
+    pub fn global_state(mut self, block: GlobalStateBlock) -> Self {
+        self.envelope = self.envelope.global_state(block);
+        self
+    }
+
+    /// Sets `onInit` (envelope): action(s) run when the widget is first built.
+    pub fn on_init(mut self, on_init: impl Into<OnInit>) -> Self {
+        self.envelope = self.envelope.on_init(on_init);
         self
     }
 }
@@ -282,6 +324,7 @@ impl Serialize for InkWell {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         let mut map = serializer.serialize_map(None)?;
         map.serialize_entry("type", "inkWell")?;
+        self.envelope.serialize_into(&mut map)?;
         if let Some(value) = &self.child {
             map.serialize_entry("child", value)?;
         }
@@ -372,6 +415,7 @@ impl Serialize for InkWell {
 
 impl Validate for InkWell {
     fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
+        self.envelope.validate_at(path, issues);
         self.child.validate_at(&path.key("child"), issues);
         self.on_tap.validate_at(&path.key("onTap"), issues);
         self.on_double_tap
@@ -393,6 +437,9 @@ impl Validate for InkWell {
         self.on_highlight_changed
             .validate_at(&path.key("onHighlightChanged"), issues);
         self.on_hover.validate_at(&path.key("onHover"), issues);
+        if let Some(value) = &self.mouse_cursor {
+            value.validate_binding_at(&path.key("mouseCursor"), issues);
+        }
         self.focus_color
             .validate_at(&path.key("focusColor"), issues);
         self.hover_color
@@ -408,8 +455,20 @@ impl Validate for InkWell {
             .validate_at(&path.key("borderRadius"), issues);
         self.custom_border
             .validate_at(&path.key("customBorder"), issues);
+        if let Some(value) = &self.enable_feedback {
+            value.validate_binding_at(&path.key("enableFeedback"), issues);
+        }
+        if let Some(value) = &self.exclude_from_semantics {
+            value.validate_binding_at(&path.key("excludeFromSemantics"), issues);
+        }
+        if let Some(value) = &self.can_request_focus {
+            value.validate_binding_at(&path.key("canRequestFocus"), issues);
+        }
         self.on_focus_change
             .validate_at(&path.key("onFocusChange"), issues);
+        if let Some(value) = &self.autofocus {
+            value.validate_binding_at(&path.key("autofocus"), issues);
+        }
         self.hover_duration
             .validate_at(&path.key("hoverDuration"), issues);
     }
@@ -419,6 +478,8 @@ impl StacNode for InkWell {
     const KIND: NodeKind = NodeKind::Widget;
     const TYPE_NAME: &'static str = "inkWell";
 }
+
+impl Plain for InkWell {}
 
 impl From<InkWell> for Widget {
     fn from(value: InkWell) -> Self {

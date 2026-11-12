@@ -8,20 +8,25 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
 /// A Stac model representing Flutter's \[Slider\] widget.
 #[derive(Debug, Clone, PartialEq)]
 pub struct Slider {
+    /// Properties common to every widget (`visible`, `enabled`, `bind`, `state`, `globalState`, `onInit`).
+    pub envelope: Envelope,
     /// Identifier used with form scope to store/read this slider's value.
     pub id: Option<Dyn<String>>,
     /// Which platform style of slider to render.
-    pub slider_type: Option<SliderType>,
+    pub slider_type: Option<Reactive<SliderType>>,
     /// The current value of the slider.
-    pub value: f64,
+    pub value: Reactive<f64>,
     /// The current value of the secondary track, if any.
-    pub secondary_track_value: Option<f64>,
+    pub secondary_track_value: Option<Reactive<f64>>,
     /// Action invoked when the user drags to a new value.
     pub on_changed: Option<Action>,
     /// Action invoked when the user starts a change sequence.
@@ -29,29 +34,29 @@ pub struct Slider {
     /// Action invoked when the user ends a change sequence.
     pub on_change_end: Option<Action>,
     /// The minimum value the user can select.
-    pub min: Option<f64>,
+    pub min: Option<Reactive<f64>>,
     /// The maximum value the user can select.
-    pub max: Option<f64>,
+    pub max: Option<Reactive<f64>>,
     /// The number of discrete divisions.
-    pub divisions: Option<i64>,
+    pub divisions: Option<Reactive<i64>>,
     /// A label to show above the slider's thumb.
     pub label: Option<Dyn<String>>,
     /// The color of the active portion of the slider track.
-    pub active_color: Option<Color>,
+    pub active_color: Option<Reactive<Color>>,
     /// The color of the inactive portion of the slider track.
-    pub inactive_color: Option<Color>,
+    pub inactive_color: Option<Reactive<Color>>,
     /// The color of the secondary active portion of the slider track.
-    pub secondary_active_color: Option<Color>,
+    pub secondary_active_color: Option<Reactive<Color>>,
     /// The color of the thumb.
-    pub thumb_color: Option<Color>,
+    pub thumb_color: Option<Reactive<Color>>,
     /// The color of the overlay drawn when the thumb is pressed.
-    pub overlay_color: Option<Color>,
+    pub overlay_color: Option<Reactive<Color>>,
     /// The mouse cursor to display when hovering this widget.
-    pub mouse_cursor: Option<MouseCursor>,
+    pub mouse_cursor: Option<Reactive<MouseCursor>>,
     /// Whether this slider should focus itself if nothing else is focused.
-    pub autofocus: Option<bool>,
+    pub autofocus: Option<Reactive<bool>>,
     /// How the slider responds to user interaction.
-    pub allowed_interaction: Option<SliderInteraction>,
+    pub allowed_interaction: Option<Reactive<SliderInteraction>>,
 }
 
 impl Slider {
@@ -59,11 +64,12 @@ impl Slider {
     pub const TYPE: &'static str = "slider";
 
     /// Creates the model with only its required fields set.
-    pub fn new(value: impl Into<f64>) -> Self {
+    pub fn new(value: impl IntoReactive<f64>) -> Self {
         Self {
+            envelope: Envelope::new(),
             id: None,
             slider_type: None,
-            value: value.into(),
+            value: value.into_reactive(),
             secondary_track_value: None,
             on_changed: None,
             on_change_start: None,
@@ -90,20 +96,20 @@ impl Slider {
     }
 
     /// Which platform style of slider to render.
-    pub fn slider_type(mut self, value: impl Into<SliderType>) -> Self {
-        self.slider_type = Some(value.into());
+    pub fn slider_type(mut self, value: impl IntoReactive<SliderType>) -> Self {
+        self.slider_type = Some(value.into_reactive());
         self
     }
 
     /// The current value of the slider.
-    pub fn value(mut self, value: impl Into<f64>) -> Self {
-        self.value = value.into();
+    pub fn value(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.value = value.into_reactive();
         self
     }
 
     /// The current value of the secondary track, if any.
-    pub fn secondary_track_value(mut self, value: impl Into<f64>) -> Self {
-        self.secondary_track_value = Some(value.into());
+    pub fn secondary_track_value(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.secondary_track_value = Some(value.into_reactive());
         self
     }
 
@@ -126,20 +132,20 @@ impl Slider {
     }
 
     /// The minimum value the user can select.
-    pub fn min(mut self, value: impl Into<f64>) -> Self {
-        self.min = Some(value.into());
+    pub fn min(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.min = Some(value.into_reactive());
         self
     }
 
     /// The maximum value the user can select.
-    pub fn max(mut self, value: impl Into<f64>) -> Self {
-        self.max = Some(value.into());
+    pub fn max(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.max = Some(value.into_reactive());
         self
     }
 
     /// The number of discrete divisions.
-    pub fn divisions(mut self, value: impl Into<i64>) -> Self {
-        self.divisions = Some(value.into());
+    pub fn divisions(mut self, value: impl IntoReactive<i64>) -> Self {
+        self.divisions = Some(value.into_reactive());
         self
     }
 
@@ -150,50 +156,86 @@ impl Slider {
     }
 
     /// The color of the active portion of the slider track.
-    pub fn active_color(mut self, value: impl Into<Color>) -> Self {
-        self.active_color = Some(value.into());
+    pub fn active_color(mut self, value: impl IntoReactive<Color>) -> Self {
+        self.active_color = Some(value.into_reactive());
         self
     }
 
     /// The color of the inactive portion of the slider track.
-    pub fn inactive_color(mut self, value: impl Into<Color>) -> Self {
-        self.inactive_color = Some(value.into());
+    pub fn inactive_color(mut self, value: impl IntoReactive<Color>) -> Self {
+        self.inactive_color = Some(value.into_reactive());
         self
     }
 
     /// The color of the secondary active portion of the slider track.
-    pub fn secondary_active_color(mut self, value: impl Into<Color>) -> Self {
-        self.secondary_active_color = Some(value.into());
+    pub fn secondary_active_color(mut self, value: impl IntoReactive<Color>) -> Self {
+        self.secondary_active_color = Some(value.into_reactive());
         self
     }
 
     /// The color of the thumb.
-    pub fn thumb_color(mut self, value: impl Into<Color>) -> Self {
-        self.thumb_color = Some(value.into());
+    pub fn thumb_color(mut self, value: impl IntoReactive<Color>) -> Self {
+        self.thumb_color = Some(value.into_reactive());
         self
     }
 
     /// The color of the overlay drawn when the thumb is pressed.
-    pub fn overlay_color(mut self, value: impl Into<Color>) -> Self {
-        self.overlay_color = Some(value.into());
+    pub fn overlay_color(mut self, value: impl IntoReactive<Color>) -> Self {
+        self.overlay_color = Some(value.into_reactive());
         self
     }
 
     /// The mouse cursor to display when hovering this widget.
-    pub fn mouse_cursor(mut self, value: impl Into<MouseCursor>) -> Self {
-        self.mouse_cursor = Some(value.into());
+    pub fn mouse_cursor(mut self, value: impl IntoReactive<MouseCursor>) -> Self {
+        self.mouse_cursor = Some(value.into_reactive());
         self
     }
 
     /// Whether this slider should focus itself if nothing else is focused.
-    pub fn autofocus(mut self, value: bool) -> Self {
-        self.autofocus = Some(value);
+    pub fn autofocus(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.autofocus = Some(value.into_reactive());
         self
     }
 
     /// How the slider responds to user interaction.
-    pub fn allowed_interaction(mut self, value: impl Into<SliderInteraction>) -> Self {
-        self.allowed_interaction = Some(value.into());
+    pub fn allowed_interaction(mut self, value: impl IntoReactive<SliderInteraction>) -> Self {
+        self.allowed_interaction = Some(value.into_reactive());
+        self
+    }
+
+    /// Sets `visible` (envelope): a `bool`, a state path or an expression.
+    pub fn visible(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.visible(value);
+        self
+    }
+
+    /// Sets `enabled` (envelope): a `bool`, a state path or an expression.
+    pub fn enabled(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.enabled(value);
+        self
+    }
+
+    /// Sets `bind` (envelope): the state key the widget reads and writes.
+    pub fn bind(mut self, key: BindKey) -> Self {
+        self.envelope = self.envelope.bind(key);
+        self
+    }
+
+    /// Sets `state` (envelope): the screen state declared by this widget.
+    pub fn state(mut self, block: StateBlock) -> Self {
+        self.envelope = self.envelope.state(block);
+        self
+    }
+
+    /// Sets `globalState` (envelope): the global state declared by this widget.
+    pub fn global_state(mut self, block: GlobalStateBlock) -> Self {
+        self.envelope = self.envelope.global_state(block);
+        self
+    }
+
+    /// Sets `onInit` (envelope): action(s) run when the widget is first built.
+    pub fn on_init(mut self, on_init: impl Into<OnInit>) -> Self {
+        self.envelope = self.envelope.on_init(on_init);
         self
     }
 }
@@ -202,6 +244,7 @@ impl Serialize for Slider {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         let mut map = serializer.serialize_map(None)?;
         map.serialize_entry("type", "slider")?;
+        self.envelope.serialize_into(&mut map)?;
         if let Some(value) = &self.id {
             map.serialize_entry("id", value)?;
         }
@@ -263,7 +306,11 @@ impl Serialize for Slider {
 
 impl Validate for Slider {
     fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
+        self.envelope.validate_at(path, issues);
         self.id.validate_at(&path.key("id"), issues);
+        if let Some(value) = &self.slider_type {
+            value.validate_binding_at(&path.key("sliderType"), issues);
+        }
         self.value.validate_at(&path.key("value"), issues);
         self.secondary_track_value
             .validate_at(&path.key("secondaryTrackValue"), issues);
@@ -274,6 +321,9 @@ impl Validate for Slider {
             .validate_at(&path.key("onChangeEnd"), issues);
         self.min.validate_at(&path.key("min"), issues);
         self.max.validate_at(&path.key("max"), issues);
+        if let Some(value) = &self.divisions {
+            value.validate_binding_at(&path.key("divisions"), issues);
+        }
         self.label.validate_at(&path.key("label"), issues);
         self.active_color
             .validate_at(&path.key("activeColor"), issues);
@@ -285,6 +335,15 @@ impl Validate for Slider {
             .validate_at(&path.key("thumbColor"), issues);
         self.overlay_color
             .validate_at(&path.key("overlayColor"), issues);
+        if let Some(value) = &self.mouse_cursor {
+            value.validate_binding_at(&path.key("mouseCursor"), issues);
+        }
+        if let Some(value) = &self.autofocus {
+            value.validate_binding_at(&path.key("autofocus"), issues);
+        }
+        if let Some(value) = &self.allowed_interaction {
+            value.validate_binding_at(&path.key("allowedInteraction"), issues);
+        }
     }
 }
 
@@ -292,6 +351,8 @@ impl StacNode for Slider {
     const KIND: NodeKind = NodeKind::Widget;
     const TYPE_NAME: &'static str = "slider";
 }
+
+impl Plain for Slider {}
 
 impl From<Slider> for Widget {
     fn from(value: Slider) -> Self {

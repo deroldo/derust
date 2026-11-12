@@ -8,6 +8,9 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
@@ -17,9 +20,9 @@ pub struct Shadow {
     /// The shadow color as hex string or theme color name.
     pub color: Option<Dyn<String>>,
     /// The offset position of the shadow relative to the element.
-    pub offset: Option<Offset>,
+    pub offset: Option<Reactive<Offset>>,
     /// The blur radius of the shadow in logical pixels.
-    pub blur_radius: Option<f64>,
+    pub blur_radius: Option<Reactive<f64>>,
 }
 
 impl Shadow {
@@ -39,14 +42,14 @@ impl Shadow {
     }
 
     /// The offset position of the shadow relative to the element.
-    pub fn offset(mut self, value: impl Into<Offset>) -> Self {
-        self.offset = Some(value.into());
+    pub fn offset(mut self, value: impl IntoReactive<Offset>) -> Self {
+        self.offset = Some(value.into_reactive());
         self
     }
 
     /// The blur radius of the shadow in logical pixels.
-    pub fn blur_radius(mut self, value: impl Into<f64>) -> Self {
-        self.blur_radius = Some(value.into());
+    pub fn blur_radius(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.blur_radius = Some(value.into_reactive());
         self
     }
 }
@@ -75,3 +78,5 @@ impl Validate for Shadow {
             .validate_at(&path.key("blurRadius"), issues);
     }
 }
+
+impl Plain for Shadow {}

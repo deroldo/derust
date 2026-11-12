@@ -8,20 +8,25 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
 /// A Stac model representing Flutter's \[Tab\] widget.
 #[derive(Debug, Clone, PartialEq)]
 pub struct Tab {
+    /// Properties common to every widget (`visible`, `enabled`, `bind`, `state`, `globalState`, `onInit`).
+    pub envelope: Envelope,
     /// The text to display on the tab.
     pub text: Option<Dyn<String>>,
     /// The icon widget to display on the tab.
     pub icon: Option<Widget>,
     /// The margin around the icon in the tab.
-    pub icon_margin: Option<EdgeInsets>,
+    pub icon_margin: Option<Reactive<EdgeInsets>>,
     /// The height of the tab.
-    pub height: Option<f64>,
+    pub height: Option<Reactive<f64>>,
     /// A custom child widget for the tab content.
     pub child: Option<Widget>,
 }
@@ -33,6 +38,7 @@ impl Tab {
     /// Creates the model with only its required fields set.
     pub fn new() -> Self {
         Self {
+            envelope: Envelope::new(),
             text: None,
             icon: None,
             icon_margin: None,
@@ -54,14 +60,14 @@ impl Tab {
     }
 
     /// The margin around the icon in the tab.
-    pub fn icon_margin(mut self, value: impl Into<EdgeInsets>) -> Self {
-        self.icon_margin = Some(value.into());
+    pub fn icon_margin(mut self, value: impl IntoReactive<EdgeInsets>) -> Self {
+        self.icon_margin = Some(value.into_reactive());
         self
     }
 
     /// The height of the tab.
-    pub fn height(mut self, value: impl Into<f64>) -> Self {
-        self.height = Some(value.into());
+    pub fn height(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.height = Some(value.into_reactive());
         self
     }
 
@@ -70,12 +76,49 @@ impl Tab {
         self.child = Some(value.into());
         self
     }
+
+    /// Sets `visible` (envelope): a `bool`, a state path or an expression.
+    pub fn visible(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.visible(value);
+        self
+    }
+
+    /// Sets `enabled` (envelope): a `bool`, a state path or an expression.
+    pub fn enabled(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.enabled(value);
+        self
+    }
+
+    /// Sets `bind` (envelope): the state key the widget reads and writes.
+    pub fn bind(mut self, key: BindKey) -> Self {
+        self.envelope = self.envelope.bind(key);
+        self
+    }
+
+    /// Sets `state` (envelope): the screen state declared by this widget.
+    pub fn state(mut self, block: StateBlock) -> Self {
+        self.envelope = self.envelope.state(block);
+        self
+    }
+
+    /// Sets `globalState` (envelope): the global state declared by this widget.
+    pub fn global_state(mut self, block: GlobalStateBlock) -> Self {
+        self.envelope = self.envelope.global_state(block);
+        self
+    }
+
+    /// Sets `onInit` (envelope): action(s) run when the widget is first built.
+    pub fn on_init(mut self, on_init: impl Into<OnInit>) -> Self {
+        self.envelope = self.envelope.on_init(on_init);
+        self
+    }
 }
 
 impl Serialize for Tab {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         let mut map = serializer.serialize_map(None)?;
         map.serialize_entry("type", "tab")?;
+        self.envelope.serialize_into(&mut map)?;
         if let Some(value) = &self.text {
             map.serialize_entry("text", value)?;
         }
@@ -97,6 +140,7 @@ impl Serialize for Tab {
 
 impl Validate for Tab {
     fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
+        self.envelope.validate_at(path, issues);
         self.text.validate_at(&path.key("text"), issues);
         self.icon.validate_at(&path.key("icon"), issues);
         self.icon_margin
@@ -110,6 +154,8 @@ impl StacNode for Tab {
     const KIND: NodeKind = NodeKind::Widget;
     const TYPE_NAME: &'static str = "tab";
 }
+
+impl Plain for Tab {}
 
 impl From<Tab> for Widget {
     fn from(value: Tab) -> Self {

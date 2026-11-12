@@ -2,7 +2,7 @@ use super::binding::Binding;
 use super::data::Data;
 use super::expr::Expr;
 use super::path::StatePath;
-use crate::sduix::stacx::common::{Path, Validate, ValidationIssue};
+use crate::sduix::stacx::common::{Path, StateEntry, Validate, ValidationIssue};
 use serde::ser::{Serialize, Serializer};
 
 /// A property value that is either a literal or a binding to the reactive state.
@@ -25,6 +25,24 @@ impl<T> Reactive<T> {
     /// Binding (`StatePath`, `Expr` or `Binding`).
     pub fn bind(binding: impl Into<Binding>) -> Self {
         Reactive::Bind(binding.into())
+    }
+}
+
+impl<T> Reactive<T> {
+    /// Moves a literal into a `Box` (used by generated fields that are boxed to break size cycles).
+    pub fn boxed(self) -> Reactive<Box<T>> {
+        match self {
+            Reactive::Value(value) => Reactive::Value(Box::new(value)),
+            Reactive::Bind(binding) => Reactive::Bind(binding),
+        }
+    }
+
+    /// Validates only the binding (used for literals that need no check of their own, so `T`
+    /// does not have to implement [`Validate`]).
+    pub fn validate_binding_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
+        if let Reactive::Bind(binding) = self {
+            binding.validate_at(path, issues);
+        }
     }
 }
 
@@ -62,8 +80,19 @@ macro_rules! plain {
     ($($ty:ty),* $(,)?) => { $(impl Plain for $ty {})* };
 }
 
-plain!(bool, i64, f64, String, serde_json::Value, Data);
+plain!(
+    bool,
+    i64,
+    f64,
+    String,
+    serde_json::Value,
+    serde_json::Map<String, serde_json::Value>,
+    Data,
+    StateEntry
+);
 impl<T: Plain> Plain for Vec<T> {}
+impl<T: Plain + ?Sized> Plain for Box<T> {}
+impl<K, V: Plain> Plain for std::collections::BTreeMap<K, V> {}
 
 /// Anything accepted by a setter of a property of type `T`: a literal, a [`Binding`],
 /// an [`Expr`], a [`StatePath`] or an existing [`Reactive`].
@@ -120,6 +149,12 @@ compat!(String: &str, &String, char);
 impl IntoReactive<Vec<String>> for Vec<&str> {
     fn into_reactive(self) -> Reactive<Vec<String>> {
         Reactive::Value(self.into_iter().map(String::from).collect())
+    }
+}
+
+impl<T: Plain, const N: usize> IntoReactive<Vec<T>> for [T; N] {
+    fn into_reactive(self) -> Reactive<Vec<T>> {
+        Reactive::Value(Vec::from(self))
     }
 }
 

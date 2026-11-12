@@ -8,14 +8,19 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
 /// A Stac model representing a form scope used to coordinate input fields and actions.
 #[derive(Debug, Clone, PartialEq)]
 pub struct Form {
+    /// Properties common to every widget (`visible`, `enabled`, `bind`, `state`, `globalState`, `onInit`).
+    pub envelope: Envelope,
     /// The mode to control auto validation of fields within the form.
-    pub autovalidate_mode: Option<AutovalidateMode>,
+    pub autovalidate_mode: Option<Reactive<AutovalidateMode>>,
     /// The widget subtree to display inside the form scope.
     pub child: Option<Widget>,
 }
@@ -27,14 +32,15 @@ impl Form {
     /// Creates the model with only its required fields set.
     pub fn new() -> Self {
         Self {
+            envelope: Envelope::new(),
             autovalidate_mode: None,
             child: None,
         }
     }
 
     /// The mode to control auto validation of fields within the form.
-    pub fn autovalidate_mode(mut self, value: impl Into<AutovalidateMode>) -> Self {
-        self.autovalidate_mode = Some(value.into());
+    pub fn autovalidate_mode(mut self, value: impl IntoReactive<AutovalidateMode>) -> Self {
+        self.autovalidate_mode = Some(value.into_reactive());
         self
     }
 
@@ -43,12 +49,49 @@ impl Form {
         self.child = Some(value.into());
         self
     }
+
+    /// Sets `visible` (envelope): a `bool`, a state path or an expression.
+    pub fn visible(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.visible(value);
+        self
+    }
+
+    /// Sets `enabled` (envelope): a `bool`, a state path or an expression.
+    pub fn enabled(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.enabled(value);
+        self
+    }
+
+    /// Sets `bind` (envelope): the state key the widget reads and writes.
+    pub fn bind(mut self, key: BindKey) -> Self {
+        self.envelope = self.envelope.bind(key);
+        self
+    }
+
+    /// Sets `state` (envelope): the screen state declared by this widget.
+    pub fn state(mut self, block: StateBlock) -> Self {
+        self.envelope = self.envelope.state(block);
+        self
+    }
+
+    /// Sets `globalState` (envelope): the global state declared by this widget.
+    pub fn global_state(mut self, block: GlobalStateBlock) -> Self {
+        self.envelope = self.envelope.global_state(block);
+        self
+    }
+
+    /// Sets `onInit` (envelope): action(s) run when the widget is first built.
+    pub fn on_init(mut self, on_init: impl Into<OnInit>) -> Self {
+        self.envelope = self.envelope.on_init(on_init);
+        self
+    }
 }
 
 impl Serialize for Form {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         let mut map = serializer.serialize_map(None)?;
         map.serialize_entry("type", "form")?;
+        self.envelope.serialize_into(&mut map)?;
         if let Some(value) = &self.autovalidate_mode {
             map.serialize_entry("autovalidateMode", value)?;
         }
@@ -61,6 +104,10 @@ impl Serialize for Form {
 
 impl Validate for Form {
     fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
+        self.envelope.validate_at(path, issues);
+        if let Some(value) = &self.autovalidate_mode {
+            value.validate_binding_at(&path.key("autovalidateMode"), issues);
+        }
         self.child.validate_at(&path.key("child"), issues);
     }
 }
@@ -69,6 +116,8 @@ impl StacNode for Form {
     const KIND: NodeKind = NodeKind::Widget;
     const TYPE_NAME: &'static str = "form";
 }
+
+impl Plain for Form {}
 
 impl From<Form> for Widget {
     fn from(value: Form) -> Self {

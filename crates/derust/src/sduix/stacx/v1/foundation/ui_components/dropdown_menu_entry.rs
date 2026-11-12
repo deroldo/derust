@@ -8,6 +8,9 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
@@ -15,7 +18,7 @@ use serde::ser::{Serialize, SerializeMap, Serializer};
 #[derive(Debug, Clone, PartialEq)]
 pub struct DropdownMenuEntry {
     /// The underlying value represented by this entry.
-    pub value: Option<serde_json::Value>,
+    pub value: Option<Reactive<serde_json::Value>>,
     /// The text label for this entry.
     pub label: Option<Dyn<String>>,
     /// A custom label widget.
@@ -25,9 +28,9 @@ pub struct DropdownMenuEntry {
     /// An icon displayed after the label.
     pub trailing_icon: Option<Widget>,
     /// Whether this entry is enabled.
-    pub enabled: Option<bool>,
+    pub enabled: Option<Reactive<bool>>,
     /// Optional style applied to this entry.
-    pub style: Option<Box<ButtonStyle>>,
+    pub style: Option<Reactive<Box<ButtonStyle>>>,
 }
 
 impl DropdownMenuEntry {
@@ -45,8 +48,8 @@ impl DropdownMenuEntry {
     }
 
     /// The underlying value represented by this entry.
-    pub fn value(mut self, value: impl Into<serde_json::Value>) -> Self {
-        self.value = Some(value.into());
+    pub fn value(mut self, value: impl IntoReactive<serde_json::Value>) -> Self {
+        self.value = Some(value.into_reactive());
         self
     }
 
@@ -75,14 +78,14 @@ impl DropdownMenuEntry {
     }
 
     /// Whether this entry is enabled.
-    pub fn enabled(mut self, value: bool) -> Self {
-        self.enabled = Some(value);
+    pub fn enabled(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.enabled = Some(value.into_reactive());
         self
     }
 
     /// Optional style applied to this entry.
-    pub fn style(mut self, value: impl Into<ButtonStyle>) -> Self {
-        self.style = Some(Box::new(value.into()));
+    pub fn style(mut self, value: impl IntoReactive<ButtonStyle>) -> Self {
+        self.style = Some(value.into_reactive().boxed());
         self
     }
 }
@@ -117,6 +120,9 @@ impl Serialize for DropdownMenuEntry {
 
 impl Validate for DropdownMenuEntry {
     fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
+        if let Some(value) = &self.value {
+            value.validate_binding_at(&path.key("value"), issues);
+        }
         self.label.validate_at(&path.key("label"), issues);
         self.label_widget
             .validate_at(&path.key("labelWidget"), issues);
@@ -124,6 +130,11 @@ impl Validate for DropdownMenuEntry {
             .validate_at(&path.key("leadingIcon"), issues);
         self.trailing_icon
             .validate_at(&path.key("trailingIcon"), issues);
+        if let Some(value) = &self.enabled {
+            value.validate_binding_at(&path.key("enabled"), issues);
+        }
         self.style.validate_at(&path.key("style"), issues);
     }
 }
+
+impl Plain for DropdownMenuEntry {}

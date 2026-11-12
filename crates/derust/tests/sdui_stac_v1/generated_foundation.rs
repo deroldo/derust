@@ -70,7 +70,8 @@ fn beveled_rectangle_border() {
     assert_fixture!(
         "foundation/beveled_rectangle_border",
         ShapeBorder::from(
-            BeveledRectangleBorder::new().side(BorderSide::new().width(1.0).color("#808080"))
+            BeveledRectangleBorder::new()
+                .side(BorderSide::new().width(1.0).color(Color::from("#808080")))
         )
     );
 }
@@ -131,7 +132,7 @@ fn border() {
     assert_fixture!(
         "foundation/border",
         Border::new()
-            .color("#2196F3")
+            .color(Color::from("#2196F3"))
             .border_style(BorderStyle::Solid)
             .width(2.0)
             .stroke_align(0.0)
@@ -155,7 +156,7 @@ fn border_side() {
     assert_fixture!(
         "foundation/border_side",
         BorderSide::new()
-            .color("#2196F3")
+            .color(Color::from("#2196F3"))
             .width(2.0)
             .stroke_align(0.0)
             .border_style(BorderStyle::Solid)
@@ -221,7 +222,7 @@ fn box_decoration() {
     assert_fixture!(
         "foundation/box_decoration",
         BoxDecoration::new()
-            .color("#FF0000")
+            .color(Color::from("#FF0000"))
             .image(
                 DecorationImage::new("sample")
                     .fit(BoxFit::Fill)
@@ -238,7 +239,7 @@ fn box_decoration() {
             )
             .border(
                 Border::new()
-                    .color("#FF0000")
+                    .color(Color::from("#FF0000"))
                     .border_style(BorderStyle::None)
                     .width(1.5)
                     .stroke_align(1.5)
@@ -255,7 +256,7 @@ fn box_decoration() {
                     .bottom_right(1.5)
             )
             .box_shadow(vec![BoxShadow::new()
-                .color("#FF0000")
+                .color(Color::from("#FF0000"))
                 .blur_radius(1.5)
                 .offset(Offset::new(1.5, 1.5))
                 .spread_radius(1.5)
@@ -263,7 +264,7 @@ fn box_decoration() {
             .gradient(
                 Gradient::new()
                     .gradient_type(GradientType::Linear)
-                    .colors(vec!["#FF0000"])
+                    .colors(vec![Color::from("#FF0000")])
                     .stops(vec![1.5])
                     .begin(Alignment::TopLeft)
                     .end(Alignment::TopLeft)
@@ -301,7 +302,7 @@ fn box_shadow() {
     assert_fixture!(
         "foundation/box_shadow",
         BoxShadow::new()
-            .color("#000000")
+            .color(Color::from("#000000"))
             .blur_radius(10.0)
             .offset(Offset::new(2.0, 4.0))
             .spread_radius(1.0)
@@ -337,7 +338,9 @@ fn carousel_view_type() {
 fn circle_border() {
     assert_fixture!(
         "foundation/circle_border",
-        ShapeBorder::from(CircleBorder::new().side(BorderSide::new().width(1.0).color("#808080")))
+        ShapeBorder::from(
+            CircleBorder::new().side(BorderSide::new().width(1.0).color(Color::from("#808080")))
+        )
     );
 }
 
@@ -359,7 +362,8 @@ fn continuous_rectangle_border() {
     assert_fixture!(
         "foundation/continuous_rectangle_border",
         ShapeBorder::from(
-            ContinuousRectangleBorder::new().side(BorderSide::new().width(1.0).color("#808080"))
+            ContinuousRectangleBorder::new()
+                .side(BorderSide::new().width(1.0).color(Color::from("#808080")))
         )
     );
 }
@@ -382,7 +386,11 @@ fn cross_axis_alignment() {
 fn custom_text_style() {
     assert_fixture!(
         "foundation/custom_text_style",
-        TextStyle::from(CustomTextStyle::new().font_size(16.0).color("#FF2196F3"))
+        TextStyle::from(
+            CustomTextStyle::new()
+                .font_size(16.0)
+                .color(Color::from("#FF2196F3"))
+        )
     );
 }
 
@@ -444,17 +452,17 @@ fn dropdown_menu_entry() {
             .enabled(true)
             .style(
                 ButtonStyle::new()
-                    .foreground_color("#FF0000")
-                    .background_color("#FF0000")
-                    .disabled_foreground_color("#FF0000")
-                    .disabled_background_color("#FF0000")
-                    .shadow_color("#FF0000")
-                    .surface_tint_color("#FF0000")
-                    .icon_color("#FF0000")
+                    .foreground_color(Color::from("#FF0000"))
+                    .background_color(Color::from("#FF0000"))
+                    .disabled_foreground_color(Color::from("#FF0000"))
+                    .disabled_background_color(Color::from("#FF0000"))
+                    .shadow_color(Color::from("#FF0000"))
+                    .surface_tint_color(Color::from("#FF0000"))
+                    .icon_color(Color::from("#FF0000"))
                     .icon_size(1.5)
                     .icon_alignment(IconAlignment::Start)
-                    .disabled_icon_color("#FF0000")
-                    .overlay_color("#FF0000")
+                    .disabled_icon_color(Color::from("#FF0000"))
+                    .overlay_color(Color::from("#FF0000"))
                     .elevation(1.5)
                     .text_style(TextStyle::from(CustomTextStyle::new().font_size(14.0)))
                     .padding(EdgeInsets::new())
@@ -598,7 +606,7 @@ fn gradient() {
         "foundation/gradient",
         Gradient::new()
             .gradient_type(GradientType::Linear)
-            .colors(vec!["#2196F3", "#F44336"])
+            .colors(vec![Color::from("#2196F3"), Color::from("#F44336")])
             .stops(vec![0.0, 1.0])
             .begin(Alignment::TopLeft)
             .end(Alignment::BottomRight)
@@ -701,7 +709,7 @@ fn input_border() {
             .gradient(
                 Gradient::new()
                     .gradient_type(GradientType::Linear)
-                    .colors(vec!["#FF0000"])
+                    .colors(vec![Color::from("#FF0000")])
                     .stops(vec![1.5])
                     .begin(Alignment::TopLeft)
                     .end(Alignment::TopLeft)
@@ -1026,7 +1034,7 @@ fn rounded_rectangle_border() {
                 )
                 .side(
                     BorderSide::new()
-                        .color("#FF0000")
+                        .color(Color::from("#FF0000"))
                         .width(1.5)
                         .stroke_align(1.5)
                         .border_style(BorderStyle::None)
@@ -1086,7 +1094,7 @@ fn shape_border() {
                 )
                 .side(
                     BorderSide::new()
-                        .color("#FF0000")
+                        .color(Color::from("#FF0000"))
                         .width(1.5)
                         .stroke_align(1.5)
                         .border_style(BorderStyle::None)
@@ -1410,9 +1418,9 @@ fn text_span() {
             .style(TextStyle::from(
                 CustomTextStyle::new().font_weight(FontWeight::Bold)
             ))
-            .children(vec![TextSpan::new()
-                .text("World")
-                .style(TextStyle::from(CustomTextStyle::new().color("#2196F3")))])
+            .children(vec![TextSpan::new().text("World").style(TextStyle::from(
+                CustomTextStyle::new().color(Color::from("#2196F3"))
+            ))])
     );
 }
 
@@ -1423,8 +1431,8 @@ fn text_style() {
         TextStyle::from(
             ThemeTextStyle::new(MaterialTextStyle::DisplayLarge)
                 .inherit(true)
-                .color("#FF0000")
-                .background_color("#FF0000")
+                .color(Color::from("#FF0000"))
+                .background_color(Color::from("#FF0000"))
                 .font_size(1.5)
                 .font_weight(FontWeight::W100)
                 .font_style(FontStyle::Normal)
@@ -1433,7 +1441,7 @@ fn text_style() {
                 .text_baseline(TextBaseline::Alphabetic)
                 .height(1.5)
                 .leading_distribution(TextLeadingDistribution::Proportional)
-                .decoration_color("#FF0000")
+                .decoration_color(Color::from("#FF0000"))
                 .decoration_style(TextDecorationStyle::Solid)
                 .decoration_thickness(1.5)
                 .debug_label("sample")

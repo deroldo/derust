@@ -8,52 +8,57 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
 /// A Stac model representing Flutter's \[Switch\] and \[CupertinoSwitch\] widgets.
 #[derive(Debug, Clone, PartialEq)]
 pub struct Switch {
+    /// Properties common to every widget (`visible`, `enabled`, `bind`, `state`, `globalState`, `onInit`).
+    pub envelope: Envelope,
     /// Which platform style of switch to render.
-    pub switch_type: Option<SwitchType>,
+    pub switch_type: Option<Reactive<SwitchType>>,
     /// Whether this switch is on.
-    pub value: Option<bool>,
+    pub value: Option<Reactive<bool>>,
     /// Action invoked when the user toggles the switch.
     pub on_changed: Option<Action>,
     /// Whether this switch should focus itself if nothing else is focused.
-    pub autofocus: Option<bool>,
+    pub autofocus: Option<Reactive<bool>>,
     /// The color to use when this switch is on.
-    pub active_thumb_color: Option<Color>,
+    pub active_thumb_color: Option<Reactive<Color>>,
     /// The color to use for the track when this switch is on (Material only).
-    pub active_track_color: Option<Color>,
+    pub active_track_color: Option<Reactive<Color>>,
     /// The color to use for the focus highlight.
-    pub focus_color: Option<Color>,
+    pub focus_color: Option<Reactive<Color>>,
     /// The color to use for the hover highlight.
-    pub hover_color: Option<Color>,
+    pub hover_color: Option<Reactive<Color>>,
     /// The color to use for the thumb when this switch is off (Material only).
-    pub inactive_thumb_color: Option<Color>,
+    pub inactive_thumb_color: Option<Reactive<Color>>,
     /// The color to use for the track when this switch is off (Material only).
-    pub inactive_track_color: Option<Color>,
+    pub inactive_track_color: Option<Reactive<Color>>,
     /// The color to use for the ON label (Cupertino only).
-    pub on_label_color: Option<Color>,
+    pub on_label_color: Option<Reactive<Color>>,
     /// The color to use for the OFF label (Cupertino only).
-    pub off_label_color: Option<Color>,
+    pub off_label_color: Option<Reactive<Color>>,
     /// The splash radius of the switch's splash in logical pixels.
-    pub splash_radius: Option<f64>,
+    pub splash_radius: Option<Reactive<f64>>,
     /// Determines when a drag gesture should start.
-    pub drag_start_behavior: Option<DragStartBehavior>,
+    pub drag_start_behavior: Option<Reactive<DragStartBehavior>>,
     /// The overlay color for the switch's ink response.
-    pub overlay_color: Option<Color>,
+    pub overlay_color: Option<Reactive<Color>>,
     /// The color of the switch thumb for Material (via MaterialStateProperty uniform value).
-    pub thumb_color: Option<Color>,
+    pub thumb_color: Option<Reactive<Color>>,
     /// The color of the switch track for Material (via MaterialStateProperty uniform value).
-    pub track_color: Option<Color>,
+    pub track_color: Option<Reactive<Color>>,
     /// Configures the minimum size of the area within which the switch may be pressed.
-    pub material_tap_target_size: Option<MaterialTapTargetSize>,
+    pub material_tap_target_size: Option<Reactive<MaterialTapTargetSize>>,
     /// The outline color of the track for Material (via MaterialStateProperty uniform value).
-    pub track_outline_color: Option<Color>,
+    pub track_outline_color: Option<Reactive<Color>>,
     /// The outline width of the track for Material (via MaterialStateProperty uniform value).
-    pub track_outline_width: Option<f64>,
+    pub track_outline_width: Option<Reactive<f64>>,
     /// The icon to display on the thumb for Material (via MaterialStateProperty uniform value). Provide an \[Icon\] widget.
     pub thumb_icon: Option<Widget>,
     /// Network image URL to display on the thumb when the switch is off (Material only).
@@ -61,9 +66,9 @@ pub struct Switch {
     /// Network image URL to display on the thumb when the switch is on (Material only).
     pub active_thumb_image: Option<Dyn<String>>,
     /// Whether to apply the current Cupertino theme to the \[CupertinoSwitch\].
-    pub apply_theme: Option<bool>,
+    pub apply_theme: Option<Reactive<bool>>,
     /// Whether to apply the current Cupertino theme when using an adaptive switch.
-    pub apply_cupertino_theme: Option<bool>,
+    pub apply_cupertino_theme: Option<Reactive<bool>>,
 }
 
 impl Switch {
@@ -73,6 +78,7 @@ impl Switch {
     /// Creates the model with only its required fields set.
     pub fn new() -> Self {
         Self {
+            envelope: Envelope::new(),
             switch_type: None,
             value: None,
             on_changed: None,
@@ -102,14 +108,14 @@ impl Switch {
     }
 
     /// Which platform style of switch to render.
-    pub fn switch_type(mut self, value: impl Into<SwitchType>) -> Self {
-        self.switch_type = Some(value.into());
+    pub fn switch_type(mut self, value: impl IntoReactive<SwitchType>) -> Self {
+        self.switch_type = Some(value.into_reactive());
         self
     }
 
     /// Whether this switch is on.
-    pub fn value(mut self, value: bool) -> Self {
-        self.value = Some(value);
+    pub fn value(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.value = Some(value.into_reactive());
         self
     }
 
@@ -120,104 +126,107 @@ impl Switch {
     }
 
     /// Whether this switch should focus itself if nothing else is focused.
-    pub fn autofocus(mut self, value: bool) -> Self {
-        self.autofocus = Some(value);
+    pub fn autofocus(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.autofocus = Some(value.into_reactive());
         self
     }
 
     /// The color to use when this switch is on.
-    pub fn active_thumb_color(mut self, value: impl Into<Color>) -> Self {
-        self.active_thumb_color = Some(value.into());
+    pub fn active_thumb_color(mut self, value: impl IntoReactive<Color>) -> Self {
+        self.active_thumb_color = Some(value.into_reactive());
         self
     }
 
     /// The color to use for the track when this switch is on (Material only).
-    pub fn active_track_color(mut self, value: impl Into<Color>) -> Self {
-        self.active_track_color = Some(value.into());
+    pub fn active_track_color(mut self, value: impl IntoReactive<Color>) -> Self {
+        self.active_track_color = Some(value.into_reactive());
         self
     }
 
     /// The color to use for the focus highlight.
-    pub fn focus_color(mut self, value: impl Into<Color>) -> Self {
-        self.focus_color = Some(value.into());
+    pub fn focus_color(mut self, value: impl IntoReactive<Color>) -> Self {
+        self.focus_color = Some(value.into_reactive());
         self
     }
 
     /// The color to use for the hover highlight.
-    pub fn hover_color(mut self, value: impl Into<Color>) -> Self {
-        self.hover_color = Some(value.into());
+    pub fn hover_color(mut self, value: impl IntoReactive<Color>) -> Self {
+        self.hover_color = Some(value.into_reactive());
         self
     }
 
     /// The color to use for the thumb when this switch is off (Material only).
-    pub fn inactive_thumb_color(mut self, value: impl Into<Color>) -> Self {
-        self.inactive_thumb_color = Some(value.into());
+    pub fn inactive_thumb_color(mut self, value: impl IntoReactive<Color>) -> Self {
+        self.inactive_thumb_color = Some(value.into_reactive());
         self
     }
 
     /// The color to use for the track when this switch is off (Material only).
-    pub fn inactive_track_color(mut self, value: impl Into<Color>) -> Self {
-        self.inactive_track_color = Some(value.into());
+    pub fn inactive_track_color(mut self, value: impl IntoReactive<Color>) -> Self {
+        self.inactive_track_color = Some(value.into_reactive());
         self
     }
 
     /// The color to use for the ON label (Cupertino only).
-    pub fn on_label_color(mut self, value: impl Into<Color>) -> Self {
-        self.on_label_color = Some(value.into());
+    pub fn on_label_color(mut self, value: impl IntoReactive<Color>) -> Self {
+        self.on_label_color = Some(value.into_reactive());
         self
     }
 
     /// The color to use for the OFF label (Cupertino only).
-    pub fn off_label_color(mut self, value: impl Into<Color>) -> Self {
-        self.off_label_color = Some(value.into());
+    pub fn off_label_color(mut self, value: impl IntoReactive<Color>) -> Self {
+        self.off_label_color = Some(value.into_reactive());
         self
     }
 
     /// The splash radius of the switch's splash in logical pixels.
-    pub fn splash_radius(mut self, value: impl Into<f64>) -> Self {
-        self.splash_radius = Some(value.into());
+    pub fn splash_radius(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.splash_radius = Some(value.into_reactive());
         self
     }
 
     /// Determines when a drag gesture should start.
-    pub fn drag_start_behavior(mut self, value: impl Into<DragStartBehavior>) -> Self {
-        self.drag_start_behavior = Some(value.into());
+    pub fn drag_start_behavior(mut self, value: impl IntoReactive<DragStartBehavior>) -> Self {
+        self.drag_start_behavior = Some(value.into_reactive());
         self
     }
 
     /// The overlay color for the switch's ink response.
-    pub fn overlay_color(mut self, value: impl Into<Color>) -> Self {
-        self.overlay_color = Some(value.into());
+    pub fn overlay_color(mut self, value: impl IntoReactive<Color>) -> Self {
+        self.overlay_color = Some(value.into_reactive());
         self
     }
 
     /// The color of the switch thumb for Material (via MaterialStateProperty uniform value).
-    pub fn thumb_color(mut self, value: impl Into<Color>) -> Self {
-        self.thumb_color = Some(value.into());
+    pub fn thumb_color(mut self, value: impl IntoReactive<Color>) -> Self {
+        self.thumb_color = Some(value.into_reactive());
         self
     }
 
     /// The color of the switch track for Material (via MaterialStateProperty uniform value).
-    pub fn track_color(mut self, value: impl Into<Color>) -> Self {
-        self.track_color = Some(value.into());
+    pub fn track_color(mut self, value: impl IntoReactive<Color>) -> Self {
+        self.track_color = Some(value.into_reactive());
         self
     }
 
     /// Configures the minimum size of the area within which the switch may be pressed.
-    pub fn material_tap_target_size(mut self, value: impl Into<MaterialTapTargetSize>) -> Self {
-        self.material_tap_target_size = Some(value.into());
+    pub fn material_tap_target_size(
+        mut self,
+        value: impl IntoReactive<MaterialTapTargetSize>,
+    ) -> Self {
+        self.material_tap_target_size = Some(value.into_reactive());
         self
     }
 
     /// The outline color of the track for Material (via MaterialStateProperty uniform value).
-    pub fn track_outline_color(mut self, value: impl Into<Color>) -> Self {
-        self.track_outline_color = Some(value.into());
+    pub fn track_outline_color(mut self, value: impl IntoReactive<Color>) -> Self {
+        self.track_outline_color = Some(value.into_reactive());
         self
     }
 
     /// The outline width of the track for Material (via MaterialStateProperty uniform value).
-    pub fn track_outline_width(mut self, value: impl Into<f64>) -> Self {
-        self.track_outline_width = Some(value.into());
+    pub fn track_outline_width(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.track_outline_width = Some(value.into_reactive());
         self
     }
 
@@ -240,14 +249,50 @@ impl Switch {
     }
 
     /// Whether to apply the current Cupertino theme to the \[CupertinoSwitch\].
-    pub fn apply_theme(mut self, value: bool) -> Self {
-        self.apply_theme = Some(value);
+    pub fn apply_theme(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.apply_theme = Some(value.into_reactive());
         self
     }
 
     /// Whether to apply the current Cupertino theme when using an adaptive switch.
-    pub fn apply_cupertino_theme(mut self, value: bool) -> Self {
-        self.apply_cupertino_theme = Some(value);
+    pub fn apply_cupertino_theme(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.apply_cupertino_theme = Some(value.into_reactive());
+        self
+    }
+
+    /// Sets `visible` (envelope): a `bool`, a state path or an expression.
+    pub fn visible(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.visible(value);
+        self
+    }
+
+    /// Sets `enabled` (envelope): a `bool`, a state path or an expression.
+    pub fn enabled(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.enabled(value);
+        self
+    }
+
+    /// Sets `bind` (envelope): the state key the widget reads and writes.
+    pub fn bind(mut self, key: BindKey) -> Self {
+        self.envelope = self.envelope.bind(key);
+        self
+    }
+
+    /// Sets `state` (envelope): the screen state declared by this widget.
+    pub fn state(mut self, block: StateBlock) -> Self {
+        self.envelope = self.envelope.state(block);
+        self
+    }
+
+    /// Sets `globalState` (envelope): the global state declared by this widget.
+    pub fn global_state(mut self, block: GlobalStateBlock) -> Self {
+        self.envelope = self.envelope.global_state(block);
+        self
+    }
+
+    /// Sets `onInit` (envelope): action(s) run when the widget is first built.
+    pub fn on_init(mut self, on_init: impl Into<OnInit>) -> Self {
+        self.envelope = self.envelope.on_init(on_init);
         self
     }
 }
@@ -256,6 +301,7 @@ impl Serialize for Switch {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         let mut map = serializer.serialize_map(None)?;
         map.serialize_entry("type", "switch")?;
+        self.envelope.serialize_into(&mut map)?;
         if let Some(value) = &self.switch_type {
             map.serialize_entry("switchType", value)?;
         }
@@ -337,7 +383,17 @@ impl Serialize for Switch {
 
 impl Validate for Switch {
     fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
+        self.envelope.validate_at(path, issues);
+        if let Some(value) = &self.switch_type {
+            value.validate_binding_at(&path.key("switchType"), issues);
+        }
+        if let Some(value) = &self.value {
+            value.validate_binding_at(&path.key("value"), issues);
+        }
         self.on_changed.validate_at(&path.key("onChanged"), issues);
+        if let Some(value) = &self.autofocus {
+            value.validate_binding_at(&path.key("autofocus"), issues);
+        }
         self.active_thumb_color
             .validate_at(&path.key("activeThumbColor"), issues);
         self.active_track_color
@@ -356,12 +412,18 @@ impl Validate for Switch {
             .validate_at(&path.key("offLabelColor"), issues);
         self.splash_radius
             .validate_at(&path.key("splashRadius"), issues);
+        if let Some(value) = &self.drag_start_behavior {
+            value.validate_binding_at(&path.key("dragStartBehavior"), issues);
+        }
         self.overlay_color
             .validate_at(&path.key("overlayColor"), issues);
         self.thumb_color
             .validate_at(&path.key("thumbColor"), issues);
         self.track_color
             .validate_at(&path.key("trackColor"), issues);
+        if let Some(value) = &self.material_tap_target_size {
+            value.validate_binding_at(&path.key("materialTapTargetSize"), issues);
+        }
         self.track_outline_color
             .validate_at(&path.key("trackOutlineColor"), issues);
         self.track_outline_width
@@ -371,6 +433,12 @@ impl Validate for Switch {
             .validate_at(&path.key("inactiveThumbImage"), issues);
         self.active_thumb_image
             .validate_at(&path.key("activeThumbImage"), issues);
+        if let Some(value) = &self.apply_theme {
+            value.validate_binding_at(&path.key("applyTheme"), issues);
+        }
+        if let Some(value) = &self.apply_cupertino_theme {
+            value.validate_binding_at(&path.key("applyCupertinoTheme"), issues);
+        }
     }
 }
 
@@ -378,6 +446,8 @@ impl StacNode for Switch {
     const KIND: NodeKind = NodeKind::Widget;
     const TYPE_NAME: &'static str = "switch";
 }
+
+impl Plain for Switch {}
 
 impl From<Switch> for Widget {
     fn from(value: Switch) -> Self {

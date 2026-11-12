@@ -8,14 +8,19 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
 /// Simple delay action that waits for a number of milliseconds.
 #[derive(Debug, Clone, PartialEq)]
 pub struct DelayAction {
+    /// Run the action only when this is true (state path or expression).
+    pub condition: Option<Reactive<bool>>,
     /// Delay in milliseconds to wait.
-    pub milliseconds: Option<i64>,
+    pub milliseconds: Option<Reactive<i64>>,
 }
 
 impl DelayAction {
@@ -24,12 +29,21 @@ impl DelayAction {
 
     /// Creates the model with only its required fields set.
     pub fn new() -> Self {
-        Self { milliseconds: None }
+        Self {
+            condition: None,
+            milliseconds: None,
+        }
+    }
+
+    /// Run the action only when this is true (state path or expression).
+    pub fn condition(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.condition = Some(value.into_reactive());
+        self
     }
 
     /// Delay in milliseconds to wait.
-    pub fn milliseconds(mut self, value: impl Into<i64>) -> Self {
-        self.milliseconds = Some(value.into());
+    pub fn milliseconds(mut self, value: impl IntoReactive<i64>) -> Self {
+        self.milliseconds = Some(value.into_reactive());
         self
     }
 }
@@ -38,6 +52,9 @@ impl Serialize for DelayAction {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         let mut map = serializer.serialize_map(None)?;
         map.serialize_entry("actionType", "delay")?;
+        if let Some(value) = &self.condition {
+            map.serialize_entry("condition", value)?;
+        }
         if let Some(value) = &self.milliseconds {
             map.serialize_entry("milliseconds", value)?;
         }
@@ -46,13 +63,20 @@ impl Serialize for DelayAction {
 }
 
 impl Validate for DelayAction {
-    fn validate_at(&self, _path: &Path<'_>, _issues: &mut Vec<ValidationIssue>) {}
+    fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
+        self.condition.validate_at(&path.key("condition"), issues);
+        if let Some(value) = &self.milliseconds {
+            value.validate_binding_at(&path.key("milliseconds"), issues);
+        }
+    }
 }
 
 impl StacNode for DelayAction {
     const KIND: NodeKind = NodeKind::Action;
     const TYPE_NAME: &'static str = "delay";
 }
+
+impl Plain for DelayAction {}
 
 impl From<DelayAction> for Action {
     fn from(value: DelayAction) -> Self {

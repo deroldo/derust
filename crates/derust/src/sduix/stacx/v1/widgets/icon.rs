@@ -8,38 +8,43 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
 /// A Stac model representing Flutter's \[Icon\] widget.
 #[derive(Debug, Clone, PartialEq)]
 pub struct Icon {
+    /// Properties common to every widget (`visible`, `enabled`, `bind`, `state`, `globalState`, `onInit`).
+    pub envelope: Envelope,
     /// The name/key of the icon (as defined in icon utils maps).
     pub icon: Dyn<String>,
     /// The icon library to use.
-    pub icon_type: Option<IconType>,
+    pub icon_type: Option<Reactive<IconType>>,
     /// Size of the icon in logical pixels.
-    pub size: Option<f64>,
+    pub size: Option<Reactive<f64>>,
     /// Fill for the icon.
-    pub fill: Option<f64>,
+    pub fill: Option<Reactive<f64>>,
     /// Weight for the icon.
-    pub weight: Option<f64>,
+    pub weight: Option<Reactive<f64>>,
     /// Grade for the icon.
-    pub grade: Option<f64>,
+    pub grade: Option<Reactive<f64>>,
     /// Optical size for the icon.
-    pub optical_size: Option<f64>,
+    pub optical_size: Option<Reactive<f64>>,
     /// Color of the icon.
     pub color: Option<Dyn<String>>,
     /// Shadows for the icon.
-    pub shadows: Option<Vec<Shadow>>,
+    pub shadows: Option<Reactive<Vec<Shadow>>>,
     /// Semantic label for accessibility.
     pub semantic_label: Option<Dyn<String>>,
     /// The text direction to use for resolving certain icons.
-    pub text_direction: Option<TextDirection>,
+    pub text_direction: Option<Reactive<TextDirection>>,
     /// Whether to apply text scaling to the icon.
-    pub apply_text_scaling: Option<bool>,
+    pub apply_text_scaling: Option<Reactive<bool>>,
     /// Blend mode for the icon.
-    pub blend_mode: Option<BlendMode>,
+    pub blend_mode: Option<Reactive<BlendMode>>,
 }
 
 impl Icon {
@@ -49,6 +54,7 @@ impl Icon {
     /// Creates the model with only its required fields set.
     pub fn new(icon: impl Into<Dyn<String>>) -> Self {
         Self {
+            envelope: Envelope::new(),
             icon: icon.into(),
             icon_type: None,
             size: None,
@@ -72,38 +78,38 @@ impl Icon {
     }
 
     /// The icon library to use.
-    pub fn icon_type(mut self, value: impl Into<IconType>) -> Self {
-        self.icon_type = Some(value.into());
+    pub fn icon_type(mut self, value: impl IntoReactive<IconType>) -> Self {
+        self.icon_type = Some(value.into_reactive());
         self
     }
 
     /// Size of the icon in logical pixels.
-    pub fn size(mut self, value: impl Into<f64>) -> Self {
-        self.size = Some(value.into());
+    pub fn size(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.size = Some(value.into_reactive());
         self
     }
 
     /// Fill for the icon.
-    pub fn fill(mut self, value: impl Into<f64>) -> Self {
-        self.fill = Some(value.into());
+    pub fn fill(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.fill = Some(value.into_reactive());
         self
     }
 
     /// Weight for the icon.
-    pub fn weight(mut self, value: impl Into<f64>) -> Self {
-        self.weight = Some(value.into());
+    pub fn weight(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.weight = Some(value.into_reactive());
         self
     }
 
     /// Grade for the icon.
-    pub fn grade(mut self, value: impl Into<f64>) -> Self {
-        self.grade = Some(value.into());
+    pub fn grade(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.grade = Some(value.into_reactive());
         self
     }
 
     /// Optical size for the icon.
-    pub fn optical_size(mut self, value: impl Into<f64>) -> Self {
-        self.optical_size = Some(value.into());
+    pub fn optical_size(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.optical_size = Some(value.into_reactive());
         self
     }
 
@@ -114,8 +120,8 @@ impl Icon {
     }
 
     /// Shadows for the icon.
-    pub fn shadows(mut self, value: impl IntoIterator<Item = impl Into<Shadow>>) -> Self {
-        self.shadows = Some(value.into_iter().map(Into::into).collect());
+    pub fn shadows(mut self, value: impl IntoReactive<Vec<Shadow>>) -> Self {
+        self.shadows = Some(value.into_reactive());
         self
     }
 
@@ -126,20 +132,56 @@ impl Icon {
     }
 
     /// The text direction to use for resolving certain icons.
-    pub fn text_direction(mut self, value: impl Into<TextDirection>) -> Self {
-        self.text_direction = Some(value.into());
+    pub fn text_direction(mut self, value: impl IntoReactive<TextDirection>) -> Self {
+        self.text_direction = Some(value.into_reactive());
         self
     }
 
     /// Whether to apply text scaling to the icon.
-    pub fn apply_text_scaling(mut self, value: bool) -> Self {
-        self.apply_text_scaling = Some(value);
+    pub fn apply_text_scaling(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.apply_text_scaling = Some(value.into_reactive());
         self
     }
 
     /// Blend mode for the icon.
-    pub fn blend_mode(mut self, value: impl Into<BlendMode>) -> Self {
-        self.blend_mode = Some(value.into());
+    pub fn blend_mode(mut self, value: impl IntoReactive<BlendMode>) -> Self {
+        self.blend_mode = Some(value.into_reactive());
+        self
+    }
+
+    /// Sets `visible` (envelope): a `bool`, a state path or an expression.
+    pub fn visible(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.visible(value);
+        self
+    }
+
+    /// Sets `enabled` (envelope): a `bool`, a state path or an expression.
+    pub fn enabled(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.enabled(value);
+        self
+    }
+
+    /// Sets `bind` (envelope): the state key the widget reads and writes.
+    pub fn bind(mut self, key: BindKey) -> Self {
+        self.envelope = self.envelope.bind(key);
+        self
+    }
+
+    /// Sets `state` (envelope): the screen state declared by this widget.
+    pub fn state(mut self, block: StateBlock) -> Self {
+        self.envelope = self.envelope.state(block);
+        self
+    }
+
+    /// Sets `globalState` (envelope): the global state declared by this widget.
+    pub fn global_state(mut self, block: GlobalStateBlock) -> Self {
+        self.envelope = self.envelope.global_state(block);
+        self
+    }
+
+    /// Sets `onInit` (envelope): action(s) run when the widget is first built.
+    pub fn on_init(mut self, on_init: impl Into<OnInit>) -> Self {
+        self.envelope = self.envelope.on_init(on_init);
         self
     }
 }
@@ -148,6 +190,7 @@ impl Serialize for Icon {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         let mut map = serializer.serialize_map(None)?;
         map.serialize_entry("type", "icon")?;
+        self.envelope.serialize_into(&mut map)?;
         map.serialize_entry("icon", &self.icon)?;
         if let Some(value) = &self.icon_type {
             map.serialize_entry("iconType", value)?;
@@ -191,7 +234,11 @@ impl Serialize for Icon {
 
 impl Validate for Icon {
     fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
+        self.envelope.validate_at(path, issues);
         self.icon.validate_at(&path.key("icon"), issues);
+        if let Some(value) = &self.icon_type {
+            value.validate_binding_at(&path.key("iconType"), issues);
+        }
         self.size.validate_at(&path.key("size"), issues);
         self.fill.validate_at(&path.key("fill"), issues);
         self.weight.validate_at(&path.key("weight"), issues);
@@ -202,6 +249,15 @@ impl Validate for Icon {
         self.shadows.validate_at(&path.key("shadows"), issues);
         self.semantic_label
             .validate_at(&path.key("semanticLabel"), issues);
+        if let Some(value) = &self.text_direction {
+            value.validate_binding_at(&path.key("textDirection"), issues);
+        }
+        if let Some(value) = &self.apply_text_scaling {
+            value.validate_binding_at(&path.key("applyTextScaling"), issues);
+        }
+        if let Some(value) = &self.blend_mode {
+            value.validate_binding_at(&path.key("blendMode"), issues);
+        }
     }
 }
 
@@ -209,6 +265,8 @@ impl StacNode for Icon {
     const KIND: NodeKind = NodeKind::Widget;
     const TYPE_NAME: &'static str = "icon";
 }
+
+impl Plain for Icon {}
 
 impl From<Icon> for Widget {
     fn from(value: Icon) -> Self {

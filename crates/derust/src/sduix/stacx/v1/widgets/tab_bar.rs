@@ -8,54 +8,59 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
 /// A Stac model representing Flutter's \[TabBar\] widget.
 #[derive(Debug, Clone, PartialEq)]
 pub struct TabBar {
+    /// Properties common to every widget (`visible`, `enabled`, `bind`, `state`, `globalState`, `onInit`).
+    pub envelope: Envelope,
     /// The tabs to display.
     pub tabs: Vec<Widget>,
     /// The initial tab index (used with DefaultTabController).
-    pub initial_index: Option<i64>,
+    pub initial_index: Option<Reactive<i64>>,
     /// Whether the tab bar can be scrolled horizontally.
-    pub is_scrollable: Option<bool>,
+    pub is_scrollable: Option<Reactive<bool>>,
     /// Padding for the entire tab bar.
-    pub padding: Option<EdgeInsets>,
+    pub padding: Option<Reactive<EdgeInsets>>,
     /// Color for the tab indicator.
-    pub indicator_color: Option<Color>,
+    pub indicator_color: Option<Reactive<Color>>,
     /// Whether to adjust indicator color automatically based on label colors.
-    pub automatic_indicator_color_adjustment: Option<bool>,
+    pub automatic_indicator_color_adjustment: Option<Reactive<bool>>,
     /// Thickness of the tab indicator in logical pixels.
-    pub indicator_weight: Option<f64>,
+    pub indicator_weight: Option<Reactive<f64>>,
     /// Padding for the tab indicator.
-    pub indicator_padding: Option<EdgeInsets>,
+    pub indicator_padding: Option<Reactive<EdgeInsets>>,
     /// A custom decoration for the tab indicator.
-    pub indicator: Option<Box<BoxDecoration>>,
+    pub indicator: Option<Reactive<Box<BoxDecoration>>>,
     /// How the indicator's size is computed.
-    pub indicator_size: Option<TabBarIndicatorSize>,
+    pub indicator_size: Option<Reactive<TabBarIndicatorSize>>,
     /// Color of selected tab labels.
-    pub label_color: Option<Color>,
+    pub label_color: Option<Reactive<Color>>,
     /// Text style of selected tab labels.
-    pub label_style: Option<TextStyle>,
+    pub label_style: Option<Reactive<TextStyle>>,
     /// Padding added to each label.
-    pub label_padding: Option<EdgeInsets>,
+    pub label_padding: Option<Reactive<EdgeInsets>>,
     /// Color of unselected tab labels.
-    pub unselected_label_color: Option<Color>,
+    pub unselected_label_color: Option<Reactive<Color>>,
     /// Text style of unselected tab labels.
-    pub unselected_label_style: Option<TextStyle>,
+    pub unselected_label_style: Option<Reactive<TextStyle>>,
     /// Drag start behavior for drag gestures.
-    pub drag_start_behavior: Option<DragStartBehavior>,
+    pub drag_start_behavior: Option<Reactive<DragStartBehavior>>,
     /// Whether tapping tabs should include feedback.
-    pub enable_feedback: Option<bool>,
+    pub enable_feedback: Option<Reactive<bool>>,
     /// Scroll physics for the tab bar.
-    pub physics: Option<ScrollPhysics>,
+    pub physics: Option<Reactive<ScrollPhysics>>,
     /// How the tabs should be aligned.
-    pub tab_alignment: Option<TabAlignment>,
+    pub tab_alignment: Option<Reactive<TabAlignment>>,
     /// Divider color drawn below the tab bar (Material 3).
-    pub divider_color: Option<Color>,
+    pub divider_color: Option<Reactive<Color>>,
     /// Divider height drawn below the tab bar (Material 3).
-    pub divider_height: Option<f64>,
+    pub divider_height: Option<Reactive<f64>>,
 }
 
 impl TabBar {
@@ -65,6 +70,7 @@ impl TabBar {
     /// Creates the model with only its required fields set.
     pub fn new(tabs: impl IntoIterator<Item = impl Into<Widget>>) -> Self {
         Self {
+            envelope: Envelope::new(),
             tabs: tabs.into_iter().map(Into::into).collect(),
             initial_index: None,
             is_scrollable: None,
@@ -96,122 +102,158 @@ impl TabBar {
     }
 
     /// The initial tab index (used with DefaultTabController).
-    pub fn initial_index(mut self, value: impl Into<i64>) -> Self {
-        self.initial_index = Some(value.into());
+    pub fn initial_index(mut self, value: impl IntoReactive<i64>) -> Self {
+        self.initial_index = Some(value.into_reactive());
         self
     }
 
     /// Whether the tab bar can be scrolled horizontally.
-    pub fn is_scrollable(mut self, value: bool) -> Self {
-        self.is_scrollable = Some(value);
+    pub fn is_scrollable(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.is_scrollable = Some(value.into_reactive());
         self
     }
 
     /// Padding for the entire tab bar.
-    pub fn padding(mut self, value: impl Into<EdgeInsets>) -> Self {
-        self.padding = Some(value.into());
+    pub fn padding(mut self, value: impl IntoReactive<EdgeInsets>) -> Self {
+        self.padding = Some(value.into_reactive());
         self
     }
 
     /// Color for the tab indicator.
-    pub fn indicator_color(mut self, value: impl Into<Color>) -> Self {
-        self.indicator_color = Some(value.into());
+    pub fn indicator_color(mut self, value: impl IntoReactive<Color>) -> Self {
+        self.indicator_color = Some(value.into_reactive());
         self
     }
 
     /// Whether to adjust indicator color automatically based on label colors.
-    pub fn automatic_indicator_color_adjustment(mut self, value: bool) -> Self {
-        self.automatic_indicator_color_adjustment = Some(value);
+    pub fn automatic_indicator_color_adjustment(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.automatic_indicator_color_adjustment = Some(value.into_reactive());
         self
     }
 
     /// Thickness of the tab indicator in logical pixels.
-    pub fn indicator_weight(mut self, value: impl Into<f64>) -> Self {
-        self.indicator_weight = Some(value.into());
+    pub fn indicator_weight(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.indicator_weight = Some(value.into_reactive());
         self
     }
 
     /// Padding for the tab indicator.
-    pub fn indicator_padding(mut self, value: impl Into<EdgeInsets>) -> Self {
-        self.indicator_padding = Some(value.into());
+    pub fn indicator_padding(mut self, value: impl IntoReactive<EdgeInsets>) -> Self {
+        self.indicator_padding = Some(value.into_reactive());
         self
     }
 
     /// A custom decoration for the tab indicator.
-    pub fn indicator(mut self, value: impl Into<BoxDecoration>) -> Self {
-        self.indicator = Some(Box::new(value.into()));
+    pub fn indicator(mut self, value: impl IntoReactive<BoxDecoration>) -> Self {
+        self.indicator = Some(value.into_reactive().boxed());
         self
     }
 
     /// How the indicator's size is computed.
-    pub fn indicator_size(mut self, value: impl Into<TabBarIndicatorSize>) -> Self {
-        self.indicator_size = Some(value.into());
+    pub fn indicator_size(mut self, value: impl IntoReactive<TabBarIndicatorSize>) -> Self {
+        self.indicator_size = Some(value.into_reactive());
         self
     }
 
     /// Color of selected tab labels.
-    pub fn label_color(mut self, value: impl Into<Color>) -> Self {
-        self.label_color = Some(value.into());
+    pub fn label_color(mut self, value: impl IntoReactive<Color>) -> Self {
+        self.label_color = Some(value.into_reactive());
         self
     }
 
     /// Text style of selected tab labels.
-    pub fn label_style(mut self, value: impl Into<TextStyle>) -> Self {
-        self.label_style = Some(value.into());
+    pub fn label_style(mut self, value: impl IntoReactive<TextStyle>) -> Self {
+        self.label_style = Some(value.into_reactive());
         self
     }
 
     /// Padding added to each label.
-    pub fn label_padding(mut self, value: impl Into<EdgeInsets>) -> Self {
-        self.label_padding = Some(value.into());
+    pub fn label_padding(mut self, value: impl IntoReactive<EdgeInsets>) -> Self {
+        self.label_padding = Some(value.into_reactive());
         self
     }
 
     /// Color of unselected tab labels.
-    pub fn unselected_label_color(mut self, value: impl Into<Color>) -> Self {
-        self.unselected_label_color = Some(value.into());
+    pub fn unselected_label_color(mut self, value: impl IntoReactive<Color>) -> Self {
+        self.unselected_label_color = Some(value.into_reactive());
         self
     }
 
     /// Text style of unselected tab labels.
-    pub fn unselected_label_style(mut self, value: impl Into<TextStyle>) -> Self {
-        self.unselected_label_style = Some(value.into());
+    pub fn unselected_label_style(mut self, value: impl IntoReactive<TextStyle>) -> Self {
+        self.unselected_label_style = Some(value.into_reactive());
         self
     }
 
     /// Drag start behavior for drag gestures.
-    pub fn drag_start_behavior(mut self, value: impl Into<DragStartBehavior>) -> Self {
-        self.drag_start_behavior = Some(value.into());
+    pub fn drag_start_behavior(mut self, value: impl IntoReactive<DragStartBehavior>) -> Self {
+        self.drag_start_behavior = Some(value.into_reactive());
         self
     }
 
     /// Whether tapping tabs should include feedback.
-    pub fn enable_feedback(mut self, value: bool) -> Self {
-        self.enable_feedback = Some(value);
+    pub fn enable_feedback(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.enable_feedback = Some(value.into_reactive());
         self
     }
 
     /// Scroll physics for the tab bar.
-    pub fn physics(mut self, value: impl Into<ScrollPhysics>) -> Self {
-        self.physics = Some(value.into());
+    pub fn physics(mut self, value: impl IntoReactive<ScrollPhysics>) -> Self {
+        self.physics = Some(value.into_reactive());
         self
     }
 
     /// How the tabs should be aligned.
-    pub fn tab_alignment(mut self, value: impl Into<TabAlignment>) -> Self {
-        self.tab_alignment = Some(value.into());
+    pub fn tab_alignment(mut self, value: impl IntoReactive<TabAlignment>) -> Self {
+        self.tab_alignment = Some(value.into_reactive());
         self
     }
 
     /// Divider color drawn below the tab bar (Material 3).
-    pub fn divider_color(mut self, value: impl Into<Color>) -> Self {
-        self.divider_color = Some(value.into());
+    pub fn divider_color(mut self, value: impl IntoReactive<Color>) -> Self {
+        self.divider_color = Some(value.into_reactive());
         self
     }
 
     /// Divider height drawn below the tab bar (Material 3).
-    pub fn divider_height(mut self, value: impl Into<f64>) -> Self {
-        self.divider_height = Some(value.into());
+    pub fn divider_height(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.divider_height = Some(value.into_reactive());
+        self
+    }
+
+    /// Sets `visible` (envelope): a `bool`, a state path or an expression.
+    pub fn visible(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.visible(value);
+        self
+    }
+
+    /// Sets `enabled` (envelope): a `bool`, a state path or an expression.
+    pub fn enabled(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.enabled(value);
+        self
+    }
+
+    /// Sets `bind` (envelope): the state key the widget reads and writes.
+    pub fn bind(mut self, key: BindKey) -> Self {
+        self.envelope = self.envelope.bind(key);
+        self
+    }
+
+    /// Sets `state` (envelope): the screen state declared by this widget.
+    pub fn state(mut self, block: StateBlock) -> Self {
+        self.envelope = self.envelope.state(block);
+        self
+    }
+
+    /// Sets `globalState` (envelope): the global state declared by this widget.
+    pub fn global_state(mut self, block: GlobalStateBlock) -> Self {
+        self.envelope = self.envelope.global_state(block);
+        self
+    }
+
+    /// Sets `onInit` (envelope): action(s) run when the widget is first built.
+    pub fn on_init(mut self, on_init: impl Into<OnInit>) -> Self {
+        self.envelope = self.envelope.on_init(on_init);
         self
     }
 }
@@ -220,6 +262,7 @@ impl Serialize for TabBar {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         let mut map = serializer.serialize_map(None)?;
         map.serialize_entry("type", "tabBar")?;
+        self.envelope.serialize_into(&mut map)?;
         map.serialize_entry("tabs", &self.tabs)?;
         if let Some(value) = &self.initial_index {
             map.serialize_entry("initialIndex", value)?;
@@ -287,15 +330,28 @@ impl Serialize for TabBar {
 
 impl Validate for TabBar {
     fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
+        self.envelope.validate_at(path, issues);
         self.tabs.validate_at(&path.key("tabs"), issues);
+        if let Some(value) = &self.initial_index {
+            value.validate_binding_at(&path.key("initialIndex"), issues);
+        }
+        if let Some(value) = &self.is_scrollable {
+            value.validate_binding_at(&path.key("isScrollable"), issues);
+        }
         self.padding.validate_at(&path.key("padding"), issues);
         self.indicator_color
             .validate_at(&path.key("indicatorColor"), issues);
+        if let Some(value) = &self.automatic_indicator_color_adjustment {
+            value.validate_binding_at(&path.key("automaticIndicatorColorAdjustment"), issues);
+        }
         self.indicator_weight
             .validate_at(&path.key("indicatorWeight"), issues);
         self.indicator_padding
             .validate_at(&path.key("indicatorPadding"), issues);
         self.indicator.validate_at(&path.key("indicator"), issues);
+        if let Some(value) = &self.indicator_size {
+            value.validate_binding_at(&path.key("indicatorSize"), issues);
+        }
         self.label_color
             .validate_at(&path.key("labelColor"), issues);
         self.label_style
@@ -306,6 +362,18 @@ impl Validate for TabBar {
             .validate_at(&path.key("unselectedLabelColor"), issues);
         self.unselected_label_style
             .validate_at(&path.key("unselectedLabelStyle"), issues);
+        if let Some(value) = &self.drag_start_behavior {
+            value.validate_binding_at(&path.key("dragStartBehavior"), issues);
+        }
+        if let Some(value) = &self.enable_feedback {
+            value.validate_binding_at(&path.key("enableFeedback"), issues);
+        }
+        if let Some(value) = &self.physics {
+            value.validate_binding_at(&path.key("physics"), issues);
+        }
+        if let Some(value) = &self.tab_alignment {
+            value.validate_binding_at(&path.key("tabAlignment"), issues);
+        }
         self.divider_color
             .validate_at(&path.key("dividerColor"), issues);
         self.divider_height
@@ -317,6 +385,8 @@ impl StacNode for TabBar {
     const KIND: NodeKind = NodeKind::Widget;
     const TYPE_NAME: &'static str = "tabBar";
 }
+
+impl Plain for TabBar {}
 
 impl From<TabBar> for Widget {
     fn from(value: TabBar) -> Self {

@@ -8,74 +8,77 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
 /// A Stac model representing Flutter's \[TextField\] widget.
 #[derive(Debug, Clone, PartialEq)]
 pub struct TextField {
+    /// Properties common to every widget (`visible`, `enabled`, `bind`, `state`, `globalState`, `onInit`).
+    pub envelope: Envelope,
     /// Initial text to display in the field.
     pub initial_value: Option<Dyn<String>>,
     /// Visual decoration and labeling for the text field.
-    pub decoration: Option<Box<InputDecoration>>,
+    pub decoration: Option<Reactive<Box<InputDecoration>>>,
     /// The type of keyboard to use for editing the text.
-    pub keyboard_type: Option<TextInputType>,
+    pub keyboard_type: Option<Reactive<TextInputType>>,
     /// The type of action button to use for the keyboard.
-    pub text_input_action: Option<TextInputAction>,
+    pub text_input_action: Option<Reactive<TextInputAction>>,
     /// Configures how the platform keyboard will select an uppercase or lowercase keyboard. If null, Flutter's default behavior applies.
-    pub text_capitalization: Option<TextCapitalization>,
+    pub text_capitalization: Option<Reactive<TextCapitalization>>,
     /// The style to use for the text being edited.
-    pub style: Option<TextStyle>,
+    pub style: Option<Reactive<TextStyle>>,
     /// How the text should be aligned horizontally.
-    pub text_align: Option<TextAlign>,
+    pub text_align: Option<Reactive<TextAlign>>,
     /// The directionality of the text.
-    pub text_direction: Option<TextDirection>,
+    pub text_direction: Option<Reactive<TextDirection>>,
     /// Whether the text can be changed. If false, the field is non-interactive/read-only.
-    pub read_only: Option<bool>,
+    pub read_only: Option<Reactive<bool>>,
     /// Whether to show the cursor. If null, Flutter decides based on focus and platform.
-    pub show_cursor: Option<bool>,
+    pub show_cursor: Option<Reactive<bool>>,
     /// Whether this text field should focus itself if nothing else is already focused.
-    pub autofocus: Option<bool>,
+    pub autofocus: Option<Reactive<bool>>,
     /// Character used for obscuring text if \[obscureText\] is true. If null, Flutter's default obscuring character is used.
     pub obscuring_character: Option<Dyn<String>>,
     /// Whether to hide the text being edited (e.g., for passwords).
-    pub obscure_text: Option<bool>,
+    pub obscure_text: Option<Reactive<bool>>,
     /// Whether to enable autocorrect. If null, Flutter's default applies.
-    pub autocorrect: Option<bool>,
+    pub autocorrect: Option<Reactive<bool>>,
     /// Whether to show input suggestions as the user types. If null, Flutter's default applies.
-    pub enable_suggestions: Option<bool>,
+    pub enable_suggestions: Option<Reactive<bool>>,
     /// The maximum number of lines for the text to span, wrapping if necessary. If null, behaves as a single-line field unless \[expands\] or \[minLines\] imply otherwise.
-    pub max_lines: Option<i64>,
+    pub max_lines: Option<Reactive<i64>>,
     /// The minimum number of lines to occupy. If null, Flutter's default applies.
-    pub min_lines: Option<i64>,
+    pub min_lines: Option<Reactive<i64>>,
     /// Whether this widget's height is the sum of \[minLines\] and \[maxLines\], or whether it should grow to fill its parent.
-    pub expands: Option<bool>,
+    pub expands: Option<Reactive<bool>>,
     /// The maximum number of characters to allow in the text field. If null, there is no enforced character limit.
-    pub max_length: Option<i64>,
-    /// If false, the text field is disabled and will not respond to input. If null, Flutter's default applies (enabled).
-    pub enabled: Option<bool>,
+    pub max_length: Option<Reactive<i64>>,
     /// The color to use when painting the cursor.
-    pub cursor_color: Option<Color>,
+    pub cursor_color: Option<Reactive<Color>>,
     /// How thick the cursor will be. If null, Flutter's default applies.
-    pub cursor_width: Option<f64>,
+    pub cursor_width: Option<Reactive<f64>>,
     /// How tall the cursor will be. If null, Flutter's default applies.
-    pub cursor_height: Option<f64>,
+    pub cursor_height: Option<Reactive<f64>>,
     /// Padding inset used when ensuring the field is visible while scrolling.
-    pub scroll_padding: Option<EdgeInsets>,
+    pub scroll_padding: Option<Reactive<EdgeInsets>>,
     /// Whether to allow the user to interactively select text in the field. If null, Flutter's default applies.
-    pub enable_interactive_selection: Option<bool>,
+    pub enable_interactive_selection: Option<Reactive<bool>>,
     /// The cursor for a mouse pointer when it enters or hovers over the field.
-    pub mouse_cursor: Option<MouseCursor>,
+    pub mouse_cursor: Option<Reactive<MouseCursor>>,
     /// Determines the way that drag start behavior is handled. If null, Flutter's default applies.
-    pub drag_start_behavior: Option<DragStartBehavior>,
+    pub drag_start_behavior: Option<Reactive<DragStartBehavior>>,
     /// How the embedded scroll view should respond to user input.
-    pub scroll_physics: Option<ScrollPhysics>,
+    pub scroll_physics: Option<Reactive<ScrollPhysics>>,
     /// Restoration ID to save and restore state (e.g., selection, scroll offset).
     pub restoration_id: Option<Dyn<String>>,
     /// How to clip the text field's content. Defaults to \[Clip.hardEdge\] in Flutter.
-    pub clip_behavior: Option<Clip>,
+    pub clip_behavior: Option<Reactive<Clip>>,
     /// Autofill hint strings to help the platform identify expected input.
-    pub autofill_hints: Option<Vec<String>>,
+    pub autofill_hints: Option<Reactive<Vec<String>>>,
     /// Called when the user taps on the field.
     pub on_tap: Option<Action>,
     /// Called when the text changes.
@@ -93,6 +96,7 @@ impl TextField {
     /// Creates the model with only its required fields set.
     pub fn new() -> Self {
         Self {
+            envelope: Envelope::new(),
             initial_value: None,
             decoration: None,
             keyboard_type: None,
@@ -112,7 +116,6 @@ impl TextField {
             min_lines: None,
             expands: None,
             max_length: None,
-            enabled: None,
             cursor_color: None,
             cursor_width: None,
             cursor_height: None,
@@ -138,62 +141,62 @@ impl TextField {
     }
 
     /// Visual decoration and labeling for the text field.
-    pub fn decoration(mut self, value: impl Into<InputDecoration>) -> Self {
-        self.decoration = Some(Box::new(value.into()));
+    pub fn decoration(mut self, value: impl IntoReactive<InputDecoration>) -> Self {
+        self.decoration = Some(value.into_reactive().boxed());
         self
     }
 
     /// The type of keyboard to use for editing the text.
-    pub fn keyboard_type(mut self, value: impl Into<TextInputType>) -> Self {
-        self.keyboard_type = Some(value.into());
+    pub fn keyboard_type(mut self, value: impl IntoReactive<TextInputType>) -> Self {
+        self.keyboard_type = Some(value.into_reactive());
         self
     }
 
     /// The type of action button to use for the keyboard.
-    pub fn text_input_action(mut self, value: impl Into<TextInputAction>) -> Self {
-        self.text_input_action = Some(value.into());
+    pub fn text_input_action(mut self, value: impl IntoReactive<TextInputAction>) -> Self {
+        self.text_input_action = Some(value.into_reactive());
         self
     }
 
     /// Configures how the platform keyboard will select an uppercase or lowercase keyboard. If null, Flutter's default behavior applies.
-    pub fn text_capitalization(mut self, value: impl Into<TextCapitalization>) -> Self {
-        self.text_capitalization = Some(value.into());
+    pub fn text_capitalization(mut self, value: impl IntoReactive<TextCapitalization>) -> Self {
+        self.text_capitalization = Some(value.into_reactive());
         self
     }
 
     /// The style to use for the text being edited.
-    pub fn style(mut self, value: impl Into<TextStyle>) -> Self {
-        self.style = Some(value.into());
+    pub fn style(mut self, value: impl IntoReactive<TextStyle>) -> Self {
+        self.style = Some(value.into_reactive());
         self
     }
 
     /// How the text should be aligned horizontally.
-    pub fn text_align(mut self, value: impl Into<TextAlign>) -> Self {
-        self.text_align = Some(value.into());
+    pub fn text_align(mut self, value: impl IntoReactive<TextAlign>) -> Self {
+        self.text_align = Some(value.into_reactive());
         self
     }
 
     /// The directionality of the text.
-    pub fn text_direction(mut self, value: impl Into<TextDirection>) -> Self {
-        self.text_direction = Some(value.into());
+    pub fn text_direction(mut self, value: impl IntoReactive<TextDirection>) -> Self {
+        self.text_direction = Some(value.into_reactive());
         self
     }
 
     /// Whether the text can be changed. If false, the field is non-interactive/read-only.
-    pub fn read_only(mut self, value: bool) -> Self {
-        self.read_only = Some(value);
+    pub fn read_only(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.read_only = Some(value.into_reactive());
         self
     }
 
     /// Whether to show the cursor. If null, Flutter decides based on focus and platform.
-    pub fn show_cursor(mut self, value: bool) -> Self {
-        self.show_cursor = Some(value);
+    pub fn show_cursor(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.show_cursor = Some(value.into_reactive());
         self
     }
 
     /// Whether this text field should focus itself if nothing else is already focused.
-    pub fn autofocus(mut self, value: bool) -> Self {
-        self.autofocus = Some(value);
+    pub fn autofocus(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.autofocus = Some(value.into_reactive());
         self
     }
 
@@ -204,98 +207,92 @@ impl TextField {
     }
 
     /// Whether to hide the text being edited (e.g., for passwords).
-    pub fn obscure_text(mut self, value: bool) -> Self {
-        self.obscure_text = Some(value);
+    pub fn obscure_text(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.obscure_text = Some(value.into_reactive());
         self
     }
 
     /// Whether to enable autocorrect. If null, Flutter's default applies.
-    pub fn autocorrect(mut self, value: bool) -> Self {
-        self.autocorrect = Some(value);
+    pub fn autocorrect(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.autocorrect = Some(value.into_reactive());
         self
     }
 
     /// Whether to show input suggestions as the user types. If null, Flutter's default applies.
-    pub fn enable_suggestions(mut self, value: bool) -> Self {
-        self.enable_suggestions = Some(value);
+    pub fn enable_suggestions(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.enable_suggestions = Some(value.into_reactive());
         self
     }
 
     /// The maximum number of lines for the text to span, wrapping if necessary. If null, behaves as a single-line field unless \[expands\] or \[minLines\] imply otherwise.
-    pub fn max_lines(mut self, value: impl Into<i64>) -> Self {
-        self.max_lines = Some(value.into());
+    pub fn max_lines(mut self, value: impl IntoReactive<i64>) -> Self {
+        self.max_lines = Some(value.into_reactive());
         self
     }
 
     /// The minimum number of lines to occupy. If null, Flutter's default applies.
-    pub fn min_lines(mut self, value: impl Into<i64>) -> Self {
-        self.min_lines = Some(value.into());
+    pub fn min_lines(mut self, value: impl IntoReactive<i64>) -> Self {
+        self.min_lines = Some(value.into_reactive());
         self
     }
 
     /// Whether this widget's height is the sum of \[minLines\] and \[maxLines\], or whether it should grow to fill its parent.
-    pub fn expands(mut self, value: bool) -> Self {
-        self.expands = Some(value);
+    pub fn expands(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.expands = Some(value.into_reactive());
         self
     }
 
     /// The maximum number of characters to allow in the text field. If null, there is no enforced character limit.
-    pub fn max_length(mut self, value: impl Into<i64>) -> Self {
-        self.max_length = Some(value.into());
-        self
-    }
-
-    /// If false, the text field is disabled and will not respond to input. If null, Flutter's default applies (enabled).
-    pub fn enabled(mut self, value: bool) -> Self {
-        self.enabled = Some(value);
+    pub fn max_length(mut self, value: impl IntoReactive<i64>) -> Self {
+        self.max_length = Some(value.into_reactive());
         self
     }
 
     /// The color to use when painting the cursor.
-    pub fn cursor_color(mut self, value: impl Into<Color>) -> Self {
-        self.cursor_color = Some(value.into());
+    pub fn cursor_color(mut self, value: impl IntoReactive<Color>) -> Self {
+        self.cursor_color = Some(value.into_reactive());
         self
     }
 
     /// How thick the cursor will be. If null, Flutter's default applies.
-    pub fn cursor_width(mut self, value: impl Into<f64>) -> Self {
-        self.cursor_width = Some(value.into());
+    pub fn cursor_width(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.cursor_width = Some(value.into_reactive());
         self
     }
 
     /// How tall the cursor will be. If null, Flutter's default applies.
-    pub fn cursor_height(mut self, value: impl Into<f64>) -> Self {
-        self.cursor_height = Some(value.into());
+    pub fn cursor_height(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.cursor_height = Some(value.into_reactive());
         self
     }
 
     /// Padding inset used when ensuring the field is visible while scrolling.
-    pub fn scroll_padding(mut self, value: impl Into<EdgeInsets>) -> Self {
-        self.scroll_padding = Some(value.into());
+    pub fn scroll_padding(mut self, value: impl IntoReactive<EdgeInsets>) -> Self {
+        self.scroll_padding = Some(value.into_reactive());
         self
     }
 
     /// Whether to allow the user to interactively select text in the field. If null, Flutter's default applies.
-    pub fn enable_interactive_selection(mut self, value: bool) -> Self {
-        self.enable_interactive_selection = Some(value);
+    pub fn enable_interactive_selection(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.enable_interactive_selection = Some(value.into_reactive());
         self
     }
 
     /// The cursor for a mouse pointer when it enters or hovers over the field.
-    pub fn mouse_cursor(mut self, value: impl Into<MouseCursor>) -> Self {
-        self.mouse_cursor = Some(value.into());
+    pub fn mouse_cursor(mut self, value: impl IntoReactive<MouseCursor>) -> Self {
+        self.mouse_cursor = Some(value.into_reactive());
         self
     }
 
     /// Determines the way that drag start behavior is handled. If null, Flutter's default applies.
-    pub fn drag_start_behavior(mut self, value: impl Into<DragStartBehavior>) -> Self {
-        self.drag_start_behavior = Some(value.into());
+    pub fn drag_start_behavior(mut self, value: impl IntoReactive<DragStartBehavior>) -> Self {
+        self.drag_start_behavior = Some(value.into_reactive());
         self
     }
 
     /// How the embedded scroll view should respond to user input.
-    pub fn scroll_physics(mut self, value: impl Into<ScrollPhysics>) -> Self {
-        self.scroll_physics = Some(value.into());
+    pub fn scroll_physics(mut self, value: impl IntoReactive<ScrollPhysics>) -> Self {
+        self.scroll_physics = Some(value.into_reactive());
         self
     }
 
@@ -306,14 +303,14 @@ impl TextField {
     }
 
     /// How to clip the text field's content. Defaults to \[Clip.hardEdge\] in Flutter.
-    pub fn clip_behavior(mut self, value: impl Into<Clip>) -> Self {
-        self.clip_behavior = Some(value.into());
+    pub fn clip_behavior(mut self, value: impl IntoReactive<Clip>) -> Self {
+        self.clip_behavior = Some(value.into_reactive());
         self
     }
 
     /// Autofill hint strings to help the platform identify expected input.
-    pub fn autofill_hints(mut self, value: impl IntoIterator<Item = impl Into<String>>) -> Self {
-        self.autofill_hints = Some(value.into_iter().map(Into::into).collect());
+    pub fn autofill_hints(mut self, value: impl IntoReactive<Vec<String>>) -> Self {
+        self.autofill_hints = Some(value.into_reactive());
         self
     }
 
@@ -340,12 +337,49 @@ impl TextField {
         self.on_submitted = Some(value.into());
         self
     }
+
+    /// Sets `visible` (envelope): a `bool`, a state path or an expression.
+    pub fn visible(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.visible(value);
+        self
+    }
+
+    /// Sets `enabled` (envelope): a `bool`, a state path or an expression.
+    pub fn enabled(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.enabled(value);
+        self
+    }
+
+    /// Sets `bind` (envelope): the state key the widget reads and writes.
+    pub fn bind(mut self, key: BindKey) -> Self {
+        self.envelope = self.envelope.bind(key);
+        self
+    }
+
+    /// Sets `state` (envelope): the screen state declared by this widget.
+    pub fn state(mut self, block: StateBlock) -> Self {
+        self.envelope = self.envelope.state(block);
+        self
+    }
+
+    /// Sets `globalState` (envelope): the global state declared by this widget.
+    pub fn global_state(mut self, block: GlobalStateBlock) -> Self {
+        self.envelope = self.envelope.global_state(block);
+        self
+    }
+
+    /// Sets `onInit` (envelope): action(s) run when the widget is first built.
+    pub fn on_init(mut self, on_init: impl Into<OnInit>) -> Self {
+        self.envelope = self.envelope.on_init(on_init);
+        self
+    }
 }
 
 impl Serialize for TextField {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         let mut map = serializer.serialize_map(None)?;
         map.serialize_entry("type", "textField")?;
+        self.envelope.serialize_into(&mut map)?;
         if let Some(value) = &self.initial_value {
             map.serialize_entry("initialValue", value)?;
         }
@@ -403,9 +437,6 @@ impl Serialize for TextField {
         if let Some(value) = &self.max_length {
             map.serialize_entry("maxLength", value)?;
         }
-        if let Some(value) = &self.enabled {
-            map.serialize_entry("enabled", value)?;
-        }
         if let Some(value) = &self.cursor_color {
             map.serialize_entry("cursorColor", value)?;
         }
@@ -457,12 +488,58 @@ impl Serialize for TextField {
 
 impl Validate for TextField {
     fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
+        self.envelope.validate_at(path, issues);
         self.initial_value
             .validate_at(&path.key("initialValue"), issues);
         self.decoration.validate_at(&path.key("decoration"), issues);
+        if let Some(value) = &self.keyboard_type {
+            value.validate_binding_at(&path.key("keyboardType"), issues);
+        }
+        if let Some(value) = &self.text_input_action {
+            value.validate_binding_at(&path.key("textInputAction"), issues);
+        }
+        if let Some(value) = &self.text_capitalization {
+            value.validate_binding_at(&path.key("textCapitalization"), issues);
+        }
         self.style.validate_at(&path.key("style"), issues);
+        if let Some(value) = &self.text_align {
+            value.validate_binding_at(&path.key("textAlign"), issues);
+        }
+        if let Some(value) = &self.text_direction {
+            value.validate_binding_at(&path.key("textDirection"), issues);
+        }
+        if let Some(value) = &self.read_only {
+            value.validate_binding_at(&path.key("readOnly"), issues);
+        }
+        if let Some(value) = &self.show_cursor {
+            value.validate_binding_at(&path.key("showCursor"), issues);
+        }
+        if let Some(value) = &self.autofocus {
+            value.validate_binding_at(&path.key("autofocus"), issues);
+        }
         self.obscuring_character
             .validate_at(&path.key("obscuringCharacter"), issues);
+        if let Some(value) = &self.obscure_text {
+            value.validate_binding_at(&path.key("obscureText"), issues);
+        }
+        if let Some(value) = &self.autocorrect {
+            value.validate_binding_at(&path.key("autocorrect"), issues);
+        }
+        if let Some(value) = &self.enable_suggestions {
+            value.validate_binding_at(&path.key("enableSuggestions"), issues);
+        }
+        if let Some(value) = &self.max_lines {
+            value.validate_binding_at(&path.key("maxLines"), issues);
+        }
+        if let Some(value) = &self.min_lines {
+            value.validate_binding_at(&path.key("minLines"), issues);
+        }
+        if let Some(value) = &self.expands {
+            value.validate_binding_at(&path.key("expands"), issues);
+        }
+        if let Some(value) = &self.max_length {
+            value.validate_binding_at(&path.key("maxLength"), issues);
+        }
         self.cursor_color
             .validate_at(&path.key("cursorColor"), issues);
         self.cursor_width
@@ -471,8 +548,26 @@ impl Validate for TextField {
             .validate_at(&path.key("cursorHeight"), issues);
         self.scroll_padding
             .validate_at(&path.key("scrollPadding"), issues);
+        if let Some(value) = &self.enable_interactive_selection {
+            value.validate_binding_at(&path.key("enableInteractiveSelection"), issues);
+        }
+        if let Some(value) = &self.mouse_cursor {
+            value.validate_binding_at(&path.key("mouseCursor"), issues);
+        }
+        if let Some(value) = &self.drag_start_behavior {
+            value.validate_binding_at(&path.key("dragStartBehavior"), issues);
+        }
+        if let Some(value) = &self.scroll_physics {
+            value.validate_binding_at(&path.key("scrollPhysics"), issues);
+        }
         self.restoration_id
             .validate_at(&path.key("restorationId"), issues);
+        if let Some(value) = &self.clip_behavior {
+            value.validate_binding_at(&path.key("clipBehavior"), issues);
+        }
+        if let Some(value) = &self.autofill_hints {
+            value.validate_binding_at(&path.key("autofillHints"), issues);
+        }
         self.on_tap.validate_at(&path.key("onTap"), issues);
         self.on_changed.validate_at(&path.key("onChanged"), issues);
         self.on_editing_complete
@@ -486,6 +581,8 @@ impl StacNode for TextField {
     const KIND: NodeKind = NodeKind::Widget;
     const TYPE_NAME: &'static str = "textField";
 }
+
+impl Plain for TextField {}
 
 impl From<TextField> for Widget {
     fn from(value: TextField) -> Self {

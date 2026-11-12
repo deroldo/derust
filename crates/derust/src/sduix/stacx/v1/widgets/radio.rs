@@ -8,56 +8,59 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
 /// A Stac model representing Flutter's Radio and CupertinoRadio widgets.
 #[derive(Debug, Clone, PartialEq)]
 pub struct Radio {
+    /// Properties common to every widget (`visible`, `enabled`, `bind`, `state`, `globalState`, `onInit`).
+    pub envelope: Envelope,
     /// Which platform style of radio to render.
-    pub radio_type: Option<RadioType>,
+    pub radio_type: Option<Reactive<RadioType>>,
     /// The value represented by this radio.
-    pub value: Option<serde_json::Value>,
+    pub value: Option<Reactive<serde_json::Value>>,
     /// Identifier to associate this radio with a group in scope. Used by the parser to look up the current `groupValue`.
     pub group_id: Option<Dyn<String>>,
     /// Action invoked when the user selects this radio.
     pub on_changed: Option<Action>,
     /// Mouse cursor to display when hovering this widget.
-    pub mouse_cursor: Option<MouseCursor>,
+    pub mouse_cursor: Option<Reactive<MouseCursor>>,
     /// Whether this radio can be unselected.
-    pub toggleable: Option<bool>,
+    pub toggleable: Option<Reactive<bool>>,
     /// The color used when this radio is selected.
-    pub active_color: Option<Color>,
+    pub active_color: Option<Reactive<Color>>,
     /// The color used when this radio is not selected (Cupertino only).
-    pub inactive_color: Option<Color>,
+    pub inactive_color: Option<Reactive<Color>>,
     /// The color of the radial reaction (Material) or fill (Cupertino).
-    pub fill_color: Option<Color>,
+    pub fill_color: Option<Reactive<Color>>,
     /// The color to use for the focus highlight.
-    pub focus_color: Option<Color>,
+    pub focus_color: Option<Reactive<Color>>,
     /// The color to use for the hover highlight.
-    pub hover_color: Option<Color>,
+    pub hover_color: Option<Reactive<Color>>,
     /// The color to use for the overlay.
-    pub overlay_color: Option<Color>,
+    pub overlay_color: Option<Reactive<Color>>,
     /// The splash radius of the radio's splash in logical pixels.
-    pub splash_radius: Option<f64>,
+    pub splash_radius: Option<Reactive<f64>>,
     /// Configures the minimum size of the area within which the radio may be pressed.
-    pub material_tap_target_size: Option<MaterialTapTargetSize>,
+    pub material_tap_target_size: Option<Reactive<MaterialTapTargetSize>>,
     /// Defines how compact the radio's layout is.
-    pub visual_density: Option<VisualDensity>,
+    pub visual_density: Option<Reactive<VisualDensity>>,
     /// Whether this radio should focus itself if nothing else is focused.
-    pub autofocus: Option<bool>,
+    pub autofocus: Option<Reactive<bool>>,
     /// Whether to use a checkmark style for Cupertino radios.
-    pub use_checkmark_style: Option<bool>,
+    pub use_checkmark_style: Option<Reactive<bool>>,
     /// Whether to use a Cupertino checkmark style when using adaptive radios.
-    pub use_cupertino_checkmark_style: Option<bool>,
-    /// Whether this radio is enabled for user interaction.
-    pub enabled: Option<bool>,
+    pub use_cupertino_checkmark_style: Option<Reactive<bool>>,
     /// The background color of the radio.
-    pub background_color: Option<Color>,
+    pub background_color: Option<Reactive<Color>>,
     /// The border side of the radio.
-    pub side: Option<BorderSide>,
+    pub side: Option<Reactive<BorderSide>>,
     /// The inner radius of the radio in logical pixels.
-    pub inner_radius: Option<f64>,
+    pub inner_radius: Option<Reactive<f64>>,
 }
 
 impl Radio {
@@ -67,6 +70,7 @@ impl Radio {
     /// Creates the model with only its required fields set.
     pub fn new() -> Self {
         Self {
+            envelope: Envelope::new(),
             radio_type: None,
             value: None,
             group_id: None,
@@ -85,7 +89,6 @@ impl Radio {
             autofocus: None,
             use_checkmark_style: None,
             use_cupertino_checkmark_style: None,
-            enabled: None,
             background_color: None,
             side: None,
             inner_radius: None,
@@ -93,14 +96,14 @@ impl Radio {
     }
 
     /// Which platform style of radio to render.
-    pub fn radio_type(mut self, value: impl Into<RadioType>) -> Self {
-        self.radio_type = Some(value.into());
+    pub fn radio_type(mut self, value: impl IntoReactive<RadioType>) -> Self {
+        self.radio_type = Some(value.into_reactive());
         self
     }
 
     /// The value represented by this radio.
-    pub fn value(mut self, value: impl Into<serde_json::Value>) -> Self {
-        self.value = Some(value.into());
+    pub fn value(mut self, value: impl IntoReactive<serde_json::Value>) -> Self {
+        self.value = Some(value.into_reactive());
         self
     }
 
@@ -117,110 +120,143 @@ impl Radio {
     }
 
     /// Mouse cursor to display when hovering this widget.
-    pub fn mouse_cursor(mut self, value: impl Into<MouseCursor>) -> Self {
-        self.mouse_cursor = Some(value.into());
+    pub fn mouse_cursor(mut self, value: impl IntoReactive<MouseCursor>) -> Self {
+        self.mouse_cursor = Some(value.into_reactive());
         self
     }
 
     /// Whether this radio can be unselected.
-    pub fn toggleable(mut self, value: bool) -> Self {
-        self.toggleable = Some(value);
+    pub fn toggleable(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.toggleable = Some(value.into_reactive());
         self
     }
 
     /// The color used when this radio is selected.
-    pub fn active_color(mut self, value: impl Into<Color>) -> Self {
-        self.active_color = Some(value.into());
+    pub fn active_color(mut self, value: impl IntoReactive<Color>) -> Self {
+        self.active_color = Some(value.into_reactive());
         self
     }
 
     /// The color used when this radio is not selected (Cupertino only).
-    pub fn inactive_color(mut self, value: impl Into<Color>) -> Self {
-        self.inactive_color = Some(value.into());
+    pub fn inactive_color(mut self, value: impl IntoReactive<Color>) -> Self {
+        self.inactive_color = Some(value.into_reactive());
         self
     }
 
     /// The color of the radial reaction (Material) or fill (Cupertino).
-    pub fn fill_color(mut self, value: impl Into<Color>) -> Self {
-        self.fill_color = Some(value.into());
+    pub fn fill_color(mut self, value: impl IntoReactive<Color>) -> Self {
+        self.fill_color = Some(value.into_reactive());
         self
     }
 
     /// The color to use for the focus highlight.
-    pub fn focus_color(mut self, value: impl Into<Color>) -> Self {
-        self.focus_color = Some(value.into());
+    pub fn focus_color(mut self, value: impl IntoReactive<Color>) -> Self {
+        self.focus_color = Some(value.into_reactive());
         self
     }
 
     /// The color to use for the hover highlight.
-    pub fn hover_color(mut self, value: impl Into<Color>) -> Self {
-        self.hover_color = Some(value.into());
+    pub fn hover_color(mut self, value: impl IntoReactive<Color>) -> Self {
+        self.hover_color = Some(value.into_reactive());
         self
     }
 
     /// The color to use for the overlay.
-    pub fn overlay_color(mut self, value: impl Into<Color>) -> Self {
-        self.overlay_color = Some(value.into());
+    pub fn overlay_color(mut self, value: impl IntoReactive<Color>) -> Self {
+        self.overlay_color = Some(value.into_reactive());
         self
     }
 
     /// The splash radius of the radio's splash in logical pixels.
-    pub fn splash_radius(mut self, value: impl Into<f64>) -> Self {
-        self.splash_radius = Some(value.into());
+    pub fn splash_radius(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.splash_radius = Some(value.into_reactive());
         self
     }
 
     /// Configures the minimum size of the area within which the radio may be pressed.
-    pub fn material_tap_target_size(mut self, value: impl Into<MaterialTapTargetSize>) -> Self {
-        self.material_tap_target_size = Some(value.into());
+    pub fn material_tap_target_size(
+        mut self,
+        value: impl IntoReactive<MaterialTapTargetSize>,
+    ) -> Self {
+        self.material_tap_target_size = Some(value.into_reactive());
         self
     }
 
     /// Defines how compact the radio's layout is.
-    pub fn visual_density(mut self, value: impl Into<VisualDensity>) -> Self {
-        self.visual_density = Some(value.into());
+    pub fn visual_density(mut self, value: impl IntoReactive<VisualDensity>) -> Self {
+        self.visual_density = Some(value.into_reactive());
         self
     }
 
     /// Whether this radio should focus itself if nothing else is focused.
-    pub fn autofocus(mut self, value: bool) -> Self {
-        self.autofocus = Some(value);
+    pub fn autofocus(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.autofocus = Some(value.into_reactive());
         self
     }
 
     /// Whether to use a checkmark style for Cupertino radios.
-    pub fn use_checkmark_style(mut self, value: bool) -> Self {
-        self.use_checkmark_style = Some(value);
+    pub fn use_checkmark_style(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.use_checkmark_style = Some(value.into_reactive());
         self
     }
 
     /// Whether to use a Cupertino checkmark style when using adaptive radios.
-    pub fn use_cupertino_checkmark_style(mut self, value: bool) -> Self {
-        self.use_cupertino_checkmark_style = Some(value);
-        self
-    }
-
-    /// Whether this radio is enabled for user interaction.
-    pub fn enabled(mut self, value: bool) -> Self {
-        self.enabled = Some(value);
+    pub fn use_cupertino_checkmark_style(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.use_cupertino_checkmark_style = Some(value.into_reactive());
         self
     }
 
     /// The background color of the radio.
-    pub fn background_color(mut self, value: impl Into<Color>) -> Self {
-        self.background_color = Some(value.into());
+    pub fn background_color(mut self, value: impl IntoReactive<Color>) -> Self {
+        self.background_color = Some(value.into_reactive());
         self
     }
 
     /// The border side of the radio.
-    pub fn side(mut self, value: impl Into<BorderSide>) -> Self {
-        self.side = Some(value.into());
+    pub fn side(mut self, value: impl IntoReactive<BorderSide>) -> Self {
+        self.side = Some(value.into_reactive());
         self
     }
 
     /// The inner radius of the radio in logical pixels.
-    pub fn inner_radius(mut self, value: impl Into<f64>) -> Self {
-        self.inner_radius = Some(value.into());
+    pub fn inner_radius(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.inner_radius = Some(value.into_reactive());
+        self
+    }
+
+    /// Sets `visible` (envelope): a `bool`, a state path or an expression.
+    pub fn visible(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.visible(value);
+        self
+    }
+
+    /// Sets `enabled` (envelope): a `bool`, a state path or an expression.
+    pub fn enabled(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.enabled(value);
+        self
+    }
+
+    /// Sets `bind` (envelope): the state key the widget reads and writes.
+    pub fn bind(mut self, key: BindKey) -> Self {
+        self.envelope = self.envelope.bind(key);
+        self
+    }
+
+    /// Sets `state` (envelope): the screen state declared by this widget.
+    pub fn state(mut self, block: StateBlock) -> Self {
+        self.envelope = self.envelope.state(block);
+        self
+    }
+
+    /// Sets `globalState` (envelope): the global state declared by this widget.
+    pub fn global_state(mut self, block: GlobalStateBlock) -> Self {
+        self.envelope = self.envelope.global_state(block);
+        self
+    }
+
+    /// Sets `onInit` (envelope): action(s) run when the widget is first built.
+    pub fn on_init(mut self, on_init: impl Into<OnInit>) -> Self {
+        self.envelope = self.envelope.on_init(on_init);
         self
     }
 }
@@ -229,6 +265,7 @@ impl Serialize for Radio {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         let mut map = serializer.serialize_map(None)?;
         map.serialize_entry("type", "radio")?;
+        self.envelope.serialize_into(&mut map)?;
         if let Some(value) = &self.radio_type {
             map.serialize_entry("radioType", value)?;
         }
@@ -283,9 +320,6 @@ impl Serialize for Radio {
         if let Some(value) = &self.use_cupertino_checkmark_style {
             map.serialize_entry("useCupertinoCheckmarkStyle", value)?;
         }
-        if let Some(value) = &self.enabled {
-            map.serialize_entry("enabled", value)?;
-        }
         if let Some(value) = &self.background_color {
             map.serialize_entry("backgroundColor", value)?;
         }
@@ -301,8 +335,21 @@ impl Serialize for Radio {
 
 impl Validate for Radio {
     fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
+        self.envelope.validate_at(path, issues);
+        if let Some(value) = &self.radio_type {
+            value.validate_binding_at(&path.key("radioType"), issues);
+        }
+        if let Some(value) = &self.value {
+            value.validate_binding_at(&path.key("value"), issues);
+        }
         self.group_id.validate_at(&path.key("groupId"), issues);
         self.on_changed.validate_at(&path.key("onChanged"), issues);
+        if let Some(value) = &self.mouse_cursor {
+            value.validate_binding_at(&path.key("mouseCursor"), issues);
+        }
+        if let Some(value) = &self.toggleable {
+            value.validate_binding_at(&path.key("toggleable"), issues);
+        }
         self.active_color
             .validate_at(&path.key("activeColor"), issues);
         self.inactive_color
@@ -316,8 +363,20 @@ impl Validate for Radio {
             .validate_at(&path.key("overlayColor"), issues);
         self.splash_radius
             .validate_at(&path.key("splashRadius"), issues);
+        if let Some(value) = &self.material_tap_target_size {
+            value.validate_binding_at(&path.key("materialTapTargetSize"), issues);
+        }
         self.visual_density
             .validate_at(&path.key("visualDensity"), issues);
+        if let Some(value) = &self.autofocus {
+            value.validate_binding_at(&path.key("autofocus"), issues);
+        }
+        if let Some(value) = &self.use_checkmark_style {
+            value.validate_binding_at(&path.key("useCheckmarkStyle"), issues);
+        }
+        if let Some(value) = &self.use_cupertino_checkmark_style {
+            value.validate_binding_at(&path.key("useCupertinoCheckmarkStyle"), issues);
+        }
         self.background_color
             .validate_at(&path.key("backgroundColor"), issues);
         self.side.validate_at(&path.key("side"), issues);
@@ -330,6 +389,8 @@ impl StacNode for Radio {
     const KIND: NodeKind = NodeKind::Widget;
     const TYPE_NAME: &'static str = "radio";
 }
+
+impl Plain for Radio {}
 
 impl From<Radio> for Widget {
     fn from(value: Radio) -> Self {

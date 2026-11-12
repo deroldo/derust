@@ -8,24 +8,29 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
 /// A Stac model representing Flutter's \[Hero\] widget.
 #[derive(Debug, Clone, PartialEq)]
 pub struct Hero {
+    /// Properties common to every widget (`visible`, `enabled`, `bind`, `state`, `globalState`, `onInit`).
+    pub envelope: Envelope,
     /// The hero tag used to match heroes across routes.
-    pub tag: serde_json::Value,
+    pub tag: Reactive<serde_json::Value>,
     /// The widget subtree for this hero.
     pub child: Widget,
     /// Optional rectangle tween configuration for the hero animation.
-    pub create_rect_tween: Option<RectTween>,
+    pub create_rect_tween: Option<Reactive<RectTween>>,
     /// Optional widget used as the in-flight shuttle during the hero animation.
     pub flight_shuttle_builder: Option<Widget>,
     /// Optional placeholder widget displayed while the destination hero builds.
     pub placeholder_builder: Option<Widget>,
     /// Whether the hero should participate in a user gesture driven transition.
-    pub transition_on_user_gestures: Option<bool>,
+    pub transition_on_user_gestures: Option<Reactive<bool>>,
 }
 
 impl Hero {
@@ -33,9 +38,10 @@ impl Hero {
     pub const TYPE: &'static str = "hero";
 
     /// Creates the model with only its required fields set.
-    pub fn new(tag: impl Into<serde_json::Value>, child: impl Into<Widget>) -> Self {
+    pub fn new(tag: impl IntoReactive<serde_json::Value>, child: impl Into<Widget>) -> Self {
         Self {
-            tag: tag.into(),
+            envelope: Envelope::new(),
+            tag: tag.into_reactive(),
             child: child.into(),
             create_rect_tween: None,
             flight_shuttle_builder: None,
@@ -45,8 +51,8 @@ impl Hero {
     }
 
     /// The hero tag used to match heroes across routes.
-    pub fn tag(mut self, value: impl Into<serde_json::Value>) -> Self {
-        self.tag = value.into();
+    pub fn tag(mut self, value: impl IntoReactive<serde_json::Value>) -> Self {
+        self.tag = value.into_reactive();
         self
     }
 
@@ -57,8 +63,8 @@ impl Hero {
     }
 
     /// Optional rectangle tween configuration for the hero animation.
-    pub fn create_rect_tween(mut self, value: impl Into<RectTween>) -> Self {
-        self.create_rect_tween = Some(value.into());
+    pub fn create_rect_tween(mut self, value: impl IntoReactive<RectTween>) -> Self {
+        self.create_rect_tween = Some(value.into_reactive());
         self
     }
 
@@ -75,8 +81,44 @@ impl Hero {
     }
 
     /// Whether the hero should participate in a user gesture driven transition.
-    pub fn transition_on_user_gestures(mut self, value: bool) -> Self {
-        self.transition_on_user_gestures = Some(value);
+    pub fn transition_on_user_gestures(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.transition_on_user_gestures = Some(value.into_reactive());
+        self
+    }
+
+    /// Sets `visible` (envelope): a `bool`, a state path or an expression.
+    pub fn visible(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.visible(value);
+        self
+    }
+
+    /// Sets `enabled` (envelope): a `bool`, a state path or an expression.
+    pub fn enabled(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.enabled(value);
+        self
+    }
+
+    /// Sets `bind` (envelope): the state key the widget reads and writes.
+    pub fn bind(mut self, key: BindKey) -> Self {
+        self.envelope = self.envelope.bind(key);
+        self
+    }
+
+    /// Sets `state` (envelope): the screen state declared by this widget.
+    pub fn state(mut self, block: StateBlock) -> Self {
+        self.envelope = self.envelope.state(block);
+        self
+    }
+
+    /// Sets `globalState` (envelope): the global state declared by this widget.
+    pub fn global_state(mut self, block: GlobalStateBlock) -> Self {
+        self.envelope = self.envelope.global_state(block);
+        self
+    }
+
+    /// Sets `onInit` (envelope): action(s) run when the widget is first built.
+    pub fn on_init(mut self, on_init: impl Into<OnInit>) -> Self {
+        self.envelope = self.envelope.on_init(on_init);
         self
     }
 }
@@ -85,6 +127,7 @@ impl Serialize for Hero {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         let mut map = serializer.serialize_map(None)?;
         map.serialize_entry("type", "hero")?;
+        self.envelope.serialize_into(&mut map)?;
         map.serialize_entry("tag", &self.tag)?;
         map.serialize_entry("child", &self.child)?;
         if let Some(value) = &self.create_rect_tween {
@@ -105,6 +148,8 @@ impl Serialize for Hero {
 
 impl Validate for Hero {
     fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
+        self.envelope.validate_at(path, issues);
+        self.tag.validate_binding_at(&path.key("tag"), issues);
         self.child.validate_at(&path.key("child"), issues);
         self.create_rect_tween
             .validate_at(&path.key("createRectTween"), issues);
@@ -112,6 +157,9 @@ impl Validate for Hero {
             .validate_at(&path.key("flightShuttleBuilder"), issues);
         self.placeholder_builder
             .validate_at(&path.key("placeholderBuilder"), issues);
+        if let Some(value) = &self.transition_on_user_gestures {
+            value.validate_binding_at(&path.key("transitionOnUserGestures"), issues);
+        }
     }
 }
 
@@ -119,6 +167,8 @@ impl StacNode for Hero {
     const KIND: NodeKind = NodeKind::Widget;
     const TYPE_NAME: &'static str = "hero";
 }
+
+impl Plain for Hero {}
 
 impl From<Hero> for Widget {
     fn from(value: Hero) -> Self {

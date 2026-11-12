@@ -8,6 +8,9 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
@@ -19,19 +22,19 @@ pub struct DrawerThemeData {
     /// The color of the scrim that appears behind the drawer.
     pub scrim_color: Option<Dyn<String>>,
     /// The z-coordinate at which to place this drawer relative to its parent.
-    pub elevation: Option<f64>,
+    pub elevation: Option<Reactive<f64>>,
     /// The color of the shadow below the drawer.
     pub shadow_color: Option<Dyn<String>>,
     /// The color used to tint the surface of this drawer.
     pub surface_tint_color: Option<Dyn<String>>,
     /// The shape of the drawer's border.
-    pub shape: Option<ShapeBorder>,
+    pub shape: Option<Reactive<ShapeBorder>>,
     /// The shape of the end drawer's border.
-    pub end_shape: Option<ShapeBorder>,
+    pub end_shape: Option<Reactive<ShapeBorder>>,
     /// The width of the drawer.
-    pub width: Option<f64>,
+    pub width: Option<Reactive<f64>>,
     /// How to clip the drawer's content.
-    pub clip_behavior: Option<Clip>,
+    pub clip_behavior: Option<Reactive<Clip>>,
 }
 
 impl DrawerThemeData {
@@ -63,8 +66,8 @@ impl DrawerThemeData {
     }
 
     /// The z-coordinate at which to place this drawer relative to its parent.
-    pub fn elevation(mut self, value: impl Into<f64>) -> Self {
-        self.elevation = Some(value.into());
+    pub fn elevation(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.elevation = Some(value.into_reactive());
         self
     }
 
@@ -81,26 +84,26 @@ impl DrawerThemeData {
     }
 
     /// The shape of the drawer's border.
-    pub fn shape(mut self, value: impl Into<ShapeBorder>) -> Self {
-        self.shape = Some(value.into());
+    pub fn shape(mut self, value: impl IntoReactive<ShapeBorder>) -> Self {
+        self.shape = Some(value.into_reactive());
         self
     }
 
     /// The shape of the end drawer's border.
-    pub fn end_shape(mut self, value: impl Into<ShapeBorder>) -> Self {
-        self.end_shape = Some(value.into());
+    pub fn end_shape(mut self, value: impl IntoReactive<ShapeBorder>) -> Self {
+        self.end_shape = Some(value.into_reactive());
         self
     }
 
     /// The width of the drawer.
-    pub fn width(mut self, value: impl Into<f64>) -> Self {
-        self.width = Some(value.into());
+    pub fn width(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.width = Some(value.into_reactive());
         self
     }
 
     /// How to clip the drawer's content.
-    pub fn clip_behavior(mut self, value: impl Into<Clip>) -> Self {
-        self.clip_behavior = Some(value.into());
+    pub fn clip_behavior(mut self, value: impl IntoReactive<Clip>) -> Self {
+        self.clip_behavior = Some(value.into_reactive());
         self
     }
 }
@@ -153,5 +156,10 @@ impl Validate for DrawerThemeData {
         self.shape.validate_at(&path.key("shape"), issues);
         self.end_shape.validate_at(&path.key("endShape"), issues);
         self.width.validate_at(&path.key("width"), issues);
+        if let Some(value) = &self.clip_behavior {
+            value.validate_binding_at(&path.key("clipBehavior"), issues);
+        }
     }
 }
+
+impl Plain for DrawerThemeData {}

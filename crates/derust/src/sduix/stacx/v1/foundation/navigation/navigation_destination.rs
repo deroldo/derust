@@ -8,6 +8,9 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
@@ -23,7 +26,7 @@ pub struct NavigationDestination {
     /// Tooltip text shown on long press.
     pub tooltip: Option<Dyn<String>>,
     /// Whether this destination is enabled. Defaults to `true`.
-    pub enabled: Option<bool>,
+    pub enabled: Option<Reactive<bool>>,
 }
 
 impl NavigationDestination {
@@ -63,8 +66,8 @@ impl NavigationDestination {
     }
 
     /// Whether this destination is enabled. Defaults to `true`.
-    pub fn enabled(mut self, value: bool) -> Self {
-        self.enabled = Some(value);
+    pub fn enabled(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.enabled = Some(value.into_reactive());
         self
     }
 }
@@ -94,5 +97,10 @@ impl Validate for NavigationDestination {
         self.selected_icon
             .validate_at(&path.key("selectedIcon"), issues);
         self.tooltip.validate_at(&path.key("tooltip"), issues);
+        if let Some(value) = &self.enabled {
+            value.validate_binding_at(&path.key("enabled"), issues);
+        }
     }
 }
+
+impl Plain for NavigationDestination {}

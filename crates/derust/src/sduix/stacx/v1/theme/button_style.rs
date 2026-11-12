@@ -8,6 +8,9 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
@@ -15,57 +18,57 @@ use serde::ser::{Serialize, SerializeMap, Serializer};
 #[derive(Debug, Clone, PartialEq)]
 pub struct ButtonStyle {
     /// The color to use for this button's text and icons.
-    pub foreground_color: Option<Color>,
+    pub foreground_color: Option<Reactive<Color>>,
     /// The background fill color.
-    pub background_color: Option<Color>,
+    pub background_color: Option<Reactive<Color>>,
     /// The foreground color to use when this button is disabled.
-    pub disabled_foreground_color: Option<Color>,
+    pub disabled_foreground_color: Option<Reactive<Color>>,
     /// The background color to use when this button is disabled.
-    pub disabled_background_color: Option<Color>,
+    pub disabled_background_color: Option<Reactive<Color>>,
     /// The shadow color of the button's \[Material\].
-    pub shadow_color: Option<Color>,
+    pub shadow_color: Option<Reactive<Color>>,
     /// The surface tint color of the button's \[Material\].
-    pub surface_tint_color: Option<Color>,
+    pub surface_tint_color: Option<Reactive<Color>>,
     /// The color to use for this button's icons.
-    pub icon_color: Option<Color>,
+    pub icon_color: Option<Reactive<Color>>,
     /// The size of this button's icon.
-    pub icon_size: Option<f64>,
+    pub icon_size: Option<Reactive<f64>>,
     /// The alignment of the button's icon relative to its text label.
-    pub icon_alignment: Option<IconAlignment>,
+    pub icon_alignment: Option<Reactive<IconAlignment>>,
     /// The color to use for this button's icons when the button is disabled.
-    pub disabled_icon_color: Option<Color>,
+    pub disabled_icon_color: Option<Reactive<Color>>,
     /// The overlay color of the button's \[InkWell\].
-    pub overlay_color: Option<Color>,
+    pub overlay_color: Option<Reactive<Color>>,
     /// The elevation of the button's \[Material\].
-    pub elevation: Option<f64>,
+    pub elevation: Option<Reactive<f64>>,
     /// The style to use for this button's \[Text\] widget descendants.
-    pub text_style: Option<TextStyle>,
+    pub text_style: Option<Reactive<TextStyle>>,
     /// The internal padding for the button's \[child\].
-    pub padding: Option<EdgeInsets>,
+    pub padding: Option<Reactive<EdgeInsets>>,
     /// The minimum size of the button. Represented as {"width": 64.0, "height": 36.0}
-    pub minimum_size: Option<Size>,
+    pub minimum_size: Option<Reactive<Size>>,
     /// The button's size. Represented as {"width": 200.0, "height": 50.0}
-    pub fixed_size: Option<Size>,
+    pub fixed_size: Option<Reactive<Size>>,
     /// The maximum size of the button. Represented as {"width": 300.0, "height": 100.0}
-    pub maximum_size: Option<Size>,
+    pub maximum_size: Option<Reactive<Size>>,
     /// The color and weight of the button's outline.
-    pub side: Option<BorderSide>,
+    pub side: Option<Reactive<BorderSide>>,
     /// The shape of the button's border.
-    pub shape: Option<ShapeBorder>,
+    pub shape: Option<Reactive<ShapeBorder>>,
     /// Whether detected gestures should provide acoustic and/or haptic feedback.
-    pub enable_feedback: Option<bool>,
+    pub enable_feedback: Option<Reactive<bool>>,
     /// Typically used to size the button's \[child\].
-    pub alignment: Option<Alignment>,
+    pub alignment: Option<Reactive<Alignment>>,
     /// Configures the minimum size of the area within which the button may be pressed.
-    pub tap_target_size: Option<MaterialTapTargetSize>,
+    pub tap_target_size: Option<Reactive<MaterialTapTargetSize>>,
     /// Defines the duration of animated changes for shape and elevation. Duration in milliseconds.
-    pub animation_duration: Option<Duration>,
+    pub animation_duration: Option<Reactive<Duration>>,
     /// The mouse cursor to use when the button is enabled.
-    pub enabled_mouse_cursor: Option<MouseCursor>,
+    pub enabled_mouse_cursor: Option<Reactive<MouseCursor>>,
     /// The mouse cursor to use when the button is disabled.
-    pub disabled_mouse_cursor: Option<MouseCursor>,
+    pub disabled_mouse_cursor: Option<Reactive<MouseCursor>>,
     /// The visual density of the button's \[Material\].
-    pub visual_density: Option<VisualDensity>,
+    pub visual_density: Option<Reactive<VisualDensity>>,
 }
 
 impl ButtonStyle {
@@ -102,158 +105,158 @@ impl ButtonStyle {
     }
 
     /// The color to use for this button's text and icons.
-    pub fn foreground_color(mut self, value: impl Into<Color>) -> Self {
-        self.foreground_color = Some(value.into());
+    pub fn foreground_color(mut self, value: impl IntoReactive<Color>) -> Self {
+        self.foreground_color = Some(value.into_reactive());
         self
     }
 
     /// The background fill color.
-    pub fn background_color(mut self, value: impl Into<Color>) -> Self {
-        self.background_color = Some(value.into());
+    pub fn background_color(mut self, value: impl IntoReactive<Color>) -> Self {
+        self.background_color = Some(value.into_reactive());
         self
     }
 
     /// The foreground color to use when this button is disabled.
-    pub fn disabled_foreground_color(mut self, value: impl Into<Color>) -> Self {
-        self.disabled_foreground_color = Some(value.into());
+    pub fn disabled_foreground_color(mut self, value: impl IntoReactive<Color>) -> Self {
+        self.disabled_foreground_color = Some(value.into_reactive());
         self
     }
 
     /// The background color to use when this button is disabled.
-    pub fn disabled_background_color(mut self, value: impl Into<Color>) -> Self {
-        self.disabled_background_color = Some(value.into());
+    pub fn disabled_background_color(mut self, value: impl IntoReactive<Color>) -> Self {
+        self.disabled_background_color = Some(value.into_reactive());
         self
     }
 
     /// The shadow color of the button's \[Material\].
-    pub fn shadow_color(mut self, value: impl Into<Color>) -> Self {
-        self.shadow_color = Some(value.into());
+    pub fn shadow_color(mut self, value: impl IntoReactive<Color>) -> Self {
+        self.shadow_color = Some(value.into_reactive());
         self
     }
 
     /// The surface tint color of the button's \[Material\].
-    pub fn surface_tint_color(mut self, value: impl Into<Color>) -> Self {
-        self.surface_tint_color = Some(value.into());
+    pub fn surface_tint_color(mut self, value: impl IntoReactive<Color>) -> Self {
+        self.surface_tint_color = Some(value.into_reactive());
         self
     }
 
     /// The color to use for this button's icons.
-    pub fn icon_color(mut self, value: impl Into<Color>) -> Self {
-        self.icon_color = Some(value.into());
+    pub fn icon_color(mut self, value: impl IntoReactive<Color>) -> Self {
+        self.icon_color = Some(value.into_reactive());
         self
     }
 
     /// The size of this button's icon.
-    pub fn icon_size(mut self, value: impl Into<f64>) -> Self {
-        self.icon_size = Some(value.into());
+    pub fn icon_size(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.icon_size = Some(value.into_reactive());
         self
     }
 
     /// The alignment of the button's icon relative to its text label.
-    pub fn icon_alignment(mut self, value: impl Into<IconAlignment>) -> Self {
-        self.icon_alignment = Some(value.into());
+    pub fn icon_alignment(mut self, value: impl IntoReactive<IconAlignment>) -> Self {
+        self.icon_alignment = Some(value.into_reactive());
         self
     }
 
     /// The color to use for this button's icons when the button is disabled.
-    pub fn disabled_icon_color(mut self, value: impl Into<Color>) -> Self {
-        self.disabled_icon_color = Some(value.into());
+    pub fn disabled_icon_color(mut self, value: impl IntoReactive<Color>) -> Self {
+        self.disabled_icon_color = Some(value.into_reactive());
         self
     }
 
     /// The overlay color of the button's \[InkWell\].
-    pub fn overlay_color(mut self, value: impl Into<Color>) -> Self {
-        self.overlay_color = Some(value.into());
+    pub fn overlay_color(mut self, value: impl IntoReactive<Color>) -> Self {
+        self.overlay_color = Some(value.into_reactive());
         self
     }
 
     /// The elevation of the button's \[Material\].
-    pub fn elevation(mut self, value: impl Into<f64>) -> Self {
-        self.elevation = Some(value.into());
+    pub fn elevation(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.elevation = Some(value.into_reactive());
         self
     }
 
     /// The style to use for this button's \[Text\] widget descendants.
-    pub fn text_style(mut self, value: impl Into<TextStyle>) -> Self {
-        self.text_style = Some(value.into());
+    pub fn text_style(mut self, value: impl IntoReactive<TextStyle>) -> Self {
+        self.text_style = Some(value.into_reactive());
         self
     }
 
     /// The internal padding for the button's \[child\].
-    pub fn padding(mut self, value: impl Into<EdgeInsets>) -> Self {
-        self.padding = Some(value.into());
+    pub fn padding(mut self, value: impl IntoReactive<EdgeInsets>) -> Self {
+        self.padding = Some(value.into_reactive());
         self
     }
 
     /// The minimum size of the button. Represented as {"width": 64.0, "height": 36.0}
-    pub fn minimum_size(mut self, value: impl Into<Size>) -> Self {
-        self.minimum_size = Some(value.into());
+    pub fn minimum_size(mut self, value: impl IntoReactive<Size>) -> Self {
+        self.minimum_size = Some(value.into_reactive());
         self
     }
 
     /// The button's size. Represented as {"width": 200.0, "height": 50.0}
-    pub fn fixed_size(mut self, value: impl Into<Size>) -> Self {
-        self.fixed_size = Some(value.into());
+    pub fn fixed_size(mut self, value: impl IntoReactive<Size>) -> Self {
+        self.fixed_size = Some(value.into_reactive());
         self
     }
 
     /// The maximum size of the button. Represented as {"width": 300.0, "height": 100.0}
-    pub fn maximum_size(mut self, value: impl Into<Size>) -> Self {
-        self.maximum_size = Some(value.into());
+    pub fn maximum_size(mut self, value: impl IntoReactive<Size>) -> Self {
+        self.maximum_size = Some(value.into_reactive());
         self
     }
 
     /// The color and weight of the button's outline.
-    pub fn side(mut self, value: impl Into<BorderSide>) -> Self {
-        self.side = Some(value.into());
+    pub fn side(mut self, value: impl IntoReactive<BorderSide>) -> Self {
+        self.side = Some(value.into_reactive());
         self
     }
 
     /// The shape of the button's border.
-    pub fn shape(mut self, value: impl Into<ShapeBorder>) -> Self {
-        self.shape = Some(value.into());
+    pub fn shape(mut self, value: impl IntoReactive<ShapeBorder>) -> Self {
+        self.shape = Some(value.into_reactive());
         self
     }
 
     /// Whether detected gestures should provide acoustic and/or haptic feedback.
-    pub fn enable_feedback(mut self, value: bool) -> Self {
-        self.enable_feedback = Some(value);
+    pub fn enable_feedback(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.enable_feedback = Some(value.into_reactive());
         self
     }
 
     /// Typically used to size the button's \[child\].
-    pub fn alignment(mut self, value: impl Into<Alignment>) -> Self {
-        self.alignment = Some(value.into());
+    pub fn alignment(mut self, value: impl IntoReactive<Alignment>) -> Self {
+        self.alignment = Some(value.into_reactive());
         self
     }
 
     /// Configures the minimum size of the area within which the button may be pressed.
-    pub fn tap_target_size(mut self, value: impl Into<MaterialTapTargetSize>) -> Self {
-        self.tap_target_size = Some(value.into());
+    pub fn tap_target_size(mut self, value: impl IntoReactive<MaterialTapTargetSize>) -> Self {
+        self.tap_target_size = Some(value.into_reactive());
         self
     }
 
     /// Defines the duration of animated changes for shape and elevation. Duration in milliseconds.
-    pub fn animation_duration(mut self, value: impl Into<Duration>) -> Self {
-        self.animation_duration = Some(value.into());
+    pub fn animation_duration(mut self, value: impl IntoReactive<Duration>) -> Self {
+        self.animation_duration = Some(value.into_reactive());
         self
     }
 
     /// The mouse cursor to use when the button is enabled.
-    pub fn enabled_mouse_cursor(mut self, value: impl Into<MouseCursor>) -> Self {
-        self.enabled_mouse_cursor = Some(value.into());
+    pub fn enabled_mouse_cursor(mut self, value: impl IntoReactive<MouseCursor>) -> Self {
+        self.enabled_mouse_cursor = Some(value.into_reactive());
         self
     }
 
     /// The mouse cursor to use when the button is disabled.
-    pub fn disabled_mouse_cursor(mut self, value: impl Into<MouseCursor>) -> Self {
-        self.disabled_mouse_cursor = Some(value.into());
+    pub fn disabled_mouse_cursor(mut self, value: impl IntoReactive<MouseCursor>) -> Self {
+        self.disabled_mouse_cursor = Some(value.into_reactive());
         self
     }
 
     /// The visual density of the button's \[Material\].
-    pub fn visual_density(mut self, value: impl Into<VisualDensity>) -> Self {
-        self.visual_density = Some(value.into());
+    pub fn visual_density(mut self, value: impl IntoReactive<VisualDensity>) -> Self {
+        self.visual_density = Some(value.into_reactive());
         self
     }
 }
@@ -359,6 +362,9 @@ impl Validate for ButtonStyle {
             .validate_at(&path.key("surfaceTintColor"), issues);
         self.icon_color.validate_at(&path.key("iconColor"), issues);
         self.icon_size.validate_at(&path.key("iconSize"), issues);
+        if let Some(value) = &self.icon_alignment {
+            value.validate_binding_at(&path.key("iconAlignment"), issues);
+        }
         self.disabled_icon_color
             .validate_at(&path.key("disabledIconColor"), issues);
         self.overlay_color
@@ -373,9 +379,26 @@ impl Validate for ButtonStyle {
             .validate_at(&path.key("maximumSize"), issues);
         self.side.validate_at(&path.key("side"), issues);
         self.shape.validate_at(&path.key("shape"), issues);
+        if let Some(value) = &self.enable_feedback {
+            value.validate_binding_at(&path.key("enableFeedback"), issues);
+        }
+        if let Some(value) = &self.alignment {
+            value.validate_binding_at(&path.key("alignment"), issues);
+        }
+        if let Some(value) = &self.tap_target_size {
+            value.validate_binding_at(&path.key("tapTargetSize"), issues);
+        }
         self.animation_duration
             .validate_at(&path.key("animationDuration"), issues);
+        if let Some(value) = &self.enabled_mouse_cursor {
+            value.validate_binding_at(&path.key("enabledMouseCursor"), issues);
+        }
+        if let Some(value) = &self.disabled_mouse_cursor {
+            value.validate_binding_at(&path.key("disabledMouseCursor"), issues);
+        }
         self.visual_density
             .validate_at(&path.key("visualDensity"), issues);
     }
 }
+
+impl Plain for ButtonStyle {}

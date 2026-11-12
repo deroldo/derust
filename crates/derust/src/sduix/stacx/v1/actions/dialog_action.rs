@@ -8,28 +8,33 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
 /// Core model for the "showDialog" action.
 #[derive(Debug, Clone, PartialEq)]
 pub struct DialogAction {
+    /// Run the action only when this is true (state path or expression).
+    pub condition: Option<Reactive<bool>>,
     /// Dialog content widget JSON.
     pub widget: Option<Widget>,
     /// Network request to fetch dialog widget JSON.
-    pub request: Option<Box<NetworkRequest>>,
+    pub request: Option<Reactive<Box<NetworkRequest>>>,
     /// Asset path to dialog widget JSON.
     pub asset_path: Option<Dyn<String>>,
     /// Whether tapping the barrier dismisses the dialog.
-    pub barrier_dismissible: Option<bool>,
+    pub barrier_dismissible: Option<Reactive<bool>>,
     /// Barrier color hex string.
     pub barrier_color: Option<Dyn<String>>,
     /// Semantics label for barrier.
     pub barrier_label: Option<Dyn<String>>,
     /// Whether to use safe area for the dialog.
-    pub use_safe_area: Option<bool>,
+    pub use_safe_area: Option<Reactive<bool>>,
     /// Traversal behavior for focus traversal at edges.
-    pub traversal_edge_behavior: Option<TraversalEdgeBehavior>,
+    pub traversal_edge_behavior: Option<Reactive<TraversalEdgeBehavior>>,
 }
 
 impl DialogAction {
@@ -39,6 +44,7 @@ impl DialogAction {
     /// Creates the model with only its required fields set.
     pub fn new() -> Self {
         Self {
+            condition: None,
             widget: None,
             request: None,
             asset_path: None,
@@ -50,6 +56,12 @@ impl DialogAction {
         }
     }
 
+    /// Run the action only when this is true (state path or expression).
+    pub fn condition(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.condition = Some(value.into_reactive());
+        self
+    }
+
     /// Dialog content widget JSON.
     pub fn widget(mut self, value: impl Into<Widget>) -> Self {
         self.widget = Some(value.into());
@@ -57,8 +69,8 @@ impl DialogAction {
     }
 
     /// Network request to fetch dialog widget JSON.
-    pub fn request(mut self, value: impl Into<NetworkRequest>) -> Self {
-        self.request = Some(Box::new(value.into()));
+    pub fn request(mut self, value: impl IntoReactive<NetworkRequest>) -> Self {
+        self.request = Some(value.into_reactive().boxed());
         self
     }
 
@@ -69,8 +81,8 @@ impl DialogAction {
     }
 
     /// Whether tapping the barrier dismisses the dialog.
-    pub fn barrier_dismissible(mut self, value: bool) -> Self {
-        self.barrier_dismissible = Some(value);
+    pub fn barrier_dismissible(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.barrier_dismissible = Some(value.into_reactive());
         self
     }
 
@@ -87,14 +99,17 @@ impl DialogAction {
     }
 
     /// Whether to use safe area for the dialog.
-    pub fn use_safe_area(mut self, value: bool) -> Self {
-        self.use_safe_area = Some(value);
+    pub fn use_safe_area(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.use_safe_area = Some(value.into_reactive());
         self
     }
 
     /// Traversal behavior for focus traversal at edges.
-    pub fn traversal_edge_behavior(mut self, value: impl Into<TraversalEdgeBehavior>) -> Self {
-        self.traversal_edge_behavior = Some(value.into());
+    pub fn traversal_edge_behavior(
+        mut self,
+        value: impl IntoReactive<TraversalEdgeBehavior>,
+    ) -> Self {
+        self.traversal_edge_behavior = Some(value.into_reactive());
         self
     }
 }
@@ -103,6 +118,9 @@ impl Serialize for DialogAction {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         let mut map = serializer.serialize_map(None)?;
         map.serialize_entry("actionType", "showDialog")?;
+        if let Some(value) = &self.condition {
+            map.serialize_entry("condition", value)?;
+        }
         if let Some(value) = &self.widget {
             map.serialize_entry("widget", value)?;
         }
@@ -133,13 +151,23 @@ impl Serialize for DialogAction {
 
 impl Validate for DialogAction {
     fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
+        self.condition.validate_at(&path.key("condition"), issues);
         self.widget.validate_at(&path.key("widget"), issues);
         self.request.validate_at(&path.key("request"), issues);
         self.asset_path.validate_at(&path.key("assetPath"), issues);
+        if let Some(value) = &self.barrier_dismissible {
+            value.validate_binding_at(&path.key("barrierDismissible"), issues);
+        }
         self.barrier_color
             .validate_at(&path.key("barrierColor"), issues);
         self.barrier_label
             .validate_at(&path.key("barrierLabel"), issues);
+        if let Some(value) = &self.use_safe_area {
+            value.validate_binding_at(&path.key("useSafeArea"), issues);
+        }
+        if let Some(value) = &self.traversal_edge_behavior {
+            value.validate_binding_at(&path.key("traversalEdgeBehavior"), issues);
+        }
     }
 }
 
@@ -147,6 +175,8 @@ impl StacNode for DialogAction {
     const KIND: NodeKind = NodeKind::Action;
     const TYPE_NAME: &'static str = "showDialog";
 }
+
+impl Plain for DialogAction {}
 
 impl From<DialogAction> for Action {
     fn from(value: DialogAction) -> Self {

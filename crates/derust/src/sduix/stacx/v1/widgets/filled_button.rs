@@ -8,12 +8,17 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
 /// A Stac model representing Flutter's \[FilledButton\] widget.
 #[derive(Debug, Clone, PartialEq)]
 pub struct FilledButton {
+    /// Properties common to every widget (`visible`, `enabled`, `bind`, `state`, `globalState`, `onInit`).
+    pub envelope: Envelope,
     /// Called when the button is tapped or otherwise activated. If null, the button will be disabled.
     pub on_pressed: Option<Action>,
     /// Called when the button is long-pressed.
@@ -23,11 +28,11 @@ pub struct FilledButton {
     /// Called when the focus changes.
     pub on_focus_change: Option<Action>,
     /// Customizes this button's appearance.
-    pub style: Option<Box<ButtonStyle>>,
+    pub style: Option<Reactive<Box<ButtonStyle>>>,
     /// True if this widget will be selected as the initial focus when no other node in its scope is currently focused.
-    pub autofocus: Option<bool>,
+    pub autofocus: Option<Reactive<bool>>,
     /// How to clip the button's content.
-    pub clip_behavior: Option<Clip>,
+    pub clip_behavior: Option<Reactive<Clip>>,
     /// The widget below this widget in the tree. Typically a \[Text\] widget.
     pub child: Option<Widget>,
 }
@@ -39,6 +44,7 @@ impl FilledButton {
     /// Creates the model with only its required fields set.
     pub fn new() -> Self {
         Self {
+            envelope: Envelope::new(),
             on_pressed: None,
             on_long_press: None,
             on_hover: None,
@@ -75,20 +81,20 @@ impl FilledButton {
     }
 
     /// Customizes this button's appearance.
-    pub fn style(mut self, value: impl Into<ButtonStyle>) -> Self {
-        self.style = Some(Box::new(value.into()));
+    pub fn style(mut self, value: impl IntoReactive<ButtonStyle>) -> Self {
+        self.style = Some(value.into_reactive().boxed());
         self
     }
 
     /// True if this widget will be selected as the initial focus when no other node in its scope is currently focused.
-    pub fn autofocus(mut self, value: bool) -> Self {
-        self.autofocus = Some(value);
+    pub fn autofocus(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.autofocus = Some(value.into_reactive());
         self
     }
 
     /// How to clip the button's content.
-    pub fn clip_behavior(mut self, value: impl Into<Clip>) -> Self {
-        self.clip_behavior = Some(value.into());
+    pub fn clip_behavior(mut self, value: impl IntoReactive<Clip>) -> Self {
+        self.clip_behavior = Some(value.into_reactive());
         self
     }
 
@@ -97,12 +103,49 @@ impl FilledButton {
         self.child = Some(value.into());
         self
     }
+
+    /// Sets `visible` (envelope): a `bool`, a state path or an expression.
+    pub fn visible(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.visible(value);
+        self
+    }
+
+    /// Sets `enabled` (envelope): a `bool`, a state path or an expression.
+    pub fn enabled(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.enabled(value);
+        self
+    }
+
+    /// Sets `bind` (envelope): the state key the widget reads and writes.
+    pub fn bind(mut self, key: BindKey) -> Self {
+        self.envelope = self.envelope.bind(key);
+        self
+    }
+
+    /// Sets `state` (envelope): the screen state declared by this widget.
+    pub fn state(mut self, block: StateBlock) -> Self {
+        self.envelope = self.envelope.state(block);
+        self
+    }
+
+    /// Sets `globalState` (envelope): the global state declared by this widget.
+    pub fn global_state(mut self, block: GlobalStateBlock) -> Self {
+        self.envelope = self.envelope.global_state(block);
+        self
+    }
+
+    /// Sets `onInit` (envelope): action(s) run when the widget is first built.
+    pub fn on_init(mut self, on_init: impl Into<OnInit>) -> Self {
+        self.envelope = self.envelope.on_init(on_init);
+        self
+    }
 }
 
 impl Serialize for FilledButton {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         let mut map = serializer.serialize_map(None)?;
         map.serialize_entry("type", "filledButton")?;
+        self.envelope.serialize_into(&mut map)?;
         if let Some(value) = &self.on_pressed {
             map.serialize_entry("onPressed", value)?;
         }
@@ -133,6 +176,7 @@ impl Serialize for FilledButton {
 
 impl Validate for FilledButton {
     fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
+        self.envelope.validate_at(path, issues);
         self.on_pressed.validate_at(&path.key("onPressed"), issues);
         self.on_long_press
             .validate_at(&path.key("onLongPress"), issues);
@@ -140,6 +184,12 @@ impl Validate for FilledButton {
         self.on_focus_change
             .validate_at(&path.key("onFocusChange"), issues);
         self.style.validate_at(&path.key("style"), issues);
+        if let Some(value) = &self.autofocus {
+            value.validate_binding_at(&path.key("autofocus"), issues);
+        }
+        if let Some(value) = &self.clip_behavior {
+            value.validate_binding_at(&path.key("clipBehavior"), issues);
+        }
         self.child.validate_at(&path.key("child"), issues);
     }
 }
@@ -148,6 +198,8 @@ impl StacNode for FilledButton {
     const KIND: NodeKind = NodeKind::Widget;
     const TYPE_NAME: &'static str = "filledButton";
 }
+
+impl Plain for FilledButton {}
 
 impl From<FilledButton> for Widget {
     fn from(value: FilledButton) -> Self {

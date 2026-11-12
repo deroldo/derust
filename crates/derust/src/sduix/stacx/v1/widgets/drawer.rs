@@ -8,30 +8,35 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
 /// A Stac model representing Flutter's \[Drawer\] widget.
 #[derive(Debug, Clone, PartialEq)]
 pub struct Drawer {
+    /// Properties common to every widget (`visible`, `enabled`, `bind`, `state`, `globalState`, `onInit`).
+    pub envelope: Envelope,
     /// Background color of the drawer.
-    pub background_color: Option<Color>,
+    pub background_color: Option<Reactive<Color>>,
     /// Elevation of the drawer in logical pixels.
-    pub elevation: Option<f64>,
+    pub elevation: Option<Reactive<f64>>,
     /// Color of the drawer's shadow.
-    pub shadow_color: Option<Color>,
+    pub shadow_color: Option<Reactive<Color>>,
     /// Surface tint color applied on top of the drawer surface.
-    pub surface_tint_color: Option<Color>,
+    pub surface_tint_color: Option<Reactive<Color>>,
     /// The shape of the drawer.
-    pub shape: Option<ShapeBorder>,
+    pub shape: Option<Reactive<ShapeBorder>>,
     /// The width of the drawer.
-    pub width: Option<f64>,
+    pub width: Option<Reactive<f64>>,
     /// The primary content of the drawer.
     pub child: Option<Widget>,
     /// A semantic label for the drawer.
     pub semantic_label: Option<Dyn<String>>,
     /// The clip behavior for the drawer's content.
-    pub clip_behavior: Option<Clip>,
+    pub clip_behavior: Option<Reactive<Clip>>,
 }
 
 impl Drawer {
@@ -41,6 +46,7 @@ impl Drawer {
     /// Creates the model with only its required fields set.
     pub fn new() -> Self {
         Self {
+            envelope: Envelope::new(),
             background_color: None,
             elevation: None,
             shadow_color: None,
@@ -54,38 +60,38 @@ impl Drawer {
     }
 
     /// Background color of the drawer.
-    pub fn background_color(mut self, value: impl Into<Color>) -> Self {
-        self.background_color = Some(value.into());
+    pub fn background_color(mut self, value: impl IntoReactive<Color>) -> Self {
+        self.background_color = Some(value.into_reactive());
         self
     }
 
     /// Elevation of the drawer in logical pixels.
-    pub fn elevation(mut self, value: impl Into<f64>) -> Self {
-        self.elevation = Some(value.into());
+    pub fn elevation(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.elevation = Some(value.into_reactive());
         self
     }
 
     /// Color of the drawer's shadow.
-    pub fn shadow_color(mut self, value: impl Into<Color>) -> Self {
-        self.shadow_color = Some(value.into());
+    pub fn shadow_color(mut self, value: impl IntoReactive<Color>) -> Self {
+        self.shadow_color = Some(value.into_reactive());
         self
     }
 
     /// Surface tint color applied on top of the drawer surface.
-    pub fn surface_tint_color(mut self, value: impl Into<Color>) -> Self {
-        self.surface_tint_color = Some(value.into());
+    pub fn surface_tint_color(mut self, value: impl IntoReactive<Color>) -> Self {
+        self.surface_tint_color = Some(value.into_reactive());
         self
     }
 
     /// The shape of the drawer.
-    pub fn shape(mut self, value: impl Into<ShapeBorder>) -> Self {
-        self.shape = Some(value.into());
+    pub fn shape(mut self, value: impl IntoReactive<ShapeBorder>) -> Self {
+        self.shape = Some(value.into_reactive());
         self
     }
 
     /// The width of the drawer.
-    pub fn width(mut self, value: impl Into<f64>) -> Self {
-        self.width = Some(value.into());
+    pub fn width(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.width = Some(value.into_reactive());
         self
     }
 
@@ -102,8 +108,44 @@ impl Drawer {
     }
 
     /// The clip behavior for the drawer's content.
-    pub fn clip_behavior(mut self, value: impl Into<Clip>) -> Self {
-        self.clip_behavior = Some(value.into());
+    pub fn clip_behavior(mut self, value: impl IntoReactive<Clip>) -> Self {
+        self.clip_behavior = Some(value.into_reactive());
+        self
+    }
+
+    /// Sets `visible` (envelope): a `bool`, a state path or an expression.
+    pub fn visible(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.visible(value);
+        self
+    }
+
+    /// Sets `enabled` (envelope): a `bool`, a state path or an expression.
+    pub fn enabled(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.enabled(value);
+        self
+    }
+
+    /// Sets `bind` (envelope): the state key the widget reads and writes.
+    pub fn bind(mut self, key: BindKey) -> Self {
+        self.envelope = self.envelope.bind(key);
+        self
+    }
+
+    /// Sets `state` (envelope): the screen state declared by this widget.
+    pub fn state(mut self, block: StateBlock) -> Self {
+        self.envelope = self.envelope.state(block);
+        self
+    }
+
+    /// Sets `globalState` (envelope): the global state declared by this widget.
+    pub fn global_state(mut self, block: GlobalStateBlock) -> Self {
+        self.envelope = self.envelope.global_state(block);
+        self
+    }
+
+    /// Sets `onInit` (envelope): action(s) run when the widget is first built.
+    pub fn on_init(mut self, on_init: impl Into<OnInit>) -> Self {
+        self.envelope = self.envelope.on_init(on_init);
         self
     }
 }
@@ -112,6 +154,7 @@ impl Serialize for Drawer {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         let mut map = serializer.serialize_map(None)?;
         map.serialize_entry("type", "drawer")?;
+        self.envelope.serialize_into(&mut map)?;
         if let Some(value) = &self.background_color {
             map.serialize_entry("backgroundColor", value)?;
         }
@@ -145,6 +188,7 @@ impl Serialize for Drawer {
 
 impl Validate for Drawer {
     fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
+        self.envelope.validate_at(path, issues);
         self.background_color
             .validate_at(&path.key("backgroundColor"), issues);
         self.elevation.validate_at(&path.key("elevation"), issues);
@@ -157,6 +201,9 @@ impl Validate for Drawer {
         self.child.validate_at(&path.key("child"), issues);
         self.semantic_label
             .validate_at(&path.key("semanticLabel"), issues);
+        if let Some(value) = &self.clip_behavior {
+            value.validate_binding_at(&path.key("clipBehavior"), issues);
+        }
     }
 }
 
@@ -164,6 +211,8 @@ impl StacNode for Drawer {
     const KIND: NodeKind = NodeKind::Widget;
     const TYPE_NAME: &'static str = "drawer";
 }
+
+impl Plain for Drawer {}
 
 impl From<Drawer> for Widget {
     fn from(value: Drawer) -> Self {

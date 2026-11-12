@@ -8,6 +8,9 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
@@ -15,8 +18,8 @@ use serde::ser::{Serialize, SerializeMap, Serializer};
 #[derive(Debug, Clone, PartialEq)]
 pub struct BeveledRectangleBorder {
     /// The radius for each corner.
-    pub border_radius: Option<BorderRadius>,
-    pub side: Option<BorderSide>,
+    pub border_radius: Option<Reactive<BorderRadius>>,
+    pub side: Option<Reactive<BorderSide>>,
 }
 
 impl BeveledRectangleBorder {
@@ -32,14 +35,14 @@ impl BeveledRectangleBorder {
     }
 
     /// The radius for each corner.
-    pub fn border_radius(mut self, value: impl Into<BorderRadius>) -> Self {
-        self.border_radius = Some(value.into());
+    pub fn border_radius(mut self, value: impl IntoReactive<BorderRadius>) -> Self {
+        self.border_radius = Some(value.into_reactive());
         self
     }
 
     /// Sets `side`.
-    pub fn side(mut self, value: impl Into<BorderSide>) -> Self {
-        self.side = Some(value.into());
+    pub fn side(mut self, value: impl IntoReactive<BorderSide>) -> Self {
+        self.side = Some(value.into_reactive());
         self
     }
 }
@@ -66,8 +69,16 @@ impl Validate for BeveledRectangleBorder {
     }
 }
 
+impl Plain for BeveledRectangleBorder {}
+
 impl From<BeveledRectangleBorder> for ShapeBorder {
     fn from(value: BeveledRectangleBorder) -> Self {
         ShapeBorder::BeveledRectangleBorder(Box::new(value))
+    }
+}
+
+impl IntoReactive<ShapeBorder> for BeveledRectangleBorder {
+    fn into_reactive(self) -> Reactive<ShapeBorder> {
+        Reactive::Value(ShapeBorder::from(self))
     }
 }

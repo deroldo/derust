@@ -8,46 +8,51 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
 /// A Stac model representing Flutter's \[Tooltip\] widget.
 #[derive(Debug, Clone, PartialEq)]
 pub struct Tooltip {
+    /// Properties common to every widget (`visible`, `enabled`, `bind`, `state`, `globalState`, `onInit`).
+    pub envelope: Envelope,
     /// The text to display in the tooltip.
     pub message: Option<Dyn<String>>,
     /// The rich text to display in the tooltip.
-    pub rich_message: Option<TextSpan>,
+    pub rich_message: Option<Reactive<TextSpan>>,
     /// The additional constraints to apply to the tooltip's \[child\].
-    pub constraints: Option<BoxConstraints>,
+    pub constraints: Option<Reactive<BoxConstraints>>,
     /// The amount of space by which to inset the tooltip's \[child\].
-    pub padding: Option<EdgeInsets>,
+    pub padding: Option<Reactive<EdgeInsets>>,
     /// The empty space that surrounds the tooltip.
-    pub margin: Option<EdgeInsets>,
+    pub margin: Option<Reactive<EdgeInsets>>,
     /// The vertical gap between the widget and the displayed tooltip.
-    pub vertical_offset: Option<f64>,
+    pub vertical_offset: Option<Reactive<f64>>,
     /// Whether the tooltip defaults to being displayed below the widget.
-    pub prefer_below: Option<bool>,
+    pub prefer_below: Option<Reactive<bool>>,
     /// Whether the tooltip's \[message\] should be excluded from the semantics tree.
-    pub exclude_from_semantics: Option<bool>,
+    pub exclude_from_semantics: Option<Reactive<bool>>,
     /// The visual decoration to use for the tooltip.
-    pub decoration: Option<Box<BoxDecoration>>,
+    pub decoration: Option<Reactive<Box<BoxDecoration>>>,
     /// The style to use for the message of the tooltip.
-    pub text_style: Option<TextStyle>,
+    pub text_style: Option<Reactive<TextStyle>>,
     /// How the message of the tooltip is aligned horizontally.
-    pub text_align: Option<TextAlign>,
+    pub text_align: Option<Reactive<TextAlign>>,
     /// The length of time that a pointer must hover over a tooltip's widget before the tooltip will be shown.
-    pub wait_duration: Option<Duration>,
+    pub wait_duration: Option<Reactive<Duration>>,
     /// The length of time that the tooltip will be shown after a long press is released (if triggerMode is StacTooltipTriggerMode.longPress) or a tap is released (if triggerMode is StacTooltipTriggerMode.tap).
-    pub show_duration: Option<Duration>,
+    pub show_duration: Option<Reactive<Duration>>,
     /// The length of time that the tooltip takes to fade out after the \[showDuration\] has passed.
-    pub exit_duration: Option<Duration>,
+    pub exit_duration: Option<Reactive<Duration>>,
     /// Whether the tooltip can be dismissed by tapping the screen.
-    pub enable_tap_to_dismiss: Option<bool>,
+    pub enable_tap_to_dismiss: Option<Reactive<bool>>,
     /// Defines how this widget can be triggered. Defaults to \[StacTooltipTriggerMode.longPress\] in the Flutter widget.
-    pub trigger_mode: Option<TooltipTriggerMode>,
+    pub trigger_mode: Option<Reactive<TooltipTriggerMode>>,
     /// Whether the tooltip should provide acoustic and/or haptic feedback.
-    pub enable_feedback: Option<bool>,
+    pub enable_feedback: Option<Reactive<bool>>,
     /// The widget below this widget in the tree.
     pub child: Option<Widget>,
 }
@@ -59,6 +64,7 @@ impl Tooltip {
     /// Creates the model with only its required fields set.
     pub fn new() -> Self {
         Self {
+            envelope: Envelope::new(),
             message: None,
             rich_message: None,
             constraints: None,
@@ -87,98 +93,98 @@ impl Tooltip {
     }
 
     /// The rich text to display in the tooltip.
-    pub fn rich_message(mut self, value: impl Into<TextSpan>) -> Self {
-        self.rich_message = Some(value.into());
+    pub fn rich_message(mut self, value: impl IntoReactive<TextSpan>) -> Self {
+        self.rich_message = Some(value.into_reactive());
         self
     }
 
     /// The additional constraints to apply to the tooltip's \[child\].
-    pub fn constraints(mut self, value: impl Into<BoxConstraints>) -> Self {
-        self.constraints = Some(value.into());
+    pub fn constraints(mut self, value: impl IntoReactive<BoxConstraints>) -> Self {
+        self.constraints = Some(value.into_reactive());
         self
     }
 
     /// The amount of space by which to inset the tooltip's \[child\].
-    pub fn padding(mut self, value: impl Into<EdgeInsets>) -> Self {
-        self.padding = Some(value.into());
+    pub fn padding(mut self, value: impl IntoReactive<EdgeInsets>) -> Self {
+        self.padding = Some(value.into_reactive());
         self
     }
 
     /// The empty space that surrounds the tooltip.
-    pub fn margin(mut self, value: impl Into<EdgeInsets>) -> Self {
-        self.margin = Some(value.into());
+    pub fn margin(mut self, value: impl IntoReactive<EdgeInsets>) -> Self {
+        self.margin = Some(value.into_reactive());
         self
     }
 
     /// The vertical gap between the widget and the displayed tooltip.
-    pub fn vertical_offset(mut self, value: impl Into<f64>) -> Self {
-        self.vertical_offset = Some(value.into());
+    pub fn vertical_offset(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.vertical_offset = Some(value.into_reactive());
         self
     }
 
     /// Whether the tooltip defaults to being displayed below the widget.
-    pub fn prefer_below(mut self, value: bool) -> Self {
-        self.prefer_below = Some(value);
+    pub fn prefer_below(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.prefer_below = Some(value.into_reactive());
         self
     }
 
     /// Whether the tooltip's \[message\] should be excluded from the semantics tree.
-    pub fn exclude_from_semantics(mut self, value: bool) -> Self {
-        self.exclude_from_semantics = Some(value);
+    pub fn exclude_from_semantics(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.exclude_from_semantics = Some(value.into_reactive());
         self
     }
 
     /// The visual decoration to use for the tooltip.
-    pub fn decoration(mut self, value: impl Into<BoxDecoration>) -> Self {
-        self.decoration = Some(Box::new(value.into()));
+    pub fn decoration(mut self, value: impl IntoReactive<BoxDecoration>) -> Self {
+        self.decoration = Some(value.into_reactive().boxed());
         self
     }
 
     /// The style to use for the message of the tooltip.
-    pub fn text_style(mut self, value: impl Into<TextStyle>) -> Self {
-        self.text_style = Some(value.into());
+    pub fn text_style(mut self, value: impl IntoReactive<TextStyle>) -> Self {
+        self.text_style = Some(value.into_reactive());
         self
     }
 
     /// How the message of the tooltip is aligned horizontally.
-    pub fn text_align(mut self, value: impl Into<TextAlign>) -> Self {
-        self.text_align = Some(value.into());
+    pub fn text_align(mut self, value: impl IntoReactive<TextAlign>) -> Self {
+        self.text_align = Some(value.into_reactive());
         self
     }
 
     /// The length of time that a pointer must hover over a tooltip's widget before the tooltip will be shown.
-    pub fn wait_duration(mut self, value: impl Into<Duration>) -> Self {
-        self.wait_duration = Some(value.into());
+    pub fn wait_duration(mut self, value: impl IntoReactive<Duration>) -> Self {
+        self.wait_duration = Some(value.into_reactive());
         self
     }
 
     /// The length of time that the tooltip will be shown after a long press is released (if triggerMode is StacTooltipTriggerMode.longPress) or a tap is released (if triggerMode is StacTooltipTriggerMode.tap).
-    pub fn show_duration(mut self, value: impl Into<Duration>) -> Self {
-        self.show_duration = Some(value.into());
+    pub fn show_duration(mut self, value: impl IntoReactive<Duration>) -> Self {
+        self.show_duration = Some(value.into_reactive());
         self
     }
 
     /// The length of time that the tooltip takes to fade out after the \[showDuration\] has passed.
-    pub fn exit_duration(mut self, value: impl Into<Duration>) -> Self {
-        self.exit_duration = Some(value.into());
+    pub fn exit_duration(mut self, value: impl IntoReactive<Duration>) -> Self {
+        self.exit_duration = Some(value.into_reactive());
         self
     }
 
     /// Whether the tooltip can be dismissed by tapping the screen.
-    pub fn enable_tap_to_dismiss(mut self, value: bool) -> Self {
-        self.enable_tap_to_dismiss = Some(value);
+    pub fn enable_tap_to_dismiss(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.enable_tap_to_dismiss = Some(value.into_reactive());
         self
     }
 
     /// Defines how this widget can be triggered. Defaults to \[StacTooltipTriggerMode.longPress\] in the Flutter widget.
-    pub fn trigger_mode(mut self, value: impl Into<TooltipTriggerMode>) -> Self {
-        self.trigger_mode = Some(value.into());
+    pub fn trigger_mode(mut self, value: impl IntoReactive<TooltipTriggerMode>) -> Self {
+        self.trigger_mode = Some(value.into_reactive());
         self
     }
 
     /// Whether the tooltip should provide acoustic and/or haptic feedback.
-    pub fn enable_feedback(mut self, value: bool) -> Self {
-        self.enable_feedback = Some(value);
+    pub fn enable_feedback(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.enable_feedback = Some(value.into_reactive());
         self
     }
 
@@ -187,12 +193,49 @@ impl Tooltip {
         self.child = Some(value.into());
         self
     }
+
+    /// Sets `visible` (envelope): a `bool`, a state path or an expression.
+    pub fn visible(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.visible(value);
+        self
+    }
+
+    /// Sets `enabled` (envelope): a `bool`, a state path or an expression.
+    pub fn enabled(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.enabled(value);
+        self
+    }
+
+    /// Sets `bind` (envelope): the state key the widget reads and writes.
+    pub fn bind(mut self, key: BindKey) -> Self {
+        self.envelope = self.envelope.bind(key);
+        self
+    }
+
+    /// Sets `state` (envelope): the screen state declared by this widget.
+    pub fn state(mut self, block: StateBlock) -> Self {
+        self.envelope = self.envelope.state(block);
+        self
+    }
+
+    /// Sets `globalState` (envelope): the global state declared by this widget.
+    pub fn global_state(mut self, block: GlobalStateBlock) -> Self {
+        self.envelope = self.envelope.global_state(block);
+        self
+    }
+
+    /// Sets `onInit` (envelope): action(s) run when the widget is first built.
+    pub fn on_init(mut self, on_init: impl Into<OnInit>) -> Self {
+        self.envelope = self.envelope.on_init(on_init);
+        self
+    }
 }
 
 impl Serialize for Tooltip {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         let mut map = serializer.serialize_map(None)?;
         map.serialize_entry("type", "tooltip")?;
+        self.envelope.serialize_into(&mut map)?;
         if let Some(value) = &self.message {
             map.serialize_entry("message", value)?;
         }
@@ -253,6 +296,7 @@ impl Serialize for Tooltip {
 
 impl Validate for Tooltip {
     fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
+        self.envelope.validate_at(path, issues);
         self.message.validate_at(&path.key("message"), issues);
         self.rich_message
             .validate_at(&path.key("richMessage"), issues);
@@ -262,14 +306,32 @@ impl Validate for Tooltip {
         self.margin.validate_at(&path.key("margin"), issues);
         self.vertical_offset
             .validate_at(&path.key("verticalOffset"), issues);
+        if let Some(value) = &self.prefer_below {
+            value.validate_binding_at(&path.key("preferBelow"), issues);
+        }
+        if let Some(value) = &self.exclude_from_semantics {
+            value.validate_binding_at(&path.key("excludeFromSemantics"), issues);
+        }
         self.decoration.validate_at(&path.key("decoration"), issues);
         self.text_style.validate_at(&path.key("textStyle"), issues);
+        if let Some(value) = &self.text_align {
+            value.validate_binding_at(&path.key("textAlign"), issues);
+        }
         self.wait_duration
             .validate_at(&path.key("waitDuration"), issues);
         self.show_duration
             .validate_at(&path.key("showDuration"), issues);
         self.exit_duration
             .validate_at(&path.key("exitDuration"), issues);
+        if let Some(value) = &self.enable_tap_to_dismiss {
+            value.validate_binding_at(&path.key("enableTapToDismiss"), issues);
+        }
+        if let Some(value) = &self.trigger_mode {
+            value.validate_binding_at(&path.key("triggerMode"), issues);
+        }
+        if let Some(value) = &self.enable_feedback {
+            value.validate_binding_at(&path.key("enableFeedback"), issues);
+        }
         self.child.validate_at(&path.key("child"), issues);
     }
 }
@@ -278,6 +340,8 @@ impl StacNode for Tooltip {
     const KIND: NodeKind = NodeKind::Widget;
     const TYPE_NAME: &'static str = "tooltip";
 }
+
+impl Plain for Tooltip {}
 
 impl From<Tooltip> for Widget {
     fn from(value: Tooltip) -> Self {

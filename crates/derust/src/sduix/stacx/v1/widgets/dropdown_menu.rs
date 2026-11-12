@@ -8,18 +8,21 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
 /// A Stac model representing Flutter's \[DropdownMenu\] widget.
 #[derive(Debug, Clone, PartialEq)]
 pub struct DropdownMenu {
-    /// Whether the dropdown is interactive.
-    pub enabled: Option<bool>,
+    /// Properties common to every widget (`visible`, `enabled`, `bind`, `state`, `globalState`, `onInit`).
+    pub envelope: Envelope,
     /// The width of the dropdown.
-    pub width: Option<f64>,
+    pub width: Option<Reactive<f64>>,
     /// The maximum height of the menu overlay.
-    pub menu_height: Option<f64>,
+    pub menu_height: Option<Reactive<f64>>,
     /// Leading icon widget.
     pub leading_icon: Option<Widget>,
     /// Trailing icon widget.
@@ -35,31 +38,31 @@ pub struct DropdownMenu {
     /// Icon shown when an item is selected.
     pub selected_trailing_icon: Option<Widget>,
     /// Whether to enable client-side filtering.
-    pub enable_filter: Option<bool>,
+    pub enable_filter: Option<Reactive<bool>>,
     /// Whether to show a search field for filtering.
-    pub enable_search: Option<bool>,
+    pub enable_search: Option<Reactive<bool>>,
     /// Keyboard type for the text field.
-    pub keyboard_type: Option<TextInputType>,
+    pub keyboard_type: Option<Reactive<TextInputType>>,
     /// Text style for the input value.
-    pub text_style: Option<TextStyle>,
+    pub text_style: Option<Reactive<TextStyle>>,
     /// How the text should be aligned horizontally.
-    pub text_align: Option<TextAlign>,
+    pub text_align: Option<Reactive<TextAlign>>,
     /// Input decoration theme.
-    pub input_decoration_theme: Option<Box<InputDecorationTheme>>,
+    pub input_decoration_theme: Option<Reactive<Box<InputDecorationTheme>>>,
     /// Input formatters to apply to user input.
-    pub input_formatters: Option<Vec<InputFormatter>>,
+    pub input_formatters: Option<Reactive<Vec<InputFormatter>>>,
     /// Offset applied to align menu overlay.
-    pub alignment_offset: Option<Offset>,
+    pub alignment_offset: Option<Reactive<Offset>>,
     /// Insets to apply when expanded.
-    pub expanded_insets: Option<EdgeInsets>,
+    pub expanded_insets: Option<Reactive<EdgeInsets>>,
     /// Whether the field should request focus on tap.
-    pub request_focus_on_tap: Option<bool>,
+    pub request_focus_on_tap: Option<Reactive<bool>>,
     /// The initial selected value.
-    pub initial_selection: Option<serde_json::Value>,
+    pub initial_selection: Option<Reactive<serde_json::Value>>,
     /// Entries to display in the dropdown.
-    pub dropdown_menu_entries: Option<Vec<DropdownMenuEntry>>,
+    pub dropdown_menu_entries: Option<Reactive<Vec<DropdownMenuEntry>>>,
     /// Close behavior for the menu.
-    pub close_behavior: Option<DropdownMenuCloseBehavior>,
+    pub close_behavior: Option<Reactive<DropdownMenuCloseBehavior>>,
 }
 
 impl DropdownMenu {
@@ -69,7 +72,7 @@ impl DropdownMenu {
     /// Creates the model with only its required fields set.
     pub fn new() -> Self {
         Self {
-            enabled: None,
+            envelope: Envelope::new(),
             width: None,
             menu_height: None,
             leading_icon: None,
@@ -95,21 +98,15 @@ impl DropdownMenu {
         }
     }
 
-    /// Whether the dropdown is interactive.
-    pub fn enabled(mut self, value: bool) -> Self {
-        self.enabled = Some(value);
-        self
-    }
-
     /// The width of the dropdown.
-    pub fn width(mut self, value: impl Into<f64>) -> Self {
-        self.width = Some(value.into());
+    pub fn width(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.width = Some(value.into_reactive());
         self
     }
 
     /// The maximum height of the menu overlay.
-    pub fn menu_height(mut self, value: impl Into<f64>) -> Self {
-        self.menu_height = Some(value.into());
+    pub fn menu_height(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.menu_height = Some(value.into_reactive());
         self
     }
 
@@ -156,86 +153,122 @@ impl DropdownMenu {
     }
 
     /// Whether to enable client-side filtering.
-    pub fn enable_filter(mut self, value: bool) -> Self {
-        self.enable_filter = Some(value);
+    pub fn enable_filter(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.enable_filter = Some(value.into_reactive());
         self
     }
 
     /// Whether to show a search field for filtering.
-    pub fn enable_search(mut self, value: bool) -> Self {
-        self.enable_search = Some(value);
+    pub fn enable_search(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.enable_search = Some(value.into_reactive());
         self
     }
 
     /// Keyboard type for the text field.
-    pub fn keyboard_type(mut self, value: impl Into<TextInputType>) -> Self {
-        self.keyboard_type = Some(value.into());
+    pub fn keyboard_type(mut self, value: impl IntoReactive<TextInputType>) -> Self {
+        self.keyboard_type = Some(value.into_reactive());
         self
     }
 
     /// Text style for the input value.
-    pub fn text_style(mut self, value: impl Into<TextStyle>) -> Self {
-        self.text_style = Some(value.into());
+    pub fn text_style(mut self, value: impl IntoReactive<TextStyle>) -> Self {
+        self.text_style = Some(value.into_reactive());
         self
     }
 
     /// How the text should be aligned horizontally.
-    pub fn text_align(mut self, value: impl Into<TextAlign>) -> Self {
-        self.text_align = Some(value.into());
+    pub fn text_align(mut self, value: impl IntoReactive<TextAlign>) -> Self {
+        self.text_align = Some(value.into_reactive());
         self
     }
 
     /// Input decoration theme.
-    pub fn input_decoration_theme(mut self, value: impl Into<InputDecorationTheme>) -> Self {
-        self.input_decoration_theme = Some(Box::new(value.into()));
+    pub fn input_decoration_theme(
+        mut self,
+        value: impl IntoReactive<InputDecorationTheme>,
+    ) -> Self {
+        self.input_decoration_theme = Some(value.into_reactive().boxed());
         self
     }
 
     /// Input formatters to apply to user input.
-    pub fn input_formatters(
-        mut self,
-        value: impl IntoIterator<Item = impl Into<InputFormatter>>,
-    ) -> Self {
-        self.input_formatters = Some(value.into_iter().map(Into::into).collect());
+    pub fn input_formatters(mut self, value: impl IntoReactive<Vec<InputFormatter>>) -> Self {
+        self.input_formatters = Some(value.into_reactive());
         self
     }
 
     /// Offset applied to align menu overlay.
-    pub fn alignment_offset(mut self, value: impl Into<Offset>) -> Self {
-        self.alignment_offset = Some(value.into());
+    pub fn alignment_offset(mut self, value: impl IntoReactive<Offset>) -> Self {
+        self.alignment_offset = Some(value.into_reactive());
         self
     }
 
     /// Insets to apply when expanded.
-    pub fn expanded_insets(mut self, value: impl Into<EdgeInsets>) -> Self {
-        self.expanded_insets = Some(value.into());
+    pub fn expanded_insets(mut self, value: impl IntoReactive<EdgeInsets>) -> Self {
+        self.expanded_insets = Some(value.into_reactive());
         self
     }
 
     /// Whether the field should request focus on tap.
-    pub fn request_focus_on_tap(mut self, value: bool) -> Self {
-        self.request_focus_on_tap = Some(value);
+    pub fn request_focus_on_tap(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.request_focus_on_tap = Some(value.into_reactive());
         self
     }
 
     /// The initial selected value.
-    pub fn initial_selection(mut self, value: impl Into<serde_json::Value>) -> Self {
-        self.initial_selection = Some(value.into());
+    pub fn initial_selection(mut self, value: impl IntoReactive<serde_json::Value>) -> Self {
+        self.initial_selection = Some(value.into_reactive());
         self
     }
 
     /// Entries to display in the dropdown.
     pub fn dropdown_menu_entries(
         mut self,
-        value: impl IntoIterator<Item = impl Into<DropdownMenuEntry>>,
+        value: impl IntoReactive<Vec<DropdownMenuEntry>>,
     ) -> Self {
-        self.dropdown_menu_entries = Some(value.into_iter().map(Into::into).collect());
+        self.dropdown_menu_entries = Some(value.into_reactive());
         self
     }
 
     /// Close behavior for the menu.
-    pub fn close_behavior(mut self, value: impl Into<DropdownMenuCloseBehavior>) -> Self {
-        self.close_behavior = Some(value.into());
+    pub fn close_behavior(mut self, value: impl IntoReactive<DropdownMenuCloseBehavior>) -> Self {
+        self.close_behavior = Some(value.into_reactive());
+        self
+    }
+
+    /// Sets `visible` (envelope): a `bool`, a state path or an expression.
+    pub fn visible(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.visible(value);
+        self
+    }
+
+    /// Sets `enabled` (envelope): a `bool`, a state path or an expression.
+    pub fn enabled(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.enabled(value);
+        self
+    }
+
+    /// Sets `bind` (envelope): the state key the widget reads and writes.
+    pub fn bind(mut self, key: BindKey) -> Self {
+        self.envelope = self.envelope.bind(key);
+        self
+    }
+
+    /// Sets `state` (envelope): the screen state declared by this widget.
+    pub fn state(mut self, block: StateBlock) -> Self {
+        self.envelope = self.envelope.state(block);
+        self
+    }
+
+    /// Sets `globalState` (envelope): the global state declared by this widget.
+    pub fn global_state(mut self, block: GlobalStateBlock) -> Self {
+        self.envelope = self.envelope.global_state(block);
+        self
+    }
+
+    /// Sets `onInit` (envelope): action(s) run when the widget is first built.
+    pub fn on_init(mut self, on_init: impl Into<OnInit>) -> Self {
+        self.envelope = self.envelope.on_init(on_init);
         self
     }
 }
@@ -244,9 +277,7 @@ impl Serialize for DropdownMenu {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         let mut map = serializer.serialize_map(None)?;
         map.serialize_entry("type", "dropdownMenu")?;
-        if let Some(value) = &self.enabled {
-            map.serialize_entry("enabled", value)?;
-        }
+        self.envelope.serialize_into(&mut map)?;
         if let Some(value) = &self.width {
             map.serialize_entry("width", value)?;
         }
@@ -319,6 +350,7 @@ impl Serialize for DropdownMenu {
 
 impl Validate for DropdownMenu {
     fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
+        self.envelope.validate_at(path, issues);
         self.width.validate_at(&path.key("width"), issues);
         self.menu_height
             .validate_at(&path.key("menuHeight"), issues);
@@ -333,7 +365,19 @@ impl Validate for DropdownMenu {
         self.error_text.validate_at(&path.key("errorText"), issues);
         self.selected_trailing_icon
             .validate_at(&path.key("selectedTrailingIcon"), issues);
+        if let Some(value) = &self.enable_filter {
+            value.validate_binding_at(&path.key("enableFilter"), issues);
+        }
+        if let Some(value) = &self.enable_search {
+            value.validate_binding_at(&path.key("enableSearch"), issues);
+        }
+        if let Some(value) = &self.keyboard_type {
+            value.validate_binding_at(&path.key("keyboardType"), issues);
+        }
         self.text_style.validate_at(&path.key("textStyle"), issues);
+        if let Some(value) = &self.text_align {
+            value.validate_binding_at(&path.key("textAlign"), issues);
+        }
         self.input_decoration_theme
             .validate_at(&path.key("inputDecorationTheme"), issues);
         self.input_formatters
@@ -342,8 +386,17 @@ impl Validate for DropdownMenu {
             .validate_at(&path.key("alignmentOffset"), issues);
         self.expanded_insets
             .validate_at(&path.key("expandedInsets"), issues);
+        if let Some(value) = &self.request_focus_on_tap {
+            value.validate_binding_at(&path.key("requestFocusOnTap"), issues);
+        }
+        if let Some(value) = &self.initial_selection {
+            value.validate_binding_at(&path.key("initialSelection"), issues);
+        }
         self.dropdown_menu_entries
             .validate_at(&path.key("dropdownMenuEntries"), issues);
+        if let Some(value) = &self.close_behavior {
+            value.validate_binding_at(&path.key("closeBehavior"), issues);
+        }
     }
 }
 
@@ -351,6 +404,8 @@ impl StacNode for DropdownMenu {
     const KIND: NodeKind = NodeKind::Widget;
     const TYPE_NAME: &'static str = "dropdownMenu";
 }
+
+impl Plain for DropdownMenu {}
 
 impl From<DropdownMenu> for Widget {
     fn from(value: DropdownMenu) -> Self {

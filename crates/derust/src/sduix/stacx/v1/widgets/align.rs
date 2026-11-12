@@ -8,18 +8,23 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
 /// A Stac model representing Flutter's \[Align\] widget.
 #[derive(Debug, Clone, PartialEq)]
 pub struct Align {
+    /// Properties common to every widget (`visible`, `enabled`, `bind`, `state`, `globalState`, `onInit`).
+    pub envelope: Envelope,
     /// How to align the \[child\] within the align widget.
-    pub alignment: Option<AlignmentDirectional>,
+    pub alignment: Option<Reactive<AlignmentDirectional>>,
     /// If non-null, sets the width of this widget to the child's width multiplied by this factor.
-    pub width_factor: Option<f64>,
+    pub width_factor: Option<Reactive<f64>>,
     /// If non-null, sets the height of this widget to the child's height multiplied by this factor.
-    pub height_factor: Option<f64>,
+    pub height_factor: Option<Reactive<f64>>,
     /// The child widget to align.
     pub child: Option<Widget>,
 }
@@ -31,6 +36,7 @@ impl Align {
     /// Creates the model with only its required fields set.
     pub fn new() -> Self {
         Self {
+            envelope: Envelope::new(),
             alignment: None,
             width_factor: None,
             height_factor: None,
@@ -39,20 +45,20 @@ impl Align {
     }
 
     /// How to align the \[child\] within the align widget.
-    pub fn alignment(mut self, value: impl Into<AlignmentDirectional>) -> Self {
-        self.alignment = Some(value.into());
+    pub fn alignment(mut self, value: impl IntoReactive<AlignmentDirectional>) -> Self {
+        self.alignment = Some(value.into_reactive());
         self
     }
 
     /// If non-null, sets the width of this widget to the child's width multiplied by this factor.
-    pub fn width_factor(mut self, value: impl Into<f64>) -> Self {
-        self.width_factor = Some(value.into());
+    pub fn width_factor(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.width_factor = Some(value.into_reactive());
         self
     }
 
     /// If non-null, sets the height of this widget to the child's height multiplied by this factor.
-    pub fn height_factor(mut self, value: impl Into<f64>) -> Self {
-        self.height_factor = Some(value.into());
+    pub fn height_factor(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.height_factor = Some(value.into_reactive());
         self
     }
 
@@ -61,12 +67,49 @@ impl Align {
         self.child = Some(value.into());
         self
     }
+
+    /// Sets `visible` (envelope): a `bool`, a state path or an expression.
+    pub fn visible(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.visible(value);
+        self
+    }
+
+    /// Sets `enabled` (envelope): a `bool`, a state path or an expression.
+    pub fn enabled(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.enabled(value);
+        self
+    }
+
+    /// Sets `bind` (envelope): the state key the widget reads and writes.
+    pub fn bind(mut self, key: BindKey) -> Self {
+        self.envelope = self.envelope.bind(key);
+        self
+    }
+
+    /// Sets `state` (envelope): the screen state declared by this widget.
+    pub fn state(mut self, block: StateBlock) -> Self {
+        self.envelope = self.envelope.state(block);
+        self
+    }
+
+    /// Sets `globalState` (envelope): the global state declared by this widget.
+    pub fn global_state(mut self, block: GlobalStateBlock) -> Self {
+        self.envelope = self.envelope.global_state(block);
+        self
+    }
+
+    /// Sets `onInit` (envelope): action(s) run when the widget is first built.
+    pub fn on_init(mut self, on_init: impl Into<OnInit>) -> Self {
+        self.envelope = self.envelope.on_init(on_init);
+        self
+    }
 }
 
 impl Serialize for Align {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         let mut map = serializer.serialize_map(None)?;
         map.serialize_entry("type", "align")?;
+        self.envelope.serialize_into(&mut map)?;
         if let Some(value) = &self.alignment {
             map.serialize_entry("alignment", value)?;
         }
@@ -85,6 +128,10 @@ impl Serialize for Align {
 
 impl Validate for Align {
     fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
+        self.envelope.validate_at(path, issues);
+        if let Some(value) = &self.alignment {
+            value.validate_binding_at(&path.key("alignment"), issues);
+        }
         self.width_factor
             .validate_at(&path.key("widthFactor"), issues);
         self.height_factor
@@ -97,6 +144,8 @@ impl StacNode for Align {
     const KIND: NodeKind = NodeKind::Widget;
     const TYPE_NAME: &'static str = "align";
 }
+
+impl Plain for Align {}
 
 impl From<Align> for Widget {
     fn from(value: Align) -> Self {

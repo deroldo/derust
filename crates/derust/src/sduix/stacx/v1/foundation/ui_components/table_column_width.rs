@@ -8,6 +8,9 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
@@ -15,9 +18,9 @@ use serde::ser::{Serialize, SerializeMap, Serializer};
 #[derive(Debug, Clone, PartialEq)]
 pub struct TableColumnWidth {
     /// Column width strategy.
-    pub type_: Option<TableColumnWidthType>,
+    pub type_: Option<Reactive<TableColumnWidthType>>,
     /// Numeric value whose semantic depends on \[type\].
-    pub value: Option<f64>,
+    pub value: Option<Reactive<f64>>,
 }
 
 impl TableColumnWidth {
@@ -30,14 +33,14 @@ impl TableColumnWidth {
     }
 
     /// Column width strategy.
-    pub fn type_(mut self, value: impl Into<TableColumnWidthType>) -> Self {
-        self.type_ = Some(value.into());
+    pub fn type_(mut self, value: impl IntoReactive<TableColumnWidthType>) -> Self {
+        self.type_ = Some(value.into_reactive());
         self
     }
 
     /// Numeric value whose semantic depends on \[type\].
-    pub fn value(mut self, value: impl Into<f64>) -> Self {
-        self.value = Some(value.into());
+    pub fn value(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.value = Some(value.into_reactive());
         self
     }
 }
@@ -57,6 +60,11 @@ impl Serialize for TableColumnWidth {
 
 impl Validate for TableColumnWidth {
     fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
+        if let Some(value) = &self.type_ {
+            value.validate_binding_at(&path.key("type"), issues);
+        }
         self.value.validate_at(&path.key("value"), issues);
     }
 }
+
+impl Plain for TableColumnWidth {}

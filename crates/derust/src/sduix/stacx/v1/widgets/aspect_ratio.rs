@@ -8,14 +8,19 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
 /// A Stac model representing Flutter's \[AspectRatio\] widget.
 #[derive(Debug, Clone, PartialEq)]
 pub struct AspectRatio {
+    /// Properties common to every widget (`visible`, `enabled`, `bind`, `state`, `globalState`, `onInit`).
+    pub envelope: Envelope,
     /// The width-to-height ratio to honor for laying out the \[child\].
-    pub aspect_ratio: f64,
+    pub aspect_ratio: Reactive<f64>,
     /// The widget to display inside the constrained aspect ratio box.
     pub child: Option<Widget>,
 }
@@ -25,16 +30,17 @@ impl AspectRatio {
     pub const TYPE: &'static str = "aspectRatio";
 
     /// Creates the model with only its required fields set.
-    pub fn new(aspect_ratio: impl Into<f64>) -> Self {
+    pub fn new(aspect_ratio: impl IntoReactive<f64>) -> Self {
         Self {
-            aspect_ratio: aspect_ratio.into(),
+            envelope: Envelope::new(),
+            aspect_ratio: aspect_ratio.into_reactive(),
             child: None,
         }
     }
 
     /// The width-to-height ratio to honor for laying out the \[child\].
-    pub fn aspect_ratio(mut self, value: impl Into<f64>) -> Self {
-        self.aspect_ratio = value.into();
+    pub fn aspect_ratio(mut self, value: impl IntoReactive<f64>) -> Self {
+        self.aspect_ratio = value.into_reactive();
         self
     }
 
@@ -43,12 +49,49 @@ impl AspectRatio {
         self.child = Some(value.into());
         self
     }
+
+    /// Sets `visible` (envelope): a `bool`, a state path or an expression.
+    pub fn visible(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.visible(value);
+        self
+    }
+
+    /// Sets `enabled` (envelope): a `bool`, a state path or an expression.
+    pub fn enabled(mut self, value: impl IntoReactive<bool>) -> Self {
+        self.envelope = self.envelope.enabled(value);
+        self
+    }
+
+    /// Sets `bind` (envelope): the state key the widget reads and writes.
+    pub fn bind(mut self, key: BindKey) -> Self {
+        self.envelope = self.envelope.bind(key);
+        self
+    }
+
+    /// Sets `state` (envelope): the screen state declared by this widget.
+    pub fn state(mut self, block: StateBlock) -> Self {
+        self.envelope = self.envelope.state(block);
+        self
+    }
+
+    /// Sets `globalState` (envelope): the global state declared by this widget.
+    pub fn global_state(mut self, block: GlobalStateBlock) -> Self {
+        self.envelope = self.envelope.global_state(block);
+        self
+    }
+
+    /// Sets `onInit` (envelope): action(s) run when the widget is first built.
+    pub fn on_init(mut self, on_init: impl Into<OnInit>) -> Self {
+        self.envelope = self.envelope.on_init(on_init);
+        self
+    }
 }
 
 impl Serialize for AspectRatio {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         let mut map = serializer.serialize_map(None)?;
         map.serialize_entry("type", "aspectRatio")?;
+        self.envelope.serialize_into(&mut map)?;
         map.serialize_entry("aspectRatio", &self.aspect_ratio)?;
         if let Some(value) = &self.child {
             map.serialize_entry("child", value)?;
@@ -59,6 +102,7 @@ impl Serialize for AspectRatio {
 
 impl Validate for AspectRatio {
     fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
+        self.envelope.validate_at(path, issues);
         self.aspect_ratio
             .validate_at(&path.key("aspectRatio"), issues);
         self.child.validate_at(&path.key("child"), issues);
@@ -69,6 +113,8 @@ impl StacNode for AspectRatio {
     const KIND: NodeKind = NodeKind::Widget;
     const TYPE_NAME: &'static str = "aspectRatio";
 }
+
+impl Plain for AspectRatio {}
 
 impl From<AspectRatio> for Widget {
     fn from(value: AspectRatio) -> Self {

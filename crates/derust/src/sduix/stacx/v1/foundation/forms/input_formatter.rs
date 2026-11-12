@@ -8,6 +8,9 @@
     clippy::module_name_repetitions
 )]
 use crate::sduix::stacx::common::*;
+use crate::sduix::stacx::v1::state::{
+    BindKey, Envelope, GlobalStateBlock, IntoReactive, OnInit, Plain, Reactive, StateBlock,
+};
 use crate::sduix::stacx::v1::{actions::*, foundation::*, theme::*, widgets::*};
 use serde::ser::{Serialize, SerializeMap, Serializer};
 
@@ -15,7 +18,7 @@ use serde::ser::{Serialize, SerializeMap, Serializer};
 #[derive(Debug, Clone, PartialEq)]
 pub struct InputFormatter {
     /// Formatter behavior: allow or deny based on a regular expression rule.
-    pub type_: InputFormatterType,
+    pub type_: Reactive<InputFormatterType>,
     /// Regular expression string used by the formatter.
     pub rule: Option<Dyn<String>>,
     /// Input mask used when \[type\] is \[StacInputFormatterType.mask\].
@@ -24,17 +27,17 @@ pub struct InputFormatter {
 
 impl InputFormatter {
     /// Creates the model with only its required fields set.
-    pub fn new(type_: impl Into<InputFormatterType>) -> Self {
+    pub fn new(type_: impl IntoReactive<InputFormatterType>) -> Self {
         Self {
-            type_: type_.into(),
+            type_: type_.into_reactive(),
             rule: None,
             mask: None,
         }
     }
 
     /// Formatter behavior: allow or deny based on a regular expression rule.
-    pub fn type_(mut self, value: impl Into<InputFormatterType>) -> Self {
-        self.type_ = value.into();
+    pub fn type_(mut self, value: impl IntoReactive<InputFormatterType>) -> Self {
+        self.type_ = value.into_reactive();
         self
     }
 
@@ -67,7 +70,10 @@ impl Serialize for InputFormatter {
 
 impl Validate for InputFormatter {
     fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
+        self.type_.validate_binding_at(&path.key("type"), issues);
         self.rule.validate_at(&path.key("rule"), issues);
         self.mask.validate_at(&path.key("mask"), issues);
     }
 }
+
+impl Plain for InputFormatter {}
