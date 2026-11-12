@@ -60,7 +60,7 @@
 14. **Fixtures e harness separados.** `crates/derust/tests/sdui_stac_v1/fixtures_reactive/{envelope,actions,expressions,lists,screens,...}/*.json` e novo harness `tools/stac-compat/v1-reactive/` (pubspec com o fork: `git: {url: https://github.com/deroldo/derust-stac, ref: estado_compartilhado_reativo, path: packages/stac}` e `dependency_overrides` de `stac_core`, `stac_framework`, `stac_logger` do mesmo repositório/ref; **um único lugar** (`ref`) para fixar o pin quando a pessoa definir; sobrescrita local opcional por `pubspec_overrides.yaml` apontando `path:` para o clone local). O harness reativo roda **também** os fixtures oficiais existentes (o fork tem que continuar aceitando tudo) e o teste de dump de expressões. Job de CI `stac-compat-v1-reactive` com `continue-on-error: true` enquanto não houver pin (decisão provisória D3).
 15. **Inventário reativo.** `crates/derust/src/sduix/stacx/v1/inventory_state.json` à mão (não gerado), itens `{name, kind, source:"fork", json_key, status, fixture, notes}` para: cada propriedade do envelope, cada action nova, cada campo novo de `networkRequest`/`navigate`/listas, cada operador (unário, aritmético, comparação, igualdade, lógico, ternário, agrupamento, índice, campo) e cada forma de função (`length`, `trim`, `contains` 2 args, `contains` 3 args), cada forma de binding, cada raiz de variável. Teste de completude no mesmo molde de `fixtures_test.rs` (macro `assert_fixture!`/`assert_reactive_fixture!` que registra o fixture usado): falha se algum item sem fixture ou sem teste.
 16. **Exemplo.** Novo `examples/sdui_reactive/` (workspace próprio como os demais), sem mexer em `examples/sdui`.
-17. **Versão/CHANGELOG.** Entra na versão em desenvolvimento (`0.7.0` se ainda não publicada; senão `0.8.0`): confirmar com a pessoa no release. Não é regra de negócio.
+17. **Versão/CHANGELOG.** Entra na **0.7.0** (confirmado pela pessoa); a versão fica fixada em 0.7.0 (CHANGELOG na seção 0.7.0, sem bump adicional).
 18. **Quebras de API aceitas** (pré-release, ver decisão provisória D6): campos públicos de structs geradas mudam de `Option<T>` para `Option<Reactive<T>>`; `visible`/`enabled` nativos deixam de ser campos; `NavigateAction.result` e campos `Map/Value` passam a `Data`; `Dyn<T>` ganha variante. Construtores/setters existentes continuam compilando quando possível (impls de compatibilidade do item 3).
 
 ## Dependências entre tarefas
@@ -95,6 +95,8 @@ T4,T5,T6 ──> T10 (fixtures, inventário, exemplos do contrato) ──> T9b (
 - [ ] `Expr::to_source()` / `Display` segundo as regras de impressão (nível, associatividade, `Group`, unário duplo, base de postfix, literal numérico) e `Expr::sexp()` canônico (notação S estável; documentar o formato no doc do método).
 - [ ] `Binding` (`State(StatePath)` | `Expr(Expr)`), `Serialize` como mapa de uma chave.
 - [ ] Teste-oráculo da decisão 13: parser de referência **dentro de `expr_test.rs`** (tokenizer + descida recursiva da gramática do contrato) + gerador pseudoaleatório determinístico (mín. 5000 árvores, profundidade até 8) verificando `parse(to_source(e)) == e` e que a segunda impressão é idêntica; teste do varredor de nomes (posteriormente em T7) não é desta tarefa.
+
+- [ ] (estado por item) Testes extras de `Expr`/`StatePath`: `item.id`, `todo.name`, `i`, `contains(selected, item.id)`, `contains(selected, item, 'id')`, `length(selected) < 3 || contains(selected, item.id)` (precedência de `||` vs `<`).
 
 **Testes (casos manuais obrigatórios):** `(a + b) * c`; `a + b * c`; `a - (b - c)` vs `a - b - c`; `a / (b * c)`; `-(a + b)`, `- -x`, `!(a && b)`, `!a == b` vs `!(a == b)`; ternário aninhado nos três lugares (`a ? b : c ? d : e` à direita; `(a ? b : c) ? d : e` com parênteses na condição); `(a || b) && c`; `(a + b).x`, `(1).x`, `items[n + 1]`, `items[n / 2]` -> `Validate` erro; funções aninhadas `length(trim(name)) < 3`; `contains(tags, 'none')`, `contains(list, obj, 'id')`; `Expr::num(-1.5)` -> `-1.5`; `2.0` -> `2`; `0.1`; `1e21` (imprime dígitos, mas inteiro >= 2^63 -> erro); `NaN`/`inf` -> erro; texto com `'`, `"`, `\`, `\n`, `\t`, `\r`, vazio, unicode (`'a\'b\\c'`, `''`); caminhos com `global.`; raízes inválidas (`user-name`, `1abc`, `é`, `true`) -> erro com caminho.
 
@@ -157,6 +159,8 @@ Antes de T4-T6: confirmar (humano ou `superpowers:requesting-code-review`) o res
 - [ ] Registrar em `EXTRA_ACTIONS`; regenerar; `Action::type_name` retorna os novos tipos.
 - [ ] Fixtures em `fixtures_reactive/actions/*.json` (um por action, mais variantes com `by/min/max`, `index` binding, `values` com binding aninhado, `condition` por `Expr`).
 
+- [ ] (estado por item) Fixtures/testes de `toggleItem` com `value` = `{$state:'item.id'}` e com `by`, e de `condition` com agregado (`length(selected) < 3`); `removeFromState` por `index` = variável do template.
+
 **Testes:** serialização exata de cada action contra o JSON do contrato; `RemoveFromState` não compila sem alvo (doc-test `compile_fail`); `by`, `min`, `max` ausentes não aparecem; nulos explícitos não existem para esses campos; `Action::from`; estar dentro de `MultiAction`/`on_init`.
 
 **Revisão:** nomes JSON conferem com `state_reference.mdx`; nada de `serde_json::Value` cru nas APIs novas.
@@ -190,6 +194,8 @@ Antes de T4-T6: confirmar (humano ou `superpowers:requesting-code-review`) o res
 - [ ] `ItemTemplate::new(items: impl IntoReactive<Vec<Data>>)`, `.item_as(..)`, `.index_as(..)`; método `template(self, tpl, |vars: ItemVars| -> Widget)` nos cinco; `ItemVars::item()`/`index()` devolvem `StatePath` com o nome efetivo (vazio -> default); `ItemVars` expõe também `item_field("name")` como atalho.
 - [ ] `Validate`: `as`/`indexAs` não vazios têm que ser `Ident` válidos (texto vazio é aceito pelo contrato e vira default; emitir a chave só quando preenchida).
 
+- [ ] (estado por item) `ItemVars`: `item_field("id")`, `in_list(list: StatePath) -> Expr` (`contains(list, item.id)`/`contains_by`), `count(list) -> Expr` (`length(list)`); documentar que estado por item = conjunto de ids em chave de tela (seção "Estado por item de lista").
+
 **Testes:** exemplo "lista" do contrato (com `as: todo`, `indexAs: i`, `removeFromState` por `index: {"$state":"i"}` e `(i + 1) + '. ' + todo.name`); nomes default; renomeação mantém as referências; listas aninhadas com nomes distintos; `itemTemplate` junto de `children` serializa os dois; `items` literal e por binding.
 
 **Revisão:** nenhuma API que permita referenciar `item` com nome diferente do efetivo sem passar por `ItemVars`.
@@ -206,6 +212,8 @@ Antes de T4-T6: confirmar (humano ou `superpowers:requesting-code-review`) o res
 - [ ] Varredor de nomes de `$expr` (decisão 12) e raiz de `$state`.
 - [ ] Tabela de `bind`: widgets suportados e propriedade de valor (`checkBox/switch/slider: value`, `radioGroup: groupValue`, `textField/textFormField: initialValue`, `dropdownMenu: initialSelection`); `radio` com mensagem própria.
 - [ ] Expor `pub fn check_screen(json: &Value) -> ValidationReport` e ligar em `Widget`/`Action` de `v1` (`validate_serialized`), via gerador (`gen_rust.py`, bloco `// --- T7 ---`) ou impl à mão se o enum for hand-written.
+
+- [ ] (estado por item) Regras da seção "Estado por item de lista": escrita em chave local (`item/index/as/indexAs`) = erro, template com `state` próprio = aviso, sombreamento entre templates aninhados = aviso, escopo externo herdado pelo template.
 
 **Testes (um por regra, positivo e negativo):** cada item de erro da decisão 12 com a mensagem esperada e o caminho; telas válidas (os 6 exemplos do contrato) -> sem erro e sem aviso; falsos positivos: `state` aninhado que **não** encadeia (escrever em chave do externo dentro do interno -> erro), escrita em `global.x` nunca acusada, `resetState` com chave não declarada ignorada, `params` livre, `item` com chave de tela homônima declarada, destino de `navigate.widgetJson` e `showDialog` opacos, tela raiz sem `state` opaca; `response` em `onStart` -> erro e em `onSuccess` -> ok; `event` em `onChanged` -> ok, em `onPressed` -> erro; `result` em `onCancel` -> erro; leitura de chave não declarada -> só aviso; varredor: `'item' + x`, `a.item`, `item(`, `true`, strings com aspas escapadas; mensagens **não contêm valores** (teste com `secure` cujo `initial` é um texto marcador e assert de que o marcador não aparece em nenhuma mensagem).
 
@@ -254,6 +262,8 @@ Antes de T4-T6: confirmar (humano ou `superpowers:requesting-code-review`) o res
 - [ ] Macro `assert_reactive_fixture!("<categoria>/<nome>", valor)` (mesmo padrão de `assert_fixture!`) e teste de completude que falha se algum item `supported` não tiver fixture existente ou teste que o use.
 - [ ] Um fixture e teste por: propriedade do envelope (incluindo `visible`/`enabled` nos widgets com campo nativo, `bind` em cada widget suportado), cada action, cada campo novo, **cada operador e cada função** (um fixture `expressions` por categoria, com a lista `{source, sexp}` consumida pelo T9).
 - [ ] `contract_examples_test.rs`: reproduzir em Rust, **literalmente**, os 6 exemplos JSON de `state_reference.mdx` (copiar o JSON como fixture em `fixtures_reactive/screens/contract_*.json`) e comparar `serde_json::to_value(tela_em_rust)` com o JSON documentado (igualdade de `Value`, ordem de chaves irrelevante). Os dois exemplos de `bindings_and_expressions.mdx` (`price * qty`, `'Total: ' + price * qty`) idem.
+
+- [ ] (estado por item) Fixture e exemplo "limite de 3 selecionados": lista com checkbox por item (`value`/`enabled` por expressão sobre `selected`, `onChanged` com `toggleItem`), reproduzido em Rust e aceito pelo harness; teste do verificador para as regras do template.
 
 **Testes/verificação:** remover um fixture e ver o teste de completude falhar; tela de cada exemplo passa também no verificador (T7) sem erros.
 
@@ -304,6 +314,36 @@ Antes de T4-T6: confirmar (humano ou `superpowers:requesting-code-review`) o res
 
 ---
 
+## Estado por item de lista (revisão após rejeição da D7)
+
+**Requisito (pessoa):** bindings, condições e actions de estado dentro de um `itemTemplate` devem poder ler e escrever estado por item. Exemplo ilustrativo (não é regra do contrato): cada item com checkbox; ao selecionar 3 itens, os demais ficam desativados.
+
+**O que o contrato do fork cobre (`state_reference.mdx`, `stac_item_template.dart`, `stac_scope.dart`):**
+- `item` e `index` são variáveis locais **somente leitura**; não são chaves de estado. Não existe action que escreva em `item`, em campo de item (`todos[2].done`) ou em posição da lista; `setState` escreve a chave inteira e a linguagem de expressões não tem como montar uma lista modificada (sem map/filter/set).
+- Toda action dentro do template enxerga o `state` de tela externo (o template só acrescenta variáveis locais) e pode escrever nele; `toggleItem` (com `by`), `appendState` e `removeFromState` (por `index` ou `value`) editam listas do estado.
+- Identidade de item = posição (limitação v1 do fork). `state` declarado dentro do widget do template cria escopo interno **por instância** que substitui o externo (as chaves externas, como o agregado, ficam ilegíveis ali) e fica preso à posição.
+
+**Lacuna:** não há atualização in-place de campo de item (ex.: `todos[i].done = true`). Registrada como lacuna do contrato; **não** inventar action nova.
+
+**Abordagem mais conservadora (adotada):** estado por item = **estado de tela (ou global) indexado por identidade do item**, não escopo por item.
+- Endereçamento: uma chave de tela com lista de identificadores/itens (ex.: `selected: []`). O item pertence ao conjunto se `contains(selected, item.id)` (ou `contains(selected, item, 'id')` para objetos). Para itens sem id estável, usar `index`.
+- Escrita por item: `toggleItem{key:'selected', value:{$state:'item.id'}}` (ou `value` = item inteiro com `by:'id'`), `appendState`/`removeFromState` (por `index`/`value`). Valor do checkbox: `{$expr: "contains(selected, item.id)"}`; callback `onChanged` com `toggleItem`/`condition` usando `event.value` quando necessário.
+- Agregado: leitura de qualquer chave de tela dentro do template, ex.: `length(selected)`. Condição por item que depende do agregado: `enabled: {$expr: "length(selected) < 3 || contains(selected, item.id)"}`; `condition` da action pode usar a mesma expressão (ex.: só adiciona se `length(selected) < 3`). Como o agregado é uma chave comum, todos os itens reagem quando ela muda (reatividade por chave de topo, `selected`).
+- `bind` não serve por item (escreve uma chave de tela inteira); documentar.
+- Escopos internos por item (`state` no widget do template) **não** devem ser usados para agregados; o verificador emite aviso.
+
+**Pergunta pendente para a pessoa (não decidir sozinho):** o padrão de conjunto-de-ids cobre o caso de seleção/limite, mas **não** edição in-place de campos de item (ex.: contador por item, texto editado por item). Se isso for necessário, é uma extensão do contrato no fork (nova action, ex. escrita em `key[index].campo`) e, por ser mudança de negócio/contrato, precisa de decisão do usuário e de pin do fork. Sem essa resposta, o derust cobre só o padrão acima.
+
+**Impacto nas tarefas:** T1 (testes de caminho `item.campo`/`index` e de `contains(.., item.id)` e `contains(.., item, 'id')`), T4 (`toggleItem` com `by`, `value` por binding de `item`, `condition` com agregado), T6 (`ItemVars` com helpers `in_list(list_path)` -> `Expr contains` e `count(list)` -> `length`, e tipos aceitam `ItemVars::item()` em `Data`), T7 (regras abaixo), T10 (fixtures e exemplo do limite de 3).
+
+**O que o verificador (T7) passa a validar no escopo do template:**
+- Escrita (`toggleItem`, `appendState`, `removeFromState`, `setState`, `increment/decrement`, `toggleState`) dentro do template em chave de tela: erro se a chave não estiver declarada no escopo `Known` **externo ao template** (o template herda o escopo de chaves da lista; só `item/index/as/indexAs` são acrescentados).
+- Escrita cuja `key` coincide com o nome efetivo de `item`/`index`/`as`/`indexAs`: erro (variável local é somente leitura, não é chave).
+- `itemTemplate` cujo widget raiz declara `state`: aviso (v1: o escopo interno esconde as chaves externas, inclusive o agregado) e erro se, nesse caso, alguma action/escrita dentro apontar para chave do escopo externo (já cai na regra de chave não declarada).
+- Leitura de `item`/`index` fora do template continua erro; dentro de templates aninhados valem os nomes dos dois níveis (nomes iguais: aviso de sombreamento).
+- `toggleItem.by` e `removeFromState.index` por `index` do template são aceitos sem checagem de valor (dependem de runtime).
+- Não valida em runtime se a lista `selected` contém ids (comportamento do runtime documentado).
+
 ## Decisões provisórias (ambiguidades do plano de negócio; confirmar com a pessoa)
 
 - **D1 — Leitura de chave não declarada:** a pergunta 1 do plano diz "avisos seguem como registro" e, entre parênteses, "inclui leitura de chave não declarada, que o runtime apenas avisa". Interpretado como **não bloqueia** (vira aviso logado). Se a intenção era bloquear, trocar uma linha no verificador (T7). Motivo adicional: `global.x` pode ser declarado em outra tela e `state` externo não encadeia, então bloquear gera falso positivo.
@@ -312,8 +352,10 @@ Antes de T4-T6: confirmar (humano ou `superpowers:requesting-code-review`) o res
 - **D4 — `NoneAction`** (`{"actionType":"none"}`) incluída porque o exemplo do contrato a usa e o critério de aceite exige reproduzir os exemplos; não está na lista do escopo.
 - **D5 — Verificador conservador:** raiz da resposta, destinos de `navigate.widgetJson` e overlays (`showDialog`, `showModalBottomSheet`, `showSnackBar`) são escopo opaco (sem acusar escrita/variável); `params` nunca é acusado. Mais falsos negativos, nenhum falso positivo conhecido.
 - **D6 — Quebra de API pública** (pré-release): campos de structs geradas viram `Option<Reactive<T>>`, `visible`/`enabled` nativos deixam de ser campos, `NavigateAction.result` vira `Data`. Construtores e setters seguem compilando quando possível.
-- **D7 — Elementos de lista não são ligáveis individualmente** (só a propriedade inteira); documentado como limitação do tipo, não do contrato.
-- **D8 — Versão:** entra em `0.7.0` ou `0.8.0` conforme o estado do release (confirmar no release).
+- **D7 — REJEITADA pela pessoa** (queria estado atualizável por item de lista). Substituída pela seção "Estado por item de lista" abaixo.
+- **D8 — CONFIRMADA:** a mudança entra na 0.7.0.
+
+D1 a D6 seguem provisórias e aguardam confirmação.
 
 ## Pontos em aberto (não bloqueiam o início)
 
