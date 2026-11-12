@@ -307,15 +307,17 @@ Antes de T4-T6: confirmar (humano ou `superpowers:requesting-code-review`) o res
 
 **Contexto:** escopo item 11. Depende de T11. Arquivos existentes: `crates/derust/src/sduix/stacx/README.md` (README do módulo, incluído como doctest `no_run`), `README.md`, `CLAUDE.md`, `CHANGELOG.md`, `tools/stac-inventory/README.md`, `tools/stac-compat/v1-reactive/README.md`.
 
-- [ ] README do módulo: nova seção "Estado reativo" (blocos de estado, bindings, expressões, envelope, actions, `networkRequest`/`navigate`, listas), quando um erro de validação ocorre (lista de regras em linguagem simples), avisos de runtime não verificáveis no servidor (`'a' < 1`, divisão por zero, `!` em não booleano, tipos que dependem de valor: resultado `null` ou `false`), concatenação (`+` com `null`/lista/objeto -> `null`; número inteiro imprime sem `.0`), índice inteiro (`/` não vale como índice), curto-circuito (derust não reordena), `global.chave` vs `global['chave']`, `enabled` só em lista fechada de widgets, `secure` nunca em log/mensagem.
-- [ ] **Avisos das limitações v1 do fork** (só documentar): `params` com rotas nomeadas (`pushNamed*` via `arguments["__stacParams"]`), identidade de item por índice, `state` aninhado que não encadeia, mascaramento `secure` por substituição de texto, `separator` fora do escopo do item, `onChangeStart`/`onChangeEnd` do slider sem `event.value`.
-- [ ] Matriz de compatibilidade (README raiz e do módulo): linha nova "vocabulário reativo exige o runtime do fork `deroldo/derust-stac`, branch `estado_compartilhado_reativo`, **sem versão fixada** (contrato lido no commit `92457f25`)"; frontend com Stac oficial ignora ou falha; a matriz e o CHANGELOG são a única proteção.
-- [ ] `CHANGELOG.md` (Added/Changed/**Breaking** com a lista da decisão 18), linha em `CLAUDE.md`, README do harness com o ponto único de pin.
-- [ ] Atualizar contagens do inventário no README do módulo.
+- [x] README do módulo: nova seção "Estado reativo" (blocos de estado, bindings, expressões, envelope, actions, `networkRequest`/`navigate`, listas), quando um erro de validação ocorre (lista de regras em linguagem simples), avisos de runtime não verificáveis no servidor (`'a' < 1`, divisão por zero, `!` em não booleano, tipos que dependem de valor: resultado `null` ou `false`), concatenação (`+` com `null`/lista/objeto -> `null`; número inteiro imprime sem `.0`), índice inteiro (`/` não vale como índice), curto-circuito (derust não reordena), `global.chave` vs `global['chave']`, `enabled` só em lista fechada de widgets, `secure` nunca em log/mensagem.
+- [x] **Avisos das limitações v1 do fork** (só documentar): `params` com rotas nomeadas (`pushNamed*` via `arguments["__stacParams"]`), identidade de item por índice, `state` aninhado que não encadeia, mascaramento `secure` por substituição de texto, `separator` fora do escopo do item, `onChangeStart`/`onChangeEnd` do slider sem `event.value`.
+- [x] Matriz de compatibilidade (README raiz e do módulo): linha nova "vocabulário reativo exige o runtime do fork `deroldo/derust-stac`, branch `estado_compartilhado_reativo`, **sem versão fixada** (contrato lido no commit `92457f25`)"; frontend com Stac oficial ignora ou falha; a matriz e o CHANGELOG são a única proteção.
+- [x] `CHANGELOG.md` (Added/Changed/**Breaking** com a lista da decisão 18), linha em `CLAUDE.md`, README do harness com o ponto único de pin.
+- [x] Atualizar contagens do inventário no README do módulo.
 
 **Testes:** o doctest do README compila (`cargo test --doc --features sdui_stac_1`); links internos válidos.
 
 **Revisão:** nada prometido além do inventário; avisos conferidos contra a seção "v1 limitations" do contrato.
+
+**Notas de execução (T12):** seção "Reactive state" no README do módulo (com regras de erro/aviso, limites do servidor, limitações v1 e a nota sobre `onResult`+`onCancel`), matriz com linha do fork (README raiz, `crates/derust/README.md` e módulo; linhas duplicadas removidas), CHANGELOG (Added/Breaking na 0.7.0), CLAUDE.md, README do harness (ponto único de pin), contagens do inventário reativo (149 supported, 7 unsupported; oficial 259/0/11). Doctests: 11 verdes.
 
 ---
 

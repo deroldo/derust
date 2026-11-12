@@ -7,6 +7,11 @@ harness (`../v1`) keeps pinning Stac `v1.6.0` and is untouched.
 
 ## Pin
 
+Single pin point: the `ref` under `dependencies.stac.git` in `pubspec.yaml` (mirrored in
+`dependency_overrides`). The same fork and branch are named in the compatibility matrix of the
+module README and of the root README ("no pinned version"); when a tag or commit is chosen, change
+the `ref` and the matrix together.
+
 The only place that pins the fork is the `ref` in `pubspec.yaml` (repeated in
 `dependency_overrides`, because `stac`, `stac_core`, `stac_framework` and `stac_logger` must
 come from the same ref). It is a branch today, so there is **no pin**: the CI job is allowed to

@@ -17,6 +17,34 @@ All notable changes to `derust` are documented in this file.
   widgets/actions of parsers registered in the Flutter app via `CustomWidget` / `CustomAction` (the
   `Custom` variant of `Widget` / `Action`).
 - Example `examples/sdui`.
+- Reactive state for SDUI (vocabulary of the `derust-stac` fork, branch `estado_compartilhado_reativo`,
+  contract read at commit `92457f25`, no pinned version; the official Stac does not understand it):
+  `Reactive<T>` on every leaf property (value, `$state` binding or `$expr` expression), the typed
+  expression language `Expr` and `StatePath`, `Data`, the widget envelope (`visible`, `enabled`, `bind`,
+  `state`, `globalState`, `onInit`), `condition` on every action, the state actions (`setState`,
+  `incrementState`, `decrementState`, `toggleState`, `resetState`, `appendState`, `removeFromState`,
+  `toggleItem`, `cancelRequest`, `none`), `networkRequest` callbacks/`requestKey`/`bodyFromState`,
+  `navigate` `params`/`result`/`onResult`/`onCancel`, list templates (`ItemTemplate`), and
+  `Slider::bound`.
+- Contextual validation of the serialized screen in `SduiResponse::try_new` (errors answer 500 with the
+  JSON path; warnings are logged), `Validate::validate_serialized` and `ValidationReport`.
+- `v1/inventory_state.json`, reactive fixtures, harness `tools/stac-compat/v1-reactive`
+  (CI job `stac-compat-v1-reactive`, `continue-on-error` until the fork is pinned) and example
+  `examples/sdui_reactive`.
+
+### Breaking (`sdui_stac_1`, unreleased feature)
+
+- Public fields of the generated structs change from `Option<T>` to `Option<Reactive<T>>`; setters take
+  `impl IntoReactive<T>` (plain values keep working).
+- The native `visible` / `enabled` fields of `Visibility`, `SliverVisibility`, `BackdropFilter`,
+  `DropdownMenu`, `ListTile`, `Radio`, `TextField` and `TextFormField` are no longer fields: they live in
+  the envelope (same JSON key, same setter name).
+- `NavigateAction.result` and the former `Map` / `Value` fields (`body`, `headers`, `queryParameters`,
+  `arguments`, ...) are now `Data`.
+- `Dyn<T>` gained the `Bind` variant.
+- `Slider.value` is optional (`value` or `bind`); `Slider::new(value)` is unchanged.
+- The `bind` setter of every widget takes `impl Into<BindKey>`.
+- `onResult` and `onCancel` of `navigate` may be set together.
 
 ### Changed
 

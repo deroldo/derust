@@ -317,7 +317,6 @@ let consumer = SqsQueueConsumer::new(&queue_url, |ctx, msg, tags| async move {
   - [statsd](https://github.com/deroldo/derust/tree/main/crates/derust/src/metricx/registries/statsd)
 - [outbox](https://github.com/deroldo/derust/tree/main/crates/derust/src/outboxx)
 - [sdui_stac_1](https://github.com/deroldo/derust/tree/main/crates/derust/src/sduix/stacx) - server-driven UI with [Stac](https://github.com/StacDev/stac): `derust::sduix::stacx::v1`, `SduiResponse`, typed widgets/actions/themes. Enable only the Stac major your frontend uses (several are supported but slow the build)
-- [sdui_stac_1](https://github.com/deroldo/derust/tree/main/crates/derust/src/sduix/stacx) - server-driven UI with [Stac](https://github.com/StacDev/stac): `derust::sduix::stacx::v1`, `SduiResponse`, typed widgets/actions/themes. Enable only the Stac major your frontend uses (several are supported but slow the build)
 - [trace](https://github.com/deroldo/derust/tree/main/crates/derust/src/tracex) (default)
 
 ### Server-driven UI compatibility matrix
@@ -326,13 +325,10 @@ let consumer = SqsQueueConsumer::new(&queue_url, |ctx, msg, tags| async move {
 |---|---|---|
 | `0.7.0` | `sdui_stac_1` | `1.6.0` (tag `v1.6.0`) |
 
-See the [module README](https://github.com/deroldo/derust/tree/main/crates/derust/src/sduix/stacx).
-
-### Server-driven UI compatibility matrix
-
-| derust | feature | Stac |
-|---|---|---|
-| `0.7.0` | `sdui_stac_1` | `1.6.0` (tag `v1.6.0`) |
+Reactive state vocabulary (`state`, `bind`, expressions, state actions, list templates): requires the
+runtime of the fork [`deroldo/derust-stac`](https://github.com/deroldo/derust-stac), branch
+`estado_compartilhado_reativo`, **no pinned version** (contract read at commit `92457f25`). A frontend on
+the official Stac ignores or fails on it; this matrix and the `CHANGELOG.md` are the only protection.
 
 See the [module README](https://github.com/deroldo/derust/tree/main/crates/derust/src/sduix/stacx).
 
