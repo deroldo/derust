@@ -34,9 +34,18 @@
       "fontSize": 14.0
     },
     "padding": {},
-    "minimumSize": {},
-    "fixedSize": {},
-    "maximumSize": {},
+    "minimumSize": {
+      "width": 1.5,
+      "height": 1.5
+    },
+    "fixedSize": {
+      "width": 1.5,
+      "height": 1.5
+    },
+    "maximumSize": {
+      "width": 1.5,
+      "height": 1.5
+    },
     "side": {},
     "shape": {
       "type": "circleBorder"

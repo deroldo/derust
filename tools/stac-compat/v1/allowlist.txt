@@ -1,0 +1,2 @@
+# fixture-id: reason
+# Fixtures Stac v1.6.0 cannot parse (keep empty unless the gap is in Stac itself).

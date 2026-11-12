@@ -10,3 +10,7 @@
 /examples/**/*.lock
 /examples/**/docker/**/volume
 /examples/**/docker/**/volumes
+/tools/stac-compat/**/.dart_tool
+/tools/stac-compat/**/pubspec.lock
+/tools/stac-compat/**/.flutter-plugins*
+/tools/stac-compat/**/build

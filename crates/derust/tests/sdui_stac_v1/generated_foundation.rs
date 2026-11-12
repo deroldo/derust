@@ -458,9 +458,9 @@ fn dropdown_menu_entry() {
                     .elevation(1.5)
                     .text_style(TextStyle::from(CustomTextStyle::new().font_size(14.0)))
                     .padding(EdgeInsets::new())
-                    .minimum_size(Size::new())
-                    .fixed_size(Size::new())
-                    .maximum_size(Size::new())
+                    .minimum_size(Size::new(1.5, 1.5))
+                    .fixed_size(Size::new(1.5, 1.5))
+                    .maximum_size(Size::new(1.5, 1.5))
                     .side(BorderSide::new())
                     .shape(ShapeBorder::from(CircleBorder::new()))
                     .enable_feedback(true)
@@ -1110,7 +1110,7 @@ fn shape_border_type() {
 
 #[test]
 fn size() {
-    assert_fixture!("foundation/size", Size::new().width(100.0).height(200.0));
+    assert_fixture!("foundation/size", Size::new(100.0, 200.0));
 }
 
 #[test]

@@ -1,0 +1,38 @@
+name: stac_compat_v1
+description: Parses every derust Stac v1 fixture with the real Stac (tag v1.6.0).
+publish_to: none
+
+environment:
+  sdk: ^3.12.0
+  flutter: ">=3.44.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  stac:
+    git:
+      url: https://github.com/StacDev/stac
+      ref: v1.6.0
+      path: packages/stac
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+# The monorepo packages must come from the same tag as `stac`.
+dependency_overrides:
+  stac_core:
+    git:
+      url: https://github.com/StacDev/stac
+      ref: v1.6.0
+      path: packages/stac_core
+  stac_framework:
+    git:
+      url: https://github.com/StacDev/stac
+      ref: v1.6.0
+      path: packages/stac_framework
+  stac_logger:
+    git:
+      url: https://github.com/StacDev/stac
+      ref: v1.6.0
+      path: packages/stac_logger

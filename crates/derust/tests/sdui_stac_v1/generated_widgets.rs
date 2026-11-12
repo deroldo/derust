@@ -564,9 +564,9 @@ fn elevated_button() {
                         .elevation(1.5)
                         .text_style(TextStyle::from(CustomTextStyle::new().font_size(14.0)))
                         .padding(EdgeInsets::new())
-                        .minimum_size(Size::new())
-                        .fixed_size(Size::new())
-                        .maximum_size(Size::new())
+                        .minimum_size(Size::new(1.5, 1.5))
+                        .fixed_size(Size::new(1.5, 1.5))
+                        .maximum_size(Size::new(1.5, 1.5))
                         .side(BorderSide::new())
                         .shape(ShapeBorder::from(CircleBorder::new()))
                         .enable_feedback(true)
@@ -622,9 +622,9 @@ fn filled_button() {
                         .elevation(1.5)
                         .text_style(TextStyle::from(CustomTextStyle::new().font_size(14.0)))
                         .padding(EdgeInsets::new())
-                        .minimum_size(Size::new())
-                        .fixed_size(Size::new())
-                        .maximum_size(Size::new())
+                        .minimum_size(Size::new(1.5, 1.5))
+                        .fixed_size(Size::new(1.5, 1.5))
+                        .maximum_size(Size::new(1.5, 1.5))
                         .side(BorderSide::new())
                         .shape(ShapeBorder::from(CircleBorder::new()))
                         .enable_feedback(true)
@@ -935,9 +935,9 @@ fn icon_button() {
                         .elevation(1.5)
                         .text_style(TextStyle::from(CustomTextStyle::new().font_size(14.0)))
                         .padding(EdgeInsets::new())
-                        .minimum_size(Size::new())
-                        .fixed_size(Size::new())
-                        .maximum_size(Size::new())
+                        .minimum_size(Size::new(1.5, 1.5))
+                        .fixed_size(Size::new(1.5, 1.5))
+                        .maximum_size(Size::new(1.5, 1.5))
                         .side(BorderSide::new())
                         .shape(ShapeBorder::from(CircleBorder::new()))
                         .enable_feedback(true)
@@ -1220,9 +1220,9 @@ fn outlined_button() {
                         .elevation(1.5)
                         .text_style(TextStyle::from(CustomTextStyle::new().font_size(14.0)))
                         .padding(EdgeInsets::new())
-                        .minimum_size(Size::new())
-                        .fixed_size(Size::new())
-                        .maximum_size(Size::new())
+                        .minimum_size(Size::new(1.5, 1.5))
+                        .fixed_size(Size::new(1.5, 1.5))
+                        .maximum_size(Size::new(1.5, 1.5))
                         .side(BorderSide::new())
                         .shape(ShapeBorder::from(CircleBorder::new()))
                         .enable_feedback(true)
@@ -1547,8 +1547,7 @@ fn sliver_grid() {
 fn sliver_list() {
     assert_fixture!(
         "widgets/sliver_list",
-        Widget::from(
-            SliverList::new().children(vec![
+        Widget::from(SliverList::new().children(vec![
                 Widget::from(
                     Container::new()
                         .height(80.0)
@@ -1573,8 +1572,7 @@ fn sliver_list() {
                             Center::new().child(Widget::from(Text::new("List Item 3")))
                         ))
                 )
-            ])
-        )
+            ]))
     );
 }
 
@@ -1855,9 +1853,9 @@ fn text_button() {
                         .elevation(1.5)
                         .text_style(TextStyle::from(CustomTextStyle::new().font_size(14.0)))
                         .padding(EdgeInsets::new())
-                        .minimum_size(Size::new())
-                        .fixed_size(Size::new())
-                        .maximum_size(Size::new())
+                        .minimum_size(Size::new(1.5, 1.5))
+                        .fixed_size(Size::new(1.5, 1.5))
+                        .maximum_size(Size::new(1.5, 1.5))
                         .side(BorderSide::new())
                         .shape(ShapeBorder::from(CircleBorder::new()))
                         .enable_feedback(true)

@@ -386,7 +386,10 @@
     "shape": {},
     "showDragHandle": true,
     "dragHandleColor": "#FF0000",
-    "dragHandleSize": {},
+    "dragHandleSize": {
+      "width": 1.5,
+      "height": 1.5
+    },
     "clipBehavior": "none",
     "constraints": {}
   },
@@ -605,9 +608,18 @@
       "fontSize": 14.0
     },
     "padding": {},
-    "minimumSize": {},
-    "fixedSize": {},
-    "maximumSize": {},
+    "minimumSize": {
+      "width": 1.5,
+      "height": 1.5
+    },
+    "fixedSize": {
+      "width": 1.5,
+      "height": 1.5
+    },
+    "maximumSize": {
+      "width": 1.5,
+      "height": 1.5
+    },
     "side": {},
     "shape": {
       "type": "circleBorder"
@@ -638,9 +650,18 @@
       "fontSize": 14.0
     },
     "padding": {},
-    "minimumSize": {},
-    "fixedSize": {},
-    "maximumSize": {},
+    "minimumSize": {
+      "width": 1.5,
+      "height": 1.5
+    },
+    "fixedSize": {
+      "width": 1.5,
+      "height": 1.5
+    },
+    "maximumSize": {
+      "width": 1.5,
+      "height": 1.5
+    },
     "side": {},
     "shape": {
       "type": "circleBorder"
@@ -695,9 +716,18 @@
       "fontSize": 14.0
     },
     "padding": {},
-    "minimumSize": {},
-    "fixedSize": {},
-    "maximumSize": {},
+    "minimumSize": {
+      "width": 1.5,
+      "height": 1.5
+    },
+    "fixedSize": {
+      "width": 1.5,
+      "height": 1.5
+    },
+    "maximumSize": {
+      "width": 1.5,
+      "height": 1.5
+    },
     "side": {},
     "shape": {
       "type": "circleBorder"
@@ -760,9 +790,18 @@
       "fontSize": 14.0
     },
     "padding": {},
-    "minimumSize": {},
-    "fixedSize": {},
-    "maximumSize": {},
+    "minimumSize": {
+      "width": 1.5,
+      "height": 1.5
+    },
+    "fixedSize": {
+      "width": 1.5,
+      "height": 1.5
+    },
+    "maximumSize": {
+      "width": 1.5,
+      "height": 1.5
+    },
     "side": {},
     "shape": {
       "type": "circleBorder"
@@ -800,7 +839,10 @@
     "indicatorShape": {
       "type": "circleBorder"
     },
-    "indicatorSize": {},
+    "indicatorSize": {
+      "width": 1.5,
+      "height": 1.5
+    },
     "labelTextStyle": {
       "type": "custom",
       "fontSize": 14.0
@@ -825,9 +867,18 @@
       "fontSize": 14.0
     },
     "padding": {},
-    "minimumSize": {},
-    "fixedSize": {},
-    "maximumSize": {},
+    "minimumSize": {
+      "width": 1.5,
+      "height": 1.5
+    },
+    "fixedSize": {
+      "width": 1.5,
+      "height": 1.5
+    },
+    "maximumSize": {
+      "width": 1.5,
+      "height": 1.5
+    },
     "side": {},
     "shape": {
       "type": "circleBorder"
@@ -858,9 +909,18 @@
       "fontSize": 14.0
     },
     "padding": {},
-    "minimumSize": {},
-    "fixedSize": {},
-    "maximumSize": {},
+    "minimumSize": {
+      "width": 1.5,
+      "height": 1.5
+    },
+    "fixedSize": {
+      "width": 1.5,
+      "height": 1.5
+    },
+    "maximumSize": {
+      "width": 1.5,
+      "height": 1.5
+    },
     "side": {},
     "shape": {
       "type": "circleBorder"
@@ -931,9 +991,18 @@
       "fontSize": 14.0
     },
     "padding": {},
-    "minimumSize": {},
-    "fixedSize": {},
-    "maximumSize": {},
+    "minimumSize": {
+      "width": 1.5,
+      "height": 1.5
+    },
+    "fixedSize": {
+      "width": 1.5,
+      "height": 1.5
+    },
+    "maximumSize": {
+      "width": 1.5,
+      "height": 1.5
+    },
     "side": {},
     "shape": {
       "type": "circleBorder"

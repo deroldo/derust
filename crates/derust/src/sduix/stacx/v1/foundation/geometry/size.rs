@@ -15,29 +15,29 @@ use serde::ser::{Serialize, SerializeMap, Serializer};
 #[derive(Debug, Clone, PartialEq)]
 pub struct Size {
     /// The width in logical pixels.
-    pub width: Option<f64>,
+    pub width: f64,
     /// The height in logical pixels.
-    pub height: Option<f64>,
+    pub height: f64,
 }
 
 impl Size {
     /// Creates the model with only its required fields set.
-    pub fn new() -> Self {
+    pub fn new(width: impl Into<f64>, height: impl Into<f64>) -> Self {
         Self {
-            width: None,
-            height: None,
+            width: width.into(),
+            height: height.into(),
         }
     }
 
     /// The width in logical pixels.
     pub fn width(mut self, value: impl Into<f64>) -> Self {
-        self.width = Some(value.into());
+        self.width = value.into();
         self
     }
 
     /// The height in logical pixels.
     pub fn height(mut self, value: impl Into<f64>) -> Self {
-        self.height = Some(value.into());
+        self.height = value.into();
         self
     }
 }
@@ -45,12 +45,8 @@ impl Size {
 impl Serialize for Size {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         let mut map = serializer.serialize_map(None)?;
-        if let Some(value) = &self.width {
-            map.serialize_entry("width", value)?;
-        }
-        if let Some(value) = &self.height {
-            map.serialize_entry("height", value)?;
-        }
+        map.serialize_entry("width", &self.width)?;
+        map.serialize_entry("height", &self.height)?;
         map.end()
     }
 }

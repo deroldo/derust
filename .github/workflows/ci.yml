@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  rust:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install toolchain (pinned by rust-toolchain)
+        run: rustup show
+      - uses: Swatinem/rust-cache@v2
+      - uses: taiki-e/install-action@nextest
+      - name: Format
+        run: cargo fmt --all -- --check
+      - name: Clippy (all targets)
+        run: cargo clippy --all-targets -- -D warnings
+      - name: Clippy (workspace)
+        run: cargo clippy --workspace -- -D warnings
+      - name: Clippy (sdui_stac_1)
+        run: cargo clippy --all-targets --package derust --features sdui_stac_1 -- -D warnings
+      - name: Types only (no default features)
+        run: cargo clippy --package derust --no-default-features --features sdui_stac_1 -- -D warnings
+      - name: Tests (default features)
+        run: cargo nextest run
+      - name: Tests (sdui_stac_1)
+        run: cargo nextest run --package derust --features sdui_stac_1
+
+  stac-compat-v1:
+    # Parses every fixture of crates/derust/tests/sdui_stac_v1 with the real Stac v1.6.0.
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: tools/stac-compat/v1
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: flutter test

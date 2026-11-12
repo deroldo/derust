@@ -121,12 +121,26 @@ def parse_file(path, rel):
         name = m.group(2)
         decl_pos = raw.find(m.group(0).split("{")[0])
         header_has_json = "@JsonSerializable" in clean[max(0, m.start() - 80):m.start()]
-        # constructor parameters of the primary constructor
-        ctor = re.search(r"(?:const\s+)?%s\s*\(\s*\{(.*?)\}\s*\)" % name, body, re.S)
-        ctor_text = ctor.group(1) if ctor else ""
-        required = set(re.findall(r"required\s+(?:this\.)?(\w+)", ctor_text))
-        defaults = set(re.findall(r"this\.(\w+)\s*=", ctor_text))
-        ctor_fields = set(re.findall(r"this\.(\w+)", ctor_text))
+        # constructor parameters of the primary constructor (positional + named)
+        required, defaults, ctor_fields, ctor_text = set(), set(), set(), ""
+        cm = re.search(r"(?<![\w.])(?:const\s+)?%s\s*\(" % name, body)
+        if cm:
+            depth, i = 0, cm.end() - 1
+            for j in range(i, len(body)):
+                if body[j] == "(":
+                    depth += 1
+                elif body[j] == ")":
+                    depth -= 1
+                    if depth == 0:
+                        ctor_text = body[i + 1:j]
+                        break
+            brace = ctor_text.find("{")
+            positional = ctor_text if brace < 0 else ctor_text[:brace]
+            named = "" if brace < 0 else ctor_text[brace:]
+            required = set(re.findall(r"required\s+(?:this\.)?(\w+)", named))
+            required |= set(re.findall(r"this\.(\w+)", positional.split("[")[0]))
+            defaults = set(re.findall(r"this\.(\w+)\s*=", ctor_text))
+            ctor_fields = set(re.findall(r"this\.(\w+)", ctor_text))
         fields = []
         field_re = NON_FINAL_FIELD_RE if name in NON_FINAL_CLASSES else FIELD_RE
         for fm in field_re.finditer(body):
