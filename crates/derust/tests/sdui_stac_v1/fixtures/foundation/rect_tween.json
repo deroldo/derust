@@ -1,0 +1,47 @@
+{
+  "type": "sample",
+  "begin": {
+    "rectType": "fromCenter",
+    "left": 1.5,
+    "top": 1.5,
+    "right": 1.5,
+    "bottom": 1.5,
+    "width": 1.5,
+    "height": 1.5,
+    "center": {
+      "dx": 1.5,
+      "dy": 1.5
+    },
+    "radius": 1.5,
+    "a": {
+      "dx": 1.5,
+      "dy": 1.5
+    },
+    "b": {
+      "dx": 1.5,
+      "dy": 1.5
+    }
+  },
+  "end": {
+    "rectType": "fromCenter",
+    "left": 1.5,
+    "top": 1.5,
+    "right": 1.5,
+    "bottom": 1.5,
+    "width": 1.5,
+    "height": 1.5,
+    "center": {
+      "dx": 1.5,
+      "dy": 1.5
+    },
+    "radius": 1.5,
+    "a": {
+      "dx": 1.5,
+      "dy": 1.5
+    },
+    "b": {
+      "dx": 1.5,
+      "dy": 1.5
+    }
+  }
+}

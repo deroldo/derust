@@ -1,0 +1,6 @@
+{
+  "type": "linearProgressIndicator",
+  "value": 0.5,
+  "color": "#2196F3",
+  "minHeight": 4.0
+}

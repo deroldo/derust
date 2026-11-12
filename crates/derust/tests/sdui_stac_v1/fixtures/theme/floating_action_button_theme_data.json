@@ -1,0 +1,9 @@
+{
+  "backgroundColor": "#2196F3",
+  "foregroundColor": "#FFFFFF",
+  "elevation": 6.0,
+  "focusElevation": 8.0,
+  "hoverElevation": 4.0,
+  "iconSize": 24.0,
+  "enableFeedback": true
+}

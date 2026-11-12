@@ -1,0 +1,2717 @@
+{
+  "stac_tag": "v1.6.0",
+  "stac_commit": "b6cfe7cdb2bb4432e09d91ba23d6d72bdf721c01",
+  "items": [
+    {
+      "name": "Method",
+      "kind": "enum",
+      "category": "action",
+      "dart_path": "actions/network_request/stac_network_request.dart",
+      "json_type": null,
+      "batch": "T9",
+      "status": "supported",
+      "fixture": "actions/method"
+    },
+    {
+      "name": "NavigationStyle",
+      "kind": "enum",
+      "category": "action",
+      "dart_path": "actions/navigate/stac_navigate_action.dart",
+      "json_type": null,
+      "batch": "T9",
+      "status": "supported",
+      "fixture": "actions/navigation_style"
+    },
+    {
+      "name": "StacDelayAction",
+      "kind": "class",
+      "category": "action",
+      "dart_path": "actions/delay/stac_delay_action.dart",
+      "json_type": "delay",
+      "batch": "T9",
+      "status": "supported",
+      "fixture": "actions/delay_action"
+    },
+    {
+      "name": "StacDialogAction",
+      "kind": "class",
+      "category": "action",
+      "dart_path": "actions/dialog/stac_dialog_action.dart",
+      "json_type": "showDialog",
+      "batch": "T9",
+      "status": "supported",
+      "fixture": "actions/dialog_action"
+    },
+    {
+      "name": "StacFormValidate",
+      "kind": "class",
+      "category": "action",
+      "dart_path": "actions/form_validate/stac_form_validate.dart",
+      "json_type": "validateForm",
+      "batch": "T9",
+      "status": "supported",
+      "fixture": "actions/form_validate"
+    },
+    {
+      "name": "StacGetFormValue",
+      "kind": "class",
+      "category": "action",
+      "dart_path": "actions/get_form_value/stac_get_form_value.dart",
+      "json_type": "getFormValue",
+      "batch": "T9",
+      "status": "supported",
+      "fixture": "actions/get_form_value"
+    },
+    {
+      "name": "StacModalBottomSheetAction",
+      "kind": "class",
+      "category": "action",
+      "dart_path": "actions/modal_bottom_sheet/stac_modal_bottom_sheet_action.dart",
+      "json_type": "showModalBottomSheet",
+      "batch": "T9",
+      "status": "supported",
+      "fixture": "actions/modal_bottom_sheet_action"
+    },
+    {
+      "name": "StacMultiAction",
+      "kind": "class",
+      "category": "action",
+      "dart_path": "actions/multi/stac_multi_action.dart",
+      "json_type": "multiAction",
+      "batch": "T9",
+      "status": "supported",
+      "fixture": "actions/multi_action"
+    },
+    {
+      "name": "StacNavigateAction",
+      "kind": "class",
+      "category": "action",
+      "dart_path": "actions/navigate/stac_navigate_action.dart",
+      "json_type": "navigate",
+      "batch": "T9",
+      "status": "supported",
+      "fixture": "actions/navigate_action"
+    },
+    {
+      "name": "StacNavigator",
+      "kind": "class",
+      "category": "action",
+      "dart_path": "actions/navigate/stac_navigator.dart",
+      "json_type": null,
+      "batch": "T9",
+      "status": "unsupported",
+      "fixture": null,
+      "notes": "helpers estaticos Dart que constroem StacNavigateAction; sem representacao no JSON"
+    },
+    {
+      "name": "StacNetworkRequest",
+      "kind": "class",
+      "category": "action",
+      "dart_path": "actions/network_request/stac_network_request.dart",
+      "json_type": "networkRequest",
+      "batch": "T9",
+      "status": "supported",
+      "fixture": "actions/network_request"
+    },
+    {
+      "name": "StacNetworkResult",
+      "kind": "class",
+      "category": "action",
+      "dart_path": "actions/network_request/stac_network_request.dart",
+      "json_type": null,
+      "batch": "T9",
+      "status": "supported",
+      "fixture": "actions/network_result"
+    },
+    {
+      "name": "StacSetValueAction",
+      "kind": "class",
+      "category": "action",
+      "dart_path": "actions/set_value/stac_set_value_action.dart",
+      "json_type": "setValue",
+      "batch": "T9",
+      "status": "supported",
+      "fixture": "actions/set_value_action"
+    },
+    {
+      "name": "StacSnackBar",
+      "kind": "class",
+      "category": "action",
+      "dart_path": "actions/snack_bar/stac_snack_bar.dart",
+      "json_type": "showSnackBar",
+      "batch": "T9",
+      "status": "supported",
+      "fixture": "actions/snack_bar"
+    },
+    {
+      "name": "StacSnackBarAction",
+      "kind": "class",
+      "category": "action",
+      "dart_path": "actions/snack_bar/stac_snack_bar_action.dart",
+      "json_type": "showSnackBar",
+      "batch": "T9",
+      "status": "supported",
+      "fixture": "actions/snack_bar_action"
+    },
+    {
+      "name": "DoubleConverter",
+      "kind": "class",
+      "category": "foundation",
+      "dart_path": "core/converters/double_converter.dart",
+      "json_type": null,
+      "batch": "T3",
+      "status": "unsupported",
+      "fixture": null,
+      "notes": "conversor Dart de double; representado por f64 serializado como numero"
+    },
+    {
+      "name": "StacAction",
+      "kind": "class",
+      "category": "foundation",
+      "dart_path": "core/stac_action.dart",
+      "json_type": null,
+      "batch": "T3",
+      "status": "unsupported",
+      "fixture": null,
+      "notes": "base Dart (guarda JSON cru); representada pelo enum Action"
+    },
+    {
+      "name": "StacAlignment",
+      "kind": "enum",
+      "category": "foundation",
+      "dart_path": "foundation/alignment/stac_alignment.dart",
+      "json_type": null,
+      "batch": "T6",
+      "status": "supported",
+      "fixture": "foundation/alignment"
+    },
+    {
+      "name": "StacAlignmentDirectional",
+      "kind": "enum",
+      "category": "foundation",
+      "dart_path": "foundation/alignment/stac_alignment_directional.dart",
+      "json_type": null,
+      "batch": "T6",
+      "status": "supported",
+      "fixture": "foundation/alignment_directional"
+    },
+    {
+      "name": "StacAlignmentGeometry",
+      "kind": "class",
+      "category": "foundation",
+      "dart_path": "foundation/alignment/stac_alignment_geometry/stac_alignment_geometry.dart",
+      "json_type": null,
+      "batch": "T6",
+      "status": "supported",
+      "fixture": "foundation/alignment_geometry"
+    },
+    {
+      "name": "StacAutovalidateMode",
+      "kind": "enum",
+      "category": "foundation",
+      "dart_path": "foundation/forms/stac_autovalidate_mode.dart",
+      "json_type": null,
+      "batch": "T7",
+      "status": "supported",
+      "fixture": "foundation/autovalidate_mode"
+    },
+    {
+      "name": "StacAxis",
+      "kind": "enum",
+      "category": "foundation",
+      "dart_path": "foundation/layout/stac_axis.dart",
+      "json_type": null,
+      "batch": "T6",
+      "status": "supported",
+      "fixture": "foundation/axis"
+    },
+    {
+      "name": "StacBeveledRectangleBorder",
+      "kind": "class",
+      "category": "foundation",
+      "dart_path": "foundation/borders/stac_beveled_rectangle_border/stac_beveled_rectangle_border.dart",
+      "json_type": "beveledRectangleBorder",
+      "batch": "T7",
+      "status": "supported",
+      "fixture": "foundation/beveled_rectangle_border"
+    },
+    {
+      "name": "StacBlendMode",
+      "kind": "enum",
+      "category": "foundation",
+      "dart_path": "foundation/colors/stac_blend_mode.dart",
+      "json_type": null,
+      "batch": "T6",
+      "status": "supported",
+      "fixture": "foundation/blend_mode"
+    },
+    {
+      "name": "StacBlurStyle",
+      "kind": "enum",
+      "category": "foundation",
+      "dart_path": "foundation/effects/stac_blur_style.dart",
+      "json_type": null,
+      "batch": "T7",
+      "status": "supported",
+      "fixture": "foundation/blur_style"
+    },
+    {
+      "name": "StacBorder",
+      "kind": "class",
+      "category": "foundation",
+      "dart_path": "foundation/borders/stac_border/stac_border.dart",
+      "json_type": null,
+      "batch": "T7",
+      "status": "supported",
+      "fixture": "foundation/border"
+    },
+    {
+      "name": "StacBorderRadius",
+      "kind": "class",
+      "category": "foundation",
+      "dart_path": "foundation/borders/stac_border_radius/stac_border_radius.dart",
+      "json_type": null,
+      "batch": "T7",
+      "status": "supported",
+      "fixture": "foundation/border_radius"
+    },
+    {
+      "name": "StacBorderSide",
+      "kind": "class",
+      "category": "foundation",
+      "dart_path": "foundation/borders/stac_border_side/stac_border_side.dart",
+      "json_type": null,
+      "batch": "T7",
+      "status": "supported",
+      "fixture": "foundation/border_side"
+    },
+    {
+      "name": "StacBorderStyle",
+      "kind": "enum",
+      "category": "foundation",
+      "dart_path": "foundation/borders/stac_border/stac_border.dart",
+      "json_type": null,
+      "batch": "T7",
+      "status": "supported",
+      "fixture": "foundation/border_style"
+    },
+    {
+      "name": "StacBottomNavigationBarItem",
+      "kind": "class",
+      "category": "foundation",
+      "dart_path": "foundation/navigation/stac_bottom_navigation_bar_item/stac_bottom_navigation_bar_item.dart",
+      "json_type": null,
+      "batch": "T8",
+      "status": "supported",
+      "fixture": "foundation/bottom_navigation_bar_item"
+    },
+    {
+      "name": "StacBottomNavigationBarLandscapeLayout",
+      "kind": "enum",
+      "category": "foundation",
+      "dart_path": "foundation/navigation/stac_bottom_navigation_bar_item/stac_bottom_navigation_bar_item.dart",
+      "json_type": null,
+      "batch": "T8",
+      "status": "supported",
+      "fixture": "foundation/bottom_navigation_bar_landscape_layout"
+    },
+    {
+      "name": "StacBottomNavigationBarType",
+      "kind": "enum",
+      "category": "foundation",
+      "dart_path": "foundation/navigation/stac_bottom_navigation_bar_item/stac_bottom_navigation_bar_item.dart",
+      "json_type": null,
+      "batch": "T8",
+      "status": "supported",
+      "fixture": "foundation/bottom_navigation_bar_type"
+    },
+    {
+      "name": "StacBoxConstraints",
+      "kind": "class",
+      "category": "foundation",
+      "dart_path": "foundation/geometry/stac_box_constraints/stac_box_constraints.dart",
+      "json_type": null,
+      "batch": "T6",
+      "status": "supported",
+      "fixture": "foundation/box_constraints"
+    },
+    {
+      "name": "StacBoxDecoration",
+      "kind": "class",
+      "category": "foundation",
+      "dart_path": "foundation/decoration/stac_box_decoration/stac_box_decoration.dart",
+      "json_type": null,
+      "batch": "T7",
+      "status": "supported",
+      "fixture": "foundation/box_decoration"
+    },
+    {
+      "name": "StacBoxFit",
+      "kind": "enum",
+      "category": "foundation",
+      "dart_path": "foundation/layout/stac_box_fit.dart",
+      "json_type": null,
+      "batch": "T6",
+      "status": "supported",
+      "fixture": "foundation/box_fit"
+    },
+    {
+      "name": "StacBoxShadow",
+      "kind": "class",
+      "category": "foundation",
+      "dart_path": "foundation/geometry/stac_box_shadow/stac_box_shadow.dart",
+      "json_type": null,
+      "batch": "T6",
+      "status": "supported",
+      "fixture": "foundation/box_shadow"
+    },
+    {
+      "name": "StacBoxShape",
+      "kind": "enum",
+      "category": "foundation",
+      "dart_path": "foundation/layout/stac_box_shape.dart",
+      "json_type": null,
+      "batch": "T6",
+      "status": "supported",
+      "fixture": "foundation/box_shape"
+    },
+    {
+      "name": "StacBrightness",
+      "kind": "enum",
+      "category": "foundation",
+      "dart_path": "foundation/colors/stac_brightness.dart",
+      "json_type": null,
+      "batch": "T6",
+      "status": "supported",
+      "fixture": "foundation/brightness"
+    },
+    {
+      "name": "StacCarouselViewType",
+      "kind": "enum",
+      "category": "foundation",
+      "dart_path": "foundation/ui_components/stac_carousel_view_type.dart",
+      "json_type": null,
+      "batch": "T8",
+      "status": "supported",
+      "fixture": "foundation/carousel_view_type"
+    },
+    {
+      "name": "StacCircleBorder",
+      "kind": "class",
+      "category": "foundation",
+      "dart_path": "foundation/borders/stac_circle_border/stac_circle_border.dart",
+      "json_type": "circleBorder",
+      "batch": "T7",
+      "status": "supported",
+      "fixture": "foundation/circle_border"
+    },
+    {
+      "name": "StacClip",
+      "kind": "enum",
+      "category": "foundation",
+      "dart_path": "foundation/layout/stac_clip.dart",
+      "json_type": null,
+      "batch": "T6",
+      "status": "supported",
+      "fixture": "foundation/clip"
+    },
+    {
+      "name": "StacColors",
+      "kind": "class",
+      "category": "foundation",
+      "dart_path": "foundation/colors/stac_color/stac_colors.dart",
+      "json_type": null,
+      "batch": "T6",
+      "status": "unsupported",
+      "fixture": null,
+      "notes": "constantes de cor Dart; no JSON a cor e uma string (Color::hex / Color::new)"
+    },
+    {
+      "name": "StacContinuousRectangleBorder",
+      "kind": "class",
+      "category": "foundation",
+      "dart_path": "foundation/borders/stac_continuous_rectangle_border/stac_continuous_rectangle_border.dart",
+      "json_type": "continuousRectangleBorder",
+      "batch": "T7",
+      "status": "supported",
+      "fixture": "foundation/continuous_rectangle_border"
+    },
+    {
+      "name": "StacCrossAxisAlignment",
+      "kind": "enum",
+      "category": "foundation",
+      "dart_path": "foundation/alignment/stac_cross_axis_alignment.dart",
+      "json_type": null,
+      "batch": "T6",
+      "status": "supported",
+      "fixture": "foundation/cross_axis_alignment"
+    },
+    {
+      "name": "StacCustomTextStyle",
+      "kind": "class",
+      "category": "foundation",
+      "dart_path": "foundation/text/stac_text_style/stac_text_style.dart",
+      "json_type": "custom",
+      "batch": "T6",
+      "status": "supported",
+      "fixture": "foundation/custom_text_style"
+    },
+    {
+      "name": "StacDecorationImage",
+      "kind": "class",
+      "category": "foundation",
+      "dart_path": "foundation/decoration/stac_decoration_image/stac_decoration_image.dart",
+      "json_type": null,
+      "batch": "T7",
+      "status": "supported",
+      "fixture": "foundation/decoration_image"
+    },
+    {
+      "name": "StacDismissDirection",
+      "kind": "enum",
+      "category": "foundation",
+      "dart_path": "foundation/ui_components/stac_dismiss_direction.dart",
+      "json_type": null,
+      "batch": "T8",
+      "status": "supported",
+      "fixture": "foundation/dismiss_direction"
+    },
+    {
+      "name": "StacDragStartBehavior",
+      "kind": "enum",
+      "category": "foundation",
+      "dart_path": "foundation/interaction/stac_drag_start_behavior.dart",
+      "json_type": null,
+      "batch": "T7",
+      "status": "supported",
+      "fixture": "foundation/drag_start_behavior"
+    },
+    {
+      "name": "StacDropdownMenuCloseBehavior",
+      "kind": "enum",
+      "category": "foundation",
+      "dart_path": "foundation/ui_components/stac_dropdown_menu_close_behavior.dart",
+      "json_type": null,
+      "batch": "T8",
+      "status": "supported",
+      "fixture": "foundation/dropdown_menu_close_behavior"
+    },
+    {
+      "name": "StacDropdownMenuEntry",
+      "kind": "class",
+      "category": "foundation",
+      "dart_path": "foundation/ui_components/stac_dropdown_menu_entry/stac_dropdown_menu_entry.dart",
+      "json_type": null,
+      "batch": "T8",
+      "status": "supported",
+      "fixture": "foundation/dropdown_menu_entry"
+    },
+    {
+      "name": "StacDuration",
+      "kind": "class",
+      "category": "foundation",
+      "dart_path": "foundation/animation/stac_duration/stac_duration.dart",
+      "json_type": null,
+      "batch": "T7",
+      "status": "supported",
+      "fixture": "foundation/duration"
+    },
+    {
+      "name": "StacEdgeInsets",
+      "kind": "class",
+      "category": "foundation",
+      "dart_path": "foundation/geometry/stac_edge_insets/stac_edge_insets.dart",
+      "json_type": null,
+      "batch": "T6",
+      "status": "supported",
+      "fixture": "foundation/edge_insets"
+    },
+    {
+      "name": "StacElement",
+      "kind": "class",
+      "category": "foundation",
+      "dart_path": "core/stac_widget.dart",
+      "json_type": null,
+      "batch": "T3",
+      "status": "unsupported",
+      "fixture": null,
+      "notes": "interface Dart de serializacao; sem representacao no JSON"
+    },
+    {
+      "name": "StacFilterQuality",
+      "kind": "enum",
+      "category": "foundation",
+      "dart_path": "foundation/effects/stac_filter_quality.dart",
+      "json_type": null,
+      "batch": "T7",
+      "status": "supported",
+      "fixture": "foundation/filter_quality"
+    },
+    {
+      "name": "StacFlexFit",
+      "kind": "enum",
+      "category": "foundation",
+      "dart_path": "foundation/layout/stac_flex_fit.dart",
+      "json_type": null,
+      "batch": "T6",
+      "status": "supported",
+      "fixture": "foundation/flex_fit"
+    },
+    {
+      "name": "StacFloatingActionButtonLocation",
+      "kind": "enum",
+      "category": "foundation",
+      "dart_path": "foundation/navigation/stac_floating_action_button_location.dart",
+      "json_type": null,
+      "batch": "T8",
+      "status": "supported",
+      "fixture": "foundation/floating_action_button_location"
+    },
+    {
+      "name": "StacFloatingActionButtonType",
+      "kind": "enum",
+      "category": "foundation",
+      "dart_path": "foundation/navigation/stac_floating_action_button_type.dart",
+      "json_type": null,
+      "batch": "T8",
+      "status": "supported",
+      "fixture": "foundation/floating_action_button_type"
+    },
+    {
+      "name": "StacFontStyle",
+      "kind": "enum",
+      "category": "foundation",
+      "dart_path": "foundation/text/stac_text_types.dart",
+      "json_type": null,
+      "batch": "T6",
+      "status": "supported",
+      "fixture": "foundation/font_style"
+    },
+    {
+      "name": "StacFontWeight",
+      "kind": "enum",
+      "category": "foundation",
+      "dart_path": "foundation/text/stac_text_types.dart",
+      "json_type": null,
+      "batch": "T6",
+      "status": "supported",
+      "fixture": "foundation/font_weight"
+    },
+    {
+      "name": "StacFormFieldValidator",
+      "kind": "class",
+      "category": "foundation",
+      "dart_path": "foundation/forms/stac_form_field_validator/stac_form_field_validator.dart",
+      "json_type": null,
+      "batch": "T7",
+      "status": "supported",
+      "fixture": "foundation/form_field_validator"
+    },
+    {
+      "name": "StacGradient",
+      "kind": "class",
+      "category": "foundation",
+      "dart_path": "foundation/effects/stac_gradient/stac_gradient.dart",
+      "json_type": null,
+      "batch": "T7",
+      "status": "supported",
+      "fixture": "foundation/gradient"
+    },
+    {
+      "name": "StacGradientType",
+      "kind": "enum",
+      "category": "foundation",
+      "dart_path": "foundation/effects/stac_gradient/stac_gradient.dart",
+      "json_type": null,
+      "batch": "T7",
+      "status": "supported",
+      "fixture": "foundation/gradient_type"
+    },
+    {
+      "name": "StacHitTestBehavior",
+      "kind": "enum",
+      "category": "foundation",
+      "dart_path": "foundation/interaction/stac_hit_test_behavior.dart",
+      "json_type": null,
+      "batch": "T7",
+      "status": "supported",
+      "fixture": "foundation/hit_test_behavior"
+    },
+    {
+      "name": "StacIconType",
+      "kind": "enum",
+      "category": "foundation",
+      "dart_path": "foundation/ui_components/stac_icon_type.dart",
+      "json_type": null,
+      "batch": "T8",
+      "status": "supported",
+      "fixture": "foundation/icon_type"
+    },
+    {
+      "name": "StacImageFilter",
+      "kind": "class",
+      "category": "foundation",
+      "dart_path": "foundation/effects/stac_image_filter/stac_image_filter.dart",
+      "json_type": null,
+      "batch": "T7",
+      "status": "supported",
+      "fixture": "foundation/image_filter"
+    },
+    {
+      "name": "StacImageFilterType",
+      "kind": "enum",
+      "category": "foundation",
+      "dart_path": "foundation/effects/stac_image_filter/stac_image_filter.dart",
+      "json_type": null,
+      "batch": "T7",
+      "status": "supported",
+      "fixture": "foundation/image_filter_type"
+    },
+    {
+      "name": "StacImageRepeat",
+      "kind": "enum",
+      "category": "foundation",
+      "dart_path": "foundation/ui_components/stac_image_repeat.dart",
+      "json_type": null,
+      "batch": "T8",
+      "status": "supported",
+      "fixture": "foundation/image_repeat"
+    },
+    {
+      "name": "StacImageType",
+      "kind": "enum",
+      "category": "foundation",
+      "dart_path": "foundation/ui_components/stac_image_type.dart",
+      "json_type": null,
+      "batch": "T8",
+      "status": "supported",
+      "fixture": "foundation/image_type"
+    },
+    {
+      "name": "StacInputBorder",
+      "kind": "class",
+      "category": "foundation",
+      "dart_path": "foundation/borders/stac_input_border/stac_input_border.dart",
+      "json_type": null,
+      "batch": "T7",
+      "status": "supported",
+      "fixture": "foundation/input_border"
+    },
+    {
+      "name": "StacInputBorderType",
+      "kind": "enum",
+      "category": "foundation",
+      "dart_path": "foundation/borders/stac_input_border/stac_input_border.dart",
+      "json_type": null,
+      "batch": "T7",
+      "status": "supported",
+      "fixture": "foundation/input_border_type"
+    },
+    {
+      "name": "StacInputDecoration",
+      "kind": "class",
+      "category": "foundation",
+      "dart_path": "foundation/decoration/stac_input_decoration/stac_input_decoration.dart",
+      "json_type": null,
+      "batch": "T7",
+      "status": "supported",
+      "fixture": "foundation/input_decoration"
+    },
+    {
+      "name": "StacInputFormatter",
+      "kind": "class",
+      "category": "foundation",
+      "dart_path": "foundation/forms/stac_input_formatter/stac_input_formatter.dart",
+      "json_type": null,
+      "batch": "T7",
+      "status": "supported",
+      "fixture": "foundation/input_formatter"
+    },
+    {
+      "name": "StacInputFormatterType",
+      "kind": "enum",
+      "category": "foundation",
+      "dart_path": "foundation/forms/stac_input_formatter/stac_input_formatter.dart",
+      "json_type": null,
+      "batch": "T7",
+      "status": "supported",
+      "fixture": "foundation/input_formatter_type"
+    },
+    {
+      "name": "StacListTileStyle",
+      "kind": "enum",
+      "category": "foundation",
+      "dart_path": "foundation/ui_components/stac_list_tile_style.dart",
+      "json_type": null,
+      "batch": "T8",
+      "status": "supported",
+      "fixture": "foundation/list_tile_style"
+    },
+    {
+      "name": "StacListTileTitleAlignment",
+      "kind": "enum",
+      "category": "foundation",
+      "dart_path": "foundation/ui_components/stac_list_tile_title_alignment.dart",
+      "json_type": null,
+      "batch": "T8",
+      "status": "supported",
+      "fixture": "foundation/list_tile_title_alignment"
+    },
+    {
+      "name": "StacMainAxisAlignment",
+      "kind": "enum",
+      "category": "foundation",
+      "dart_path": "foundation/alignment/stac_main_axis_alignment.dart",
+      "json_type": null,
+      "batch": "T6",
+      "status": "supported",
+      "fixture": "foundation/main_axis_alignment"
+    },
+    {
+      "name": "StacMainAxisSize",
+      "kind": "enum",
+      "category": "foundation",
+      "dart_path": "foundation/alignment/stac_main_axis_size.dart",
+      "json_type": null,
+      "batch": "T6",
+      "status": "supported",
+      "fixture": "foundation/main_axis_size"
+    },
+    {
+      "name": "StacMaterialTextStyle",
+      "kind": "enum",
+      "category": "foundation",
+      "dart_path": "foundation/text/stac_text_style/stac_text_style.dart",
+      "json_type": null,
+      "batch": "T6",
+      "status": "supported",
+      "fixture": "foundation/material_text_style"
+    },
+    {
+      "name": "StacMaxLengthEnforcement",
+      "kind": "enum",
+      "category": "foundation",
+      "dart_path": "foundation/forms/stac_max_length_enforcement.dart",
+      "json_type": null,
+      "batch": "T7",
+      "status": "supported",
+      "fixture": "foundation/max_length_enforcement"
+    },
+    {
+      "name": "StacMouseCursor",
+      "kind": "enum",
+      "category": "foundation",
+      "dart_path": "foundation/interaction/stac_mouse_cursor.dart",
+      "json_type": null,
+      "batch": "T7",
+      "status": "supported",
+      "fixture": "foundation/mouse_cursor"
+    },
+    {
+      "name": "StacNavigationDestination",
+      "kind": "class",
+      "category": "foundation",
+      "dart_path": "foundation/navigation/stac_navigation_destination/stac_navigation_destination.dart",
+      "json_type": null,
+      "batch": "T8",
+      "status": "supported",
+      "fixture": "foundation/navigation_destination"
+    },
+    {
+      "name": "StacNavigationDestinationLabelBehavior",
+      "kind": "enum",
+      "category": "foundation",
+      "dart_path": "foundation/navigation/stac_navigation_destination_label_behavior.dart",
+      "json_type": null,
+      "batch": "T8",
+      "status": "supported",
+      "fixture": "foundation/navigation_destination_label_behavior"
+    },
+    {
+      "name": "StacOffset",
+      "kind": "class",
+      "category": "foundation",
+      "dart_path": "foundation/geometry/stac_offset/stac_offset.dart",
+      "json_type": null,
+      "batch": "T6",
+      "status": "supported",
+      "fixture": "foundation/offset"
+    },
+    {
+      "name": "StacOptions",
+      "kind": "class",
+      "category": "foundation",
+      "dart_path": "core/stac_options.dart",
+      "json_type": null,
+      "batch": "T3",
+      "status": "unsupported",
+      "fixture": null,
+      "notes": "configuracao do codegen Dart (CLI/projeto), sem representacao no JSON"
+    },
+    {
+      "name": "StacOptionsViewOpenDirection",
+      "kind": "enum",
+      "category": "foundation",
+      "dart_path": "foundation/ui_components/stac_options_view_open_direction.dart",
+      "json_type": null,
+      "batch": "T8",
+      "status": "supported",
+      "fixture": "foundation/options_view_open_direction"
+    },
+    {
+      "name": "StacOverflowBarAlignment",
+      "kind": "enum",
+      "category": "foundation",
+      "dart_path": "foundation/ui_components/stac_overflow_bar_alignment.dart",
+      "json_type": null,
+      "batch": "T8",
+      "status": "supported",
+      "fixture": "foundation/overflow_bar_alignment"
+    },
+    {
+      "name": "StacRadioType",
+      "kind": "enum",
+      "category": "foundation",
+      "dart_path": "foundation/ui_components/stac_radio_type.dart",
+      "json_type": null,
+      "batch": "T8",
+      "status": "supported",
+      "fixture": "foundation/radio_type"
+    },
+    {
+      "name": "StacRect",
+      "kind": "class",
+      "category": "foundation",
+      "dart_path": "foundation/geometry/stac_rect/stac_rect.dart",
+      "json_type": null,
+      "batch": "T6",
+      "status": "supported",
+      "fixture": "foundation/rect"
+    },
+    {
+      "name": "StacRectTween",
+      "kind": "class",
+      "category": "foundation",
+      "dart_path": "foundation/animation/stac_rect_tween/stac_rect_tween.dart",
+      "json_type": null,
+      "batch": "T7",
+      "status": "supported",
+      "fixture": "foundation/rect_tween"
+    },
+    {
+      "name": "StacRectType",
+      "kind": "enum",
+      "category": "foundation",
+      "dart_path": "foundation/geometry/stac_rect/stac_rect.dart",
+      "json_type": null,
+      "batch": "T6",
+      "status": "supported",
+      "fixture": "foundation/rect_type"
+    },
+    {
+      "name": "StacRefreshIndicatorTriggerMode",
+      "kind": "enum",
+      "category": "foundation",
+      "dart_path": "foundation/ui_components/stac_refresh_indicator_trigger_mode.dart",
+      "json_type": null,
+      "batch": "T8",
+      "status": "supported",
+      "fixture": "foundation/refresh_indicator_trigger_mode"
+    },
+    {
+      "name": "StacRoundedRectangleBorder",
+      "kind": "class",
+      "category": "foundation",
+      "dart_path": "foundation/borders/stac_rounded_rectangle_border/stac_rounded_rectangle_border.dart",
+      "json_type": "roundedRectangleBorder",
+      "batch": "T7",
+      "status": "supported",
+      "fixture": "foundation/rounded_rectangle_border"
+    },
+    {
+      "name": "StacScreen",
+      "kind": "class",
+      "category": "foundation",
+      "dart_path": "annotations/stac_screen.dart",
+      "json_type": null,
+      "batch": "T8",
+      "status": "unsupported",
+      "fixture": null,
+      "notes": "metadado de codegen Dart sem representacao no JSON"
+    },
+    {
+      "name": "StacScrollPhysics",
+      "kind": "enum",
+      "category": "foundation",
+      "dart_path": "foundation/interaction/stac_scroll_physics.dart",
+      "json_type": null,
+      "batch": "T7",
+      "status": "supported",
+      "fixture": "foundation/scroll_physics"
+    },
+    {
+      "name": "StacScrollViewKeyboardDismissBehavior",
+      "kind": "enum",
+      "category": "foundation",
+      "dart_path": "foundation/interaction/stac_scroll_view_keyboard_dismiss_behavior.dart",
+      "json_type": null,
+      "batch": "T7",
+      "status": "supported",
+      "fixture": "foundation/scroll_view_keyboard_dismiss_behavior"
+    },
+    {
+      "name": "StacShadow",
+      "kind": "class",
+      "category": "foundation",
+      "dart_path": "foundation/effects/stac_shadow/stac_shadow.dart",
+      "json_type": null,
+      "batch": "T7",
+      "status": "supported",
+      "fixture": "foundation/shadow"
+    },
+    {
+      "name": "StacShapeBorder",
+      "kind": "class",
+      "category": "foundation",
+      "dart_path": "foundation/borders/stac_shape_border/stac_shape_border.dart",
+      "json_type": null,
+      "batch": "T7",
+      "status": "supported",
+      "fixture": "foundation/shape_border"
+    },
+    {
+      "name": "StacShapeBorderType",
+      "kind": "enum",
+      "category": "foundation",
+      "dart_path": "foundation/borders/stac_shape_border/stac_shape_border.dart",
+      "json_type": null,
+      "batch": "T7",
+      "status": "supported",
+      "fixture": "foundation/shape_border_type"
+    },
+    {
+      "name": "StacSize",
+      "kind": "class",
+      "category": "foundation",
+      "dart_path": "foundation/geometry/stac_size/stac_size.dart",
+      "json_type": null,
+      "batch": "T6",
+      "status": "supported",
+      "fixture": "foundation/size"
+    },
+    {
+      "name": "StacSliderInteraction",
+      "kind": "enum",
+      "category": "foundation",
+      "dart_path": "foundation/ui_components/stac_slider_interaction.dart",
+      "json_type": null,
+      "batch": "T8",
+      "status": "supported",
+      "fixture": "foundation/slider_interaction"
+    },
+    {
+      "name": "StacSliderType",
+      "kind": "enum",
+      "category": "foundation",
+      "dart_path": "foundation/ui_components/stac_slider_type.dart",
+      "json_type": null,
+      "batch": "T8",
+      "status": "supported",
+      "fixture": "foundation/slider_type"
+    },
+    {
+      "name": "StacSmartDashesType",
+      "kind": "enum",
+      "category": "foundation",
+      "dart_path": "foundation/text/stac_smart_dashes_type.dart",
+      "json_type": null,
+      "batch": "T6",
+      "status": "supported",
+      "fixture": "foundation/smart_dashes_type"
+    },
+    {
+      "name": "StacSmartQuotesType",
+      "kind": "enum",
+      "category": "foundation",
+      "dart_path": "foundation/text/stac_smart_quotes_type.dart",
+      "json_type": null,
+      "batch": "T6",
+      "status": "supported",
+      "fixture": "foundation/smart_quotes_type"
+    },
+    {
+      "name": "StacSnackBarBehavior",
+      "kind": "enum",
+      "category": "foundation",
+      "dart_path": "foundation/ui_components/stac_snack_bar_behavior.dart",
+      "json_type": null,
+      "batch": "T8",
+      "status": "supported",
+      "fixture": "foundation/snack_bar_behavior"
+    },
+    {
+      "name": "StacStackFit",
+      "kind": "enum",
+      "category": "foundation",
+      "dart_path": "foundation/layout/stac_stack_fit.dart",
+      "json_type": null,
+      "batch": "T6",
+      "status": "supported",
+      "fixture": "foundation/stack_fit"
+    },
+    {
+      "name": "StacStrokeCap",
+      "kind": "enum",
+      "category": "foundation",
+      "dart_path": "foundation/text/stac_stroke_cap.dart",
+      "json_type": null,
+      "batch": "T6",
+      "status": "supported",
+      "fixture": "foundation/stroke_cap"
+    },
+    {
+      "name": "StacSwitchType",
+      "kind": "enum",
+      "category": "foundation",
+      "dart_path": "foundation/ui_components/stac_switch_type.dart",
+      "json_type": null,
+      "batch": "T8",
+      "status": "supported",
+      "fixture": "foundation/switch_type"
+    },
+    {
+      "name": "StacSystemUIOverlayStyle",
+      "kind": "class",
+      "category": "foundation",
+      "dart_path": "foundation/ui_components/stac_system_ui_overlay_style/stac_system_ui_overlay_style.dart",
+      "json_type": null,
+      "batch": "T8",
+      "status": "supported",
+      "fixture": "foundation/system_ui_overlay_style"
+    },
+    {
+      "name": "StacTabAlignment",
+      "kind": "enum",
+      "category": "foundation",
+      "dart_path": "foundation/navigation/stac_tab_alignment.dart",
+      "json_type": null,
+      "batch": "T8",
+      "status": "supported",
+      "fixture": "foundation/tab_alignment"
+    },
+    {
+      "name": "StacTabBarIndicatorSize",
+      "kind": "enum",
+      "category": "foundation",
+      "dart_path": "foundation/navigation/stac_tab_bar_indicator_size.dart",
+      "json_type": null,
+      "batch": "T8",
+      "status": "supported",
+      "fixture": "foundation/tab_bar_indicator_size"
+    },
+    {
+      "name": "StacTableBorder",
+      "kind": "class",
+      "category": "foundation",
+      "dart_path": "foundation/borders/stac_table_border/stac_table_border.dart",
+      "json_type": null,
+      "batch": "T7",
+      "status": "supported",
+      "fixture": "foundation/table_border"
+    },
+    {
+      "name": "StacTableColumnWidth",
+      "kind": "class",
+      "category": "foundation",
+      "dart_path": "foundation/ui_components/stac_table_column_width/stac_table_column_width.dart",
+      "json_type": null,
+      "batch": "T8",
+      "status": "supported",
+      "fixture": "foundation/table_column_width"
+    },
+    {
+      "name": "StacTableColumnWidthType",
+      "kind": "enum",
+      "category": "foundation",
+      "dart_path": "foundation/ui_components/stac_table_column_width/stac_table_column_width.dart",
+      "json_type": null,
+      "batch": "T8",
+      "status": "supported",
+      "fixture": "foundation/table_column_width_type"
+    },
+    {
+      "name": "StacTextAlign",
+      "kind": "enum",
+      "category": "foundation",
+      "dart_path": "foundation/text/stac_text_types.dart",
+      "json_type": null,
+      "batch": "T6",
+      "status": "supported",
+      "fixture": "foundation/text_align"
+    },
+    {
+      "name": "StacTextBaseline",
+      "kind": "enum",
+      "category": "foundation",
+      "dart_path": "foundation/text/stac_text_types.dart",
+      "json_type": null,
+      "batch": "T6",
+      "status": "supported",
+      "fixture": "foundation/text_baseline"
+    },
+    {
+      "name": "StacTextCapitalization",
+      "kind": "enum",
+      "category": "foundation",
+      "dart_path": "foundation/forms/stac_text_input_types.dart",
+      "json_type": null,
+      "batch": "T7",
+      "status": "supported",
+      "fixture": "foundation/text_capitalization"
+    },
+    {
+      "name": "StacTextDecorationLine",
+      "kind": "enum",
+      "category": "foundation",
+      "dart_path": "foundation/text/stac_text_types.dart",
+      "json_type": null,
+      "batch": "T6",
+      "status": "supported",
+      "fixture": "foundation/text_decoration_line"
+    },
+    {
+      "name": "StacTextDecorationStyle",
+      "kind": "enum",
+      "category": "foundation",
+      "dart_path": "foundation/text/stac_text_types.dart",
+      "json_type": null,
+      "batch": "T6",
+      "status": "supported",
+      "fixture": "foundation/text_decoration_style"
+    },
+    {
+      "name": "StacTextDirection",
+      "kind": "enum",
+      "category": "foundation",
+      "dart_path": "foundation/text/stac_text_types.dart",
+      "json_type": null,
+      "batch": "T6",
+      "status": "supported",
+      "fixture": "foundation/text_direction"
+    },
+    {
+      "name": "StacTextInputAction",
+      "kind": "enum",
+      "category": "foundation",
+      "dart_path": "foundation/forms/stac_text_input_types.dart",
+      "json_type": null,
+      "batch": "T7",
+      "status": "supported",
+      "fixture": "foundation/text_input_action"
+    },
+    {
+      "name": "StacTextInputType",
+      "kind": "enum",
+      "category": "foundation",
+      "dart_path": "foundation/forms/stac_text_input_types.dart",
+      "json_type": null,
+      "batch": "T7",
+      "status": "supported",
+      "fixture": "foundation/text_input_type"
+    },
+    {
+      "name": "StacTextLeadingDistribution",
+      "kind": "enum",
+      "category": "foundation",
+      "dart_path": "foundation/text/stac_text_types.dart",
+      "json_type": null,
+      "batch": "T6",
+      "status": "supported",
+      "fixture": "foundation/text_leading_distribution"
+    },
+    {
+      "name": "StacTextOverflow",
+      "kind": "enum",
+      "category": "foundation",
+      "dart_path": "foundation/text/stac_text_types.dart",
+      "json_type": null,
+      "batch": "T6",
+      "status": "supported",
+      "fixture": "foundation/text_overflow"
+    },
+    {
+      "name": "StacTextSpan",
+      "kind": "class",
+      "category": "foundation",
+      "dart_path": "foundation/text/stac_text_span/stac_text_span.dart",
+      "json_type": null,
+      "batch": "T6",
+      "status": "supported",
+      "fixture": "foundation/text_span"
+    },
+    {
+      "name": "StacTextStyle",
+      "kind": "class",
+      "category": "foundation",
+      "dart_path": "foundation/text/stac_text_style/stac_text_style.dart",
+      "json_type": null,
+      "batch": "T6",
+      "status": "supported",
+      "fixture": "foundation/text_style"
+    },
+    {
+      "name": "StacTextStyleType",
+      "kind": "enum",
+      "category": "foundation",
+      "dart_path": "foundation/text/stac_text_style/stac_text_style.dart",
+      "json_type": null,
+      "batch": "T6",
+      "status": "supported",
+      "fixture": "foundation/text_style_type"
+    },
+    {
+      "name": "StacTextWidthBasis",
+      "kind": "enum",
+      "category": "foundation",
+      "dart_path": "foundation/text/stac_text_types.dart",
+      "json_type": null,
+      "batch": "T6",
+      "status": "supported",
+      "fixture": "foundation/text_width_basis"
+    },
+    {
+      "name": "StacThemeRef",
+      "kind": "class",
+      "category": "foundation",
+      "dart_path": "annotations/stac_theme_ref.dart",
+      "json_type": null,
+      "batch": "T8",
+      "status": "unsupported",
+      "fixture": null,
+      "notes": "metadado de codegen Dart sem representacao no JSON"
+    },
+    {
+      "name": "StacThemeTextStyle",
+      "kind": "class",
+      "category": "foundation",
+      "dart_path": "foundation/text/stac_text_style/stac_text_style.dart",
+      "json_type": "theme",
+      "batch": "T6",
+      "status": "supported",
+      "fixture": "foundation/theme_text_style"
+    },
+    {
+      "name": "StacThemeTextStyles",
+      "kind": "class",
+      "category": "foundation",
+      "dart_path": "foundation/text/stac_text_style/stac_text_style.dart",
+      "json_type": null,
+      "batch": "T6",
+      "status": "unsupported",
+      "fixture": null,
+      "notes": "atalhos Dart para StacThemeTextStyle; sem representacao no JSON"
+    },
+    {
+      "name": "StacTileMode",
+      "kind": "enum",
+      "category": "foundation",
+      "dart_path": "foundation/effects/stac_gradient/stac_gradient.dart",
+      "json_type": null,
+      "batch": "T7",
+      "status": "supported",
+      "fixture": "foundation/tile_mode"
+    },
+    {
+      "name": "StacTooltipTriggerMode",
+      "kind": "enum",
+      "category": "foundation",
+      "dart_path": "foundation/ui_components/stac_tool_tip_trigger_mode.dart",
+      "json_type": null,
+      "batch": "T8",
+      "status": "supported",
+      "fixture": "foundation/tooltip_trigger_mode"
+    },
+    {
+      "name": "StacTraversalEdgeBehavior",
+      "kind": "enum",
+      "category": "foundation",
+      "dart_path": "foundation/ui_components/stac_traversal_edge_behavior.dart",
+      "json_type": null,
+      "batch": "T8",
+      "status": "supported",
+      "fixture": "foundation/traversal_edge_behavior"
+    },
+    {
+      "name": "StacVerticalDirection",
+      "kind": "enum",
+      "category": "foundation",
+      "dart_path": "foundation/layout/stac_vertical_direction.dart",
+      "json_type": null,
+      "batch": "T6",
+      "status": "supported",
+      "fixture": "foundation/vertical_direction"
+    },
+    {
+      "name": "StacVisualDensity",
+      "kind": "class",
+      "category": "foundation",
+      "dart_path": "foundation/geometry/stac_visual_density/stac_visual_density.dart",
+      "json_type": null,
+      "batch": "T6",
+      "status": "supported",
+      "fixture": "foundation/visual_density"
+    },
+    {
+      "name": "StacWidget",
+      "kind": "class",
+      "category": "foundation",
+      "dart_path": "core/stac_widget.dart",
+      "json_type": null,
+      "batch": "T3",
+      "status": "unsupported",
+      "fixture": null,
+      "notes": "base Dart (guarda JSON cru); representada pelo enum Widget"
+    },
+    {
+      "name": "StacWrapAlignment",
+      "kind": "enum",
+      "category": "foundation",
+      "dart_path": "foundation/layout/stac_wrap_alignment.dart",
+      "json_type": null,
+      "batch": "T6",
+      "status": "supported",
+      "fixture": "foundation/wrap_alignment"
+    },
+    {
+      "name": "StacWrapCrossAlignment",
+      "kind": "enum",
+      "category": "foundation",
+      "dart_path": "foundation/layout/stac_wrap_cross_alignment.dart",
+      "json_type": null,
+      "batch": "T6",
+      "status": "supported",
+      "fixture": "foundation/wrap_cross_alignment"
+    },
+    {
+      "name": "StacAppBarTheme",
+      "kind": "class",
+      "category": "theme",
+      "dart_path": "foundation/theme/stac_app_bar_theme/stac_app_bar_theme.dart",
+      "json_type": null,
+      "batch": "T8",
+      "status": "supported",
+      "fixture": "theme/app_bar_theme"
+    },
+    {
+      "name": "StacBottomAppBarThemeData",
+      "kind": "class",
+      "category": "theme",
+      "dart_path": "foundation/theme/stac_bottom_app_bar_theme/stac_bottom_app_bar_theme.dart",
+      "json_type": null,
+      "batch": "T8",
+      "status": "supported",
+      "fixture": "theme/bottom_app_bar_theme_data"
+    },
+    {
+      "name": "StacBottomNavBarThemeData",
+      "kind": "class",
+      "category": "theme",
+      "dart_path": "foundation/theme/stac_bottom_nav_bar_theme_data/stac_bottom_nav_bar_theme_data.dart",
+      "json_type": null,
+      "batch": "T8",
+      "status": "supported",
+      "fixture": "theme/bottom_nav_bar_theme_data"
+    },
+    {
+      "name": "StacBottomSheetThemeData",
+      "kind": "class",
+      "category": "theme",
+      "dart_path": "foundation/theme/stac_bottom_sheet_theme_data/stac_bottom_sheet_theme_data.dart",
+      "json_type": null,
+      "batch": "T8",
+      "status": "supported",
+      "fixture": "theme/bottom_sheet_theme_data"
+    },
+    {
+      "name": "StacButtonBarLayoutBehavior",
+      "kind": "enum",
+      "category": "theme",
+      "dart_path": "foundation/theme/stac_button_theme_data/stac_button_theme_data.dart",
+      "json_type": null,
+      "batch": "T8",
+      "status": "supported",
+      "fixture": "theme/button_bar_layout_behavior"
+    },
+    {
+      "name": "StacButtonStyle",
+      "kind": "class",
+      "category": "theme",
+      "dart_path": "foundation/theme/stac_button_style/stac_button_style.dart",
+      "json_type": null,
+      "batch": "T8",
+      "status": "supported",
+      "fixture": "theme/button_style"
+    },
+    {
+      "name": "StacButtonTextTheme",
+      "kind": "enum",
+      "category": "theme",
+      "dart_path": "foundation/theme/stac_button_theme_data/stac_button_theme_data.dart",
+      "json_type": null,
+      "batch": "T8",
+      "status": "supported",
+      "fixture": "theme/button_text_theme"
+    },
+    {
+      "name": "StacButtonThemeData",
+      "kind": "class",
+      "category": "theme",
+      "dart_path": "foundation/theme/stac_button_theme_data/stac_button_theme_data.dart",
+      "json_type": null,
+      "batch": "T8",
+      "status": "supported",
+      "fixture": "theme/button_theme_data"
+    },
+    {
+      "name": "StacCardThemeData",
+      "kind": "class",
+      "category": "theme",
+      "dart_path": "foundation/theme/stac_card_theme_data/stac_card_theme_data.dart",
+      "json_type": null,
+      "batch": "T8",
+      "status": "supported",
+      "fixture": "theme/card_theme_data"
+    },
+    {
+      "name": "StacCheckboxThemeData",
+      "kind": "class",
+      "category": "theme",
+      "dart_path": "foundation/theme/stac_checkbox_theme_data/stac_checkbox_theme_data.dart",
+      "json_type": null,
+      "batch": "T8",
+      "status": "supported",
+      "fixture": "theme/checkbox_theme_data"
+    },
+    {
+      "name": "StacChipThemeData",
+      "kind": "class",
+      "category": "theme",
+      "dart_path": "foundation/theme/stac_chip_theme_data/stac_chip_theme_data.dart",
+      "json_type": null,
+      "batch": "T8",
+      "status": "supported",
+      "fixture": "theme/chip_theme_data"
+    },
+    {
+      "name": "StacColorScheme",
+      "kind": "class",
+      "category": "theme",
+      "dart_path": "foundation/theme/stac_color_scheme/stac_color_scheme.dart",
+      "json_type": null,
+      "batch": "T8",
+      "status": "supported",
+      "fixture": "theme/color_scheme"
+    },
+    {
+      "name": "StacDatePickerThemeData",
+      "kind": "class",
+      "category": "theme",
+      "dart_path": "foundation/theme/stac_date_picker_theme_data/stac_date_picker_theme_data.dart",
+      "json_type": null,
+      "batch": "T8",
+      "status": "supported",
+      "fixture": "theme/date_picker_theme_data"
+    },
+    {
+      "name": "StacDialogTheme",
+      "kind": "class",
+      "category": "theme",
+      "dart_path": "foundation/theme/stac_dialog_theme/stac_dialog_theme.dart",
+      "json_type": null,
+      "batch": "T8",
+      "status": "supported",
+      "fixture": "theme/dialog_theme"
+    },
+    {
+      "name": "StacDialogThemeData",
+      "kind": "class",
+      "category": "theme",
+      "dart_path": "foundation/theme/stac_dialog_theme_data/stac_dialog_theme_data.dart",
+      "json_type": null,
+      "batch": "T8",
+      "status": "supported",
+      "fixture": "theme/dialog_theme_data"
+    },
+    {
+      "name": "StacDividerThemeData",
+      "kind": "class",
+      "category": "theme",
+      "dart_path": "foundation/theme/stac_divider_theme_data/stac_divider_theme_data.dart",
+      "json_type": null,
+      "batch": "T8",
+      "status": "supported",
+      "fixture": "theme/divider_theme_data"
+    },
+    {
+      "name": "StacDrawerThemeData",
+      "kind": "class",
+      "category": "theme",
+      "dart_path": "foundation/theme/stac_drawer_theme_data/stac_drawer_theme_data.dart",
+      "json_type": null,
+      "batch": "T8",
+      "status": "supported",
+      "fixture": "theme/drawer_theme_data"
+    },
+    {
+      "name": "StacFloatingActionButtonThemeData",
+      "kind": "class",
+      "category": "theme",
+      "dart_path": "foundation/theme/stac_floating_action_button_theme_data/stac_floating_action_button_theme_data.dart",
+      "json_type": null,
+      "batch": "T8",
+      "status": "supported",
+      "fixture": "theme/floating_action_button_theme_data"
+    },
+    {
+      "name": "StacIconAlignment",
+      "kind": "enum",
+      "category": "theme",
+      "dart_path": "foundation/theme/stac_button_style/stac_button_style.dart",
+      "json_type": null,
+      "batch": "T8",
+      "status": "supported",
+      "fixture": "theme/icon_alignment"
+    },
+    {
+      "name": "StacIconThemeData",
+      "kind": "class",
+      "category": "theme",
+      "dart_path": "foundation/theme/stac_icon_theme_data/stac_icon_theme_data.dart",
+      "json_type": null,
+      "batch": "T8",
+      "status": "supported",
+      "fixture": "theme/icon_theme_data"
+    },
+    {
+      "name": "StacInputDecorationTheme",
+      "kind": "class",
+      "category": "theme",
+      "dart_path": "foundation/theme/stac_input_decoration_theme/stac_input_decoration_theme.dart",
+      "json_type": null,
+      "batch": "T8",
+      "status": "supported",
+      "fixture": "theme/input_decoration_theme"
+    },
+    {
+      "name": "StacListTileThemeData",
+      "kind": "class",
+      "category": "theme",
+      "dart_path": "foundation/theme/stac_list_tile_theme_data/stac_list_tile_theme_data.dart",
+      "json_type": null,
+      "batch": "T8",
+      "status": "supported",
+      "fixture": "theme/list_tile_theme_data"
+    },
+    {
+      "name": "StacMaterialBannerThemeData",
+      "kind": "class",
+      "category": "theme",
+      "dart_path": "foundation/theme/stac_material_banner_theme_data/stac_material_banner_theme_data.dart",
+      "json_type": null,
+      "batch": "T8",
+      "status": "supported",
+      "fixture": "theme/material_banner_theme_data"
+    },
+    {
+      "name": "StacMaterialColor",
+      "kind": "class",
+      "category": "theme",
+      "dart_path": "foundation/theme/stac_material_color/stac_material_color.dart",
+      "json_type": null,
+      "batch": "T8",
+      "status": "supported",
+      "fixture": "theme/material_color"
+    },
+    {
+      "name": "StacMaterialTapTargetSize",
+      "kind": "enum",
+      "category": "theme",
+      "dart_path": "foundation/theme/stac_button_style/stac_button_style.dart",
+      "json_type": null,
+      "batch": "T8",
+      "status": "supported",
+      "fixture": "theme/material_tap_target_size"
+    },
+    {
+      "name": "StacNavigationBarThemeData",
+      "kind": "class",
+      "category": "theme",
+      "dart_path": "foundation/theme/stac_navigation_bar_theme_data/stac_navigation_bar_theme_data.dart",
+      "json_type": null,
+      "batch": "T8",
+      "status": "supported",
+      "fixture": "theme/navigation_bar_theme_data"
+    },
+    {
+      "name": "StacNavigationDrawerThemeData",
+      "kind": "class",
+      "category": "theme",
+      "dart_path": "foundation/theme/stac_navigation_drawer_theme_data/stac_navigation_drawer_theme_data.dart",
+      "json_type": null,
+      "batch": "T8",
+      "status": "supported",
+      "fixture": "theme/navigation_drawer_theme_data"
+    },
+    {
+      "name": "StacScrollbarThemeData",
+      "kind": "class",
+      "category": "theme",
+      "dart_path": "foundation/theme/stac_scrollbar_theme_data/stac_scrollbar_theme_data.dart",
+      "json_type": null,
+      "batch": "T8",
+      "status": "supported",
+      "fixture": "theme/scrollbar_theme_data"
+    },
+    {
+      "name": "StacSnackBarThemeData",
+      "kind": "class",
+      "category": "theme",
+      "dart_path": "foundation/theme/stac_snack_bar_theme_data/stac_snack_bar_theme_data.dart",
+      "json_type": null,
+      "batch": "T8",
+      "status": "supported",
+      "fixture": "theme/snack_bar_theme_data"
+    },
+    {
+      "name": "StacTabBarThemeData",
+      "kind": "class",
+      "category": "theme",
+      "dart_path": "foundation/theme/stac_tab_bar_theme_data/stac_tab_bar_theme_data.dart",
+      "json_type": null,
+      "batch": "T8",
+      "status": "supported",
+      "fixture": "theme/tab_bar_theme_data"
+    },
+    {
+      "name": "StacTextTheme",
+      "kind": "class",
+      "category": "theme",
+      "dart_path": "foundation/theme/stac_text_theme/stac_text_theme.dart",
+      "json_type": null,
+      "batch": "T8",
+      "status": "supported",
+      "fixture": "theme/text_theme"
+    },
+    {
+      "name": "StacTheme",
+      "kind": "class",
+      "category": "theme",
+      "dart_path": "foundation/theme/stac_theme/stac_theme.dart",
+      "json_type": null,
+      "batch": "T8",
+      "status": "supported",
+      "fixture": "theme/theme"
+    },
+    {
+      "name": "StacThemeData",
+      "kind": "class",
+      "category": "theme",
+      "dart_path": "foundation/theme/stac_theme/stac_theme.dart",
+      "json_type": null,
+      "batch": "T8",
+      "status": "unsupported",
+      "fixture": null,
+      "notes": "helper estatico Dart para estilos de texto do tema; sem representacao no JSON"
+    },
+    {
+      "name": "StacTooltipThemeData",
+      "kind": "class",
+      "category": "theme",
+      "dart_path": "foundation/theme/stac_tool_tip_theme_data/stac_tool_tip_theme_data.dart",
+      "json_type": null,
+      "batch": "T8",
+      "status": "supported",
+      "fixture": "theme/tooltip_theme_data"
+    },
+    {
+      "name": "StacAlertDialog",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/alert_dialog/stac_alert_dialog.dart",
+      "json_type": "alertDialog",
+      "batch": "T13",
+      "status": "supported",
+      "fixture": "widgets/alert_dialog"
+    },
+    {
+      "name": "StacAlign",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/align/stac_align.dart",
+      "json_type": "align",
+      "batch": "T10",
+      "status": "supported",
+      "fixture": "widgets/align"
+    },
+    {
+      "name": "StacAppBar",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/app_bar/stac_app_bar.dart",
+      "json_type": "appBar",
+      "batch": "T13",
+      "status": "supported",
+      "fixture": "widgets/app_bar"
+    },
+    {
+      "name": "StacAspectRatio",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/aspect_ratio/stac_aspect_ratio.dart",
+      "json_type": "aspectRatio",
+      "batch": "T10",
+      "status": "supported",
+      "fixture": "widgets/aspect_ratio"
+    },
+    {
+      "name": "StacAutoComplete",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/auto_complete/stac_auto_complete.dart",
+      "json_type": "autocomplete",
+      "batch": "T12",
+      "status": "supported",
+      "fixture": "widgets/auto_complete"
+    },
+    {
+      "name": "StacBackdropFilter",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/backdrop_filter/stac_backdrop_filter.dart",
+      "json_type": "backdropFilter",
+      "batch": "T10",
+      "status": "supported",
+      "fixture": "widgets/backdrop_filter"
+    },
+    {
+      "name": "StacBadge",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/badge/stac_badge.dart",
+      "json_type": "badge",
+      "batch": "T12",
+      "status": "supported",
+      "fixture": "widgets/badge"
+    },
+    {
+      "name": "StacBottomNavigationBar",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/bottom_navigation_bar/stac_bottom_navigation_bar.dart",
+      "json_type": "bottomNavigationBar",
+      "batch": "T13",
+      "status": "supported",
+      "fixture": "widgets/bottom_navigation_bar"
+    },
+    {
+      "name": "StacBottomNavigationView",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/bottom_navigation_view/stac_bottom_navigation_view.dart",
+      "json_type": "bottomNavigationView",
+      "batch": "T13",
+      "status": "supported",
+      "fixture": "widgets/bottom_navigation_view"
+    },
+    {
+      "name": "StacCard",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/card/stac_card.dart",
+      "json_type": "card",
+      "batch": "T12",
+      "status": "supported",
+      "fixture": "widgets/card"
+    },
+    {
+      "name": "StacCarouselView",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/carousel_view/stac_carousel_view.dart",
+      "json_type": "carouselView",
+      "batch": "T11",
+      "status": "supported",
+      "fixture": "widgets/carousel_view"
+    },
+    {
+      "name": "StacCenter",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/center/stac_center.dart",
+      "json_type": "center",
+      "batch": "T10",
+      "status": "supported",
+      "fixture": "widgets/center"
+    },
+    {
+      "name": "StacCheckBox",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/check_box/stac_check_box.dart",
+      "json_type": "checkBox",
+      "batch": "T12",
+      "status": "supported",
+      "fixture": "widgets/check_box"
+    },
+    {
+      "name": "StacChip",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/chip/stac_chip.dart",
+      "json_type": "chip",
+      "batch": "T12",
+      "status": "supported",
+      "fixture": "widgets/chip"
+    },
+    {
+      "name": "StacCircleAvatar",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/circle_avatar/stac_circle_avatar.dart",
+      "json_type": "circleAvatar",
+      "batch": "T12",
+      "status": "supported",
+      "fixture": "widgets/circle_avatar"
+    },
+    {
+      "name": "StacCircularProgressIndicator",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/circular_progress_indicator/stac_circular_progress_indicator.dart",
+      "json_type": "circularProgressIndicator",
+      "batch": "T12",
+      "status": "supported",
+      "fixture": "widgets/circular_progress_indicator"
+    },
+    {
+      "name": "StacClipOval",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/clip_oval/stac_clip_oval.dart",
+      "json_type": "clipOval",
+      "batch": "T10",
+      "status": "supported",
+      "fixture": "widgets/clip_oval"
+    },
+    {
+      "name": "StacClipRRect",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/clip_rrect/stac_clip_rrect.dart",
+      "json_type": "clipRRect",
+      "batch": "T10",
+      "status": "supported",
+      "fixture": "widgets/clip_r_rect"
+    },
+    {
+      "name": "StacColoredBox",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/colored_box/stac_colored_box.dart",
+      "json_type": "coloredBox",
+      "batch": "T10",
+      "status": "supported",
+      "fixture": "widgets/colored_box"
+    },
+    {
+      "name": "StacColumn",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/column/stac_column.dart",
+      "json_type": "column",
+      "batch": "T10",
+      "status": "supported",
+      "fixture": "widgets/column"
+    },
+    {
+      "name": "StacConditional",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/conditional/stac_conditional.dart",
+      "json_type": "conditional",
+      "batch": "T13",
+      "status": "supported",
+      "fixture": "widgets/conditional"
+    },
+    {
+      "name": "StacContainer",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/container/stac_container.dart",
+      "json_type": "container",
+      "batch": "T10",
+      "status": "supported",
+      "fixture": "widgets/container"
+    },
+    {
+      "name": "StacCustomScrollView",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/custom_scroll_view/stac_custom_scroll_view.dart",
+      "json_type": "customScrollView",
+      "batch": "T11",
+      "status": "supported",
+      "fixture": "widgets/custom_scroll_view"
+    },
+    {
+      "name": "StacDefaultBottomNavigationController",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/default_bottom_navigation_controller/stac_default_bottom_navigation_controller.dart",
+      "json_type": "defaultBottomNavigationController",
+      "batch": "T13",
+      "status": "supported",
+      "fixture": "widgets/default_bottom_navigation_controller"
+    },
+    {
+      "name": "StacDefaultNavigationController",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/default_navigation_controller/stac_default_navigation_controller.dart",
+      "json_type": "defaultNavigationController",
+      "batch": "T13",
+      "status": "supported",
+      "fixture": "widgets/default_navigation_controller"
+    },
+    {
+      "name": "StacDefaultTabController",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/default_tab_controller/stac_default_tab_controller.dart",
+      "json_type": "defaultTabController",
+      "batch": "T13",
+      "status": "supported",
+      "fixture": "widgets/default_tab_controller"
+    },
+    {
+      "name": "StacDivider",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/divider/stac_divider.dart",
+      "json_type": "divider",
+      "batch": "T10",
+      "status": "supported",
+      "fixture": "widgets/divider"
+    },
+    {
+      "name": "StacDrawer",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/drawer/stac_drawer.dart",
+      "json_type": "drawer",
+      "batch": "T13",
+      "status": "supported",
+      "fixture": "widgets/drawer"
+    },
+    {
+      "name": "StacDropdownMenu",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/dropdown_menu/stac_dropdown_menu.dart",
+      "json_type": "dropdownMenu",
+      "batch": "T12",
+      "status": "supported",
+      "fixture": "widgets/dropdown_menu"
+    },
+    {
+      "name": "StacDynamicView",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/dynamic_view/stac_dynamic_view.dart",
+      "json_type": "dynamicView",
+      "batch": "T13",
+      "status": "supported",
+      "fixture": "widgets/dynamic_view"
+    },
+    {
+      "name": "StacElevatedButton",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/elevated_button/stac_elevated_button.dart",
+      "json_type": "elevatedButton",
+      "batch": "T12",
+      "status": "supported",
+      "fixture": "widgets/elevated_button"
+    },
+    {
+      "name": "StacExpanded",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/expanded/stac_expanded.dart",
+      "json_type": "expanded",
+      "batch": "T10",
+      "status": "supported",
+      "fixture": "widgets/expanded"
+    },
+    {
+      "name": "StacFilledButton",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/filled_button/stac_filled_button.dart",
+      "json_type": "filledButton",
+      "batch": "T12",
+      "status": "supported",
+      "fixture": "widgets/filled_button"
+    },
+    {
+      "name": "StacFittedBox",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/fitted_box/stac_fitted_box.dart",
+      "json_type": "fittedBox",
+      "batch": "T10",
+      "status": "supported",
+      "fixture": "widgets/fitted_box"
+    },
+    {
+      "name": "StacFlexible",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/flexible/stac_flexible.dart",
+      "json_type": "flexible",
+      "batch": "T10",
+      "status": "supported",
+      "fixture": "widgets/flexible"
+    },
+    {
+      "name": "StacFloatingActionButton",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/floating_action_button/stac_floating_action_button.dart",
+      "json_type": "floatingActionButton",
+      "batch": "T12",
+      "status": "supported",
+      "fixture": "widgets/floating_action_button"
+    },
+    {
+      "name": "StacForm",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/form/stac_form.dart",
+      "json_type": "form",
+      "batch": "T12",
+      "status": "supported",
+      "fixture": "widgets/form"
+    },
+    {
+      "name": "StacFractionallySizedBox",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/fractionally_sized_box/stac_fractionally_sized_box.dart",
+      "json_type": "fractionallySizedBox",
+      "batch": "T10",
+      "status": "supported",
+      "fixture": "widgets/fractionally_sized_box"
+    },
+    {
+      "name": "StacGestureDetector",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/gesture_detector/stac_gesture_detector.dart",
+      "json_type": "gestureDetector",
+      "batch": "T12",
+      "status": "supported",
+      "fixture": "widgets/gesture_detector"
+    },
+    {
+      "name": "StacGridView",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/grid_view/stac_grid_view.dart",
+      "json_type": "gridView",
+      "batch": "T11",
+      "status": "supported",
+      "fixture": "widgets/grid_view"
+    },
+    {
+      "name": "StacHero",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/hero/stac_hero.dart",
+      "json_type": "hero",
+      "batch": "T10",
+      "status": "supported",
+      "fixture": "widgets/hero"
+    },
+    {
+      "name": "StacIcon",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/icon/stac_icon.dart",
+      "json_type": "icon",
+      "batch": "T10",
+      "status": "supported",
+      "fixture": "widgets/icon"
+    },
+    {
+      "name": "StacIconButton",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/icon_button/stac_icon_button.dart",
+      "json_type": "iconButton",
+      "batch": "T12",
+      "status": "supported",
+      "fixture": "widgets/icon_button"
+    },
+    {
+      "name": "StacImage",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/image/stac_image.dart",
+      "json_type": "image",
+      "batch": "T10",
+      "status": "supported",
+      "fixture": "widgets/image"
+    },
+    {
+      "name": "StacInkWell",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/ink_well/stac_ink_well.dart",
+      "json_type": "inkWell",
+      "batch": "T12",
+      "status": "supported",
+      "fixture": "widgets/ink_well"
+    },
+    {
+      "name": "StacIntrinsicHeight",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/intrinsic_height/stac_intrinsic_height.dart",
+      "json_type": "intrinsicHeight",
+      "batch": "T10",
+      "status": "supported",
+      "fixture": "widgets/intrinsic_height"
+    },
+    {
+      "name": "StacIntrinsicWidth",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/intrinsic_width/stac_intrinsic_width.dart",
+      "json_type": "intrinsicWidth",
+      "batch": "T10",
+      "status": "supported",
+      "fixture": "widgets/intrinsic_width"
+    },
+    {
+      "name": "StacLimitedBox",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/limited_box/stac_limited_box.dart",
+      "json_type": "limitedBox",
+      "batch": "T10",
+      "status": "supported",
+      "fixture": "widgets/limited_box"
+    },
+    {
+      "name": "StacLinearProgressIndicator",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/linear_progress_indicator/stac_linear_progress_indicator.dart",
+      "json_type": "linearProgressIndicator",
+      "batch": "T12",
+      "status": "supported",
+      "fixture": "widgets/linear_progress_indicator"
+    },
+    {
+      "name": "StacListTile",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/list_tile/stac_list_tile.dart",
+      "json_type": "listTile",
+      "batch": "T11",
+      "status": "supported",
+      "fixture": "widgets/list_tile"
+    },
+    {
+      "name": "StacListView",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/list_view/stac_list_view.dart",
+      "json_type": "listView",
+      "batch": "T11",
+      "status": "supported",
+      "fixture": "widgets/list_view"
+    },
+    {
+      "name": "StacNavigationBar",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/navigation_bar/stac_navigation_bar.dart",
+      "json_type": "navigationBar",
+      "batch": "T13",
+      "status": "supported",
+      "fixture": "widgets/navigation_bar"
+    },
+    {
+      "name": "StacNavigationView",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/navigation_view/stac_navigation_view.dart",
+      "json_type": "navigationView",
+      "batch": "T13",
+      "status": "supported",
+      "fixture": "widgets/navigation_view"
+    },
+    {
+      "name": "StacNetworkWidget",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/network_widget/stac_network_widget.dart",
+      "json_type": "networkWidget",
+      "batch": "T13",
+      "status": "supported",
+      "fixture": "widgets/network_widget"
+    },
+    {
+      "name": "StacOpacity",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/opacity/stac_opacity.dart",
+      "json_type": "opacity",
+      "batch": "T10",
+      "status": "supported",
+      "fixture": "widgets/opacity"
+    },
+    {
+      "name": "StacOutlinedButton",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/outlined_button/stac_outlined_button.dart",
+      "json_type": "outlinedButton",
+      "batch": "T12",
+      "status": "supported",
+      "fixture": "widgets/outlined_button"
+    },
+    {
+      "name": "StacPadding",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/padding/stac_padding.dart",
+      "json_type": "padding",
+      "batch": "T10",
+      "status": "supported",
+      "fixture": "widgets/padding"
+    },
+    {
+      "name": "StacPageView",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/page_view/stac_page_view.dart",
+      "json_type": "pageView",
+      "batch": "T11",
+      "status": "supported",
+      "fixture": "widgets/page_view"
+    },
+    {
+      "name": "StacPlaceholder",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/placeholder/stac_placeholder.dart",
+      "json_type": "placeholder",
+      "batch": "T10",
+      "status": "supported",
+      "fixture": "widgets/placeholder"
+    },
+    {
+      "name": "StacPositioned",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/positioned/stac_positioned.dart",
+      "json_type": "positioned",
+      "batch": "T10",
+      "status": "supported",
+      "fixture": "widgets/positioned"
+    },
+    {
+      "name": "StacRadio",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/radio/stac_radio.dart",
+      "json_type": "radio",
+      "batch": "T12",
+      "status": "supported",
+      "fixture": "widgets/radio"
+    },
+    {
+      "name": "StacRadioGroup",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/radio_group/stac_radio_group.dart",
+      "json_type": "radioGroup",
+      "batch": "T12",
+      "status": "supported",
+      "fixture": "widgets/radio_group"
+    },
+    {
+      "name": "StacRefreshIndicator",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/refresh_indicator/stac_refresh_indicator.dart",
+      "json_type": "refreshIndicator",
+      "batch": "T11",
+      "status": "supported",
+      "fixture": "widgets/refresh_indicator"
+    },
+    {
+      "name": "StacRow",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/row/stac_row.dart",
+      "json_type": "row",
+      "batch": "T10",
+      "status": "supported",
+      "fixture": "widgets/row"
+    },
+    {
+      "name": "StacSafeArea",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/safe_area/stac_safe_area.dart",
+      "json_type": "safeArea",
+      "batch": "T10",
+      "status": "supported",
+      "fixture": "widgets/safe_area"
+    },
+    {
+      "name": "StacScaffold",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/scaffold/stac_scaffold.dart",
+      "json_type": "scaffold",
+      "batch": "T13",
+      "status": "supported",
+      "fixture": "widgets/scaffold"
+    },
+    {
+      "name": "StacSelectableText",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/selectable_text/stac_selectable_text.dart",
+      "json_type": "selectableText",
+      "batch": "T10",
+      "status": "supported",
+      "fixture": "widgets/selectable_text"
+    },
+    {
+      "name": "StacSetValue",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/set_value/stac_set_value.dart",
+      "json_type": "setValue",
+      "batch": "T13",
+      "status": "supported",
+      "fixture": "widgets/set_value"
+    },
+    {
+      "name": "StacSingleChildScrollView",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/single_child_scroll_view/stac_single_child_scroll_view.dart",
+      "json_type": "singleChildScrollView",
+      "batch": "T11",
+      "status": "supported",
+      "fixture": "widgets/single_child_scroll_view"
+    },
+    {
+      "name": "StacSizedBox",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/sized_box/stac_sized_box.dart",
+      "json_type": "sizedBox",
+      "batch": "T10",
+      "status": "supported",
+      "fixture": "widgets/sized_box"
+    },
+    {
+      "name": "StacSlider",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/slider/stac_slider.dart",
+      "json_type": "slider",
+      "batch": "T12",
+      "status": "supported",
+      "fixture": "widgets/slider"
+    },
+    {
+      "name": "StacSliverAppBar",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/sliver_app_bar/stac_sliver_app_bar.dart",
+      "json_type": "sliverAppBar",
+      "batch": "T11",
+      "status": "supported",
+      "fixture": "widgets/sliver_app_bar"
+    },
+    {
+      "name": "StacSliverFillRemaining",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/sliver_fill_remaining/stac_sliver_fill_remaining.dart",
+      "json_type": "sliverFillRemaining",
+      "batch": "T11",
+      "status": "supported",
+      "fixture": "widgets/sliver_fill_remaining"
+    },
+    {
+      "name": "StacSliverGrid",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/sliver_grid/stac_sliver_grid.dart",
+      "json_type": "sliverGrid",
+      "batch": "T11",
+      "status": "supported",
+      "fixture": "widgets/sliver_grid"
+    },
+    {
+      "name": "StacSliverList",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/sliver_list/stac_sliver_list.dart",
+      "json_type": "sliverList",
+      "batch": "T11",
+      "status": "supported",
+      "fixture": "widgets/sliver_list"
+    },
+    {
+      "name": "StacSliverOpacity",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/sliver_opacity/stac_sliver_opacity.dart",
+      "json_type": "sliverOpacity",
+      "batch": "T11",
+      "status": "supported",
+      "fixture": "widgets/sliver_opacity"
+    },
+    {
+      "name": "StacSliverPadding",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/sliver_padding/stac_sliver_padding.dart",
+      "json_type": "sliverPadding",
+      "batch": "T11",
+      "status": "supported",
+      "fixture": "widgets/sliver_padding"
+    },
+    {
+      "name": "StacSliverSafeArea",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/sliver_safe_area/stac_sliver_safe_area.dart",
+      "json_type": "sliverSafeArea",
+      "batch": "T11",
+      "status": "supported",
+      "fixture": "widgets/sliver_safe_area"
+    },
+    {
+      "name": "StacSliverToBoxAdapter",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/sliver_to_box_adapter/stac_sliver_to_box_adapter.dart",
+      "json_type": "sliverToBoxAdapter",
+      "batch": "T11",
+      "status": "supported",
+      "fixture": "widgets/sliver_to_box_adapter"
+    },
+    {
+      "name": "StacSliverVisibility",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/sliver_visibility/stac_sliver_visibility.dart",
+      "json_type": "sliverVisibility",
+      "batch": "T11",
+      "status": "supported",
+      "fixture": "widgets/sliver_visibility"
+    },
+    {
+      "name": "StacSpacer",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/spacer/stac_spacer.dart",
+      "json_type": "spacer",
+      "batch": "T10",
+      "status": "supported",
+      "fixture": "widgets/spacer"
+    },
+    {
+      "name": "StacStack",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/stack/stac_stack.dart",
+      "json_type": "stack",
+      "batch": "T10",
+      "status": "supported",
+      "fixture": "widgets/stack"
+    },
+    {
+      "name": "StacSwitch",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/switch/stac_switch.dart",
+      "json_type": "switch",
+      "batch": "T12",
+      "status": "supported",
+      "fixture": "widgets/switch"
+    },
+    {
+      "name": "StacTab",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/tab/stac_tab.dart",
+      "json_type": "tab",
+      "batch": "T13",
+      "status": "supported",
+      "fixture": "widgets/tab"
+    },
+    {
+      "name": "StacTabBar",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/tab_bar/stac_tab_bar.dart",
+      "json_type": "tabBar",
+      "batch": "T13",
+      "status": "supported",
+      "fixture": "widgets/tab_bar"
+    },
+    {
+      "name": "StacTabBarView",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/tab_bar_view/stac_tab_bar_view.dart",
+      "json_type": "tabBarView",
+      "batch": "T13",
+      "status": "supported",
+      "fixture": "widgets/tab_bar_view"
+    },
+    {
+      "name": "StacTable",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/table/stac_table.dart",
+      "json_type": "table",
+      "batch": "T11",
+      "status": "supported",
+      "fixture": "widgets/table"
+    },
+    {
+      "name": "StacTableCell",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/table_cell/stac_table_cell.dart",
+      "json_type": "tableCell",
+      "batch": "T11",
+      "status": "supported",
+      "fixture": "widgets/table_cell"
+    },
+    {
+      "name": "StacTableCellVerticalAlignment",
+      "kind": "enum",
+      "category": "widget",
+      "dart_path": "widgets/table_cell/stac_table_cell.dart",
+      "json_type": null,
+      "batch": "T11",
+      "status": "supported",
+      "fixture": "widgets/table_cell_vertical_alignment"
+    },
+    {
+      "name": "StacTableRow",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/table_row/stac_table_row.dart",
+      "json_type": null,
+      "batch": "T11",
+      "status": "supported",
+      "fixture": "widgets/table_row"
+    },
+    {
+      "name": "StacText",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/text/stac_text.dart",
+      "json_type": "text",
+      "batch": "T10",
+      "status": "supported",
+      "fixture": "widgets/text"
+    },
+    {
+      "name": "StacTextButton",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/text_button/stac_text_button.dart",
+      "json_type": "textButton",
+      "batch": "T12",
+      "status": "supported",
+      "fixture": "widgets/text_button"
+    },
+    {
+      "name": "StacTextField",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/text_field/stac_text_field.dart",
+      "json_type": "textField",
+      "batch": "T12",
+      "status": "supported",
+      "fixture": "widgets/text_field"
+    },
+    {
+      "name": "StacTextFormField",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/text_form_field/stac_text_form_field.dart",
+      "json_type": "textFormField",
+      "batch": "T12",
+      "status": "supported",
+      "fixture": "widgets/text_form_field"
+    },
+    {
+      "name": "StacTooltip",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/tool_tip/stac_tool_tip.dart",
+      "json_type": "tooltip",
+      "batch": "T12",
+      "status": "supported",
+      "fixture": "widgets/tooltip"
+    },
+    {
+      "name": "StacVerticalDivider",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/vertical_divider/stac_vertical_divider.dart",
+      "json_type": "verticalDivider",
+      "batch": "T10",
+      "status": "supported",
+      "fixture": "widgets/vertical_divider"
+    },
+    {
+      "name": "StacVisibility",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/visibility/stac_visibility.dart",
+      "json_type": "visibility",
+      "batch": "T10",
+      "status": "supported",
+      "fixture": "widgets/visibility"
+    },
+    {
+      "name": "StacWrap",
+      "kind": "class",
+      "category": "widget",
+      "dart_path": "widgets/wrap/stac_wrap.dart",
+      "json_type": "wrap",
+      "batch": "T10",
+      "status": "supported",
+      "fixture": "widgets/wrap"
+    }
+  ]
+}

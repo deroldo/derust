@@ -1,0 +1,13 @@
+{
+  "type": "badge",
+  "label": {
+    "type": "text",
+    "data": "5"
+  },
+  "child": {
+    "type": "icon",
+    "icon": "notifications"
+  },
+  "backgroundColor": "#F44336",
+  "textColor": "#FFFFFF"
+}

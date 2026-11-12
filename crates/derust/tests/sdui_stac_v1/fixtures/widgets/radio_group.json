@@ -1,0 +1,18 @@
+{
+  "type": "radioGroup",
+  "id": "favoriteFruit",
+  "groupValue": "apple",
+  "child": {
+    "type": "column",
+    "children": [
+      {
+        "type": "radio",
+        "value": "apple"
+      },
+      {
+        "type": "radio",
+        "value": "banana"
+      }
+    ]
+  }
+}

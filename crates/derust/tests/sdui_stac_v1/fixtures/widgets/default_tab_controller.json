@@ -1,0 +1,9 @@
+{
+  "type": "defaultTabController",
+  "length": 3,
+  "initialIndex": 1,
+  "child": {
+    "type": "tabBarView",
+    "children": []
+  }
+}

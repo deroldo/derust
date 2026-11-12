@@ -1,0 +1,59 @@
+{
+  "type": "listTile",
+  "leading": {
+    "type": "text",
+    "data": "sample"
+  },
+  "title": {
+    "type": "text",
+    "data": "sample"
+  },
+  "subtitle": {
+    "type": "text",
+    "data": "sample"
+  },
+  "trailing": {
+    "type": "text",
+    "data": "sample"
+  },
+  "isThreeLine": true,
+  "dense": true,
+  "visualDensity": {
+    "horizontal": 1.5,
+    "vertical": 1.5
+  },
+  "shape": {
+    "type": "circleBorder"
+  },
+  "style": "list",
+  "selectedColor": "#FF0000",
+  "iconColor": "#FF0000",
+  "textColor": "#FF0000",
+  "contentPadding": {
+    "left": 1.5,
+    "top": 1.5,
+    "right": 1.5,
+    "bottom": 1.5
+  },
+  "enabled": true,
+  "onTap": {
+    "actionType": "navigate",
+    "routeName": "/sample"
+  },
+  "onLongPress": {
+    "actionType": "navigate",
+    "routeName": "/sample"
+  },
+  "mouseCursor": "none",
+  "selected": true,
+  "focusColor": "#FF0000",
+  "hoverColor": "#FF0000",
+  "autofocus": true,
+  "tileColor": "#FF0000",
+  "selectedTileColor": "#FF0000",
+  "enableFeedback": true,
+  "horizontalTitleGap": 1.5,
+  "minVerticalPadding": 1.5,
+  "minLeadingWidth": 1.5,
+  "titleAlignment": "titleHeight"
+}

@@ -1,0 +1,17 @@
+{
+  "type": "form",
+  "autovalidateMode": "always",
+  "child": {
+    "type": "column",
+    "children": [
+      {
+        "type": "textFormField",
+        "id": "username"
+      },
+      {
+        "type": "textFormField",
+        "id": "password"
+      }
+    ]
+  }
+}

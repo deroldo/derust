@@ -1,0 +1,30 @@
+{
+  "type": "none",
+  "borderRadius": {
+    "topLeft": 1.5,
+    "topRight": 1.5,
+    "bottomLeft": 1.5,
+    "bottomRight": 1.5
+  },
+  "gapPadding": 1.5,
+  "width": 1.5,
+  "color": "#FF0000",
+  "gradient": {
+    "gradientType": "linear",
+    "colors": [
+      "#FF0000"
+    ],
+    "stops": [
+      1.5
+    ],
+    "begin": "topLeft",
+    "end": "topLeft",
+    "center": "topLeft",
+    "focal": "topLeft",
+    "tileMode": "clamp",
+    "focalRadius": 1.5,
+    "radius": 1.5,
+    "startAngle": 1.5,
+    "endAngle": 1.5
+  }
+}

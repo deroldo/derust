@@ -1,0 +1,23 @@
+{
+  "backgroundColor": "#FF0000",
+  "surfaceTintColor": "#FF0000",
+  "shadowColor": "#FF0000",
+  "dividerColor": "#FF0000",
+  "contentTextStyle": {
+    "type": "custom",
+    "fontSize": 14.0
+  },
+  "elevation": 1.5,
+  "padding": {
+    "left": 1.5,
+    "top": 1.5,
+    "right": 1.5,
+    "bottom": 1.5
+  },
+  "leadingPadding": {
+    "left": 1.5,
+    "top": 1.5,
+    "right": 1.5,
+    "bottom": 1.5
+  }
+}

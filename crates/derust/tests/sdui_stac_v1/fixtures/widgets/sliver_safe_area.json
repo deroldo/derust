@@ -1,0 +1,11 @@
+{
+  "type": "sliverSafeArea",
+  "top": true,
+  "sliver": {
+    "type": "sliverToBoxAdapter",
+    "child": {
+      "type": "text",
+      "data": "Hello World"
+    }
+  }
+}

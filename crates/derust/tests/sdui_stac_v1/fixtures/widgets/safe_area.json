@@ -1,0 +1,18 @@
+{
+  "type": "safeArea",
+  "left": true,
+  "top": true,
+  "right": true,
+  "bottom": true,
+  "minimum": {
+    "left": 1.5,
+    "top": 1.5,
+    "right": 1.5,
+    "bottom": 1.5
+  },
+  "maintainBottomViewPadding": true,
+  "child": {
+    "type": "text",
+    "data": "sample"
+  }
+}

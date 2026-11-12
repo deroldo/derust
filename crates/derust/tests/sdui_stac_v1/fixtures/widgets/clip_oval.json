@@ -1,0 +1,8 @@
+{
+  "type": "clipOval",
+  "clipBehavior": "antiAlias",
+  "child": {
+    "type": "container",
+    "color": "#2196F3"
+  }
+}

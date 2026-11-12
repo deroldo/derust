@@ -1,0 +1,10 @@
+{
+  "type": "align",
+  "alignment": "center",
+  "widthFactor": 0.8,
+  "heightFactor": 0.6,
+  "child": {
+    "type": "text",
+    "data": "Centered"
+  }
+}

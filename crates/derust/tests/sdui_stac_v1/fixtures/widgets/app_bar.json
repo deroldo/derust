@@ -1,0 +1,16 @@
+{
+  "type": "appBar",
+  "title": {
+    "type": "text",
+    "data": "Page Title"
+  },
+  "actions": [
+    {
+      "type": "iconButton",
+      "icon": {
+        "type": "icon",
+        "icon": "search"
+      }
+    }
+  ]
+}

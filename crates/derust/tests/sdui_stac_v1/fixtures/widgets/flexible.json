@@ -1,0 +1,9 @@
+{
+  "type": "flexible",
+  "flex": 1,
+  "fit": "tight",
+  "child": {
+    "type": "text",
+    "data": "sample"
+  }
+}

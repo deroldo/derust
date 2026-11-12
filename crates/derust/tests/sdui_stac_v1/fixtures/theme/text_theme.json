@@ -1,0 +1,62 @@
+{
+  "displayLarge": {
+    "type": "custom",
+    "fontSize": 14.0
+  },
+  "displayMedium": {
+    "type": "custom",
+    "fontSize": 14.0
+  },
+  "displaySmall": {
+    "type": "custom",
+    "fontSize": 14.0
+  },
+  "headlineLarge": {
+    "type": "custom",
+    "fontSize": 14.0
+  },
+  "headlineMedium": {
+    "type": "custom",
+    "fontSize": 14.0
+  },
+  "headlineSmall": {
+    "type": "custom",
+    "fontSize": 14.0
+  },
+  "titleLarge": {
+    "type": "custom",
+    "fontSize": 14.0
+  },
+  "titleMedium": {
+    "type": "custom",
+    "fontSize": 14.0
+  },
+  "titleSmall": {
+    "type": "custom",
+    "fontSize": 14.0
+  },
+  "bodyLarge": {
+    "type": "custom",
+    "fontSize": 14.0
+  },
+  "bodyMedium": {
+    "type": "custom",
+    "fontSize": 14.0
+  },
+  "bodySmall": {
+    "type": "custom",
+    "fontSize": 14.0
+  },
+  "labelLarge": {
+    "type": "custom",
+    "fontSize": 14.0
+  },
+  "labelMedium": {
+    "type": "custom",
+    "fontSize": 14.0
+  },
+  "labelSmall": {
+    "type": "custom",
+    "fontSize": 14.0
+  }
+}

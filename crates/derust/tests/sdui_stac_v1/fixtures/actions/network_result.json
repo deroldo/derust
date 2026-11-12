@@ -1,0 +1,7 @@
+{
+  "statusCode": 1,
+  "action": {
+    "actionType": "navigate",
+    "routeName": "/sample"
+  }
+}

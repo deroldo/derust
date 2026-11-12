@@ -1,0 +1,27 @@
+{
+  "type": "alertDialog",
+  "title": {
+    "type": "text",
+    "data": "Confirm"
+  },
+  "content": {
+    "type": "text",
+    "data": "Proceed with action?"
+  },
+  "actions": [
+    {
+      "type": "textButton",
+      "child": {
+        "type": "text",
+        "data": "Cancel"
+      }
+    },
+    {
+      "type": "textButton",
+      "child": {
+        "type": "text",
+        "data": "OK"
+      }
+    }
+  ]
+}

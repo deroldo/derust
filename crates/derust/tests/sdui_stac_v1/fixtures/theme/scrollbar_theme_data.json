@@ -1,0 +1,9 @@
+{
+  "thumbColor": "#757575",
+  "trackColor": "#F5F5F5",
+  "thickness": 8.0,
+  "radius": 4.0,
+  "thumbVisibility": true,
+  "trackVisibility": false,
+  "interactive": true
+}

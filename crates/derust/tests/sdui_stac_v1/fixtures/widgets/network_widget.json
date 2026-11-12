@@ -1,0 +1,21 @@
+{
+  "type": "networkWidget",
+  "request": {
+    "actionType": "networkRequest",
+    "url": "https://example.com/data",
+    "method": "get"
+  },
+  "loadingWidget": {
+    "type": "center",
+    "child": {
+      "type": "circularProgressIndicator"
+    }
+  },
+  "errorWidget": {
+    "type": "center",
+    "child": {
+      "type": "text",
+      "data": "Failed to load"
+    }
+  }
+}

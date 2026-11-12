@@ -1,0 +1,50 @@
+{
+  "value": "sample",
+  "label": "sample",
+  "labelWidget": {
+    "type": "text",
+    "data": "sample"
+  },
+  "leadingIcon": {
+    "type": "text",
+    "data": "sample"
+  },
+  "trailingIcon": {
+    "type": "text",
+    "data": "sample"
+  },
+  "enabled": true,
+  "style": {
+    "foregroundColor": "#FF0000",
+    "backgroundColor": "#FF0000",
+    "disabledForegroundColor": "#FF0000",
+    "disabledBackgroundColor": "#FF0000",
+    "shadowColor": "#FF0000",
+    "surfaceTintColor": "#FF0000",
+    "iconColor": "#FF0000",
+    "iconSize": 1.5,
+    "iconAlignment": "start",
+    "disabledIconColor": "#FF0000",
+    "overlayColor": "#FF0000",
+    "elevation": 1.5,
+    "textStyle": {
+      "type": "custom",
+      "fontSize": 14.0
+    },
+    "padding": {},
+    "minimumSize": {},
+    "fixedSize": {},
+    "maximumSize": {},
+    "side": {},
+    "shape": {
+      "type": "circleBorder"
+    },
+    "enableFeedback": true,
+    "alignment": "topLeft",
+    "tapTargetSize": "padded",
+    "animationDuration": {},
+    "enabledMouseCursor": "none",
+    "disabledMouseCursor": "none",
+    "visualDensity": {}
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "type": "column",
+  "spacing": 8,
+  "mainAxisAlignment": "center",
+  "children": [
+    {
+      "type": "text",
+      "data": "One"
+    },
+    {
+      "type": "text",
+      "data": "Two"
+    }
+  ]
+}

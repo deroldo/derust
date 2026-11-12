@@ -1,0 +1,21 @@
+{
+  "type": "checkBox",
+  "id": "sample",
+  "value": true,
+  "tristate": true,
+  "onChanged": {
+    "actionType": "navigate",
+    "routeName": "/sample"
+  },
+  "mouseCursor": "none",
+  "activeColor": "#FF0000",
+  "fillColor": "#FF0000",
+  "checkColor": "#FF0000",
+  "focusColor": "#FF0000",
+  "hoverColor": "#FF0000",
+  "overlayColor": "#FF0000",
+  "splashRadius": 1.5,
+  "materialTapTargetSize": "padded",
+  "autofocus": true,
+  "isError": true
+}

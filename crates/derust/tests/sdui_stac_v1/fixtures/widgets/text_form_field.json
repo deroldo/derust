@@ -1,0 +1,9 @@
+{
+  "type": "textFormField",
+  "id": "email",
+  "decoration": {
+    "labelText": "Email"
+  },
+  "keyboardType": "emailAddress",
+  "autovalidateMode": "onUserInteraction"
+}

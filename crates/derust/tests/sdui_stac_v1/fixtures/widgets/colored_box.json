@@ -1,0 +1,8 @@
+{
+  "type": "coloredBox",
+  "color": "#FF2196F3",
+  "child": {
+    "type": "text",
+    "data": "Hello"
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "type": "fittedBox",
+  "fit": "contain",
+  "alignment": "center",
+  "child": {
+    "type": "text",
+    "data": "Fitted content"
+  }
+}

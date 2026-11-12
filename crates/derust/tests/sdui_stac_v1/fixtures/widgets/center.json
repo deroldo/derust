@@ -1,0 +1,7 @@
+{
+  "type": "center",
+  "child": {
+    "type": "text",
+    "data": "Hello world"
+  }
+}

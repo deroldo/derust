@@ -1,0 +1,25 @@
+{
+  "type": "theme",
+  "textTheme": "displayLarge",
+  "inherit": true,
+  "color": "#FF0000",
+  "backgroundColor": "#FF0000",
+  "fontSize": 1.5,
+  "fontWeight": "w100",
+  "fontStyle": "normal",
+  "letterSpacing": 1.5,
+  "wordSpacing": 1.5,
+  "textBaseline": "alphabetic",
+  "height": 1.5,
+  "leadingDistribution": "proportional",
+  "decorationColor": "#FF0000",
+  "decorationStyle": "solid",
+  "decorationThickness": 1.5,
+  "debugLabel": "sample",
+  "fontFamily": "sample",
+  "fontFamilyFallback": [
+    "sample"
+  ],
+  "package": "sample",
+  "overflow": "clip"
+}

@@ -1,0 +1,9 @@
+{
+  "type": "opacity",
+  "opacity": 0.5,
+  "alwaysIncludeSemantics": false,
+  "child": {
+    "type": "text",
+    "data": "Faded Text"
+  }
+}

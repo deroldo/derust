@@ -1,0 +1,23 @@
+{
+  "type": "card",
+  "color": "#FF0000",
+  "shadowColor": "#FF0000",
+  "surfaceTintColor": "#FF0000",
+  "elevation": 1.5,
+  "shape": {
+    "type": "circleBorder"
+  },
+  "borderOnForeground": true,
+  "margin": {
+    "left": 1.5,
+    "top": 1.5,
+    "right": 1.5,
+    "bottom": 1.5
+  },
+  "clipBehavior": "none",
+  "child": {
+    "type": "text",
+    "data": "sample"
+  },
+  "semanticContainer": true
+}

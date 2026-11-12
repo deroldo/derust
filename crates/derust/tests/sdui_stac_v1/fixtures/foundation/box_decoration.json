@@ -1,0 +1,67 @@
+{
+  "color": "#FF0000",
+  "image": {
+    "src": "sample",
+    "fit": "fill",
+    "imageType": "file",
+    "alignment": "topLeft",
+    "centerSlice": {
+      "rectType": "fromCenter"
+    },
+    "repeat": "repeat",
+    "matchTextDirection": true,
+    "scale": 1.5,
+    "opacity": 1.5,
+    "filterQuality": "none",
+    "invertColors": true,
+    "isAntiAlias": true
+  },
+  "border": {
+    "color": "#FF0000",
+    "borderStyle": "none",
+    "width": 1.5,
+    "strokeAlign": 1.5,
+    "top": {},
+    "right": {},
+    "bottom": {},
+    "left": {}
+  },
+  "borderRadius": {
+    "topLeft": 1.5,
+    "topRight": 1.5,
+    "bottomLeft": 1.5,
+    "bottomRight": 1.5
+  },
+  "boxShadow": [
+    {
+      "color": "#FF0000",
+      "blurRadius": 1.5,
+      "offset": {
+        "dx": 1.5,
+        "dy": 1.5
+      },
+      "spreadRadius": 1.5,
+      "blurStyle": "normal"
+    }
+  ],
+  "gradient": {
+    "gradientType": "linear",
+    "colors": [
+      "#FF0000"
+    ],
+    "stops": [
+      1.5
+    ],
+    "begin": "topLeft",
+    "end": "topLeft",
+    "center": "topLeft",
+    "focal": "topLeft",
+    "tileMode": "clamp",
+    "focalRadius": 1.5,
+    "radius": 1.5,
+    "startAngle": 1.5,
+    "endAngle": 1.5
+  },
+  "backgroundBlendMode": "clear",
+  "shape": "rectangle"
+}

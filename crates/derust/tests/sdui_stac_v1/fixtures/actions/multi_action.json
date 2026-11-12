@@ -1,0 +1,19 @@
+{
+  "actionType": "multiAction",
+  "actions": [
+    {
+      "actionType": "setValue",
+      "values": [
+        {
+          "key": "a",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "actionType": "networkRequest",
+      "url": "https://api.example.com"
+    }
+  ],
+  "sync": true
+}

@@ -1,0 +1,9 @@
+{
+  "type": "bottomNavigationView",
+  "children": [
+    {
+      "type": "text",
+      "data": "sample"
+    }
+  ]
+}

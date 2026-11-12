@@ -1,0 +1,13 @@
+{
+  "actionType": "setValue",
+  "values": [
+    {
+      "key": "sample",
+      "value": "value"
+    }
+  ],
+  "action": {
+    "actionType": "navigate",
+    "routeName": "/sample"
+  }
+}

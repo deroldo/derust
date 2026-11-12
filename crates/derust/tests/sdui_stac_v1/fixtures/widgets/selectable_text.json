@@ -1,0 +1,10 @@
+{
+  "type": "selectableText",
+  "data": "Hello World",
+  "style": {
+    "type": "custom",
+    "fontSize": 20,
+    "color": "#FF0000"
+  },
+  "showCursor": true
+}

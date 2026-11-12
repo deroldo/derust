@@ -1,0 +1,19 @@
+{
+  "type": "tab",
+  "text": "sample",
+  "icon": {
+    "type": "text",
+    "data": "sample"
+  },
+  "iconMargin": {
+    "left": 1.5,
+    "top": 1.5,
+    "right": 1.5,
+    "bottom": 1.5
+  },
+  "height": 1.5,
+  "child": {
+    "type": "text",
+    "data": "sample"
+  }
+}

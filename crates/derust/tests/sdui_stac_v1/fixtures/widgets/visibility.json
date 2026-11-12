@@ -1,0 +1,12 @@
+{
+  "type": "visibility",
+  "visible": true,
+  "child": {
+    "type": "text",
+    "data": "Visible Text"
+  },
+  "replacement": {
+    "type": "text",
+    "data": "Replacement when not visible"
+  }
+}

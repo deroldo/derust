@@ -1,0 +1,11 @@
+{
+  "type": "sliverVisibility",
+  "visible": false,
+  "sliver": {
+    "type": "sliverToBoxAdapter",
+    "child": {
+      "type": "text",
+      "data": "Hidden content"
+    }
+  }
+}

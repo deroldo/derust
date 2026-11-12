@@ -1,0 +1,38 @@
+{
+  "actionType": "navigate",
+  "request": {
+    "actionType": "networkRequest",
+    "url": "sample",
+    "method": "get",
+    "queryParameters": {
+      "key": "value"
+    },
+    "headers": {
+      "key": "value"
+    },
+    "contentType": "sample",
+    "body": "sample",
+    "results": [
+      {
+        "statusCode": 1,
+        "action": {
+          "actionType": "navigate",
+          "routeName": "/sample"
+        }
+      }
+    ]
+  },
+  "widgetJson": {
+    "type": "text",
+    "data": "sample"
+  },
+  "assetPath": "sample",
+  "routeName": "sample",
+  "navigationStyle": "push",
+  "result": {
+    "key": "value"
+  },
+  "arguments": {
+    "key": "value"
+  }
+}

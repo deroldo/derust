@@ -1,0 +1,8 @@
+{
+  "backgroundColor": "#FFFFFF",
+  "elevation": 16.0,
+  "shadowColor": "#000000",
+  "surfaceTintColor": "#000000",
+  "indicatorColor": "#E3F2FD",
+  "tileHeight": 48.0
+}

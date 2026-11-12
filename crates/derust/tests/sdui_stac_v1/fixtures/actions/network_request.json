@@ -1,0 +1,22 @@
+{
+  "actionType": "networkRequest",
+  "url": "sample",
+  "method": "get",
+  "queryParameters": {
+    "key": "value"
+  },
+  "headers": {
+    "key": "value"
+  },
+  "contentType": "sample",
+  "body": "sample",
+  "results": [
+    {
+      "statusCode": 1,
+      "action": {
+        "actionType": "navigate",
+        "routeName": "/sample"
+      }
+    }
+  ]
+}

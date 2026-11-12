@@ -1,0 +1,11 @@
+{
+  "actionType": "validateForm",
+  "isValid": {
+    "actionType": "navigate",
+    "routeName": "/sample"
+  },
+  "isNotValid": {
+    "actionType": "navigate",
+    "routeName": "/sample"
+  }
+}

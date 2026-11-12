@@ -1,0 +1,17 @@
+{
+  "type": "sliverAppBar",
+  "title": {
+    "type": "text",
+    "data": "Gallery"
+  },
+  "pinned": true,
+  "expandedHeight": 200,
+  "flexibleSpace": {
+    "type": "container",
+    "color": "blue",
+    "child": {
+      "type": "text",
+      "data": "Header"
+    }
+  }
+}

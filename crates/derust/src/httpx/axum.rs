@@ -1,5 +1,7 @@
 use crate::commonx::DerustError;
 use crate::httpx::json::JsonResponse;
+#[cfg(feature = "sdui_stac_1")]
+use crate::httpx::sdui::SduiResponse;
 use crate::httpx::text::TextResponse;
 use crate::httpx::HttpResponse;
 use axum::http::{HeaderMap, HeaderName, HeaderValue};
@@ -33,6 +35,34 @@ impl IntoResponse for Box<dyn HttpResponse> {
 impl<T> IntoResponse for JsonResponse<T>
 where
     T: serde::Serialize + Send + Sync,
+{
+    fn into_response(self) -> Response {
+        let headers_vec = self.response_headers().unwrap_or_default();
+
+        let mut headers = HeaderMap::new();
+        for (name, value) in headers_vec {
+            headers.insert(
+                HeaderName::from_str(&name).unwrap(),
+                HeaderValue::from_str(&value).unwrap(),
+            );
+        }
+
+        let mut response = Response::builder()
+            .status(self.status_code())
+            .body(self.response_body().unwrap_or_default().into())
+            .unwrap();
+
+        *response.headers_mut() = headers;
+        response.extensions_mut().insert(self.tags());
+
+        response
+    }
+}
+
+#[cfg(feature = "sdui_stac_1")]
+impl<T> IntoResponse for SduiResponse<T>
+where
+    T: serde::Serialize + crate::sduix::stacx::common::Validate + Send + Sync,
 {
     fn into_response(self) -> Response {
         let headers_vec = self.response_headers().unwrap_or_default();

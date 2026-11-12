@@ -1,0 +1,11 @@
+{
+  "backgroundColor": "#E3F2FD",
+  "labelStyle": {
+    "type": "custom",
+    "color": "#1976D2"
+  },
+  "elevation": 0.0,
+  "pressElevation": 2.0,
+  "showCheckmark": true,
+  "checkmarkColor": "#1976D2"
+}

@@ -1,0 +1,13 @@
+[
+  "text",
+  "multiline",
+  "number",
+  "phone",
+  "datetime",
+  "emailAddress",
+  "url",
+  "visiblePassword",
+  "name",
+  "streetAddress",
+  "none"
+]

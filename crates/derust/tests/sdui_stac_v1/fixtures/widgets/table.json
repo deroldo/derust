@@ -1,0 +1,29 @@
+{
+  "type": "table",
+  "children": [
+    {
+      "children": [
+        {
+          "type": "text",
+          "data": "A"
+        },
+        {
+          "type": "text",
+          "data": "B"
+        }
+      ]
+    },
+    {
+      "children": [
+        {
+          "type": "text",
+          "data": "C"
+        },
+        {
+          "type": "text",
+          "data": "D"
+        }
+      ]
+    }
+  ]
+}

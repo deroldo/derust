@@ -1,0 +1,68 @@
+{
+  "constraints": {
+    "minWidth": 1.5,
+    "maxWidth": 1.5,
+    "minHeight": 1.5,
+    "maxHeight": 1.5
+  },
+  "padding": {
+    "left": 1.5,
+    "top": 1.5,
+    "right": 1.5,
+    "bottom": 1.5
+  },
+  "margin": {
+    "left": 1.5,
+    "top": 1.5,
+    "right": 1.5,
+    "bottom": 1.5
+  },
+  "verticalOffset": 1.5,
+  "preferBelow": true,
+  "excludeFromSemantics": true,
+  "decoration": {
+    "color": "#FF0000",
+    "image": {
+      "src": "sample"
+    },
+    "border": {},
+    "borderRadius": {},
+    "boxShadow": [
+      {}
+    ],
+    "gradient": {},
+    "backgroundBlendMode": "clear",
+    "shape": "rectangle"
+  },
+  "textStyle": {
+    "type": "custom",
+    "fontSize": 14.0
+  },
+  "textAlign": "left",
+  "waitDuration": {
+    "days": 1,
+    "hours": 1,
+    "minutes": 1,
+    "seconds": 1,
+    "milliseconds": 1,
+    "microseconds": 1
+  },
+  "showDuration": {
+    "days": 1,
+    "hours": 1,
+    "minutes": 1,
+    "seconds": 1,
+    "milliseconds": 1,
+    "microseconds": 1
+  },
+  "exitDuration": {
+    "days": 1,
+    "hours": 1,
+    "minutes": 1,
+    "seconds": 1,
+    "milliseconds": 1,
+    "microseconds": 1
+  },
+  "triggerMode": "manual",
+  "enableFeedback": true
+}

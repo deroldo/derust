@@ -1,0 +1,12 @@
+{
+  "type": "backdropFilter",
+  "filter": {
+    "type": "blur",
+    "sigmaX": 10,
+    "sigmaY": 10
+  },
+  "child": {
+    "type": "container",
+    "color": "#33FFFFFF"
+  }
+}

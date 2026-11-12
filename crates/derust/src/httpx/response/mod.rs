@@ -2,6 +2,8 @@ use crate::commonx::DerustTags;
 use axum::http::StatusCode;
 
 pub mod json;
+#[cfg(feature = "sdui_stac_1")]
+pub mod sdui;
 pub mod text;
 
 pub trait HttpResponse: Send + Sync {

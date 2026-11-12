@@ -1,0 +1,17 @@
+{
+  "type": "drawer",
+  "backgroundColor": "#FF0000",
+  "elevation": 1.5,
+  "shadowColor": "#FF0000",
+  "surfaceTintColor": "#FF0000",
+  "shape": {
+    "type": "circleBorder"
+  },
+  "width": 1.5,
+  "child": {
+    "type": "text",
+    "data": "sample"
+  },
+  "semanticLabel": "sample",
+  "clipBehavior": "none"
+}

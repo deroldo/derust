@@ -1,0 +1,11 @@
+{
+  "backgroundColor": "#323232",
+  "elevation": 6.0,
+  "contentTextStyle": {
+    "type": "custom",
+    "color": "#FFFFFF"
+  },
+  "actionTextColor": "#FF9800",
+  "behavior": "floating",
+  "showCloseIcon": true
+}

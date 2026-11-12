@@ -1,0 +1,10 @@
+{
+  "type": "fractionallySizedBox",
+  "widthFactor": 0.8,
+  "heightFactor": 0.6,
+  "alignment": "center",
+  "child": {
+    "type": "container",
+    "color": "#FF0000"
+  }
+}

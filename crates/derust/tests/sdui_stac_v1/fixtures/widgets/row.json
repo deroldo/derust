@@ -1,0 +1,14 @@
+{
+  "type": "row",
+  "mainAxisAlignment": "spaceBetween",
+  "children": [
+    {
+      "type": "text",
+      "data": "Left"
+    },
+    {
+      "type": "text",
+      "data": "Right"
+    }
+  ]
+}

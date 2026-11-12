@@ -1,0 +1,13 @@
+{
+  "gradientType": "linear",
+  "colors": [
+    "#2196F3",
+    "#F44336"
+  ],
+  "stops": [
+    0.0,
+    1.0
+  ],
+  "begin": "topLeft",
+  "end": "bottomRight"
+}

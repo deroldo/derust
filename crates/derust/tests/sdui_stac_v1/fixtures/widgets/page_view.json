@@ -1,0 +1,16 @@
+{
+  "type": "pageView",
+  "initialPage": 0,
+  "keepPage": true,
+  "viewportFraction": 1.0,
+  "children": [
+    {
+      "type": "container",
+      "color": "#FF0000"
+    },
+    {
+      "type": "container",
+      "color": "#00FF00"
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "type": "sliverPadding",
+  "padding": {
+    "left": 16.0,
+    "top": 16.0,
+    "right": 16.0,
+    "bottom": 16.0
+  },
+  "sliver": {
+    "type": "sliverToBoxAdapter",
+    "child": {
+      "type": "container",
+      "height": 150,
+      "color": "#4CAF50",
+      "child": {
+        "type": "center",
+        "child": {
+          "type": "text",
+          "data": "I am a Box inside a SliverPadding!",
+          "style": {
+            "type": "custom",
+            "color": "#FFFFFF",
+            "fontWeight": "bold"
+          }
+        }
+      }
+    }
+  }
+}

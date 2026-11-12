@@ -1,0 +1,33 @@
+{
+  "type": "listView",
+  "scrollDirection": "horizontal",
+  "reverse": true,
+  "primary": true,
+  "physics": "never",
+  "shrinkWrap": true,
+  "padding": {
+    "left": 1.5,
+    "top": 1.5,
+    "right": 1.5,
+    "bottom": 1.5
+  },
+  "addAutomaticKeepAlives": true,
+  "addRepaintBoundaries": true,
+  "addSemanticIndexes": true,
+  "cacheExtent": 1.5,
+  "children": [
+    {
+      "type": "text",
+      "data": "sample"
+    }
+  ],
+  "separator": {
+    "type": "text",
+    "data": "sample"
+  },
+  "semanticChildCount": 1,
+  "dragStartBehavior": "down",
+  "keyboardDismissBehavior": "manual",
+  "restorationId": "sample",
+  "clipBehavior": "none"
+}

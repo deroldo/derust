@@ -1,0 +1,12 @@
+{
+  "type": "clipRRect",
+  "borderRadius": {
+    "topLeft": 12,
+    "topRight": 12
+  },
+  "clipBehavior": "antiAlias",
+  "child": {
+    "type": "container",
+    "color": "#FF0000"
+  }
+}

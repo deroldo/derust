@@ -1,0 +1,35 @@
+{
+  "actionType": "showDialog",
+  "widget": {
+    "type": "text",
+    "data": "sample"
+  },
+  "request": {
+    "actionType": "networkRequest",
+    "url": "sample",
+    "method": "get",
+    "queryParameters": {
+      "key": "value"
+    },
+    "headers": {
+      "key": "value"
+    },
+    "contentType": "sample",
+    "body": "sample",
+    "results": [
+      {
+        "statusCode": 1,
+        "action": {
+          "actionType": "navigate",
+          "routeName": "/sample"
+        }
+      }
+    ]
+  },
+  "assetPath": "sample",
+  "barrierDismissible": true,
+  "barrierColor": "#FF0000",
+  "barrierLabel": "sample",
+  "useSafeArea": true,
+  "traversalEdgeBehavior": "closedLoop"
+}

@@ -1,0 +1,9 @@
+{
+  "backgroundColor": "#FFFFFF",
+  "elevation": 8.0,
+  "modalElevation": 16.0,
+  "shadowColor": "#000000",
+  "showDragHandle": true,
+  "dragHandleColor": "#757575",
+  "clipBehavior": "antiAlias"
+}

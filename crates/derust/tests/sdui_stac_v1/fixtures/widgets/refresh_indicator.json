@@ -1,0 +1,19 @@
+{
+  "type": "refreshIndicator",
+  "child": {
+    "type": "text",
+    "data": "sample"
+  },
+  "onRefresh": {
+    "actionType": "navigate",
+    "routeName": "/sample"
+  },
+  "displacement": 1.5,
+  "edgeOffset": 1.5,
+  "color": "#FF0000",
+  "backgroundColor": "#FF0000",
+  "semanticsLabel": "sample",
+  "semanticsValue": "sample",
+  "strokeWidth": 1.5,
+  "triggerMode": "onEdge"
+}

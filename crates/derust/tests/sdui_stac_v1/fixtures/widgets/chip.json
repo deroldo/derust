@@ -1,0 +1,70 @@
+{
+  "type": "chip",
+  "avatar": {
+    "type": "text",
+    "data": "sample"
+  },
+  "label": {
+    "type": "text",
+    "data": "sample"
+  },
+  "labelStyle": {
+    "type": "custom",
+    "fontSize": 14.0
+  },
+  "labelPadding": {
+    "left": 1.5,
+    "top": 1.5,
+    "right": 1.5,
+    "bottom": 1.5
+  },
+  "deleteIcon": {
+    "type": "text",
+    "data": "sample"
+  },
+  "onDeleted": {
+    "actionType": "navigate",
+    "routeName": "/sample"
+  },
+  "deleteIconColor": "#FF0000",
+  "deleteButtonTooltipMessage": "sample",
+  "side": {
+    "color": "#FF0000",
+    "width": 1.5,
+    "strokeAlign": 1.5,
+    "borderStyle": "none"
+  },
+  "shape": {
+    "type": "circleBorder"
+  },
+  "clipBehavior": "none",
+  "autofocus": true,
+  "color": "#FF0000",
+  "backgroundColor": "#FF0000",
+  "padding": {
+    "left": 1.5,
+    "top": 1.5,
+    "right": 1.5,
+    "bottom": 1.5
+  },
+  "visualDensity": {
+    "horizontal": 1.5,
+    "vertical": 1.5
+  },
+  "materialTapTargetSize": "padded",
+  "elevation": 1.5,
+  "shadowColor": "#FF0000",
+  "surfaceTintColor": "#FF0000",
+  "avatarBoxConstraints": {
+    "minWidth": 1.5,
+    "maxWidth": 1.5,
+    "minHeight": 1.5,
+    "maxHeight": 1.5
+  },
+  "deleteIconBoxConstraints": {
+    "minWidth": 1.5,
+    "maxWidth": 1.5,
+    "minHeight": 1.5,
+    "maxHeight": 1.5
+  }
+}

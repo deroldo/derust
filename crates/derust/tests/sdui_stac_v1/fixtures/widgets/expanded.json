@@ -1,0 +1,8 @@
+{
+  "type": "expanded",
+  "flex": 1,
+  "child": {
+    "type": "text",
+    "data": "sample"
+  }
+}

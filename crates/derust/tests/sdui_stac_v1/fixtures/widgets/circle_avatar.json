@@ -1,0 +1,10 @@
+{
+  "type": "circleAvatar",
+  "backgroundColor": "blue",
+  "foregroundColor": "white",
+  "radius": 24,
+  "child": {
+    "type": "text",
+    "data": "AB"
+  }
+}

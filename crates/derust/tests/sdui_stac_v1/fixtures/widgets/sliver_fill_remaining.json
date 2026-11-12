@@ -1,0 +1,11 @@
+{
+  "type": "sliverFillRemaining",
+  "hasScrollBody": false,
+  "child": {
+    "type": "center",
+    "child": {
+      "type": "text",
+      "data": "No items available"
+    }
+  }
+}

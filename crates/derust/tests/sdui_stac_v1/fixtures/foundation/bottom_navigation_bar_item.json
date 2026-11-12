@@ -1,0 +1,13 @@
+{
+  "icon": {
+    "type": "text",
+    "data": "sample"
+  },
+  "label": "sample",
+  "activeIcon": {
+    "type": "text",
+    "data": "sample"
+  },
+  "backgroundColor": "#FF0000",
+  "tooltip": "sample"
+}

@@ -1,0 +1,13 @@
+{
+  "type": "autocomplete",
+  "options": [
+    "sample"
+  ],
+  "onSelected": {
+    "actionType": "navigate",
+    "routeName": "/sample"
+  },
+  "optionsMaxHeight": 1.5,
+  "optionsViewOpenDirection": "up",
+  "initialValue": "sample"
+}

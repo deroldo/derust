@@ -1,0 +1,8 @@
+{
+  "type": "aspectRatio",
+  "aspectRatio": 1.7778,
+  "child": {
+    "type": "container",
+    "color": "#FF0000"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "type": "conditional",
+  "condition": "user.isLoggedIn == true",
+  "ifTrue": {
+    "type": "text",
+    "data": "Welcome back!"
+  },
+  "ifFalse": {
+    "type": "text",
+    "data": "Please sign in"
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "type": "carouselView",
+  "carouselType": "regular",
+  "padding": {
+    "left": 1.5,
+    "top": 1.5,
+    "right": 1.5,
+    "bottom": 1.5
+  },
+  "backgroundColor": "#FF0000",
+  "elevation": 1.5,
+  "overlayColor": "#FF0000",
+  "itemSnapping": true,
+  "shrinkExtent": 1.5,
+  "scrollDirection": "horizontal",
+  "reverse": true,
+  "onTap": {
+    "actionType": "navigate",
+    "routeName": "/sample"
+  },
+  "enableSplash": true,
+  "itemExtent": 1.5,
+  "flexWeights": [
+    1
+  ],
+  "children": [
+    {
+      "type": "text",
+      "data": "sample"
+    }
+  ]
+}

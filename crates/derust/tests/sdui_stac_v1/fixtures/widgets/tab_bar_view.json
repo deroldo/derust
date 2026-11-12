@@ -1,0 +1,23 @@
+{
+  "type": "tabBarView",
+  "children": [
+    {
+      "type": "center",
+      "child": {
+        "type": "text",
+        "data": "Page 1"
+      }
+    },
+    {
+      "type": "center",
+      "child": {
+        "type": "text",
+        "data": "Page 2"
+      }
+    }
+  ],
+  "physics": "page",
+  "dragStartBehavior": "start",
+  "viewportFraction": 1.0,
+  "clipBehavior": "hardEdge"
+}

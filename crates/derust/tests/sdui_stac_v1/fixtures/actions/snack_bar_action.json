@@ -1,0 +1,9 @@
+{
+  "actionType": "showSnackBar",
+  "label": "Retry",
+  "onPressed": {
+    "actionType": "networkRequest",
+    "url": "https://api.example.com/retry"
+  },
+  "textColor": "#FFFFFFFF"
+}

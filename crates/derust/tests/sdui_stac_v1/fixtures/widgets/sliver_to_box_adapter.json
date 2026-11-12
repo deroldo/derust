@@ -1,0 +1,7 @@
+{
+  "type": "sliverToBoxAdapter",
+  "child": {
+    "type": "text",
+    "data": "sample"
+  }
+}

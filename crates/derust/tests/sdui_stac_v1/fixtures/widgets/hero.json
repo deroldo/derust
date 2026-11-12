@@ -1,0 +1,26 @@
+{
+  "type": "hero",
+  "tag": "sample",
+  "child": {
+    "type": "text",
+    "data": "sample"
+  },
+  "createRectTween": {
+    "type": "sample",
+    "begin": {
+      "rectType": "fromCenter"
+    },
+    "end": {
+      "rectType": "fromCenter"
+    }
+  },
+  "flightShuttleBuilder": {
+    "type": "text",
+    "data": "sample"
+  },
+  "placeholderBuilder": {
+    "type": "text",
+    "data": "sample"
+  },
+  "transitionOnUserGestures": true
+}

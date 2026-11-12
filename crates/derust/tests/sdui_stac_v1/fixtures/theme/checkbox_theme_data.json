@@ -1,0 +1,21 @@
+{
+  "mouseCursor": "none",
+  "fillColor": "#FF0000",
+  "checkColor": "#FF0000",
+  "overlayColor": "#FF0000",
+  "splashRadius": 1.5,
+  "materialTapTargetSize": "padded",
+  "visualDensity": {
+    "horizontal": 1.5,
+    "vertical": 1.5
+  },
+  "shape": {
+    "type": "circleBorder"
+  },
+  "side": {
+    "color": "#FF0000",
+    "width": 1.5,
+    "strokeAlign": 1.5,
+    "borderStyle": "none"
+  }
+}

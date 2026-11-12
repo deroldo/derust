@@ -1,0 +1,27 @@
+{
+  "type": "customScrollView",
+  "slivers": [
+    {
+      "type": "sliverAppBar",
+      "title": {
+        "type": "text",
+        "data": "Title"
+      }
+    },
+    {
+      "type": "sliverList",
+      "children": [
+        {
+          "type": "text",
+          "data": "Item 1"
+        },
+        {
+          "type": "text",
+          "data": "Item 2"
+        }
+      ]
+    }
+  ],
+  "scrollDirection": "vertical",
+  "dragStartBehavior": "start"
+}

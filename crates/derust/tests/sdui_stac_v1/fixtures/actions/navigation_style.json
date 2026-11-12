@@ -1,0 +1,10 @@
+[
+  "push",
+  "pop",
+  "pushReplacement",
+  "pushAndRemoveAll",
+  "popAll",
+  "pushNamed",
+  "pushNamedAndRemoveAll",
+  "pushReplacementNamed"
+]

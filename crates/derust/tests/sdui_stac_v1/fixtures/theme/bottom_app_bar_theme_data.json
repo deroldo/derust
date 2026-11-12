@@ -1,0 +1,13 @@
+{
+  "color": "#FF0000",
+  "elevation": 1.5,
+  "height": 1.5,
+  "surfaceTintColor": "#FF0000",
+  "shadowColor": "#FF0000",
+  "padding": {
+    "left": 1.5,
+    "top": 1.5,
+    "right": 1.5,
+    "bottom": 1.5
+  }
+}

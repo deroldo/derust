@@ -1,0 +1,43 @@
+{
+  "type": "dynamicView",
+  "request": {
+    "actionType": "networkRequest",
+    "url": "sample",
+    "method": "get",
+    "queryParameters": {
+      "key": "value"
+    },
+    "headers": {
+      "key": "value"
+    },
+    "contentType": "sample",
+    "body": "sample",
+    "results": [
+      {
+        "statusCode": 1,
+        "action": {
+          "actionType": "navigate",
+          "routeName": "/sample"
+        }
+      }
+    ]
+  },
+  "targetPath": "sample",
+  "template": {
+    "type": "text",
+    "data": "sample"
+  },
+  "resultTarget": "sample",
+  "emptyTemplate": {
+    "type": "text",
+    "data": "sample"
+  },
+  "loaderWidget": {
+    "type": "text",
+    "data": "sample"
+  },
+  "errorWidget": {
+    "type": "text",
+    "data": "sample"
+  }
+}

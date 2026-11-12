@@ -1,0 +1,15 @@
+{
+  "type": "tabBar",
+  "tabs": [
+    {
+      "type": "tab",
+      "text": "Home"
+    },
+    {
+      "type": "tab",
+      "text": "Profile"
+    }
+  ],
+  "isScrollable": false,
+  "indicatorWeight": 2.0
+}

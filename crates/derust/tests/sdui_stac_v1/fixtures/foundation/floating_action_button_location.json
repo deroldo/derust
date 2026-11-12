@@ -1,0 +1,20 @@
+[
+  "startTop",
+  "miniStartTop",
+  "centerTop",
+  "miniCenterTop",
+  "endTop",
+  "miniEndTop",
+  "startFloat",
+  "miniStartFloat",
+  "centerFloat",
+  "miniCenterFloat",
+  "endFloat",
+  "miniEndFloat",
+  "startDocked",
+  "miniStartDocked",
+  "centerDocked",
+  "miniCenterDocked",
+  "endDocked",
+  "miniEndDocked"
+]

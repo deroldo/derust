@@ -1,0 +1,9 @@
+{
+  "type": "positioned",
+  "left": 10,
+  "top": 20,
+  "child": {
+    "type": "text",
+    "data": "Positioned text"
+  }
+}

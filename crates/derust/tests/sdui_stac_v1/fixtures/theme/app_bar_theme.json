@@ -1,0 +1,12 @@
+{
+  "backgroundColor": "#2196F3",
+  "foregroundColor": "#FFFFFF",
+  "elevation": 4.0,
+  "scrolledUnderElevation": 0.0,
+  "shadowColor": "#000000",
+  "surfaceTintColor": "#000000",
+  "centerTitle": true,
+  "titleSpacing": 16.0,
+  "toolbarHeight": 56.0,
+  "leadingWidth": 56.0
+}

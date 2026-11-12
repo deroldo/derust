@@ -1,0 +1,27 @@
+{
+  "type": "navigationBar",
+  "destinations": [
+    {
+      "icon": {
+        "type": "icon",
+        "icon": "home_outlined"
+      },
+      "selectedIcon": {
+        "type": "icon",
+        "icon": "home"
+      },
+      "label": "Home"
+    },
+    {
+      "icon": {
+        "type": "icon",
+        "icon": "settings_outlined"
+      },
+      "selectedIcon": {
+        "type": "icon",
+        "icon": "settings"
+      },
+      "label": "Settings"
+    }
+  ]
+}

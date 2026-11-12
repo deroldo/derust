@@ -1,0 +1,56 @@
+{
+  "actionType": "showModalBottomSheet",
+  "widget": {
+    "type": "text",
+    "data": "sample"
+  },
+  "request": {
+    "actionType": "networkRequest",
+    "url": "sample",
+    "method": "get",
+    "queryParameters": {
+      "key": "value"
+    },
+    "headers": {
+      "key": "value"
+    },
+    "contentType": "sample",
+    "body": "sample",
+    "results": [
+      {
+        "statusCode": 1,
+        "action": {
+          "actionType": "navigate",
+          "routeName": "/sample"
+        }
+      }
+    ]
+  },
+  "assetPath": "sample",
+  "backgroundColor": "#FF0000",
+  "barrierLabel": "sample",
+  "elevation": 1.5,
+  "shape": {
+    "color": "#FF0000",
+    "borderStyle": "none",
+    "width": 1.5,
+    "strokeAlign": 1.5,
+    "top": {},
+    "right": {},
+    "bottom": {},
+    "left": {}
+  },
+  "constraints": {
+    "minWidth": 1.5,
+    "maxWidth": 1.5,
+    "minHeight": 1.5,
+    "maxHeight": 1.5
+  },
+  "barrierColor": "#FF0000",
+  "isScrollControlled": true,
+  "useRootNavigator": true,
+  "isDismissible": true,
+  "enableDrag": true,
+  "showDragHandle": true,
+  "useSafeArea": true
+}

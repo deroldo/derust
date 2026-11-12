@@ -1,0 +1,15 @@
+{
+  "type": "roundedRectangleBorder",
+  "borderRadius": {
+    "topLeft": 1.5,
+    "topRight": 1.5,
+    "bottomLeft": 1.5,
+    "bottomRight": 1.5
+  },
+  "side": {
+    "color": "#FF0000",
+    "width": 1.5,
+    "strokeAlign": 1.5,
+    "borderStyle": "none"
+  }
+}

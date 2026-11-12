@@ -1,0 +1,41 @@
+{
+  "type": "sliverGrid",
+  "crossAxisCount": 2,
+  "mainAxisSpacing": 16,
+  "crossAxisSpacing": 16,
+  "childAspectRatio": 1,
+  "children": [
+    {
+      "type": "container",
+      "color": "#4CAF50",
+      "child": {
+        "type": "center",
+        "child": {
+          "type": "text",
+          "data": "Grid Item 1",
+          "style": {
+            "type": "custom",
+            "color": "#FFFFFF",
+            "fontWeight": "bold"
+          }
+        }
+      }
+    },
+    {
+      "type": "container",
+      "color": "#4CAF50",
+      "child": {
+        "type": "center",
+        "child": {
+          "type": "text",
+          "data": "Grid Item 2",
+          "style": {
+            "type": "custom",
+            "color": "#FFFFFF",
+            "fontWeight": "bold"
+          }
+        }
+      }
+    }
+  ]
+}

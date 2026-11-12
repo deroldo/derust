@@ -1,0 +1,12 @@
+{
+  "type": "text",
+  "data": "Hello",
+  "style": {
+    "type": "theme",
+    "textTheme": "bodyMedium"
+  },
+  "copyWithStyle": {
+    "type": "custom",
+    "color": "#FF2196F3"
+  }
+}

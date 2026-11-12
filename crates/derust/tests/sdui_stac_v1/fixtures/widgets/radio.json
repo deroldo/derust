@@ -1,0 +1,7 @@
+{
+  "type": "radio",
+  "radioType": "material",
+  "value": "a",
+  "groupId": "letter",
+  "activeColor": "#2196F3"
+}

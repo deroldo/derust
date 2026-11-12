@@ -1,0 +1,11 @@
+{
+  "type": "sliverOpacity",
+  "opacity": 0.5,
+  "sliver": {
+    "type": "sliverToBoxAdapter",
+    "child": {
+      "type": "text",
+      "data": "Faded content"
+    }
+  }
+}

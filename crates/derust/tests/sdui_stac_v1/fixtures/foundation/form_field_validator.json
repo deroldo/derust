@@ -1,0 +1,8 @@
+{
+  "rule": "isLength",
+  "options": {
+    "min": 8,
+    "max": 20
+  },
+  "message": "Must be 8-20 characters"
+}

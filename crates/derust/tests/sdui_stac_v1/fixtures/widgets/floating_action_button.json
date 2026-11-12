@@ -1,0 +1,39 @@
+{
+  "type": "floatingActionButton",
+  "onPressed": {
+    "actionType": "navigate",
+    "routeName": "/sample"
+  },
+  "textStyle": {
+    "type": "custom",
+    "fontSize": 14.0
+  },
+  "buttonType": "extended",
+  "autofocus": true,
+  "icon": {
+    "type": "text",
+    "data": "sample"
+  },
+  "backgroundColor": "#FF0000",
+  "foregroundColor": "#FF0000",
+  "focusColor": "#FF0000",
+  "hoverColor": "#FF0000",
+  "splashColor": "#FF0000",
+  "extendedTextStyle": {
+    "type": "custom",
+    "fontSize": 14.0
+  },
+  "elevation": 1.5,
+  "focusElevation": 1.5,
+  "hoverElevation": 1.5,
+  "disabledElevation": 1.5,
+  "highlightElevation": 1.5,
+  "extendedIconLabelSpacing": 1.5,
+  "enableFeedback": true,
+  "tooltip": "sample",
+  "heroTag": "sample",
+  "child": {
+    "type": "text",
+    "data": "sample"
+  }
+}

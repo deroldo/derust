@@ -1,0 +1,13 @@
+{
+  "type": "textField",
+  "initialValue": "John Doe",
+  "keyboardType": "text",
+  "textInputAction": "done",
+  "decoration": {
+    "labelText": "Name",
+    "hintText": "Enter your full name"
+  },
+  "autofillHints": [
+    "name"
+  ]
+}

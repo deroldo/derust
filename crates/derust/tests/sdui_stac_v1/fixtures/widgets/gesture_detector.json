@@ -1,0 +1,238 @@
+{
+  "type": "gestureDetector",
+  "child": {
+    "type": "text",
+    "data": "sample"
+  },
+  "onTap": {
+    "actionType": "navigate",
+    "routeName": "/sample"
+  },
+  "onTapDown": {
+    "actionType": "navigate",
+    "routeName": "/sample"
+  },
+  "onTapUp": {
+    "actionType": "navigate",
+    "routeName": "/sample"
+  },
+  "onTapCancel": {
+    "actionType": "navigate",
+    "routeName": "/sample"
+  },
+  "onSecondaryTap": {
+    "actionType": "navigate",
+    "routeName": "/sample"
+  },
+  "onSecondaryTapDown": {
+    "actionType": "navigate",
+    "routeName": "/sample"
+  },
+  "onSecondaryTapUp": {
+    "actionType": "navigate",
+    "routeName": "/sample"
+  },
+  "onSecondaryTapCancel": {
+    "actionType": "navigate",
+    "routeName": "/sample"
+  },
+  "onTertiaryTapDown": {
+    "actionType": "navigate",
+    "routeName": "/sample"
+  },
+  "onTertiaryTapUp": {
+    "actionType": "navigate",
+    "routeName": "/sample"
+  },
+  "onTertiaryTapCancel": {
+    "actionType": "navigate",
+    "routeName": "/sample"
+  },
+  "onDoubleTap": {
+    "actionType": "navigate",
+    "routeName": "/sample"
+  },
+  "onDoubleTapDown": {
+    "actionType": "navigate",
+    "routeName": "/sample"
+  },
+  "onDoubleTapCancel": {
+    "actionType": "navigate",
+    "routeName": "/sample"
+  },
+  "onLongPress": {
+    "actionType": "navigate",
+    "routeName": "/sample"
+  },
+  "onLongPressDown": {
+    "actionType": "navigate",
+    "routeName": "/sample"
+  },
+  "onLongPressStart": {
+    "actionType": "navigate",
+    "routeName": "/sample"
+  },
+  "onLongPressMoveUpdate": {
+    "actionType": "navigate",
+    "routeName": "/sample"
+  },
+  "onLongPressUp": {
+    "actionType": "navigate",
+    "routeName": "/sample"
+  },
+  "onLongPressEnd": {
+    "actionType": "navigate",
+    "routeName": "/sample"
+  },
+  "onLongPressCancel": {
+    "actionType": "navigate",
+    "routeName": "/sample"
+  },
+  "onSecondaryLongPress": {
+    "actionType": "navigate",
+    "routeName": "/sample"
+  },
+  "onSecondaryLongPressDown": {
+    "actionType": "navigate",
+    "routeName": "/sample"
+  },
+  "onSecondaryLongPressStart": {
+    "actionType": "navigate",
+    "routeName": "/sample"
+  },
+  "onSecondaryLongPressMoveUpdate": {
+    "actionType": "navigate",
+    "routeName": "/sample"
+  },
+  "onSecondaryLongPressUp": {
+    "actionType": "navigate",
+    "routeName": "/sample"
+  },
+  "onSecondaryLongPressEnd": {
+    "actionType": "navigate",
+    "routeName": "/sample"
+  },
+  "onSecondaryLongPressCancel": {
+    "actionType": "navigate",
+    "routeName": "/sample"
+  },
+  "onTertiaryLongPress": {
+    "actionType": "navigate",
+    "routeName": "/sample"
+  },
+  "onTertiaryLongPressDown": {
+    "actionType": "navigate",
+    "routeName": "/sample"
+  },
+  "onTertiaryLongPressStart": {
+    "actionType": "navigate",
+    "routeName": "/sample"
+  },
+  "onTertiaryLongPressMoveUpdate": {
+    "actionType": "navigate",
+    "routeName": "/sample"
+  },
+  "onTertiaryLongPressUp": {
+    "actionType": "navigate",
+    "routeName": "/sample"
+  },
+  "onTertiaryLongPressEnd": {
+    "actionType": "navigate",
+    "routeName": "/sample"
+  },
+  "onTertiaryLongPressCancel": {
+    "actionType": "navigate",
+    "routeName": "/sample"
+  },
+  "onVerticalDragDown": {
+    "actionType": "navigate",
+    "routeName": "/sample"
+  },
+  "onVerticalDragStart": {
+    "actionType": "navigate",
+    "routeName": "/sample"
+  },
+  "onVerticalDragUpdate": {
+    "actionType": "navigate",
+    "routeName": "/sample"
+  },
+  "onVerticalDragEnd": {
+    "actionType": "navigate",
+    "routeName": "/sample"
+  },
+  "onVerticalDragCancel": {
+    "actionType": "navigate",
+    "routeName": "/sample"
+  },
+  "onHorizontalDragDown": {
+    "actionType": "navigate",
+    "routeName": "/sample"
+  },
+  "onHorizontalDragStart": {
+    "actionType": "navigate",
+    "routeName": "/sample"
+  },
+  "onHorizontalDragUpdate": {
+    "actionType": "navigate",
+    "routeName": "/sample"
+  },
+  "onHorizontalDragEnd": {
+    "actionType": "navigate",
+    "routeName": "/sample"
+  },
+  "onHorizontalDragCancel": {
+    "actionType": "navigate",
+    "routeName": "/sample"
+  },
+  "onForcePressStart": {
+    "actionType": "navigate",
+    "routeName": "/sample"
+  },
+  "onForcePressPeak": {
+    "actionType": "navigate",
+    "routeName": "/sample"
+  },
+  "onForcePressUpdate": {
+    "actionType": "navigate",
+    "routeName": "/sample"
+  },
+  "onForcePressEnd": {
+    "actionType": "navigate",
+    "routeName": "/sample"
+  },
+  "onPanDown": {
+    "actionType": "navigate",
+    "routeName": "/sample"
+  },
+  "onPanStart": {
+    "actionType": "navigate",
+    "routeName": "/sample"
+  },
+  "onPanUpdate": {
+    "actionType": "navigate",
+    "routeName": "/sample"
+  },
+  "onPanEnd": {
+    "actionType": "navigate",
+    "routeName": "/sample"
+  },
+  "onPanCancel": {
+    "actionType": "navigate",
+    "routeName": "/sample"
+  },
+  "onScaleStart": {
+    "actionType": "navigate",
+    "routeName": "/sample"
+  },
+  "onScaleUpdate": {
+    "actionType": "navigate",
+    "routeName": "/sample"
+  },
+  "onScaleEnd": {
+    "actionType": "navigate",
+    "routeName": "/sample"
+  },
+  "behavior": "deferToChild",
+  "excludeFromSemantics": true,
+  "dragStartBehavior": "down"
+}

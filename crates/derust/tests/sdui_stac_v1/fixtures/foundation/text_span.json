@@ -1,0 +1,16 @@
+{
+  "text": "Hello ",
+  "style": {
+    "type": "custom",
+    "fontWeight": "bold"
+  },
+  "children": [
+    {
+      "text": "World",
+      "style": {
+        "type": "custom",
+        "color": "#2196F3"
+      }
+    }
+  ]
+}

@@ -1,0 +1,120 @@
+{
+  "labelStyle": {
+    "type": "custom",
+    "fontSize": 14.0
+  },
+  "floatingLabelStyle": {
+    "type": "custom",
+    "fontSize": 14.0
+  },
+  "helperStyle": {
+    "type": "custom",
+    "fontSize": 14.0
+  },
+  "helperMaxLines": 1,
+  "hintStyle": {
+    "type": "custom",
+    "fontSize": 14.0
+  },
+  "errorStyle": {
+    "type": "custom",
+    "fontSize": 14.0
+  },
+  "errorMaxLines": 1,
+  "floatingLabelBehavior": "sample",
+  "floatingLabelAlignment": "sample",
+  "isDense": true,
+  "contentPadding": {
+    "left": 1.5,
+    "top": 1.5,
+    "right": 1.5,
+    "bottom": 1.5
+  },
+  "isCollapsed": true,
+  "iconColor": "#FF0000",
+  "prefixStyle": {
+    "type": "custom",
+    "fontSize": 14.0
+  },
+  "prefixIconColor": "#FF0000",
+  "suffixStyle": {
+    "type": "custom",
+    "fontSize": 14.0
+  },
+  "suffixIconColor": "#FF0000",
+  "counterStyle": {
+    "type": "custom",
+    "fontSize": 14.0
+  },
+  "filled": true,
+  "fillColor": "#FF0000",
+  "activeIndicatorBorder": {
+    "color": "#FF0000",
+    "width": 1.5,
+    "strokeAlign": 1.5,
+    "borderStyle": "none"
+  },
+  "outlineBorder": {
+    "color": "#FF0000",
+    "width": 1.5,
+    "strokeAlign": 1.5,
+    "borderStyle": "none"
+  },
+  "focusColor": "#FF0000",
+  "hoverColor": "#FF0000",
+  "errorBorder": {
+    "type": "none",
+    "borderRadius": {},
+    "gapPadding": 1.5,
+    "width": 1.5,
+    "color": "#FF0000",
+    "gradient": {}
+  },
+  "focusedBorder": {
+    "type": "none",
+    "borderRadius": {},
+    "gapPadding": 1.5,
+    "width": 1.5,
+    "color": "#FF0000",
+    "gradient": {}
+  },
+  "focusedErrorBorder": {
+    "type": "none",
+    "borderRadius": {},
+    "gapPadding": 1.5,
+    "width": 1.5,
+    "color": "#FF0000",
+    "gradient": {}
+  },
+  "disabledBorder": {
+    "type": "none",
+    "borderRadius": {},
+    "gapPadding": 1.5,
+    "width": 1.5,
+    "color": "#FF0000",
+    "gradient": {}
+  },
+  "enabledBorder": {
+    "type": "none",
+    "borderRadius": {},
+    "gapPadding": 1.5,
+    "width": 1.5,
+    "color": "#FF0000",
+    "gradient": {}
+  },
+  "border": {
+    "type": "none",
+    "borderRadius": {},
+    "gapPadding": 1.5,
+    "width": 1.5,
+    "color": "#FF0000",
+    "gradient": {}
+  },
+  "alignLabelWithHint": true,
+  "constraints": {
+    "minWidth": 1.5,
+    "maxWidth": 1.5,
+    "minHeight": 1.5,
+    "maxHeight": 1.5
+  }
+}

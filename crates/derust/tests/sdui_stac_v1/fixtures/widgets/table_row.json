@@ -1,0 +1,22 @@
+{
+  "decoration": {
+    "color": "#FF0000",
+    "image": {
+      "src": "sample"
+    },
+    "border": {},
+    "borderRadius": {},
+    "boxShadow": [
+      {}
+    ],
+    "gradient": {},
+    "backgroundBlendMode": "clear",
+    "shape": "rectangle"
+  },
+  "children": [
+    {
+      "type": "text",
+      "data": "sample"
+    }
+  ]
+}

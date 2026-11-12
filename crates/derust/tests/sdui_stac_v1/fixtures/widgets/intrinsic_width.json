@@ -1,0 +1,17 @@
+{
+  "type": "intrinsicWidth",
+  "child": {
+    "type": "column",
+    "crossAxisAlignment": "stretch",
+    "children": [
+      {
+        "type": "text",
+        "data": "Short"
+      },
+      {
+        "type": "text",
+        "data": "A much longer line of text"
+      }
+    ]
+  }
+}

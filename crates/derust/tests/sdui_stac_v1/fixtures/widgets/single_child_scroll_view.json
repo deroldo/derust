@@ -1,0 +1,21 @@
+{
+  "type": "singleChildScrollView",
+  "scrollDirection": "horizontal",
+  "reverse": true,
+  "padding": {
+    "left": 1.5,
+    "top": 1.5,
+    "right": 1.5,
+    "bottom": 1.5
+  },
+  "primary": true,
+  "physics": "never",
+  "child": {
+    "type": "text",
+    "data": "sample"
+  },
+  "dragStartBehavior": "down",
+  "clipBehavior": "none",
+  "restorationId": "sample",
+  "keyboardDismissBehavior": "manual"
+}

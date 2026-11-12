@@ -1,0 +1,9 @@
+{
+  "backgroundColor": "#FFFFFF",
+  "elevation": 8.0,
+  "selectedItemColor": "#2196F3",
+  "unselectedItemColor": "#757575",
+  "type": "fixed",
+  "showSelectedLabels": true,
+  "showUnselectedLabels": true
+}

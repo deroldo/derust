@@ -1,0 +1,11 @@
+{
+  "icon": {
+    "type": "icon",
+    "icon": "home_outlined"
+  },
+  "selectedIcon": {
+    "type": "icon",
+    "icon": "home"
+  },
+  "label": "Home"
+}

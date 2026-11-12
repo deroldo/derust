@@ -1,0 +1,968 @@
+{
+  "applyElevationOverlayColor": true,
+  "inputDecorationTheme": {
+    "labelStyle": {
+      "type": "custom",
+      "fontSize": 14.0
+    },
+    "floatingLabelStyle": {
+      "type": "custom",
+      "fontSize": 14.0
+    },
+    "helperStyle": {
+      "type": "custom",
+      "fontSize": 14.0
+    },
+    "helperMaxLines": 1,
+    "hintStyle": {
+      "type": "custom",
+      "fontSize": 14.0
+    },
+    "errorStyle": {
+      "type": "custom",
+      "fontSize": 14.0
+    },
+    "errorMaxLines": 1,
+    "floatingLabelBehavior": "sample",
+    "floatingLabelAlignment": "sample",
+    "isDense": true,
+    "contentPadding": {},
+    "isCollapsed": true,
+    "iconColor": "#FF0000",
+    "prefixStyle": {
+      "type": "custom",
+      "fontSize": 14.0
+    },
+    "prefixIconColor": "#FF0000",
+    "suffixStyle": {
+      "type": "custom",
+      "fontSize": 14.0
+    },
+    "suffixIconColor": "#FF0000",
+    "counterStyle": {
+      "type": "custom",
+      "fontSize": 14.0
+    },
+    "filled": true,
+    "fillColor": "#FF0000",
+    "activeIndicatorBorder": {},
+    "outlineBorder": {},
+    "focusColor": "#FF0000",
+    "hoverColor": "#FF0000",
+    "errorBorder": {},
+    "focusedBorder": {},
+    "focusedErrorBorder": {},
+    "disabledBorder": {},
+    "enabledBorder": {},
+    "border": {},
+    "alignLabelWithHint": true,
+    "constraints": {}
+  },
+  "materialTapTargetSize": "padded",
+  "scrollbarTheme": {
+    "thumbVisibility": true,
+    "thickness": 1.5,
+    "trackVisibility": true,
+    "radius": 1.5,
+    "thumbColor": "#FF0000",
+    "trackColor": "#FF0000",
+    "trackBorderColor": "#FF0000",
+    "crossAxisMargin": 1.5,
+    "mainAxisMargin": 1.5,
+    "minThumbLength": 1.5,
+    "interactive": true
+  },
+  "useMaterial3": true,
+  "colorScheme": {
+    "brightness": "light",
+    "primary": "sample",
+    "onPrimary": "sample",
+    "primaryContainer": "sample",
+    "onPrimaryContainer": "sample",
+    "primaryFixed": "sample",
+    "primaryFixedDim": "sample",
+    "onPrimaryFixed": "sample",
+    "onPrimaryFixedVariant": "sample",
+    "secondary": "sample",
+    "onSecondary": "sample",
+    "secondaryContainer": "sample",
+    "onSecondaryContainer": "sample",
+    "secondaryFixed": "sample",
+    "secondaryFixedDim": "sample",
+    "onSecondaryFixed": "sample",
+    "onSecondaryFixedVariant": "sample",
+    "tertiary": "sample",
+    "onTertiary": "sample",
+    "tertiaryContainer": "sample",
+    "onTertiaryContainer": "sample",
+    "tertiaryFixed": "sample",
+    "tertiaryFixedDim": "sample",
+    "onTertiaryFixed": "sample",
+    "onTertiaryFixedVariant": "sample",
+    "error": "sample",
+    "onError": "sample",
+    "errorContainer": "sample",
+    "onErrorContainer": "sample",
+    "surface": "sample",
+    "onSurface": "sample",
+    "surfaceDim": "sample",
+    "surfaceBright": "sample",
+    "surfaceContainerLowest": "sample",
+    "surfaceContainerLow": "sample",
+    "surfaceContainer": "sample",
+    "surfaceContainerHigh": "sample",
+    "surfaceContainerHighest": "sample",
+    "onSurfaceVariant": "sample",
+    "outline": "sample",
+    "outlineVariant": "sample",
+    "shadow": "sample",
+    "scrim": "sample",
+    "inverseSurface": "sample",
+    "onInverseSurface": "sample",
+    "inversePrimary": "sample",
+    "surfaceTint": "sample"
+  },
+  "brightness": "light",
+  "colorSchemeSeed": "sample",
+  "canvasColor": "#FF0000",
+  "cardColor": "#FF0000",
+  "disabledColor": "#FF0000",
+  "dividerColor": "#FF0000",
+  "focusColor": "#FF0000",
+  "highlightColor": "#FF0000",
+  "hintColor": "#FF0000",
+  "hoverColor": "#FF0000",
+  "primaryColor": "#FF0000",
+  "primaryColorDark": "sample",
+  "primaryColorLight": "sample",
+  "primarySwatch": {
+    "primary": "sample",
+    "shade50": "sample",
+    "shade100": "sample",
+    "shade200": "sample",
+    "shade300": "sample",
+    "shade400": "sample",
+    "shade500": "sample",
+    "shade600": "sample",
+    "shade700": "sample",
+    "shade800": "sample",
+    "shade900": "sample"
+  },
+  "scaffoldBackgroundColor": "#FF0000",
+  "secondaryHeaderColor": "#FF0000",
+  "shadowColor": "#FF0000",
+  "splashColor": "#FF0000",
+  "unselectedWidgetColor": "#FF0000",
+  "fontFamily": "sample",
+  "fontFamilyFallback": [
+    "sample"
+  ],
+  "package": "sample",
+  "iconTheme": {
+    "size": 1.5,
+    "fill": 1.5,
+    "weight": 1.5,
+    "grade": 1.5,
+    "opticalSize": 1.5,
+    "color": "#FF0000",
+    "opacity": 1.5,
+    "shadows": [
+      {}
+    ]
+  },
+  "primaryIconTheme": {
+    "size": 1.5,
+    "fill": 1.5,
+    "weight": 1.5,
+    "grade": 1.5,
+    "opticalSize": 1.5,
+    "color": "#FF0000",
+    "opacity": 1.5,
+    "shadows": [
+      {}
+    ]
+  },
+  "primaryTextTheme": {
+    "displayLarge": {
+      "type": "custom",
+      "fontSize": 14.0
+    },
+    "displayMedium": {
+      "type": "custom",
+      "fontSize": 14.0
+    },
+    "displaySmall": {
+      "type": "custom",
+      "fontSize": 14.0
+    },
+    "headlineLarge": {
+      "type": "custom",
+      "fontSize": 14.0
+    },
+    "headlineMedium": {
+      "type": "custom",
+      "fontSize": 14.0
+    },
+    "headlineSmall": {
+      "type": "custom",
+      "fontSize": 14.0
+    },
+    "titleLarge": {
+      "type": "custom",
+      "fontSize": 14.0
+    },
+    "titleMedium": {
+      "type": "custom",
+      "fontSize": 14.0
+    },
+    "titleSmall": {
+      "type": "custom",
+      "fontSize": 14.0
+    },
+    "bodyLarge": {
+      "type": "custom",
+      "fontSize": 14.0
+    },
+    "bodyMedium": {
+      "type": "custom",
+      "fontSize": 14.0
+    },
+    "bodySmall": {
+      "type": "custom",
+      "fontSize": 14.0
+    },
+    "labelLarge": {
+      "type": "custom",
+      "fontSize": 14.0
+    },
+    "labelMedium": {
+      "type": "custom",
+      "fontSize": 14.0
+    },
+    "labelSmall": {
+      "type": "custom",
+      "fontSize": 14.0
+    }
+  },
+  "textTheme": {
+    "displayLarge": {
+      "type": "custom",
+      "fontSize": 14.0
+    },
+    "displayMedium": {
+      "type": "custom",
+      "fontSize": 14.0
+    },
+    "displaySmall": {
+      "type": "custom",
+      "fontSize": 14.0
+    },
+    "headlineLarge": {
+      "type": "custom",
+      "fontSize": 14.0
+    },
+    "headlineMedium": {
+      "type": "custom",
+      "fontSize": 14.0
+    },
+    "headlineSmall": {
+      "type": "custom",
+      "fontSize": 14.0
+    },
+    "titleLarge": {
+      "type": "custom",
+      "fontSize": 14.0
+    },
+    "titleMedium": {
+      "type": "custom",
+      "fontSize": 14.0
+    },
+    "titleSmall": {
+      "type": "custom",
+      "fontSize": 14.0
+    },
+    "bodyLarge": {
+      "type": "custom",
+      "fontSize": 14.0
+    },
+    "bodyMedium": {
+      "type": "custom",
+      "fontSize": 14.0
+    },
+    "bodySmall": {
+      "type": "custom",
+      "fontSize": 14.0
+    },
+    "labelLarge": {
+      "type": "custom",
+      "fontSize": 14.0
+    },
+    "labelMedium": {
+      "type": "custom",
+      "fontSize": 14.0
+    },
+    "labelSmall": {
+      "type": "custom",
+      "fontSize": 14.0
+    }
+  },
+  "appBarTheme": {
+    "backgroundColor": "#FF0000",
+    "foregroundColor": "#FF0000",
+    "elevation": 1.5,
+    "scrolledUnderElevation": 1.5,
+    "shadowColor": "#FF0000",
+    "surfaceTintColor": "#FF0000",
+    "shape": {
+      "type": "circleBorder"
+    },
+    "iconTheme": {},
+    "actionsIconTheme": {},
+    "centerTitle": true,
+    "titleSpacing": 1.5,
+    "leadingWidth": 1.5,
+    "toolbarHeight": 1.5,
+    "toolbarTextStyle": {
+      "type": "custom",
+      "fontSize": 14.0
+    },
+    "titleTextStyle": {
+      "type": "custom",
+      "fontSize": 14.0
+    },
+    "systemOverlayStyle": {},
+    "actionsPadding": {}
+  },
+  "bannerTheme": {
+    "backgroundColor": "#FF0000",
+    "surfaceTintColor": "#FF0000",
+    "shadowColor": "#FF0000",
+    "dividerColor": "#FF0000",
+    "contentTextStyle": {
+      "type": "custom",
+      "fontSize": 14.0
+    },
+    "elevation": 1.5,
+    "padding": {},
+    "leadingPadding": {}
+  },
+  "bottomAppBarTheme": {
+    "color": "#FF0000",
+    "elevation": 1.5,
+    "height": 1.5,
+    "surfaceTintColor": "#FF0000",
+    "shadowColor": "#FF0000",
+    "padding": {}
+  },
+  "bottomNavigationBarTheme": {
+    "backgroundColor": "#FF0000",
+    "elevation": 1.5,
+    "selectedIconTheme": {},
+    "unselectedIconTheme": {},
+    "selectedItemColor": "#FF0000",
+    "unselectedItemColor": "#FF0000",
+    "selectedLabelStyle": {
+      "type": "custom",
+      "fontSize": 14.0
+    },
+    "unselectedLabelStyle": {
+      "type": "custom",
+      "fontSize": 14.0
+    },
+    "showSelectedLabels": true,
+    "showUnselectedLabels": true,
+    "type": "fixed",
+    "enableFeedback": true,
+    "landscapeLayout": "spread"
+  },
+  "bottomSheetTheme": {
+    "backgroundColor": "#FF0000",
+    "surfaceTintColor": "#FF0000",
+    "elevation": 1.5,
+    "modalBackgroundColor": "#FF0000",
+    "modalBarrierColor": "#FF0000",
+    "shadowColor": "#FF0000",
+    "modalElevation": 1.5,
+    "shape": {},
+    "showDragHandle": true,
+    "dragHandleColor": "#FF0000",
+    "dragHandleSize": {},
+    "clipBehavior": "none",
+    "constraints": {}
+  },
+  "buttonTheme": {
+    "textTheme": "normal",
+    "minWidth": 1.5,
+    "height": 1.5,
+    "padding": {},
+    "shape": {
+      "type": "circleBorder"
+    },
+    "layoutBehavior": "constrained",
+    "alignedDropdown": true,
+    "buttonColor": "#FF0000",
+    "disabledColor": "#FF0000",
+    "focusColor": "#FF0000",
+    "hoverColor": "#FF0000",
+    "highlightColor": "#FF0000",
+    "splashColor": "#FF0000",
+    "colorScheme": {
+      "brightness": "light",
+      "primary": "sample",
+      "onPrimary": "sample",
+      "secondary": "sample",
+      "onSecondary": "sample",
+      "error": "sample",
+      "onError": "sample",
+      "surface": "sample",
+      "onSurface": "sample"
+    },
+    "materialTapTargetSize": "padded"
+  },
+  "cardTheme": {
+    "clipBehavior": "none",
+    "color": "#FF0000",
+    "shadowColor": "#FF0000",
+    "surfaceTintColor": "#FF0000",
+    "elevation": 1.5,
+    "margin": {},
+    "shape": {}
+  },
+  "checkboxTheme": {
+    "mouseCursor": "none",
+    "fillColor": "#FF0000",
+    "checkColor": "#FF0000",
+    "overlayColor": "#FF0000",
+    "splashRadius": 1.5,
+    "materialTapTargetSize": "padded",
+    "visualDensity": {},
+    "shape": {
+      "type": "circleBorder"
+    },
+    "side": {}
+  },
+  "chipTheme": {
+    "color": "#FF0000",
+    "backgroundColor": "#FF0000",
+    "deleteIconColor": "#FF0000",
+    "disabledColor": "#FF0000",
+    "selectedColor": "#FF0000",
+    "secondarySelectedColor": "#FF0000",
+    "shadowColor": "#FF0000",
+    "surfaceTintColor": "#FF0000",
+    "selectedShadowColor": "#FF0000",
+    "showCheckmark": true,
+    "checkmarkColor": "#FF0000",
+    "labelPadding": {},
+    "padding": {},
+    "side": {},
+    "shape": {
+      "type": "circleBorder"
+    },
+    "labelStyle": {
+      "type": "custom",
+      "fontSize": 14.0
+    },
+    "secondaryLabelStyle": {
+      "type": "custom",
+      "fontSize": 14.0
+    },
+    "brightness": "light",
+    "elevation": 1.5,
+    "pressElevation": 1.5,
+    "iconTheme": {},
+    "avatarBoxConstraints": {},
+    "deleteIconBoxConstraints": {}
+  },
+  "datePickerTheme": {
+    "backgroundColor": "#FF0000",
+    "elevation": 1.5,
+    "shadowColor": "#FF0000",
+    "surfaceTintColor": "#FF0000",
+    "shape": {
+      "type": "circleBorder"
+    },
+    "headerBackgroundColor": "#FF0000",
+    "headerForegroundColor": "#FF0000",
+    "headerHeadlineStyle": {
+      "type": "custom",
+      "fontSize": 14.0
+    },
+    "headerHelpStyle": {
+      "type": "custom",
+      "fontSize": 14.0
+    },
+    "weekdayStyle": {
+      "type": "custom",
+      "fontSize": 14.0
+    },
+    "dayStyle": {
+      "type": "custom",
+      "fontSize": 14.0
+    },
+    "dayForegroundColor": "#FF0000",
+    "dayBackgroundColor": "#FF0000",
+    "dayOverlayColor": "#FF0000",
+    "dayShape": {
+      "type": "circleBorder"
+    },
+    "todayForegroundColor": "#FF0000",
+    "todayBackgroundColor": "#FF0000",
+    "todayBorder": {},
+    "yearStyle": {
+      "type": "custom",
+      "fontSize": 14.0
+    },
+    "yearForegroundColor": "#FF0000",
+    "yearBackgroundColor": "#FF0000",
+    "yearOverlayColor": "#FF0000",
+    "rangePickerBackgroundColor": "#FF0000",
+    "rangePickerElevation": 1.5,
+    "rangePickerShadowColor": "#FF0000",
+    "rangePickerSurfaceTintColor": "#FF0000",
+    "rangePickerShape": {
+      "type": "circleBorder"
+    },
+    "rangePickerHeaderBackgroundColor": "#FF0000",
+    "rangePickerHeaderForegroundColor": "#FF0000",
+    "rangePickerHeaderHeadlineStyle": {
+      "type": "custom",
+      "fontSize": 14.0
+    },
+    "rangePickerHeaderHelpStyle": {
+      "type": "custom",
+      "fontSize": 14.0
+    },
+    "rangeSelectionBackgroundColor": "#FF0000",
+    "rangeSelectionOverlayColor": "#FF0000",
+    "dividerColor": "#FF0000",
+    "inputDecorationTheme": {},
+    "cancelButtonStyle": {},
+    "confirmButtonStyle": {}
+  },
+  "dialogTheme": {
+    "backgroundColor": "#FF0000",
+    "elevation": 1.5,
+    "shadowColor": "#FF0000",
+    "surfaceTintColor": "#FF0000",
+    "shape": {},
+    "alignment": {
+      "dx": 1.5,
+      "dy": 1.5
+    },
+    "iconColor": "#FF0000",
+    "titleTextStyle": {
+      "type": "custom",
+      "fontSize": 14.0
+    },
+    "contentTextStyle": {
+      "type": "custom",
+      "fontSize": 14.0
+    },
+    "actionsPadding": {},
+    "barrierColor": "#FF0000",
+    "insetPadding": {},
+    "clipBehavior": "none",
+    "constraints": {}
+  },
+  "dividerTheme": {
+    "color": "#FF0000",
+    "space": 1.5,
+    "thickness": 1.5,
+    "indent": 1.5,
+    "endIndent": 1.5
+  },
+  "drawerTheme": {
+    "backgroundColor": "#FF0000",
+    "scrimColor": "#FF0000",
+    "elevation": 1.5,
+    "shadowColor": "#FF0000",
+    "surfaceTintColor": "#FF0000",
+    "shape": {
+      "type": "circleBorder"
+    },
+    "endShape": {
+      "type": "circleBorder"
+    },
+    "width": 1.5,
+    "clipBehavior": "none"
+  },
+  "elevatedButtonTheme": {
+    "foregroundColor": "#FF0000",
+    "backgroundColor": "#FF0000",
+    "disabledForegroundColor": "#FF0000",
+    "disabledBackgroundColor": "#FF0000",
+    "shadowColor": "#FF0000",
+    "surfaceTintColor": "#FF0000",
+    "iconColor": "#FF0000",
+    "iconSize": 1.5,
+    "iconAlignment": "start",
+    "disabledIconColor": "#FF0000",
+    "overlayColor": "#FF0000",
+    "elevation": 1.5,
+    "textStyle": {
+      "type": "custom",
+      "fontSize": 14.0
+    },
+    "padding": {},
+    "minimumSize": {},
+    "fixedSize": {},
+    "maximumSize": {},
+    "side": {},
+    "shape": {
+      "type": "circleBorder"
+    },
+    "enableFeedback": true,
+    "alignment": "topLeft",
+    "tapTargetSize": "padded",
+    "animationDuration": {},
+    "enabledMouseCursor": "none",
+    "disabledMouseCursor": "none",
+    "visualDensity": {}
+  },
+  "filledButtonTheme": {
+    "foregroundColor": "#FF0000",
+    "backgroundColor": "#FF0000",
+    "disabledForegroundColor": "#FF0000",
+    "disabledBackgroundColor": "#FF0000",
+    "shadowColor": "#FF0000",
+    "surfaceTintColor": "#FF0000",
+    "iconColor": "#FF0000",
+    "iconSize": 1.5,
+    "iconAlignment": "start",
+    "disabledIconColor": "#FF0000",
+    "overlayColor": "#FF0000",
+    "elevation": 1.5,
+    "textStyle": {
+      "type": "custom",
+      "fontSize": 14.0
+    },
+    "padding": {},
+    "minimumSize": {},
+    "fixedSize": {},
+    "maximumSize": {},
+    "side": {},
+    "shape": {
+      "type": "circleBorder"
+    },
+    "enableFeedback": true,
+    "alignment": "topLeft",
+    "tapTargetSize": "padded",
+    "animationDuration": {},
+    "enabledMouseCursor": "none",
+    "disabledMouseCursor": "none",
+    "visualDensity": {}
+  },
+  "floatingActionButtonTheme": {
+    "foregroundColor": "#FF0000",
+    "backgroundColor": "#FF0000",
+    "focusColor": "#FF0000",
+    "hoverColor": "#FF0000",
+    "splashColor": "#FF0000",
+    "elevation": 1.5,
+    "focusElevation": 1.5,
+    "hoverElevation": 1.5,
+    "disabledElevation": 1.5,
+    "highlightElevation": 1.5,
+    "shape": {
+      "type": "circleBorder"
+    },
+    "enableFeedback": true,
+    "iconSize": 1.5,
+    "sizeConstraints": {},
+    "extendedIconLabelSpacing": 1.5,
+    "extendedPadding": {},
+    "extendedTextStyle": {
+      "type": "custom",
+      "fontSize": 14.0
+    }
+  },
+  "iconButtonTheme": {
+    "foregroundColor": "#FF0000",
+    "backgroundColor": "#FF0000",
+    "disabledForegroundColor": "#FF0000",
+    "disabledBackgroundColor": "#FF0000",
+    "shadowColor": "#FF0000",
+    "surfaceTintColor": "#FF0000",
+    "iconColor": "#FF0000",
+    "iconSize": 1.5,
+    "iconAlignment": "start",
+    "disabledIconColor": "#FF0000",
+    "overlayColor": "#FF0000",
+    "elevation": 1.5,
+    "textStyle": {
+      "type": "custom",
+      "fontSize": 14.0
+    },
+    "padding": {},
+    "minimumSize": {},
+    "fixedSize": {},
+    "maximumSize": {},
+    "side": {},
+    "shape": {
+      "type": "circleBorder"
+    },
+    "enableFeedback": true,
+    "alignment": "topLeft",
+    "tapTargetSize": "padded",
+    "animationDuration": {},
+    "enabledMouseCursor": "none",
+    "disabledMouseCursor": "none",
+    "visualDensity": {}
+  },
+  "listTileTheme": {
+    "dense": true,
+    "shape": {},
+    "style": "list",
+    "selectedColor": "#FF0000",
+    "iconColor": "#FF0000",
+    "textColor": "#FF0000",
+    "titleTextStyle": {
+      "type": "custom",
+      "fontSize": 14.0
+    },
+    "subtitleTextStyle": {
+      "type": "custom",
+      "fontSize": 14.0
+    },
+    "leadingAndTrailingTextStyle": {
+      "type": "custom",
+      "fontSize": 14.0
+    },
+    "contentPadding": {},
+    "tileColor": "#FF0000",
+    "selectedTileColor": "#FF0000",
+    "horizontalTitleGap": 1.5,
+    "minVerticalPadding": 1.5,
+    "minLeadingWidth": 1.5,
+    "enableFeedback": true,
+    "visualDensity": {},
+    "titleAlignment": "titleHeight",
+    "shadows": [
+      {}
+    ]
+  },
+  "menuButtonTheme": {
+    "foregroundColor": "#FF0000",
+    "backgroundColor": "#FF0000",
+    "disabledForegroundColor": "#FF0000",
+    "disabledBackgroundColor": "#FF0000",
+    "shadowColor": "#FF0000",
+    "surfaceTintColor": "#FF0000",
+    "iconColor": "#FF0000",
+    "iconSize": 1.5,
+    "iconAlignment": "start",
+    "disabledIconColor": "#FF0000",
+    "overlayColor": "#FF0000",
+    "elevation": 1.5,
+    "textStyle": {
+      "type": "custom",
+      "fontSize": 14.0
+    },
+    "padding": {},
+    "minimumSize": {},
+    "fixedSize": {},
+    "maximumSize": {},
+    "side": {},
+    "shape": {
+      "type": "circleBorder"
+    },
+    "enableFeedback": true,
+    "alignment": "topLeft",
+    "tapTargetSize": "padded",
+    "animationDuration": {},
+    "enabledMouseCursor": "none",
+    "disabledMouseCursor": "none",
+    "visualDensity": {}
+  },
+  "navigationBarTheme": {
+    "height": 1.5,
+    "backgroundColor": "#FF0000",
+    "elevation": 1.5,
+    "shadowColor": "#FF0000",
+    "surfaceTintColor": "#FF0000",
+    "indicatorColor": "#FF0000",
+    "indicatorShape": {},
+    "labelTextStyle": {
+      "type": "custom",
+      "fontSize": 14.0
+    },
+    "iconTheme": {},
+    "labelBehavior": "alwaysShow"
+  },
+  "navigationDrawerTheme": {
+    "tileHeight": 1.5,
+    "backgroundColor": "#FF0000",
+    "elevation": 1.5,
+    "shadowColor": "#FF0000",
+    "surfaceTintColor": "#FF0000",
+    "indicatorColor": "#FF0000",
+    "indicatorShape": {
+      "type": "circleBorder"
+    },
+    "indicatorSize": {},
+    "labelTextStyle": {
+      "type": "custom",
+      "fontSize": 14.0
+    },
+    "iconTheme": {}
+  },
+  "outlinedButtonTheme": {
+    "foregroundColor": "#FF0000",
+    "backgroundColor": "#FF0000",
+    "disabledForegroundColor": "#FF0000",
+    "disabledBackgroundColor": "#FF0000",
+    "shadowColor": "#FF0000",
+    "surfaceTintColor": "#FF0000",
+    "iconColor": "#FF0000",
+    "iconSize": 1.5,
+    "iconAlignment": "start",
+    "disabledIconColor": "#FF0000",
+    "overlayColor": "#FF0000",
+    "elevation": 1.5,
+    "textStyle": {
+      "type": "custom",
+      "fontSize": 14.0
+    },
+    "padding": {},
+    "minimumSize": {},
+    "fixedSize": {},
+    "maximumSize": {},
+    "side": {},
+    "shape": {
+      "type": "circleBorder"
+    },
+    "enableFeedback": true,
+    "alignment": "topLeft",
+    "tapTargetSize": "padded",
+    "animationDuration": {},
+    "enabledMouseCursor": "none",
+    "disabledMouseCursor": "none",
+    "visualDensity": {}
+  },
+  "segmentedButtonTheme": {
+    "foregroundColor": "#FF0000",
+    "backgroundColor": "#FF0000",
+    "disabledForegroundColor": "#FF0000",
+    "disabledBackgroundColor": "#FF0000",
+    "shadowColor": "#FF0000",
+    "surfaceTintColor": "#FF0000",
+    "iconColor": "#FF0000",
+    "iconSize": 1.5,
+    "iconAlignment": "start",
+    "disabledIconColor": "#FF0000",
+    "overlayColor": "#FF0000",
+    "elevation": 1.5,
+    "textStyle": {
+      "type": "custom",
+      "fontSize": 14.0
+    },
+    "padding": {},
+    "minimumSize": {},
+    "fixedSize": {},
+    "maximumSize": {},
+    "side": {},
+    "shape": {
+      "type": "circleBorder"
+    },
+    "enableFeedback": true,
+    "alignment": "topLeft",
+    "tapTargetSize": "padded",
+    "animationDuration": {},
+    "enabledMouseCursor": "none",
+    "disabledMouseCursor": "none",
+    "visualDensity": {}
+  },
+  "snackBarTheme": {
+    "behavior": "fixed",
+    "backgroundColor": "#FF0000",
+    "elevation": 1.5,
+    "shape": {
+      "type": "circleBorder"
+    },
+    "width": 1.5,
+    "contentTextStyle": {
+      "type": "custom",
+      "fontSize": 14.0
+    },
+    "actionTextColor": "#FF0000",
+    "disabledActionTextColor": "#FF0000",
+    "insetPadding": {},
+    "dismissDirection": "horizontal",
+    "showCloseIcon": true,
+    "closeIconColor": "#FF0000",
+    "actionOverflowThreshold": 1.5,
+    "actionBackgroundColor": "#FF0000",
+    "disabledActionBackgroundColor": "#FF0000"
+  },
+  "tabBarTheme": {
+    "indicator": {},
+    "indicatorColor": "#FF0000",
+    "indicatorSize": "tab",
+    "dividerColor": "#FF0000",
+    "labelColor": "#FF0000",
+    "labelPadding": {},
+    "labelStyle": {
+      "type": "custom",
+      "fontSize": 14.0
+    },
+    "unselectedLabelColor": "#FF0000",
+    "unselectedLabelStyle": {
+      "type": "custom",
+      "fontSize": 14.0
+    },
+    "overlayColor": "#FF0000"
+  },
+  "textButtonTheme": {
+    "foregroundColor": "#FF0000",
+    "backgroundColor": "#FF0000",
+    "disabledForegroundColor": "#FF0000",
+    "disabledBackgroundColor": "#FF0000",
+    "shadowColor": "#FF0000",
+    "surfaceTintColor": "#FF0000",
+    "iconColor": "#FF0000",
+    "iconSize": 1.5,
+    "iconAlignment": "start",
+    "disabledIconColor": "#FF0000",
+    "overlayColor": "#FF0000",
+    "elevation": 1.5,
+    "textStyle": {
+      "type": "custom",
+      "fontSize": 14.0
+    },
+    "padding": {},
+    "minimumSize": {},
+    "fixedSize": {},
+    "maximumSize": {},
+    "side": {},
+    "shape": {
+      "type": "circleBorder"
+    },
+    "enableFeedback": true,
+    "alignment": "topLeft",
+    "tapTargetSize": "padded",
+    "animationDuration": {},
+    "enabledMouseCursor": "none",
+    "disabledMouseCursor": "none",
+    "visualDensity": {}
+  },
+  "tooltipTheme": {
+    "constraints": {},
+    "padding": {},
+    "margin": {},
+    "verticalOffset": 1.5,
+    "preferBelow": true,
+    "excludeFromSemantics": true,
+    "decoration": {},
+    "textStyle": {
+      "type": "custom",
+      "fontSize": 14.0
+    },
+    "textAlign": "left",
+    "waitDuration": {},
+    "showDuration": {},
+    "exitDuration": {},
+    "triggerMode": "manual",
+    "enableFeedback": true
+  }
+}

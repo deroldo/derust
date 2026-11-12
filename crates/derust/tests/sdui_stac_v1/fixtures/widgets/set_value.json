@@ -1,0 +1,17 @@
+{
+  "type": "setValue",
+  "values": [
+    {
+      "key": "userName",
+      "value": "John Doe"
+    },
+    {
+      "key": "isLoggedIn",
+      "value": true
+    }
+  ],
+  "child": {
+    "type": "text",
+    "data": "Welcome!"
+  }
+}

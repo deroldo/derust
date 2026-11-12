@@ -1,0 +1,9 @@
+{
+  "type": "defaultBottomNavigationController",
+  "length": 1,
+  "initialIndex": 1,
+  "child": {
+    "type": "text",
+    "data": "sample"
+  }
+}

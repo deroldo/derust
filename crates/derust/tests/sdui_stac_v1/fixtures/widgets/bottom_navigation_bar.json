@@ -1,0 +1,39 @@
+{
+  "type": "bottomNavigationBar",
+  "items": [
+    {
+      "icon": {
+        "type": "text",
+        "data": "sample"
+      },
+      "label": "sample",
+      "activeIcon": {
+        "type": "text",
+        "data": "sample"
+      },
+      "backgroundColor": "#FF0000",
+      "tooltip": "sample"
+    }
+  ],
+  "elevation": 1.5,
+  "barType": "fixed",
+  "fixedColor": "#FF0000",
+  "backgroundColor": "#FF0000",
+  "iconSize": 1.5,
+  "selectedItemColor": "#FF0000",
+  "unselectedItemColor": "#FF0000",
+  "selectedFontSize": 1.5,
+  "unselectedFontSize": 1.5,
+  "selectedLabelStyle": {
+    "type": "custom",
+    "fontSize": 14.0
+  },
+  "unselectedLabelStyle": {
+    "type": "custom",
+    "fontSize": 14.0
+  },
+  "showSelectedLabels": true,
+  "showUnselectedLabels": true,
+  "enableFeedback": true,
+  "landscapeLayout": "spread"
+}

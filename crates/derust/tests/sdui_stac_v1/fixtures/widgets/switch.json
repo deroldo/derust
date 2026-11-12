@@ -1,0 +1,34 @@
+{
+  "type": "switch",
+  "switchType": "adaptive",
+  "value": true,
+  "onChanged": {
+    "actionType": "navigate",
+    "routeName": "/sample"
+  },
+  "autofocus": true,
+  "activeThumbColor": "#FF0000",
+  "activeTrackColor": "#FF0000",
+  "focusColor": "#FF0000",
+  "hoverColor": "#FF0000",
+  "inactiveThumbColor": "#FF0000",
+  "inactiveTrackColor": "#FF0000",
+  "onLabelColor": "#FF0000",
+  "offLabelColor": "#FF0000",
+  "splashRadius": 1.5,
+  "dragStartBehavior": "down",
+  "overlayColor": "#FF0000",
+  "thumbColor": "#FF0000",
+  "trackColor": "#FF0000",
+  "materialTapTargetSize": "padded",
+  "trackOutlineColor": "#FF0000",
+  "trackOutlineWidth": 1.5,
+  "thumbIcon": {
+    "type": "text",
+    "data": "sample"
+  },
+  "inactiveThumbImage": "sample",
+  "activeThumbImage": "sample",
+  "applyTheme": true,
+  "applyCupertinoTheme": true
+}

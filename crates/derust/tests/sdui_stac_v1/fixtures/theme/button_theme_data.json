@@ -1,0 +1,9 @@
+{
+  "minWidth": 88.0,
+  "height": 36.0,
+  "buttonColor": "#2196F3",
+  "disabledColor": "#BDBDBD",
+  "textTheme": "primary",
+  "layoutBehavior": "padded",
+  "alignedDropdown": false
+}

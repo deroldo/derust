@@ -1,0 +1,56 @@
+{
+  "actionType": "showSnackBar",
+  "content": {
+    "type": "text",
+    "data": "sample"
+  },
+  "backgroundColor": "#FF0000",
+  "elevation": 1.5,
+  "margin": {
+    "left": 1.5,
+    "top": 1.5,
+    "right": 1.5,
+    "bottom": 1.5
+  },
+  "padding": {
+    "left": 1.5,
+    "top": 1.5,
+    "right": 1.5,
+    "bottom": 1.5
+  },
+  "width": 1.5,
+  "shape": {
+    "type": "circleBorder"
+  },
+  "hitTestBehavior": "deferToChild",
+  "behavior": "fixed",
+  "action": {
+    "actionType": "showSnackBar",
+    "textColor": "#FF0000",
+    "disabledTextColor": "#FF0000",
+    "backgroundColor": "#FF0000",
+    "disabledBackgroundColor": "#FF0000",
+    "label": "sample",
+    "onPressed": {
+      "actionType": "navigate",
+      "routeName": "/sample"
+    }
+  },
+  "actionOverflowThreshold": 1.5,
+  "showCloseIcon": true,
+  "closeIconColor": "#FF0000",
+  "duration": {
+    "days": 1,
+    "hours": 1,
+    "minutes": 1,
+    "seconds": 1,
+    "milliseconds": 1,
+    "microseconds": 1
+  },
+  "onVisible": {
+    "actionType": "navigate",
+    "routeName": "/sample"
+  },
+  "dismissDirection": "horizontal",
+  "clipBehavior": "none"
+}

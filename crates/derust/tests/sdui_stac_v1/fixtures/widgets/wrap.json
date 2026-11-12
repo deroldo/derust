@@ -1,0 +1,23 @@
+{
+  "type": "wrap",
+  "direction": "horizontal",
+  "alignment": "start",
+  "spacing": 8.0,
+  "runAlignment": "start",
+  "runSpacing": 8.0,
+  "crossAxisAlignment": "start",
+  "children": [
+    {
+      "type": "text",
+      "data": "Child 1"
+    },
+    {
+      "type": "text",
+      "data": "Child 2"
+    },
+    {
+      "type": "text",
+      "data": "Child 3"
+    }
+  ]
+}

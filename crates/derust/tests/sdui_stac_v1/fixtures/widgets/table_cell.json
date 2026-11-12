@@ -1,0 +1,8 @@
+{
+  "type": "tableCell",
+  "verticalAlignment": "top",
+  "child": {
+    "type": "text",
+    "data": "sample"
+  }
+}

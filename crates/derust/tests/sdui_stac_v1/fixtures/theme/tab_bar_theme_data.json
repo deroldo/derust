@@ -1,0 +1,36 @@
+{
+  "indicator": {
+    "color": "#FF0000",
+    "image": {
+      "src": "sample"
+    },
+    "border": {},
+    "borderRadius": {},
+    "boxShadow": [
+      {}
+    ],
+    "gradient": {},
+    "backgroundBlendMode": "clear",
+    "shape": "rectangle"
+  },
+  "indicatorColor": "#FF0000",
+  "indicatorSize": "tab",
+  "dividerColor": "#FF0000",
+  "labelColor": "#FF0000",
+  "labelPadding": {
+    "left": 1.5,
+    "top": 1.5,
+    "right": 1.5,
+    "bottom": 1.5
+  },
+  "labelStyle": {
+    "type": "custom",
+    "fontSize": 14.0
+  },
+  "unselectedLabelColor": "#FF0000",
+  "unselectedLabelStyle": {
+    "type": "custom",
+    "fontSize": 14.0
+  },
+  "overlayColor": "#FF0000"
+}

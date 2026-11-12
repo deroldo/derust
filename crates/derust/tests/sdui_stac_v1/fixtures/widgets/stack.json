@@ -1,0 +1,16 @@
+{
+  "type": "stack",
+  "alignment": "center",
+  "children": [
+    {
+      "type": "container",
+      "color": "#EEEEEE",
+      "width": 200,
+      "height": 200
+    },
+    {
+      "type": "text",
+      "data": "On top"
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "type": "gridView",
+  "crossAxisCount": 2,
+  "mainAxisSpacing": 10,
+  "crossAxisSpacing": 10,
+  "childAspectRatio": 1.0,
+  "padding": {
+    "left": 10,
+    "top": 10,
+    "right": 10,
+    "bottom": 10
+  },
+  "children": [
+    {
+      "type": "text",
+      "data": "Item 1"
+    },
+    {
+      "type": "text",
+      "data": "Item 2"
+    }
+  ]
+}

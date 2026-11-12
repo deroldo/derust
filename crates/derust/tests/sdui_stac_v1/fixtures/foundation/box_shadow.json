@@ -1,0 +1,10 @@
+{
+  "color": "#000000",
+  "blurRadius": 10.0,
+  "offset": {
+    "dx": 2.0,
+    "dy": 4.0
+  },
+  "spreadRadius": 1.0,
+  "blurStyle": "normal"
+}

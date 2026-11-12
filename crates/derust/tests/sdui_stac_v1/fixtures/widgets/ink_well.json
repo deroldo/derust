@@ -1,0 +1,87 @@
+{
+  "type": "inkWell",
+  "child": {
+    "type": "text",
+    "data": "sample"
+  },
+  "onTap": {
+    "actionType": "navigate",
+    "routeName": "/sample"
+  },
+  "onDoubleTap": {
+    "actionType": "navigate",
+    "routeName": "/sample"
+  },
+  "onLongPress": {
+    "actionType": "navigate",
+    "routeName": "/sample"
+  },
+  "onTapDown": {
+    "actionType": "navigate",
+    "routeName": "/sample"
+  },
+  "onTapUp": {
+    "actionType": "navigate",
+    "routeName": "/sample"
+  },
+  "onTapCancel": {
+    "actionType": "navigate",
+    "routeName": "/sample"
+  },
+  "onSecondaryTap": {
+    "actionType": "navigate",
+    "routeName": "/sample"
+  },
+  "onSecondaryTapUp": {
+    "actionType": "navigate",
+    "routeName": "/sample"
+  },
+  "onSecondaryTapDown": {
+    "actionType": "navigate",
+    "routeName": "/sample"
+  },
+  "onSecondaryTapCancel": {
+    "actionType": "navigate",
+    "routeName": "/sample"
+  },
+  "onHighlightChanged": {
+    "actionType": "navigate",
+    "routeName": "/sample"
+  },
+  "onHover": {
+    "actionType": "navigate",
+    "routeName": "/sample"
+  },
+  "mouseCursor": "none",
+  "focusColor": "#FF0000",
+  "hoverColor": "#FF0000",
+  "highlightColor": "#FF0000",
+  "overlayColor": "#FF0000",
+  "splashColor": "#FF0000",
+  "radius": 1.5,
+  "borderRadius": {
+    "topLeft": 1.5,
+    "topRight": 1.5,
+    "bottomLeft": 1.5,
+    "bottomRight": 1.5
+  },
+  "customBorder": {
+    "type": "circleBorder"
+  },
+  "enableFeedback": true,
+  "excludeFromSemantics": true,
+  "canRequestFocus": true,
+  "onFocusChange": {
+    "actionType": "navigate",
+    "routeName": "/sample"
+  },
+  "autofocus": true,
+  "hoverDuration": {
+    "days": 1,
+    "hours": 1,
+    "minutes": 1,
+    "seconds": 1,
+    "milliseconds": 1,
+    "microseconds": 1
+  }
+}

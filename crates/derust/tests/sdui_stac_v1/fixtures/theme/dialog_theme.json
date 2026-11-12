@@ -1,0 +1,35 @@
+{
+  "backgroundColor": "#FF0000",
+  "elevation": 1.5,
+  "shadowColor": "#FF0000",
+  "surfaceTintColor": "#FF0000",
+  "shape": {
+    "color": "#FF0000",
+    "borderStyle": "none",
+    "width": 1.5,
+    "strokeAlign": 1.5,
+    "top": {},
+    "right": {},
+    "bottom": {},
+    "left": {}
+  },
+  "alignment": {
+    "dx": 1.5,
+    "dy": 1.5
+  },
+  "titleTextStyle": {
+    "type": "custom",
+    "fontSize": 14.0
+  },
+  "contentTextStyle": {
+    "type": "custom",
+    "fontSize": 14.0
+  },
+  "actionsPadding": {
+    "left": 1.5,
+    "top": 1.5,
+    "right": 1.5,
+    "bottom": 1.5
+  },
+  "iconColor": "#FF0000"
+}
