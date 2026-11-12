@@ -1,14 +1,16 @@
 use crate::commonx::{DerustError, DerustTags};
 use crate::httpx::HttpResponse;
-use crate::sduix::stacx::common::Validate;
+use crate::sduix::stacx::common::{Validate, ValidationIssue, ValidationReport};
 use axum::http::StatusCode;
 use axum_tracing_opentelemetry::tracing_opentelemetry_instrumentation_sdk::find_current_trace_id;
 
 /// JSON response carrying a server-driven UI screen (works with any Stac major).
 ///
-/// The screen is validated and serialized **once**, in [`SduiResponse::try_new`]; a screen that
-/// cannot be validated or serialized yields a [`DerustError`] (HTTP 500) instead of a partial
-/// response.
+/// The screen is validated and serialized **once**, in [`SduiResponse::try_new`]: the typed
+/// checks (`Validate::validate`) run first, then the context dependent checks over the
+/// serialized JSON (`Validate::validate_serialized`). A screen with errors yields a
+/// [`DerustError`] (HTTP 500) instead of a partial response; warnings are only logged (path and
+/// message, never values).
 #[derive(Clone)]
 pub struct SduiResponse<T>
 where
@@ -19,6 +21,19 @@ where
     body: String,
     response_headers: Option<Vec<(String, String)>>,
     tags: DerustTags,
+}
+
+fn invalid_screen(issues: &[ValidationIssue], tags: DerustTags) -> DerustError {
+    let details = issues
+        .iter()
+        .map(|issue| issue.to_string())
+        .collect::<Vec<_>>()
+        .join("; ");
+    DerustError::without_body(
+        StatusCode::INTERNAL_SERVER_ERROR,
+        format!("failed to serialize SDUI screen: invalid screen: {details}"),
+        tags,
+    )
 }
 
 impl<T> SduiResponse<T>
@@ -33,19 +48,31 @@ where
     ) -> Result<Self, DerustError> {
         let issues = screen.validate();
         if !issues.is_empty() {
-            let details = issues
-                .iter()
-                .map(|issue| issue.to_string())
-                .collect::<Vec<_>>()
-                .join("; ");
-            return Err(DerustError::without_body(
-                StatusCode::INTERNAL_SERVER_ERROR,
-                format!("failed to serialize SDUI screen: invalid screen: {details}"),
-                tags,
-            ));
+            return Err(invalid_screen(&issues, tags));
         }
 
-        let body = serde_json::to_string(&screen).map_err(|error| {
+        let value = serde_json::to_value(&screen).map_err(|error| {
+            DerustError::without_body(
+                StatusCode::INTERNAL_SERVER_ERROR,
+                format!("failed to serialize SDUI screen: {error}"),
+                tags.clone(),
+            )
+        })?;
+
+        let mut report = ValidationReport::new();
+        screen.validate_serialized(&value, &mut report);
+        if !report.errors.is_empty() {
+            return Err(invalid_screen(&report.errors, tags));
+        }
+        for warning in &report.warnings {
+            tracing::warn!(
+                path = %warning.path,
+                message = %warning.message,
+                "SDUI screen warning"
+            );
+        }
+
+        let body = serde_json::to_string(&value).map_err(|error| {
             DerustError::without_body(
                 StatusCode::INTERNAL_SERVER_ERROR,
                 format!("failed to serialize SDUI screen: {error}"),
@@ -214,5 +241,137 @@ mod tests {
             .await
             .unwrap();
         assert_eq!(&bytes[..], br#"{"type":"text","data":"a"}"#);
+    }
+
+    #[derive(Clone)]
+    struct Capture(std::sync::Arc<std::sync::Mutex<Vec<u8>>>);
+
+    impl std::io::Write for Capture {
+        fn write(&mut self, buf: &[u8]) -> std::io::Result<usize> {
+            self.0.lock().unwrap().extend_from_slice(buf);
+            Ok(buf.len())
+        }
+        fn flush(&mut self) -> std::io::Result<()> {
+            Ok(())
+        }
+    }
+
+    fn reactive_screen() -> serde_json::Value {
+        serde_json::json!({
+            "type": "column",
+            "state": {"count": 0},
+            "children": [{"type": "elevatedButton", "onPressed": {
+                "actionType": "incrementState", "key": "count"}}]
+        })
+    }
+
+    #[test]
+    fn json_level_error_is_a_500_without_body() {
+        // typed-valid, but writes to an undeclared key (only the JSON checker sees it)
+        let screen =
+            Widget::from(
+                column()
+                    .state(StateBlock::new().with("a", 1))
+                    .children([Widget::from(
+                        elevated_button().on_pressed(set_state("zzz", 1)),
+                    )]),
+            );
+        let error = SduiResponse::try_new(StatusCode::OK, screen, tags())
+            .err()
+            .expect("invalid screen must be rejected");
+        assert_eq!(error.status_code(), StatusCode::INTERNAL_SERVER_ERROR);
+        let message = error.error_message().unwrap();
+        assert!(message.contains("invalid screen"), "{message}");
+        assert!(message.contains("undeclared state key `zzz`"), "{message}");
+        assert!(
+            message.contains("$.children[0].onPressed.values.zzz"),
+            "{message}"
+        );
+        assert!(error.response_body().is_none());
+        assert!(error
+            .tags()
+            .values()
+            .iter()
+            .any(|(k, v)| k == "screen" && v == "home"));
+    }
+
+    #[test]
+    fn reactive_screen_body_matches_the_json() {
+        let screen = Widget::from(
+            column()
+                .state(StateBlock::new().with("count", 0))
+                .children([Widget::from(
+                    elevated_button().on_pressed(increment_state("count")),
+                )]),
+        );
+        let response = SduiResponse::try_new(StatusCode::OK, screen, tags()).unwrap();
+        let body: serde_json::Value =
+            serde_json::from_str(&response.response_body().unwrap()).unwrap();
+        assert_eq!(body, reactive_screen());
+    }
+
+    #[test]
+    fn secure_values_never_reach_the_error_message() {
+        let marker = "MARKER-SECRET-123";
+        let screen = Widget::from(
+            column()
+                .global_state(GlobalStateBlock::new().with(
+                    "token",
+                    GlobalEntry::declared(marker).secure(true).persist(true),
+                ))
+                .state(StateBlock::new().with("a", marker))
+                .children([Widget::from(
+                    elevated_button().on_pressed(set_state("zzz", marker)),
+                )]),
+        );
+        let error = SduiResponse::try_new(StatusCode::OK, screen, tags())
+            .err()
+            .expect("invalid screen must be rejected");
+        assert!(!error.error_message().unwrap().contains(marker));
+    }
+
+    #[test]
+    fn warnings_are_logged_and_do_not_block() {
+        let buffer = std::sync::Arc::new(std::sync::Mutex::new(Vec::new()));
+        let writer = Capture(buffer.clone());
+        let subscriber = tracing_subscriber::fmt()
+            .with_writer(move || writer.clone())
+            .with_ansi(false)
+            .finish();
+        // reads an undeclared key: a warning only
+        let screen = Widget::from(
+            column()
+                .state(StateBlock::new().with("a", 1))
+                .children([Widget::from(text(Expr::from(StatePath::key("missing"))))]),
+        );
+        let response = tracing::subscriber::with_default(subscriber, || {
+            SduiResponse::try_new(StatusCode::OK, screen, tags())
+        });
+        assert!(response.is_ok());
+        let log = String::from_utf8(buffer.lock().unwrap().clone()).unwrap();
+        assert!(log.contains("SDUI screen warning"), "{log}");
+        assert!(log.contains("$.children[0].data"), "{log}");
+        assert!(log.contains("missing"), "{log}");
+    }
+
+    #[test]
+    fn valid_screen_logs_nothing() {
+        let buffer = std::sync::Arc::new(std::sync::Mutex::new(Vec::new()));
+        let writer = Capture(buffer.clone());
+        let subscriber = tracing_subscriber::fmt()
+            .with_writer(move || writer.clone())
+            .with_ansi(false)
+            .finish();
+        let screen = Widget::from(
+            column()
+                .state(StateBlock::new().with("count", 0))
+                .children([Widget::from(
+                    elevated_button().on_pressed(increment_state("count")),
+                )]),
+        );
+        tracing::subscriber::with_default(subscriber, || {
+            SduiResponse::try_new(StatusCode::OK, screen, tags()).unwrap();
+        });
+        assert!(buffer.lock().unwrap().is_empty());
     }
 }

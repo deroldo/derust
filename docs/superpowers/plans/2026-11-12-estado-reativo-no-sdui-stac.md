@@ -225,13 +225,14 @@ Antes de T4-T6: confirmar (humano ou `superpowers:requesting-code-review`) o res
 
 **Contexto:** decisão 11. Depende de T7. Arquivo `crates/derust/src/httpx/response/sdui.rs` (hoje: `validate()` -> `to_string`).
 
-- [ ] `try_new`: `validate()` (erros tipados) -> `serde_json::to_value` -> `validate_serialized` -> se houver erros, `DerustError::without_body(500, "failed to serialize SDUI screen: invalid screen: <issues>")` -> `warnings` via `tracing::warn!` (campo estruturado com `path` e mensagem, sem valores) -> `to_string(&value)`. Nenhum `unwrap_or_default`.
-- [ ] Preservar `Content-Type`, `x-trace-id`, tags, `with_headers`, `screen()`.
+- [x] `try_new`: `validate()` (erros tipados) -> `serde_json::to_value` -> `validate_serialized` -> se houver erros, `DerustError::without_body(500, "failed to serialize SDUI screen: invalid screen: <issues>")` -> `warnings` via `tracing::warn!` (campo estruturado com `path` e mensagem, sem valores) -> `to_string(&value)`. Nenhum `unwrap_or_default`.
+- [x] Preservar `Content-Type`, `x-trace-id`, tags, `with_headers`, `screen()`.
 
 **Testes:** tela reativa válida -> `Ok` com corpo igual ao fixture; tela com erro de cada camada (tipada e JSON) -> `Err(DerustError)` 500 sem corpo parcial; aviso apenas -> `Ok` e log emitido (capturar com `tracing_subscriber` de teste ou contador de camada, conforme o que já existir nos dev-deps; se nada existir, apenas garantir `Ok`); integração com handler Axum (`tower::ServiceExt::oneshot`, como `tests/sdui_response.rs`) devolvendo `Result<SduiResponse<Widget>, DerustError>`; `DerustTags` preservadas; mensagem de erro não contém valor `secure`.
 
 **Revisão:** custo extra (uma serialização a mais para `Value`) medido com uma tela grande (ex.: 2000 nós) e registrado; sem regressão nos testes anteriores de `SduiResponse`.
 
+**Custo medido (build debug, tela de 2000 nós `text`):** `to_value` ~3,4 ms + verificador ~5,2 ms, contra ~2,8 ms de `to_string` direto; a conversão `Value` -> `String` ainda é somada. Teste `large_screen_is_checked` em `tests/sdui_response.rs`.
 ---
 
 ## T9 — Harness de compatibilidade com o fork (dificuldade: complexa)
