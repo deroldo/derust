@@ -134,9 +134,10 @@ impl Card {
         self
     }
 
-    /// Sets `bind` (envelope): the state key the widget reads and writes.
-    pub fn bind(mut self, key: BindKey) -> Self {
-        self.envelope = self.envelope.bind(key);
+    /// Sets `bind` (envelope): the state key the widget reads and writes (`"key"`, `"global.key"`
+    /// or a `BindKey`).
+    pub fn bind(mut self, key: impl Into<BindKey>) -> Self {
+        self.envelope = self.envelope.bind(key.into());
         self
     }
 

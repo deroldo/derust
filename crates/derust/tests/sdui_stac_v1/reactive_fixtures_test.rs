@@ -151,18 +151,39 @@ fn envelope_bind_switch() {
     assert_clean(&w);
 }
 
-/// `Slider::new(value)` always writes `value` (required by the official model) and the
-/// verifier rejects `bind` together with the property it overrides, so a bound slider cannot be
-/// built from Rust today (listed as a limitation in `inventory_state.json`).
+/// `Slider::bound(key)` writes `bind` without `value` (the runtime takes the value from the state).
 #[test]
-fn envelope_bind_slider_is_rejected_by_the_verifier() {
-    let w = Widget::from(slider(0.0).bind(BindKey::screen("volume")));
-    assert!(w.validate().is_empty());
-    let json = serde_json::to_value(&w).expect("serializes");
-    assert_eq!(json["bind"], "volume");
+fn envelope_bind_slider() {
+    let w = Widget::from(Slider::bound("volume").min(0.0).max(10.0));
+    assert_reactive_fixture!("envelope/bind_slider", w);
+    assert_clean(&w);
+    assert_eq!(
+        serde_json::to_value(&w).expect("serializes"),
+        serde_json::json!({"type": "slider", "bind": "volume", "min": 0.0, "max": 10.0})
+    );
+}
+
+#[test]
+fn slider_needs_exactly_one_of_value_and_bind() {
+    // `new(value)` keeps working and `bind` stays consistent with the other widgets
+    assert!(Widget::from(Slider::new(0.5)).validate().is_empty());
+    assert!(Slider::bound("volume").validate().is_empty());
+    assert!(Slider::bound("global.volume").validate().is_empty());
+    let both = Slider::new(0.5).bind("volume");
+    let issues = both.validate();
+    assert_eq!(issues.len(), 1, "{issues:?}");
+    assert!(issues[0].message.contains("overrides `value`"));
+    // the verifier of the serialized screen agrees with the typed rule
+    let json = serde_json::to_value(Widget::from(both)).expect("serializes");
     let report = derust::sduix::stacx::v1::state::check_screen(&json);
     assert_eq!(report.errors.len(), 1, "{:?}", report.errors);
-    assert!(report.errors[0].message.contains("overrides `value`"));
+    // neither of them
+    let neither = Slider::bound("volume");
+    let mut empty = neither.clone();
+    empty.envelope.bind = None;
+    assert_eq!(empty.validate().len(), 1);
+    // value given by a binding is still a value
+    assert!(Slider::new(StatePath::key("level")).validate().is_empty());
 }
 
 #[test]

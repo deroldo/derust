@@ -163,10 +163,10 @@ fn navigate_contract_example() {
         ))
         .on_cancel(Action::from(none_action()));
     assert_reactive_fixture!("actions/navigate_contract", Action::from(navigate.clone()));
-    // the pop inside is fine; the contract example itself sets both callbacks, which `Validate`
-    // rejects (the contract text says they are mutually exclusive)
+    // onResult and onCancel may coexist: the first runs when the route closes with a result,
+    // the second when it closes without one
     assert!(confirm.validate().is_empty());
-    assert_eq!(navigate.validate().len(), 1);
+    assert!(navigate.validate().is_empty());
 }
 
 #[test]
@@ -208,13 +208,12 @@ fn navigate_on_result_alone_and_on_cancel_alone() {
 }
 
 #[test]
-fn navigate_on_result_with_on_cancel_is_an_error() {
+fn navigate_on_result_and_on_cancel_may_coexist() {
     let both = NavigateAction::new()
         .on_result(Action::from(none_action()))
         .on_cancel(Action::from(none_action()));
     let issues = both.validate();
-    assert_eq!(issues.len(), 1, "{}", text_of(&issues));
-    assert!(issues[0].message.contains("mutually exclusive"));
+    assert!(issues.is_empty(), "{}", text_of(&issues));
 }
 
 #[test]

@@ -1,0 +1,6 @@
+{
+  "type": "slider",
+  "bind": "volume",
+  "min": 0.0,
+  "max": 10.0
+}

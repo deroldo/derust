@@ -288,14 +288,10 @@ fn contract_navigate_with_params_and_result() {
             ]),
     );
     assert_reactive_fixture!("screens/contract_navigate", screen);
-    // The documented example sets `onResult` and `onCancel` together, while the same document
-    // says they are mutually exclusive; `Validate` follows the stated rule, so the literal
-    // example yields exactly that one issue (see the report of task T10). The JSON check over
-    // the serialized screen has nothing to say.
+    // `onResult` and `onCancel` coexist (the contract text calling them mutually exclusive
+    // needs a correction in the fork); the literal example validates cleanly.
     let issues = screen.validate();
-    assert_eq!(issues.len(), 1, "{issues:?}");
-    assert_eq!(issues[0].path, "$.children[0].onPressed");
-    assert!(issues[0].message.contains("mutually exclusive"));
+    assert!(issues.is_empty(), "{issues:?}");
     assert_verifier_clean(&screen);
 }
 

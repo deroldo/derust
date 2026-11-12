@@ -186,12 +186,6 @@ impl Validate for NavigateAction {
         self.params.validate_at(&path.key("params"), issues);
         self.on_result.validate_at(&path.key("onResult"), issues);
         self.on_cancel.validate_at(&path.key("onCancel"), issues);
-        if self.on_result.is_some() && self.on_cancel.is_some() {
-            issues.push(ValidationIssue::new(
-                path,
-                "onResult and onCancel are mutually exclusive",
-            ));
-        }
         if self.result.is_some() {
             // no navigationStyle counts as push
             let allows_result = match &self.navigation_style {

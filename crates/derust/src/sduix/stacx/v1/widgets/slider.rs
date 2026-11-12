@@ -24,7 +24,7 @@ pub struct Slider {
     /// Which platform style of slider to render.
     pub slider_type: Option<Reactive<SliderType>>,
     /// The current value of the slider.
-    pub value: Reactive<f64>,
+    pub value: Option<Reactive<f64>>,
     /// The current value of the secondary track, if any.
     pub secondary_track_value: Option<Reactive<f64>>,
     /// Action invoked when the user drags to a new value.
@@ -65,11 +65,21 @@ impl Slider {
 
     /// Creates the model with only its required fields set.
     pub fn new(value: impl IntoReactive<f64>) -> Self {
+        Self::unvalued().value(value)
+    }
+
+    /// Creates the model bound to a state key (`bind`): the value lives in the state, so
+    /// `value` is not written. Same key forms as `bind(..)`.
+    pub fn bound(key: impl Into<BindKey>) -> Self {
+        Self::unvalued().bind(key)
+    }
+
+    fn unvalued() -> Self {
         Self {
             envelope: Envelope::new(),
             id: None,
             slider_type: None,
-            value: value.into_reactive(),
+            value: None,
             secondary_track_value: None,
             on_changed: None,
             on_change_start: None,
@@ -103,7 +113,7 @@ impl Slider {
 
     /// The current value of the slider.
     pub fn value(mut self, value: impl IntoReactive<f64>) -> Self {
-        self.value = value.into_reactive();
+        self.value = Some(value.into_reactive());
         self
     }
 
@@ -215,9 +225,10 @@ impl Slider {
         self
     }
 
-    /// Sets `bind` (envelope): the state key the widget reads and writes.
-    pub fn bind(mut self, key: BindKey) -> Self {
-        self.envelope = self.envelope.bind(key);
+    /// Sets `bind` (envelope): the state key the widget reads and writes (`"key"`, `"global.key"`
+    /// or a `BindKey`).
+    pub fn bind(mut self, key: impl Into<BindKey>) -> Self {
+        self.envelope = self.envelope.bind(key.into());
         self
     }
 
@@ -251,7 +262,9 @@ impl Serialize for Slider {
         if let Some(value) = &self.slider_type {
             map.serialize_entry("sliderType", value)?;
         }
-        map.serialize_entry("value", &self.value)?;
+        if let Some(value) = &self.value {
+            map.serialize_entry("value", value)?;
+        }
         if let Some(value) = &self.secondary_track_value {
             map.serialize_entry("secondaryTrackValue", value)?;
         }
@@ -343,6 +356,16 @@ impl Validate for Slider {
         }
         if let Some(value) = &self.allowed_interaction {
             value.validate_binding_at(&path.key("allowedInteraction"), issues);
+        }
+        match (&self.value, &self.envelope.bind) {
+            (None, None) => {
+                issues.push(ValidationIssue::new(path, "slider needs `value` or `bind`"))
+            }
+            (Some(_), Some(_)) => issues.push(ValidationIssue::new(
+                path,
+                "slider `bind` overrides `value`: set only one of them",
+            )),
+            _ => {}
         }
     }
 }

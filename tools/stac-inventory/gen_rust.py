@@ -92,6 +92,10 @@ SKIP_FIELDS = {
     ("StacBackdropFilter", "enabled"), ("StacDropdownMenu", "enabled"), ("StacListTile", "enabled"),
     ("StacRadio", "enabled"), ("StacTextField", "enabled"), ("StacTextFormField", "enabled"),
 }
+# Required official properties that `bind` replaces (the value then lives in the state): the field
+# becomes optional in the struct, `new(value)` keeps writing it, `bound(key)` writes `bind` instead
+# and `Validate` demands exactly one of them. (class, json key) -> doc of the value setter.
+VALUE_OR_BIND = {("StacSlider", "value")}
 # JSON keys written by the envelope of every widget (`Envelope::serialize_into`).
 ENVELOPE_KEYS = ("visible", "enabled", "bind", "state", "globalState", "onInit")
 # Setters added to every widget for the envelope (rust name).
@@ -162,9 +166,10 @@ ENVELOPE_SETTERS_RS = """
         self
     }
 
-    /// Sets `bind` (envelope): the state key the widget reads and writes.
-    pub fn bind(mut self, key: BindKey) -> Self {
-        self.envelope = self.envelope.bind(key);
+    /// Sets `bind` (envelope): the state key the widget reads and writes (`"key"`, `"global.key"`
+    /// or a `BindKey`).
+    pub fn bind(mut self, key: impl Into<BindKey>) -> Self {
+        self.envelope = self.envelope.bind(key.into());
         self
     }
 
@@ -231,12 +236,23 @@ def parse_type(t):
     return ("named", core), nullable
 
 
-NAVIGATE_CHECKS = (
-    "        if self.on_result.is_some() && self.on_cancel.is_some() {\n"
-    "            issues.push(ValidationIssue::new(\n"
+# Exactly one of `value` and `bind` (VALUE_OR_BIND). The verifier of the serialized screen reports the
+# same conflict for hand built JSON.
+SLIDER_CHECKS = (
+    "        match (&self.value, &self.envelope.bind) {\n"
+    "            (None, None) => issues.push(ValidationIssue::new(\n"
     "                path,\n"
-    "                \"onResult and onCancel are mutually exclusive\",\n"
-    "            ));\n        }\n"
+    "                \"slider needs `value` or `bind`\",\n"
+    "            )),\n"
+    "            (Some(_), Some(_)) => issues.push(ValidationIssue::new(\n"
+    "                path,\n"
+    "                \"slider `bind` overrides `value`: set only one of them\",\n"
+    "            )),\n"
+    "            _ => {}\n"
+    "        }\n"
+)
+
+NAVIGATE_CHECKS = (
     "        if self.result.is_some() {\n"
     "            // no navigationStyle counts as push\n"
     "            let allows_result = match &self.navigation_style {\n"
@@ -448,7 +464,7 @@ class Gen:
             t = "Box<%s>" % t
         if f["react"]:
             t = "Reactive<%s>" % t
-        return "Option<%s>" % t if f["opt"] else t
+        return "Option<%s>" % t if (f["opt"] or f.get("vob")) else t
 
     def field_conv(self, f, var="value"):
         """Expression turning the setter argument into the stored field value."""
@@ -482,7 +498,8 @@ class Gen:
             raise SystemExit("field %s.%s of the fork vocabulary must be optional" % (cls, name))
         return {"json": name, "ident": rid, "ast": ast, "opt": opt, "required": required and not nullable,
                 "doc": clean_doc(doc, strip_type=True), "dart_type": dart_type, "fork": fork,
-                "official_ast": official_ast if (cls, name) in FIELD_TYPE_OVERRIDES and ast[0] == "pseudo" else None, "react": self.wants_reactive(ast), "validate_always": False}
+                "official_ast": official_ast if (cls, name) in FIELD_TYPE_OVERRIDES and ast[0] == "pseudo" else None, "react": self.wants_reactive(ast), "validate_always": False,
+                "vob": (cls, name) in VALUE_OR_BIND}
 
     def condition_field(self):
         """`condition` added to every registered action (envelope of actions, see decision 7)."""
@@ -605,17 +622,30 @@ class Gen:
             out.append("    pub %s: %s,\n" % (f["ident"], self.field_type(f)))
         out.append("}\n\n")
         req = [f for f in comp["fields"] if not f["opt"]]
+        vob = [f for f in comp["fields"] if f.get("vob")]
+        if vob and (len(req) != 1 or not has_env):
+            raise SystemExit("VALUE_OR_BIND needs a widget whose only required field is the value")
         out.append("impl %s {\n" % r)
         if comp["disc"]:
             out.append("    /// Value of the `%s` discriminator.\n    pub const TYPE: &'static str = \"%s\";\n\n"
                        % comp["disc"])
         out.append("    /// Creates the model with only its required fields set.\n")
         params = ", ".join("%s: %s" % (f["ident"], self.setter_param(f)) for f in req)
-        out.append("    pub fn new(%s) -> Self {\n        Self {\n" % params)
+        ctor = "unvalued" if vob else "new"
+        if vob:
+            out.append("    pub fn new(%s) -> Self {\n        Self::unvalued().%s(%s)\n    }\n\n"
+                       % (params, vob[0]["ident"], vob[0]["ident"]))
+            out.append("    /// Creates the model bound to a state key (`bind`): the value lives in the state, so\n"
+                       "    /// `%s` is not written. Same key forms as `bind(..)`.\n"
+                       "    pub fn bound(key: impl Into<BindKey>) -> Self {\n        Self::unvalued().bind(key)\n    }\n\n"
+                       "    fn unvalued() -> Self {\n" % vob[0]["json"])
+            out.append("        Self {\n")
+        else:
+            out.append("    pub fn %s(%s) -> Self {\n        Self {\n" % (ctor, params))
         if has_env:
             out.append("            envelope: Envelope::new(),\n")
         for f in comp["fields"]:
-            if f["opt"]:
+            if f["opt"] or f.get("vob"):
                 out.append("            %s: None,\n" % f["ident"])
             else:
                 out.append("            %s: %s,\n" % (f["ident"], self.field_conv(f, f["ident"])))
@@ -624,7 +654,7 @@ class Gen:
             doc = doc_lines(f["doc"], "    ") or "    /// Sets `%s`.\n" % f["json"]
             out.append("\n" + doc)
             conv = self.field_conv(f)
-            val = "Some(%s)" % conv if f["opt"] else conv
+            val = "Some(%s)" % conv if (f["opt"] or f.get("vob")) else conv
             out.append("    pub fn %s(mut self, value: %s) -> Self {\n        self.%s = %s;\n        self\n    }\n"
                        % (f["ident"], self.setter_param(f), f["ident"], val))
         if has_env:
@@ -645,7 +675,7 @@ class Gen:
                 out.append("        if let Some(value) = &self.%s {\n            if !value.is_empty() {\n"
                            "                map.serialize_entry(\"%s\", value)?;\n            }\n        }\n"
                            % (f["ident"], f["json"]))
-            elif f["opt"]:
+            elif f["opt"] or f.get("vob"):
                 out.append("        if let Some(value) = &self.%s {\n            map.serialize_entry(\"%s\", value)?;\n"
                            "        }\n" % (f["ident"], f["json"]))
             else:
@@ -662,7 +692,7 @@ class Gen:
                 lines.append("        self.%s.validate_at(%s, issues);\n" % (f["ident"], key))
             elif f["react"] or f["ast"][0] == "reactive":
                 # the literal needs no check, but a binding may be malformed
-                if f["opt"]:
+                if f["opt"] or f.get("vob"):
                     lines.append("        if let Some(value) = &self.%s {\n"
                                  "            value.validate_binding_at(%s, issues);\n        }\n" % (f["ident"], key))
                 else:
@@ -699,6 +729,8 @@ class Gen:
                     "            if *max_count <= 0 {\n"
                     "                issues.push(ValidationIssue::new(&path.key(\"maxCount\"), "
                     "\"maxCount must be positive\"));\n            }\n        }\n")
+        if comp["dart"] == "StacSlider":
+            return SLIDER_CHECKS
         if comp["dart"] == "StacNavigateAction":
             return NAVIGATE_CHECKS
         return ""
