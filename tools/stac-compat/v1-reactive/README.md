@@ -32,10 +32,16 @@ flutter test
   precedence/associativity/escaping of the Rust printer and the parser of the fork.
 * `test/smoke_test.dart`: the fork is wired in and recognises a binding in a widget.
 
-Planned (T9b): `compat_reactive_test.dart` walking `fixtures_reactive/**` and the official
-`fixtures/**`. Note that the strict model parsers do not accept a raw binding (`data` is cast to
-`String`): the runtime resolves bindings first (`StacBinding.resolve`), so that test has to do the
-same before calling `getModel`.
+* `test/compat_reactive_test.dart`: walks `fixtures_reactive/**` **and** the official
+  `fixtures/**` (the fork must keep accepting everything the v1.6.0 harness accepts). The strict
+  model parsers do not accept a raw binding (`data` is cast to `String`), so each widget/action is
+  prepared like the runtime does (`StacEnvelope.rewriteBind` -> resolve bindings against an
+  example scope -> `StacEnvelope.apply` -> `StacEnvelope.coerceResolved`) before `getModel`.
+  A binding that evaluates to `null` against the example scope stands for "a value of the type
+  the property wants": the test tries typed placeholders, so it checks the JSON shape, not the
+  value types. It also proves that a `slider` with `bind` and no `value` (`Slider::bound`) is
+  accepted, and `test/negative/*.json` prove the harness fails on invalid JSON.
+  `allowlist.txt` lists fixtures the fork itself cannot parse (empty).
 
 ## Regenerating the expression fixtures
 

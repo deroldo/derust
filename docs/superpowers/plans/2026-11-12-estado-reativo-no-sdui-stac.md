@@ -243,7 +243,7 @@ Antes de T4-T6: confirmar (humano ou `superpowers:requesting-code-review`) o res
 
 - [x] **T9a (spike curto):** `pubspec.yaml` apontando para o fork (decisão 14), `flutter pub get`; provar com um fixture `{"type":"text","data":{"$expr":"1 + 2"}}` que o parser do fork o aceita; escrever `expression_dump_test.dart`: lê `fixtures_reactive/expressions/expressions.json` (lista de `{source, sexp}`), parseia `source` com `StacExpression.parse` do fork (import `package:stac/src/state/expression/...`, aceito em teste), converte a AST (`StacBinary`, `StacUnary`, `StacTernary`, `StacCall`, `StacFieldAccess`, `StacIndexAccess`, `StacLiteral`, `StacIdentifier`) para o mesmo formato S de `Expr::sexp()` e compara. Se a AST não for acessível, **perguntar** (alternativa: avaliar com escopo fixo e comparar o valor).
   - Nota T9a: o fixture `{"type":"text","data":{"$expr":"1 + 2"}}` **não** passa direto por `getModel` (o modelo estrito faz cast de `data` para `String`; o runtime resolve os bindings antes via `StacBinding.resolve`). O smoke prova binding reconhecido + expressão avaliada; o T9b precisa resolver os bindings (escopo de exemplo) antes do `getModel`. A AST é acessível por `package:stac/src/state/expression/parser.dart` (`parseExpression`). Os fixtures de expressão ficam em um arquivo por categoria (`expressions/<categoria>.json`), todos lidos pelo teste de dump; `Expr::sexp()` já existia desde a T1. Regeneração: `UPDATE_REACTIVE_FIXTURES=1`.
-- [ ] **T9b:** `compat_reactive_test.dart` percorre `crates/derust/tests/sdui_stac_v1/fixtures_reactive/**` **e** `fixtures/**` (oficiais) com o mesmo `checkTree` do harness atual; inclui a diferença: aceitar chaves de envelope; teste negativo (fixture com `bind` em estrutura inválida ou action desconhecida deve falhar).
+- [x] **T9b:** `compat_reactive_test.dart` percorre `crates/derust/tests/sdui_stac_v1/fixtures_reactive/**` **e** `fixtures/**` (oficiais) com o mesmo `checkTree` do harness atual; inclui a diferença: aceitar chaves de envelope; teste negativo (fixture com `bind` em estrutura inválida ou action desconhecida deve falhar).
 - [x] Teste Rust que gera/atualiza `fixtures_reactive/expressions/expressions.json` a partir de uma lista de `Expr` (comparação com o arquivo versionado; falha se divergir).
 - [x] CI: job `stac-compat-v1-reactive` com `continue-on-error: true` + comentário explicando; matriz registrando `ref` do fork e que não há pin.
 - [x] Se Flutter estiver indisponível localmente, documentar e validar no CI (como na T4 anterior).
@@ -274,11 +274,13 @@ Antes de T4-T6: confirmar (humano ou `superpowers:requesting-code-review`) o res
 - Fixtures novos de envelope/bindings/screens ficam em `reactive_fixtures_test.rs` e `contract_examples_test.rs`; `UPDATE_REACTIVE_FIXTURES=1` escreve só fixtures **ausentes** (revisar o diff).
 - Os 6 exemplos de `state_reference.mdx` e 4 de `bindings_and_expressions.mdx` estão em `screens/contract_*.json`, copiados literalmente. O exemplo de `navigate` usa `onResult` e `onCancel` juntos. (Resolvido na correção A1: a pessoa decidiu que podem coexistir; o exemplo literal valida sem problemas.)
 - `bind` em `slider` não é construível em Rust: `Slider::new(value)` sempre escreve `value` (obrigatório no modelo oficial) e o verificador (T7) rejeita `bind` junto de `value`. (Resolvido na correção A2: ver abaixo; o item `unsupported` foi removido.)
-- Pendente de T9b: o harness Dart ainda não percorre estes fixtures (só o dump de expressões roda).
+- T9b concluída: o harness Dart percorre estes fixtures (ver abaixo).
 
 **Revisão:** cada item do inventário cita a seção do contrato (`notes`); nada `unsupported` sem justificativa.
 
 ---
+
+**Notas de execução (T9b):** `compat_reactive_test.dart` reproduz o pipeline do runtime com as funções públicas do fork (`StacEnvelope.rewriteBind` -> resolução de bindings contra escopo de exemplo -> `apply` -> `coerceResolved` -> `getModel`). `StacScope` não é construível fora de árvore de widgets, então a resolução é reimplementada no teste (`StacBinding.isBinding` e `StacExpression` são do fork). Binding que avalia para `null` no escopo de exemplo tenta placeholders tipados: o teste valida a FORMA do JSON, não os tipos dos valores. Resultado local: 481 testes verdes (fixtures reativos + oficiais + slider `bind` sem `value` + 3 negativos); divergência simulada em 2 fixtures falhou como esperado. O harness oficial `v1` segue verde (263).
 
 ## Correções pós-T10 (decididas pela pessoa)
 
