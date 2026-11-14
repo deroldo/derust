@@ -154,7 +154,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let stored = codes.hash(&code);
     assert!(codes.verify(&code, &stored));
     Ok(())
-}```
+}
+```
 
 Validator (BFF) with `JwtVerifier` and `Authenticated`:
 
@@ -205,7 +206,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .route_layer(RequireClaims::<Claims>::new(|c| c.role == "admin"))
         .layer(auth.layer());
     Ok(())
-}```
+}
+```
 
 Both are doctests (`cargo test --doc --package derust --features cryptox`).
 
