@@ -1,7 +1,7 @@
 //! EC P-256 keys in PEM (PKCS#8 private, SPKI public), key sets and JWKS.
 
 use crate::cryptox::error::KeyError;
-use crate::cryptox::util::b64url_encode;
+use crate::cryptox::util::{b64url_decode, b64url_encode, MAX_JWKS_LEN};
 use openssl::bn::{BigNum, BigNumContext};
 use openssl::ec::{EcGroup, EcKey};
 use openssl::nid::Nid;
@@ -147,6 +147,48 @@ impl VerifyingKey {
         &self.pkey
     }
 
+    /// Builds a key from one public JWK. Strict: `kty=EC`, `crv=P-256`, non-empty `kid`,
+    /// `x`/`y` of 32 bytes on the curve; `use`/`alg`, when present, must be `sig`/`ES256`;
+    /// any private parameter (`d`) is refused. Other members are ignored.
+    pub fn from_jwk(jwk: &Value) -> Result<Self, KeyError> {
+        let obj = jwk.as_object().ok_or(KeyError::InvalidJwks)?;
+        if obj.contains_key("d") {
+            return Err(KeyError::PrivateKeyInJwks);
+        }
+        let text = |name: &str| -> Result<Option<&str>, KeyError> {
+            match obj.get(name) {
+                None => Ok(None),
+                Some(Value::String(s)) => Ok(Some(s.as_str())),
+                Some(_) => Err(KeyError::InvalidJwks),
+            }
+        };
+        if text("kty")? != Some("EC") || text("crv")? != Some("P-256") {
+            return Err(KeyError::NotEcP256);
+        }
+        if text("use")?.is_some_and(|u| u != "sig") || text("alg")?.is_some_and(|a| a != "ES256") {
+            return Err(KeyError::InvalidJwks);
+        }
+        let kid = check_kid(text("kid")?.unwrap_or_default().to_owned())?;
+        let coord = |name: &str| -> Result<BigNum, KeyError> {
+            let bytes = text(name)?
+                .and_then(b64url_decode)
+                .filter(|b| b.len() == COORD_LEN)
+                .ok_or(KeyError::InvalidJwks)?;
+            BigNum::from_slice(&bytes).map_err(|_| KeyError::InvalidJwks)
+        };
+        let (x, y) = (coord("x")?, coord("y")?);
+        let group =
+            EcGroup::from_curve_name(Nid::X9_62_PRIME256V1).map_err(|_| KeyError::InvalidJwks)?;
+        let ec = EcKey::from_public_key_affine_coordinates(&group, &x, &y)
+            .map_err(|_| KeyError::InvalidJwks)?;
+        ensure_p256(&ec).map_err(|_| KeyError::InvalidJwks)?;
+        let pkey = PKey::from_ec_key(ec).map_err(|_| KeyError::InvalidJwks)?;
+        let der = pkey
+            .public_key_to_der()
+            .map_err(|_| KeyError::InvalidJwks)?;
+        Ok(Self { pkey, kid, der })
+    }
+
     fn to_jwk(&self) -> Result<Value, KeyError> {
         let ec = self.pkey.ec_key().map_err(|_| KeyError::NotEcP256)?;
         let mut ctx = BigNumContext::new().map_err(|_| KeyError::InvalidPem)?;
@@ -188,6 +230,37 @@ impl VerifyingKeySet {
             }
         }
         Ok(Self { keys })
+    }
+
+    /// Parses a JWKS document (`{"keys":[...]}`) from JSON text. See [`VerifyingKeySet::from_jwks_value`].
+    pub fn from_jwks(jwks: &str) -> Result<Self, KeyError> {
+        if jwks.len() > MAX_JWKS_LEN {
+            return Err(KeyError::JwksTooLarge);
+        }
+        let value: Value = serde_json::from_str(jwks).map_err(|_| KeyError::InvalidJwks)?;
+        Self::from_jwks_value(&value)
+    }
+
+    /// Parses a JWKS document from a JSON value. Strict: only EC P-256 public keys with a
+    /// `kid` (see [`VerifyingKey::from_jwk`]); a key of another type/curve, a private
+    /// parameter, a duplicate `kid`, an empty set or an oversized document is an error,
+    /// never silently ignored. Round-trips with [`VerifyingKeySet::to_jwks`].
+    pub fn from_jwks_value(jwks: &Value) -> Result<Self, KeyError> {
+        if jwks.to_string().len() > MAX_JWKS_LEN {
+            return Err(KeyError::JwksTooLarge);
+        }
+        let list = jwks
+            .get("keys")
+            .and_then(Value::as_array)
+            .ok_or(KeyError::InvalidJwks)?;
+        if list.is_empty() {
+            return Err(KeyError::EmptyKeySet);
+        }
+        let keys = list
+            .iter()
+            .map(VerifyingKey::from_jwk)
+            .collect::<Result<Vec<_>, _>>()?;
+        Self::new(keys)
     }
 
     pub fn get(&self, kid: &str) -> Option<&VerifyingKey> {
@@ -405,6 +478,145 @@ mod test {
         assert!(!jwks.to_string().contains("\"d\""));
         assert!(crate::cryptox::jose::jwk_is_valid_p256(&keys[0]));
         let _ = public;
+    }
+
+    fn jwk_of(kid: &str) -> Value {
+        let (_, public) = pair();
+        VerifyingKeySet::new(vec![VerifyingKey::from_pem(public, kid).unwrap()])
+            .unwrap()
+            .to_jwks()["keys"][0]
+            .clone()
+    }
+
+    fn set_of(keys: Vec<Value>) -> Value {
+        json!({ "keys": keys })
+    }
+
+    #[test]
+    fn jwks_round_trip() {
+        let (_, a) = pair();
+        let (_, b) = pair();
+        let set = VerifyingKeySet::new(vec![
+            VerifyingKey::from_pem(&a, "a").unwrap(),
+            VerifyingKey::from_pem(&b, "b").unwrap(),
+        ])
+        .unwrap();
+        let jwks = set.to_jwks();
+        let from_value = VerifyingKeySet::from_jwks_value(&jwks).unwrap();
+        let from_text = VerifyingKeySet::from_jwks(&jwks.to_string()).unwrap();
+        assert_eq!(from_value.to_jwks(), jwks);
+        assert_eq!(from_text.to_jwks(), jwks);
+        assert!(from_text
+            .get("a")
+            .unwrap()
+            .same_key(&VerifyingKey::from_pem(&a, "x").unwrap()));
+        // use/alg are optional
+        let mut bare = jwk_of("k");
+        bare.as_object_mut().unwrap().remove("use");
+        bare.as_object_mut().unwrap().remove("alg");
+        assert!(VerifyingKeySet::from_jwks_value(&set_of(vec![bare])).is_ok());
+    }
+
+    #[test]
+    fn jwks_rejects_private_material() {
+        let mut jwk = jwk_of("k");
+        jwk["d"] = json!("c2VjcmV0");
+        assert_eq!(
+            VerifyingKeySet::from_jwks_value(&set_of(vec![jwk])).unwrap_err(),
+            KeyError::PrivateKeyInJwks
+        );
+    }
+
+    #[test]
+    fn jwks_rejects_other_key_types_and_curves_instead_of_ignoring() {
+        let mut other_kty = jwk_of("k");
+        other_kty["kty"] = json!("RSA");
+        let mut other_crv = jwk_of("k");
+        other_crv["crv"] = json!("P-384");
+        for bad in [other_kty, other_crv] {
+            // mixed with a valid key: must still fail, not skip
+            let doc = set_of(vec![jwk_of("good"), bad]);
+            assert_eq!(
+                VerifyingKeySet::from_jwks_value(&doc).unwrap_err(),
+                KeyError::NotEcP256
+            );
+        }
+    }
+
+    #[test]
+    fn jwks_rejects_missing_kid_bad_use_alg_and_bad_coordinates() {
+        let mut no_kid = jwk_of("k");
+        no_kid.as_object_mut().unwrap().remove("kid");
+        let mut empty_kid = jwk_of("k");
+        empty_kid["kid"] = json!("");
+        for bad in [no_kid, empty_kid] {
+            assert_eq!(
+                VerifyingKeySet::from_jwks_value(&set_of(vec![bad])).unwrap_err(),
+                KeyError::EmptyKid
+            );
+        }
+        let mut enc = jwk_of("k");
+        enc["use"] = json!("enc");
+        let mut alg = jwk_of("k");
+        alg["alg"] = json!("RS256");
+        let mut short = jwk_of("k");
+        short["x"] = json!("AAAA");
+        let mut off_curve = jwk_of("k");
+        off_curve["y"] = json!(b64url_encode(&[1u8; 32]));
+        let mut not_text = jwk_of("k");
+        not_text["x"] = json!(7);
+        for bad in [enc, alg, short, off_curve, not_text] {
+            assert_eq!(
+                VerifyingKeySet::from_jwks_value(&set_of(vec![bad])).unwrap_err(),
+                KeyError::InvalidJwks
+            );
+        }
+    }
+
+    #[test]
+    fn jwks_rejects_duplicate_kid_empty_set_malformed_and_oversized() {
+        let doc = set_of(vec![jwk_of("same"), jwk_of("same")]);
+        assert_eq!(
+            VerifyingKeySet::from_jwks_value(&doc).unwrap_err(),
+            KeyError::DuplicateKid
+        );
+        assert_eq!(
+            VerifyingKeySet::from_jwks("{\"keys\":[]}").unwrap_err(),
+            KeyError::EmptyKeySet
+        );
+        for bad in [
+            "",
+            "not json",
+            "[]",
+            "{}",
+            "{\"keys\":{}}",
+            "{\"keys\":[1]}",
+        ] {
+            assert_eq!(
+                VerifyingKeySet::from_jwks(bad).unwrap_err(),
+                KeyError::InvalidJwks,
+                "{bad}"
+            );
+        }
+        let big = format!("{{\"keys\":[],\"pad\":\"{}\"}}", "a".repeat(MAX_JWKS_LEN));
+        assert_eq!(
+            VerifyingKeySet::from_jwks(&big).unwrap_err(),
+            KeyError::JwksTooLarge
+        );
+        let big_value: Value = serde_json::from_str(&big).unwrap();
+        assert_eq!(
+            VerifyingKeySet::from_jwks_value(&big_value).unwrap_err(),
+            KeyError::JwksTooLarge
+        );
+    }
+
+    #[test]
+    fn jwks_errors_do_not_leak_the_document() {
+        let mut jwk = jwk_of("secret-kid-marker");
+        jwk["d"] = json!("PRIVATE-MARKER");
+        let err = VerifyingKeySet::from_jwks(&set_of(vec![jwk]).to_string()).unwrap_err();
+        let text = format!("{err} {err:?}");
+        assert!(!text.contains("PRIVATE-MARKER") && !text.contains("secret-kid-marker"));
     }
 
     #[test]

@@ -4,6 +4,8 @@ use base64::Engine;
 
 /// Maximum accepted size (bytes) of a JWT before any parsing.
 pub(crate) const MAX_TOKEN_LEN: usize = 16 * 1024;
+/// Maximum accepted size (bytes) of a JWKS document.
+pub(crate) const MAX_JWKS_LEN: usize = 64 * 1024;
 /// Maximum accepted size (bytes) of a compact JWE.
 pub(crate) const MAX_JWE_LEN: usize = 64 * 1024;
 

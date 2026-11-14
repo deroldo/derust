@@ -22,6 +22,14 @@ pub enum KeyError {
     Io,
     #[error("failed to load key from source")]
     Source,
+    #[error("invalid JWKS")]
+    InvalidJwks,
+    #[error("JWKS contains private key material")]
+    PrivateKeyInJwks,
+    #[error("key set is empty")]
+    EmptyKeySet,
+    #[error("JWKS is too large")]
+    JwksTooLarge,
 }
 
 /// Errors raised while signing or verifying JWTs.

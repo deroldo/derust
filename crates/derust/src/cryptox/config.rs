@@ -1,13 +1,13 @@
 //! Key sources (env var, file, AWS Secrets Manager) and serde-friendly configuration.
 //!
 //! Config structs never hold PEM: they only say where to read it from. Errors name no
-//! secret content. For lists of verifying keys (`JwtVerifierConfig::keys`) use a file or
-//! AWS Secrets Manager source for the configuration itself: the `config` crate used by
-//! `envx::load_app_config` does not read lists by index from environment variables
-//! (`KEYS__0__KID` does not work). Single-valued settings such as `TokenIssuerConfig` do
-//! work with `APP__...` variables.
+//! secret content. The `config` crate used by `envx::load_app_config` does not read lists
+//! by index from environment variables (`KEYS__0__KID` does not work), so a verifier with
+//! several keys (rotation) should use `JwtVerifierConfig::jwks`: ONE JWKS text read from an
+//! env var, a file or AWS Secrets Manager through the same [`KeySourceConfig`]. Single-valued
+//! settings such as `TokenIssuerConfig` work with `APP__...` variables.
 
-use crate::cryptox::error::{ConfigError, KeyError};
+use crate::cryptox::error::{ConfigError, JwtError, KeyError};
 use crate::cryptox::jwt::{JwtVerifier, TokenIssuer, TokenIssuerSettings, TokenType};
 use crate::cryptox::keys::{SigningKey, VerifyingKey, VerifyingKeySet};
 use async_trait::async_trait;
@@ -212,6 +212,11 @@ impl VerifyingKeyConfig {
 }
 
 /// Configuration of a [`JwtVerifier`]. `issuer` and `audience` are required.
+///
+/// Keys come from exactly one of: `keys` (one PEM source per key; lists need a file/Secrets
+/// Manager config) or `jwks` (a single source holding a whole JWKS document, parsed with
+/// [`VerifyingKeySet::from_jwks`]; works with `APP__...__JWKS__SOURCE=env` variables).
+/// Setting both, or neither, is an `InvalidConfig` error.
 #[derive(Clone, Debug, Deserialize)]
 pub struct JwtVerifierConfig {
     pub issuer: String,
@@ -220,6 +225,8 @@ pub struct JwtVerifierConfig {
     pub leeway_secs: Option<u64>,
     #[serde(default)]
     pub keys: Vec<VerifyingKeyConfig>,
+    #[serde(default)]
+    pub jwks: Option<KeySourceConfig>,
 }
 
 impl JwtVerifierConfig {
@@ -228,11 +235,20 @@ impl JwtVerifierConfig {
         resolver: &KeySourceResolver,
         token_type: TokenType,
     ) -> Result<JwtVerifier, ConfigError> {
-        let mut keys = Vec::with_capacity(self.keys.len());
-        for key in &self.keys {
-            keys.push(key.load(resolver).await?);
-        }
-        let set = VerifyingKeySet::new(keys)?;
+        let set = match (&self.jwks, self.keys.is_empty()) {
+            (Some(_), false) => return Err(JwtError::InvalidConfig.into()),
+            (Some(source), true) => {
+                let text = resolver.load(source).await?;
+                VerifyingKeySet::from_jwks(&text)?
+            }
+            (None, _) => {
+                let mut keys = Vec::with_capacity(self.keys.len());
+                for key in &self.keys {
+                    keys.push(key.load(resolver).await?);
+                }
+                VerifyingKeySet::new(keys)?
+            }
+        };
         let mut verifier =
             JwtVerifier::new(set, token_type, self.issuer.clone(), self.audience.clone())?;
         if let Some(secs) = self.leeway_secs {
@@ -274,7 +290,6 @@ impl TokenIssuerConfig {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::cryptox::error::JwtError;
     use crate::cryptox::keys::generate_ec_p256_keypair;
     use serde_json::{json, Value};
     use std::sync::atomic::{AtomicUsize, Ordering};
@@ -460,6 +475,135 @@ mod test {
         let rt = issuer.refresh_signer().sign("u1", ()).unwrap();
         assert!(refresh_v.verify::<Value>(&rt).is_ok());
         assert!(refresh_v.verify::<Value>(&token).is_err());
+    }
+
+    fn jwks_file_for(kids: &[&str]) -> (TempFile, Vec<crate::cryptox::SigningKey>) {
+        let mut vks = Vec::new();
+        let mut sks = Vec::new();
+        for kid in kids {
+            let (private, _) = generate_ec_p256_keypair().unwrap();
+            let sk = SigningKey::from_pem(&private, *kid).unwrap();
+            vks.push(sk.verifying_key());
+            sks.push(sk);
+        }
+        let jwks = VerifyingKeySet::new(vks).unwrap().to_jwks();
+        (TempFile::new(&jwks.to_string()), sks)
+    }
+
+    fn jwks_cfg(source: Value, extra: Value) -> JwtVerifierConfig {
+        let mut v = json!({"issuer": "id-web", "audience": "bff-web", "jwks": source});
+        for (k, val) in extra.as_object().unwrap() {
+            v[k] = val.clone();
+        }
+        serde_json::from_value(v).unwrap()
+    }
+
+    fn signer_for(key: crate::cryptox::SigningKey) -> crate::cryptox::JwtSigner {
+        crate::cryptox::JwtSigner::new(
+            key,
+            TokenType::Access,
+            crate::cryptox::JwtSignerSettings {
+                issuer: "id-web".into(),
+                audience: "bff-web".into(),
+                ttl: Duration::from_secs(300),
+            },
+        )
+        .unwrap()
+    }
+
+    #[tokio::test]
+    async fn verifier_loads_a_rotating_jwks_from_a_file() {
+        let (file, keys) = jwks_file_for(&["old", "new"]);
+        let cfg = jwks_cfg(json!({"source": "file", "path": file.path()}), json!({}));
+        let verifier = cfg
+            .build(&KeySourceResolver::new(), TokenType::Access)
+            .await
+            .unwrap();
+        for key in keys {
+            let kid = key.kid().to_owned();
+            let token = signer_for(key).sign("u", ()).unwrap();
+            assert_eq!(verifier.verify::<Value>(&token).unwrap().kid(), kid);
+        }
+    }
+
+    #[tokio::test]
+    async fn verifier_loads_a_jwks_from_a_single_env_var() {
+        let (file, keys) = jwks_file_for(&["e1", "e2"]);
+        let text = std::fs::read_to_string(file.path()).unwrap();
+        std::env::set_var("CRYPTOX_T_JWKS", text);
+        let cfg = jwks_cfg(json!({"source": "env", "var": "CRYPTOX_T_JWKS"}), json!({}));
+        let verifier = cfg
+            .build(&KeySourceResolver::new(), TokenType::Access)
+            .await
+            .unwrap();
+        let token = signer_for(keys[1].clone()).sign("u", ()).unwrap();
+        assert!(verifier.verify::<Value>(&token).is_ok());
+    }
+
+    #[cfg(feature = "env")]
+    #[tokio::test]
+    async fn verifier_jwks_config_loads_through_envx() {
+        let (file, keys) = jwks_file_for(&["x1"]);
+        for (k, v) in [
+            ("ISSUER", "id-web"),
+            ("AUDIENCE", "bff-web"),
+            ("JWKS__SOURCE", "file"),
+            ("JWKS__PATH", file.path()),
+        ] {
+            std::env::set_var(format!("CRYPTOXV__{k}"), v);
+        }
+        let cfg: JwtVerifierConfig = {
+            #[cfg(feature = "env_from_secrets_manager")]
+            let loaded = crate::envx::load_app_config(
+                crate::envx::Environment::Test,
+                Some("CRYPTOXV"),
+                vec![],
+            )
+            .await;
+            #[cfg(not(feature = "env_from_secrets_manager"))]
+            let loaded =
+                crate::envx::load_app_config(crate::envx::Environment::Test, Some("CRYPTOXV"))
+                    .await;
+            loaded.unwrap()
+        };
+        let verifier = cfg
+            .build(&KeySourceResolver::new(), TokenType::Access)
+            .await
+            .unwrap();
+        let token = signer_for(keys[0].clone()).sign("u", ()).unwrap();
+        assert!(verifier.verify::<Value>(&token).is_ok());
+    }
+
+    #[tokio::test]
+    async fn jwks_config_failures_are_fixed_errors() {
+        let resolver = KeySourceResolver::new();
+        // invalid document
+        let bad = TempFile::new("{\"keys\": []}");
+        let cfg = jwks_cfg(json!({"source": "file", "path": bad.path()}), json!({}));
+        assert_eq!(
+            cfg.build(&resolver, TokenType::Access).await.unwrap_err(),
+            ConfigError::Key(KeyError::EmptyKeySet)
+        );
+        // missing source
+        let cfg = jwks_cfg(
+            json!({"source": "env", "var": "CRYPTOX_T_JWKS_MISSING"}),
+            json!({}),
+        );
+        assert_eq!(
+            cfg.build(&resolver, TokenType::Access).await.unwrap_err(),
+            ConfigError::Key(KeyError::Source)
+        );
+        // both keys and jwks
+        let (file, _) = jwks_file_for(&["k"]);
+        let pubf = TempFile::new(&generate_ec_p256_keypair().unwrap().1);
+        let cfg = jwks_cfg(
+            json!({"source": "file", "path": file.path()}),
+            json!({"keys": [file_cfg("k", &pubf)]}),
+        );
+        assert_eq!(
+            cfg.build(&resolver, TokenType::Access).await.unwrap_err(),
+            ConfigError::Jwt(JwtError::InvalidConfig)
+        );
     }
 
     #[tokio::test]

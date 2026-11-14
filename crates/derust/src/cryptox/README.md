@@ -74,8 +74,14 @@ Attempt limiting and a TTL are the service's job. `generate_numeric_code` has no
 `VerifyingKeyConfig`, `JwtVerifierConfig::build(&resolver, TokenType)` and `TokenIssuerConfig::build(&resolver)`
 are `Deserialize` and hold no PEM, only where to read it. Env sources convert a literal `\n` to a line
 break. **Lists** (`JwtVerifierConfig::keys`) cannot be read from environment variables by index (the `config`
-crate used by `envx` does not support `KEYS__0__KID`): keep that configuration in a file or in AWS Secrets
-Manager. Single-valued settings (`TokenIssuerConfig`) work with `APP__...` variables.
+crate used by `envx` does not support `KEYS__0__KID`). For several keys (rotation) use
+`JwtVerifierConfig::jwks` instead: ONE JWKS text read through the same `KeySourceConfig` (env var, file or
+Secrets Manager), e.g. `APP__JWKS__SOURCE=env` + `APP__JWKS__VAR=MY_JWKS`. It is parsed by
+`VerifyingKeySet::from_jwks` (or `from_jwks_value`), which is strict: only EC P-256 public keys, `kid`
+required, `use`/`alg` (when present) must be `sig`/`ES256`, private parameters (`d`), other key types or
+curves, duplicate `kid`, empty sets and documents over 64 KiB are errors, never skipped; it round-trips
+with `to_jwks()`. Set `keys` or `jwks`, not both. Fetching a JWKS by URL is not implemented.
+Single-valued settings (`TokenIssuerConfig`) work with `APP__...` variables.
 The real Secrets Manager call is not covered by unit tests; validate it manually with localstack.
 `aws` currently requires `http_server`/`env` because of `awsx`.
 
