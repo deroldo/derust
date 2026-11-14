@@ -206,6 +206,44 @@ impl TokenIssuer {
     pub fn refresh_signer(&self) -> JwtSigner {
         self.refresh.clone()
     }
+
+    /// Public keys that verify the access tokens this issuer signs (derived from the
+    /// signing key; never includes the refresh key).
+    pub fn access_verifying_keys(&self) -> VerifyingKeySet {
+        VerifyingKeySet {
+            keys: vec![self.access.key.verifying_key()],
+        }
+    }
+
+    /// Verifier for the access tokens of this issuer (same issuer/audience, `TokenType::Access`).
+    pub fn access_verifier(&self) -> JwtVerifier {
+        JwtVerifier {
+            keys: self.access_verifying_keys(),
+            token_type: TokenType::Access,
+            issuer: self.access.issuer.clone(),
+            audience: self.access.audience.clone(),
+            leeway_secs: 0,
+        }
+    }
+
+    /// Verifier for the refresh tokens of this issuer (same issuer/audience, `TokenType::Refresh`),
+    /// built from the refresh signing key's public half.
+    pub fn refresh_verifier(&self) -> JwtVerifier {
+        JwtVerifier {
+            keys: VerifyingKeySet {
+                keys: vec![self.refresh.key.verifying_key()],
+            },
+            token_type: TokenType::Refresh,
+            issuer: self.refresh.issuer.clone(),
+            audience: self.refresh.audience.clone(),
+            leeway_secs: 0,
+        }
+    }
+
+    /// Public JWKS of the access key only (never the refresh key nor private material).
+    pub fn jwks(&self) -> Value {
+        self.access_verifying_keys().to_jwks()
+    }
 }
 
 /// Verifies JWTs of one [`TokenType`] against a key set, issuer and audience.
@@ -1038,6 +1076,87 @@ mod test {
             )
             .unwrap();
         assert_eq!(m2.expires_at(), at(NOW + 1_810));
+    }
+
+    #[test]
+    fn issuer_derived_verifiers_validate_what_it_signs() {
+        let (a, _) = keypair("acc");
+        let (r, _) = keypair("ref");
+        let issuer = TokenIssuer::new(a, r, issuer_settings(ISS, AUD, 900, 86_400)).unwrap();
+        let access = issuer.access_signer().sign_at(at(NOW), "u", ()).unwrap();
+        let refresh = issuer.refresh_signer().sign_at(at(NOW), "u", ()).unwrap();
+        let av = issuer.access_verifier();
+        let rv = issuer.refresh_verifier();
+        assert_eq!(
+            av.verify_at::<Value>(&access, at(NOW)).unwrap().kid(),
+            "acc"
+        );
+        assert_eq!(
+            rv.verify_at::<Value>(&refresh, at(NOW)).unwrap().kid(),
+            "ref"
+        );
+        // refresh never validates as access (and vice versa)
+        assert!(av.verify_at::<Value>(&refresh, at(NOW)).is_err());
+        assert!(rv.verify_at::<Value>(&access, at(NOW)).is_err());
+        assert_eq!(issuer.access_verifying_keys().len(), 1);
+        assert!(issuer.access_verifying_keys().get("acc").is_some());
+        assert!(issuer.access_verifying_keys().get("ref").is_none());
+        // same issuer/audience: a verifier for another audience rejects
+        let other = JwtVerifier::new(
+            issuer.access_verifying_keys(),
+            TokenType::Access,
+            ISS,
+            "other",
+        )
+        .unwrap();
+        assert_eq!(
+            other.verify_at::<Value>(&access, at(NOW)).unwrap_err(),
+            JwtError::WrongAudience
+        );
+    }
+
+    #[test]
+    fn issuer_jwks_has_only_the_access_public_key() {
+        let (a, _) = keypair("acc");
+        let (r, _) = keypair("ref");
+        let issuer = TokenIssuer::new(a, r, issuer_settings(ISS, AUD, 900, 86_400)).unwrap();
+        let jwks = issuer.jwks();
+        let text = jwks.to_string();
+        assert_eq!(jwks["keys"].as_array().unwrap().len(), 1);
+        assert_eq!(jwks["keys"][0]["kid"], "acc");
+        assert!(jwks["keys"][0].get("d").is_none());
+        assert!(!text.contains("\"d\""));
+        assert!(!text.contains("ref"));
+    }
+
+    #[test]
+    fn derived_verifiers_of_two_issuers_stay_isolated() {
+        let (wa, _) = keypair("web-a");
+        let (wr, _) = keypair("web-r");
+        let (ma, _) = keypair("mob-a");
+        let (mr, _) = keypair("mob-r");
+        let web =
+            TokenIssuer::new(wa, wr, issuer_settings("id-web", "bff-web", 300, 3_600)).unwrap();
+        let mob =
+            TokenIssuer::new(ma, mr, issuer_settings("id-mob", "bff-mob", 300, 3_600)).unwrap();
+        let wt = web.refresh_signer().sign_at(at(NOW), "u", ()).unwrap();
+        let mt = mob.refresh_signer().sign_at(at(NOW), "u", ()).unwrap();
+        assert!(web
+            .refresh_verifier()
+            .verify_at::<Value>(&wt, at(NOW))
+            .is_ok());
+        assert!(mob
+            .refresh_verifier()
+            .verify_at::<Value>(&mt, at(NOW))
+            .is_ok());
+        assert!(web
+            .refresh_verifier()
+            .verify_at::<Value>(&mt, at(NOW))
+            .is_err());
+        assert!(mob
+            .refresh_verifier()
+            .verify_at::<Value>(&wt, at(NOW))
+            .is_err());
     }
 
     // RFC 7515 Appendix A.3 (ES256 example).

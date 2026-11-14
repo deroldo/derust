@@ -176,7 +176,7 @@ impl VerifyingKey {
 /// A set of verifying keys addressed by `kid` (supports rotation).
 #[derive(Clone, Debug)]
 pub struct VerifyingKeySet {
-    keys: Vec<VerifyingKey>,
+    pub(crate) keys: Vec<VerifyingKey>,
 }
 
 impl VerifyingKeySet {
