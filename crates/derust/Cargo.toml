@@ -156,7 +156,7 @@ outbox-pattern-processor = { workspace = true, optional = true }
 # Auth / JWT
 protect-endpoints-core = { workspace = true, optional = true }
 jsonwebtoken = { workspace = true, optional = true }
-tower = { workspace = true, optional = true }
+tower = { workspace = true, features = ["util"], optional = true }
 
 # Feture toggle / feature flag
 growthbook-rust = { workspace = true, optional = true }

@@ -13,7 +13,7 @@ mod code;
 mod config;
 mod error;
 #[cfg(feature = "http_server")]
-mod http;
+pub mod http;
 mod jose;
 mod jwe;
 mod jwt;
@@ -23,6 +23,8 @@ mod util;
 
 pub use code::{generate_numeric_code, CodeHasher};
 pub use error::{JweError, JwtError, KeyError, PasswordError};
+#[cfg(feature = "http_server")]
+pub use http::{AuthConfig, AuthLayer, Authenticated, RequireClaims};
 pub use jwe::{JweOpener, JweSealer, Sealer};
 pub use jwt::{
     JwtSigner, JwtSignerSettings, JwtVerifier, TokenIssuer, TokenIssuerSettings, TokenType,
