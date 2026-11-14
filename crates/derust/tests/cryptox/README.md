@@ -22,3 +22,17 @@ CRYPTOX_JWE_OUT=/tmp/seal.jwe cargo nextest run --features cryptox writes_seal_f
 node open_jwe.mjs crates/derust/tests/cryptox/node_jose.private.pem /tmp/seal.jwe
 # prints the plaintext (needs `npm install jose` next to open_jwe.mjs)
 ```
+
+## JWE with `kid`
+
+`node_jose_kid.jwe` was produced by Node `jose` for the same key, with `kid: "node-kid-1"` in the protected
+header (`node gen_jwe_kid_fixture.mjs <this dir>`). Unit test
+`cryptox::jwe::test::opens_jwe_with_kid_produced_by_node_jose` opens it with `JweOpener` and `JweOpenerSet`.
+
+Reverse direction (derust `JweSealer::with_kid` -> Node `jose`):
+
+```bash
+CRYPTOX_JWE_KID_OUT=/tmp/seal_kid.jwe cargo nextest run --features cryptox writes_seal_with_kid
+node open_jwe.mjs crates/derust/tests/cryptox/node_jose.private.pem /tmp/seal_kid.jwe
+# prints the plaintext; stderr shows the header including the kid
+```

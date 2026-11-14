@@ -66,12 +66,16 @@ pub(crate) fn jws_verify_es256(key: &VerifyingKey, token: &str) -> Result<Vec<u8
 pub(crate) fn jwe_encrypt_ecdh_es_a256gcm(
     public_pem: &[u8],
     plaintext: &[u8],
+    kid: Option<&str>,
 ) -> Result<String, JoseFailure> {
     let encrypter = ECDH_ES
         .encrypter_from_pem(public_pem)
         .map_err(|_| JoseFailure)?;
     let mut header = JweHeader::new();
     header.set_content_encryption("A256GCM");
+    if let Some(kid) = kid {
+        header.set_key_id(kid);
+    }
     josekit::jwe::serialize_compact(plaintext, &header, &encrypter).map_err(|_| JoseFailure)
 }
 

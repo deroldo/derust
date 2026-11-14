@@ -102,7 +102,7 @@ pub use config::{
 pub use error::{ConfigError, JweError, JwtError, KeyError, PasswordError};
 #[cfg(feature = "http_server")]
 pub use http::{AuthConfig, AuthLayer, Authenticated, RequireClaims};
-pub use jwe::{JweOpener, JweSealer, Sealer};
+pub use jwe::{JweOpener, JweOpenerSet, JweSealer, Sealer, MAX_JWE_KID_LEN};
 pub use jwt::{
     JwtSigner, JwtSignerSettings, JwtVerifier, TokenIssuer, TokenIssuerSettings, TokenType,
     VerifiedJwt,

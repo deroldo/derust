@@ -14,6 +14,8 @@ use zeroize::Zeroizing;
 
 const IV_LEN: usize = 12;
 const TAG_LEN: usize = 16;
+/// Maximum length (bytes) of a JWE `kid`.
+pub const MAX_JWE_KID_LEN: usize = 128;
 
 /// Anything that can seal data into a JWE. Services depend on this trait so tests can inject fakes.
 pub trait Sealer: Send + Sync {
@@ -24,6 +26,7 @@ pub trait Sealer: Send + Sync {
 #[derive(Clone)]
 pub struct JweSealer {
     public_pem: Vec<u8>,
+    kid: Option<String>,
 }
 
 impl JweSealer {
@@ -34,7 +37,22 @@ impl JweSealer {
             .pkey()
             .public_key_to_pem()
             .map_err(|_| JweError::InvalidKey)?;
-        Ok(Self { public_pem })
+        Ok(Self {
+            public_pem,
+            kid: None,
+        })
+    }
+
+    /// Puts `kid` in the protected header so the recipient can pick the right key during
+    /// rotation (see [`JweOpenerSet`]). Fails with `InvalidKey` if empty or longer than
+    /// [`MAX_JWE_KID_LEN`] bytes. Without it no `kid` is emitted (default).
+    pub fn with_kid(mut self, kid: impl Into<String>) -> Result<Self, JweError> {
+        let kid = kid.into();
+        if kid.is_empty() || kid.len() > MAX_JWE_KID_LEN {
+            return Err(JweError::InvalidKey);
+        }
+        self.kid = Some(kid);
+        Ok(self)
     }
 }
 
@@ -47,7 +65,7 @@ impl fmt::Debug for JweSealer {
 impl Sealer for JweSealer {
     /// The output is refused (`SealFailed`) if it would exceed what [`JweOpener::open`] accepts.
     fn seal(&self, plaintext: &[u8]) -> Result<String, JweError> {
-        let jwe = jwe_encrypt_ecdh_es_a256gcm(&self.public_pem, plaintext)
+        let jwe = jwe_encrypt_ecdh_es_a256gcm(&self.public_pem, plaintext, self.kid.as_deref())
             .map_err(|_| JweError::SealFailed)?;
         if jwe.len() > MAX_JWE_LEN {
             return Err(JweError::SealFailed);
@@ -74,9 +92,63 @@ impl JweOpener {
         })
     }
 
+    /// Opens a JWE with or without `kid` (a present `kid` is ignored here; use
+    /// [`JweOpenerSet`] to select a key by it).
     pub fn open(&self, jwe: &str) -> Result<Vec<u8>, JweError> {
         validate_compact(jwe)?;
         jwe_decrypt_ecdh_es(&self.private_pem, jwe).map_err(|_| JweError::DecryptFailed)
+    }
+}
+
+/// Several recipient keys addressed by `kid` (rotation of the recipient key).
+///
+/// The `kid` is read from the protected header only to choose the key, BEFORE decrypting;
+/// nothing else in the header is trusted. A missing or unknown `kid`, and every
+/// cryptographic failure, is the single `DecryptFailed` (no error oracle). A `kid` longer
+/// than [`MAX_JWE_KID_LEN`] or not a string is `Malformed` (structural, pre-crypto).
+pub struct JweOpenerSet {
+    openers: Vec<(String, JweOpener)>,
+}
+
+impl JweOpenerSet {
+    /// Fails with `InvalidKey` for an empty set, an empty/oversized or duplicate `kid`.
+    pub fn new(openers: Vec<(String, JweOpener)>) -> Result<Self, JweError> {
+        if openers.is_empty() {
+            return Err(JweError::InvalidKey);
+        }
+        for (i, (kid, _)) in openers.iter().enumerate() {
+            if kid.is_empty()
+                || kid.len() > MAX_JWE_KID_LEN
+                || openers[..i].iter().any(|(k, _)| k == kid)
+            {
+                return Err(JweError::InvalidKey);
+            }
+        }
+        Ok(Self { openers })
+    }
+
+    pub fn len(&self) -> usize {
+        self.openers.len()
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.openers.is_empty()
+    }
+
+    pub fn open(&self, jwe: &str) -> Result<Vec<u8>, JweError> {
+        let kid = validate_compact(jwe)?;
+        let opener = kid
+            .as_deref()
+            .and_then(|kid| self.openers.iter().find(|(k, _)| k == kid))
+            .map(|(_, o)| o)
+            .ok_or(JweError::DecryptFailed)?;
+        opener.open(jwe)
+    }
+}
+
+impl fmt::Debug for JweOpenerSet {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str("JweOpenerSet(***)")
     }
 }
 
@@ -86,7 +158,8 @@ impl fmt::Debug for JweOpener {
     }
 }
 
-fn validate_compact(jwe: &str) -> Result<(), JweError> {
+/// Validates the compact JWE and returns its `kid`, if any.
+fn validate_compact(jwe: &str) -> Result<Option<String>, JweError> {
     if jwe.len() > MAX_JWE_LEN {
         return Err(JweError::Malformed);
     }
@@ -121,7 +194,11 @@ fn validate_compact(jwe: &str) -> Result<(), JweError> {
     if !decoded[1].is_empty() || decoded[2].len() != IV_LEN || decoded[4].len() != TAG_LEN {
         return Err(JweError::Malformed);
     }
-    Ok(())
+    match header.get("kid") {
+        None => Ok(None),
+        Some(Value::String(kid)) if kid.len() <= MAX_JWE_KID_LEN => Ok(Some(kid.clone())),
+        Some(_) => Err(JweError::Malformed),
+    }
 }
 
 #[cfg(test)]
@@ -374,5 +451,168 @@ mod test {
         if let Ok(path) = std::env::var("CRYPTOX_JWE_OUT") {
             std::fs::write(path, jwe).unwrap();
         }
+    }
+
+    const NODE_KID_JWE: &str = include_str!("../../tests/cryptox/node_jose_kid.jwe");
+
+    #[test]
+    fn opens_jwe_with_kid_produced_by_node_jose() {
+        assert_eq!(header_of(NODE_KID_JWE.trim())["kid"], "node-kid-1");
+        let opener = || JweOpener::new(NODE_PRIVATE).unwrap();
+        assert_eq!(
+            opener().open(NODE_KID_JWE.trim()).unwrap(),
+            NODE_PLAINTEXT.as_bytes()
+        );
+        let set = JweOpenerSet::new(vec![("node-kid-1".into(), opener())]).unwrap();
+        assert_eq!(
+            set.open(NODE_KID_JWE.trim()).unwrap(),
+            NODE_PLAINTEXT.as_bytes()
+        );
+        let other = JweOpenerSet::new(vec![("other".into(), opener())]).unwrap();
+        assert_eq!(
+            other.open(NODE_KID_JWE.trim()).unwrap_err(),
+            JweError::DecryptFailed
+        );
+    }
+
+    #[test]
+    fn writes_seal_with_kid_for_node_jose_to_open_when_requested() {
+        let sealer = JweSealer::new(NODE_PUBLIC)
+            .unwrap()
+            .with_kid("derust-kid-1")
+            .unwrap();
+        let jwe = sealer.seal(NODE_PLAINTEXT.as_bytes()).unwrap();
+        assert_eq!(
+            JweOpener::new(NODE_PRIVATE).unwrap().open(&jwe).unwrap(),
+            NODE_PLAINTEXT.as_bytes()
+        );
+        if let Ok(path) = std::env::var("CRYPTOX_JWE_KID_OUT") {
+            std::fs::write(path, jwe).unwrap();
+        }
+    }
+
+    fn header_of(jwe: &str) -> Value {
+        serde_json::from_slice(&b64url_decode(jwe.split('.').next().unwrap()).unwrap()).unwrap()
+    }
+
+    #[test]
+    fn kid_is_in_the_protected_header_only_when_requested() {
+        let (private, public) = generate_ec_p256_keypair().unwrap();
+        let opener = JweOpener::new(&private).unwrap();
+        let plain = JweSealer::new(&public).unwrap().seal(b"x").unwrap();
+        assert!(header_of(&plain).get("kid").is_none());
+        let tagged = JweSealer::new(&public)
+            .unwrap()
+            .with_kid("k-2026")
+            .unwrap()
+            .seal(b"x")
+            .unwrap();
+        assert_eq!(header_of(&tagged)["kid"], "k-2026");
+        // a plain opener opens both, with and without kid
+        assert_eq!(opener.open(&plain).unwrap(), b"x");
+        assert_eq!(opener.open(&tagged).unwrap(), b"x");
+    }
+
+    #[test]
+    fn with_kid_validates_length_and_emptiness() {
+        let (_, public) = generate_ec_p256_keypair().unwrap();
+        let s = || JweSealer::new(&public).unwrap();
+        assert_eq!(s().with_kid("").unwrap_err(), JweError::InvalidKey);
+        assert_eq!(
+            s().with_kid("a".repeat(MAX_JWE_KID_LEN + 1)).unwrap_err(),
+            JweError::InvalidKey
+        );
+        assert!(s().with_kid("a".repeat(MAX_JWE_KID_LEN)).is_ok());
+    }
+
+    fn rotation() -> (JweSealer, JweSealer, JweOpenerSet) {
+        let (p1, u1) = generate_ec_p256_keypair().unwrap();
+        let (p2, u2) = generate_ec_p256_keypair().unwrap();
+        let set = JweOpenerSet::new(vec![
+            ("old".into(), JweOpener::new(&p1).unwrap()),
+            ("new".into(), JweOpener::new(&p2).unwrap()),
+        ])
+        .unwrap();
+        (
+            JweSealer::new(&u1).unwrap().with_kid("old").unwrap(),
+            JweSealer::new(&u2).unwrap().with_kid("new").unwrap(),
+            set,
+        )
+    }
+
+    #[test]
+    fn opener_set_picks_the_key_by_kid() {
+        let (old, new, set) = rotation();
+        assert_eq!(set.len(), 2);
+        assert_eq!(set.open(&old.seal(b"a").unwrap()).unwrap(), b"a");
+        assert_eq!(set.open(&new.seal(b"b").unwrap()).unwrap(), b"b");
+    }
+
+    #[test]
+    fn opener_set_missing_unknown_or_wrong_kid_is_decrypt_failed() {
+        let (old, _, set) = rotation();
+        let (_, public) = generate_ec_p256_keypair().unwrap();
+        let unknown = JweSealer::new(&public).unwrap().with_kid("zzz").unwrap();
+        let no_kid = JweSealer::new(&public).unwrap();
+        assert_eq!(
+            set.open(&unknown.seal(b"a").unwrap()).unwrap_err(),
+            JweError::DecryptFailed
+        );
+        assert_eq!(
+            set.open(&no_kid.seal(b"a").unwrap()).unwrap_err(),
+            JweError::DecryptFailed
+        );
+        // known kid but sealed to a different key
+        let liar = JweSealer::new(&public).unwrap().with_kid("old").unwrap();
+        assert_eq!(
+            set.open(&liar.seal(b"a").unwrap()).unwrap_err(),
+            JweError::DecryptFailed
+        );
+        // tampered ciphertext with a good kid
+        let jwe = old.seal(b"secret").unwrap();
+        let mut parts: Vec<String> = jwe.split('.').map(str::to_owned).collect();
+        let mut ct = b64url_decode(&parts[3]).unwrap();
+        ct[0] ^= 1;
+        parts[3] = b64url_encode(&ct);
+        assert_eq!(
+            set.open(&parts.join(".")).unwrap_err(),
+            JweError::DecryptFailed
+        );
+    }
+
+    #[test]
+    fn opener_set_rejects_oversized_or_non_string_kid_before_lookup() {
+        let (_, _, set) = rotation();
+        let (_, public) = generate_ec_p256_keypair().unwrap();
+        let jwe = JweSealer::new(&public).unwrap().seal(b"x").unwrap();
+        let rewrite = |kid: Value| {
+            let mut h = header_of(&jwe);
+            h["kid"] = kid;
+            let mut parts: Vec<String> = jwe.split('.').map(str::to_owned).collect();
+            parts[0] = b64url_encode(h.to_string().as_bytes());
+            parts.join(".")
+        };
+        for kid in [
+            serde_json::json!("a".repeat(MAX_JWE_KID_LEN + 1)),
+            serde_json::json!(7),
+        ] {
+            assert_eq!(set.open(&rewrite(kid)).unwrap_err(), JweError::Malformed);
+        }
+    }
+
+    #[test]
+    fn opener_set_construction_rules_and_debug() {
+        let op = || JweOpener::new(generate_ec_p256_keypair().unwrap().0).unwrap();
+        assert_eq!(JweOpenerSet::new(vec![]).unwrap_err(), JweError::InvalidKey);
+        assert_eq!(
+            JweOpenerSet::new(vec![("".into(), op())]).unwrap_err(),
+            JweError::InvalidKey
+        );
+        assert_eq!(
+            JweOpenerSet::new(vec![("a".into(), op()), ("a".into(), op())]).unwrap_err(),
+            JweError::InvalidKey
+        );
+        let set = JweOpenerSet::new(vec![("secret-kid".into(), op())]).unwrap();
+        assert_eq!(format!("{set:?}"), "JweOpenerSet(***)");
     }
 }
