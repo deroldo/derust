@@ -22,7 +22,13 @@ mod password;
 mod util;
 
 pub use code::{generate_numeric_code, CodeHasher};
-pub use error::{JweError, JwtError, KeyError, PasswordError};
+#[cfg(feature = "aws")]
+pub use config::SecretsManagerKeySource;
+pub use config::{
+    EnvKeySource, FileKeySource, JwtVerifierConfig, KeySource, KeySourceConfig, KeySourceResolver,
+    SigningKeyConfig, TokenIssuerConfig, VerifyingKeyConfig,
+};
+pub use error::{ConfigError, JweError, JwtError, KeyError, PasswordError};
 #[cfg(feature = "http_server")]
 pub use http::{AuthConfig, AuthLayer, Authenticated, RequireClaims};
 pub use jwe::{JweOpener, JweSealer, Sealer};

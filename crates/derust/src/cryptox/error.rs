@@ -2,7 +2,7 @@ use thiserror::Error;
 
 /// Errors raised while loading or validating cryptographic keys.
 /// Messages are fixed and never include key material.
-#[derive(Debug, Clone, PartialEq, Eq, Error)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Error)]
 pub enum KeyError {
     #[error("invalid PEM")]
     InvalidPem,
@@ -53,6 +53,28 @@ pub enum JwtError {
     InvalidConfig,
     #[error("signing failed")]
     SigningFailed,
+}
+
+/// Errors raised while building verifiers/issuers from configuration.
+/// Messages are fixed; the wrapped errors are fixed-message enums too.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Error)]
+pub enum ConfigError {
+    #[error("key configuration error")]
+    Key(KeyError),
+    #[error("jwt configuration error")]
+    Jwt(JwtError),
+}
+
+impl From<KeyError> for ConfigError {
+    fn from(e: KeyError) -> Self {
+        ConfigError::Key(e)
+    }
+}
+
+impl From<JwtError> for ConfigError {
+    fn from(e: JwtError) -> Self {
+        ConfigError::Jwt(e)
+    }
 }
 
 /// Errors raised while sealing or opening JWE tokens.
