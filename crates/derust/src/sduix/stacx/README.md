@@ -118,6 +118,19 @@ expression text is written by hand.
   `onResult` runs when the route closes with a result, `onCancel` when it closes without one; **both may
   be set**. `result` is only valid with `pop`, `pushReplacement` and `pushReplacementNamed` (no
   `navigationStyle` counts as `push`).
+* **`navigate.routeName`.** Text, optional, valid with or without `request` (JSON key `routeName`; the
+  runtime of the fork, `docs/actions/navigate.mdx` at commit `4cd33635`, imposes no format and passes it
+  to `RouteSettings(name:)`). Next to `request` / `widgetJson` / `assetPath` in `push`, `pushReplacement`,
+  `pushAndRemoveAll` (no style counts as `push`) it names the page route (the URL on the web) and the
+  screen still comes from the request. Without them it is a Stac screen name (`detail_screen`) in the push
+  styles or a Flutter route (`/settings`) in `pushNamed`, `pushReplacementNamed`, `pushNamedAndRemoveAll`.
+  Validation (literal values only; a binding or a legacy `{{key}}` is only known at runtime):
+  when it names a loaded screen it must start with `/screens/`, be relative (no `//`, scheme, host or
+  `://`), have no spaces, control characters or `\`; a query (`/screens/profile?choose=true`) is allowed.
+  Otherwise only "not empty, no spaces or control characters" applies. Messages carry the path
+  (`$.routeName`) and never the value. The value shows up in the address bar and in the browser
+  history: **never put secrets or tokens in it** (derust cannot check that). On the web the Flutter side
+  runs `Uri.parse(routeName)`, so an unparseable value throws a `FormatException`.
 * **Lists.** `ListView`, `GridView`, `PageView`, `SliverList`, `SliverGrid` take
   `template(ItemTemplate::new(items).item_as("todo").index_as("i"), |vars| widget)`. `vars.item()` and
   `vars.index()` carry the effective names (`item` / `index` by default). `item` and `index` are
@@ -147,6 +160,7 @@ key/property names, never values. Errors:
 * a write (`setState`, `incrementState`, ..., `toggleItem`) to an undeclared screen key when the scope is
   known, to a reserved name, or to `item` / `index` / the template names (read only);
 * `response`, `event`, `result`, `item` / `index` used outside the place where they exist;
+* `navigate` `routeName` with an invalid format (see above);
 * `navigate` `result` with a style other than `pop`, `pushReplacement`, `pushReplacementNamed`; a
   `removeFromState` without target;
 * `state` / `globalState` that is not an object; a screen nested too deep.

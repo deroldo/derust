@@ -22,4 +22,4 @@
 - [x] N2. Testes de serialização e validação + fixtures `fixtures_reactive/actions/navigate_route_name_*.json`. (`test(sdui)`)
 - [x] N3. Inventário `inventory_state.json` (`navigate.routeName`, source `fork`). (`feat(sdui)`)
 - [x] N4. Harness Dart v1-reactive aceita o novo fixture (o harness percorre todos os fixtures: nenhuma mudança de código; 4 fixtures novos verdes); `flutter test` verde no reativo e no oficial v1. (`test(sdui)`)
-- [ ] N5. README do módulo, CHANGELOG 0.7.0 (Added), este refinamento. (`docs(sdui)`)
+- [x] N5. README do módulo, CHANGELOG 0.7.0 (Added), este refinamento. (`docs(sdui)`)
