@@ -17,8 +17,8 @@ when `http_server` is enabled (it is a default feature). `SecretsManagerKeySourc
 |---|---|
 | `SigningKey`, `VerifyingKey`, `VerifyingKeySet` | EC P-256 keys with a `kid`; JWKS via `to_jwks()` |
 | `JwtSigner`, `JwtVerifier`, `TokenIssuer` | ES256 JWT with `kid` and `token_type` (access / refresh) |
-| `JweSealer`, `JweOpener`, `Sealer` | compact JWE, `ECDH-ES` + `A256GCM` |
-| `PasswordHasher`, `Argon2Params` | Argon2id (PHC string), `needs_rehash` |
+| `JweSealer`, `JweOpener`, `JweOpenerSet`, `Sealer` | compact JWE, `ECDH-ES` + `A256GCM`, optional `kid` |
+| `PasswordHasher`, `Argon2Params` | Argon2id (PHC string), `needs_rehash`, `verify_or_dummy` |
 | `Pepper`, `CodeHasher`, `generate_numeric_code` | short codes (OTP): HMAC-SHA256 with a secret pepper |
 | `KeySource`, `*Config`, `KeySourceResolver` | serde config; env var, file or AWS Secrets Manager |
 | `http::{AuthConfig, Authenticated, RequireClaims}` | Axum integration (`http_server`) |
@@ -49,6 +49,10 @@ returns `Result`.
 - Rotation: publish several keys in the verifier's `VerifyingKeySet` (selected by `kid`); sign with the
   new key. `TokenIssuer` refuses the same public key for access and refresh (`InvalidConfig`), and the
   `token_type` claim stops one kind from being used as the other.
+- `TokenIssuer` derives the verification material from its signing keys: `access_verifying_keys()`,
+  `access_verifier()`, `refresh_verifier()` (same issuer/audience, `TokenType::Refresh`) and `jwks()` (access
+  key only: never the refresh key nor private material), so an issuer can validate its own refresh tokens.
+- `VerifyingKeySet::from_jwks` / `from_jwks_value` rebuild a set from a JWKS (see config below).
 - The claims type `C` of `verify` receives the whole payload; do not use `deny_unknown_fields`.
 
 ## JWE
@@ -56,7 +60,10 @@ returns `Result`.
 `JweSealer::new(public_pem)` / `JweOpener::new(private_pem)`. `alg` is `ECDH-ES` (direct, empty
 encrypted key), `enc` is `A256GCM`, and every `seal` generates a fresh ephemeral key. `open` rejects other
 algorithms, `zip`, `crit`, an `epk` that is not P-256 and inputs above 64 KiB; any cryptographic failure
-is a single `DecryptFailed`. The JWE carries no `kid`. Inject `&dyn Sealer` in services to fake it in tests.
+is a single `DecryptFailed`. The `kid` is optional: `JweSealer::with_kid(..)` puts it in the protected header (<= 128 bytes) and
+`JweOpenerSet` (one `JweOpener` per `kid`) picks the recipient key by it during rotation; a plain `JweOpener`
+still opens JWEs with or without `kid`. In the set, a missing or unknown `kid` and any cryptographic failure are
+the same single `DecryptFailed` (the `kid` is only read to choose the key, before decrypting). Inject `&dyn Sealer` in services to fake it in tests.
 Interoperability with Node `jose` was verified in both directions
 (`crates/derust/tests/cryptox/README.md`).
 
@@ -66,7 +73,13 @@ Passwords are low entropy and need a slow, salted hash: Argon2id (default 19 MiB
 minimum; `hash`/`verify` are CPU-bound, run them in `tokio::task::spawn_blocking`). Short numeric codes
 have so little entropy that no slow hash protects them offline; they are stored as
 `HMAC-SHA256(pepper, code)` where the pepper (`Pepper::from_bytes`, validated: >= 32 bytes, zeroized, redacted `Debug`) is random and kept **outside the database**.
-Attempt limiting and a TTL are the service's job. `generate_numeric_code` has no modulo bias.
+Attempt limiting and a TTL are the service's job.
+
+`PasswordHasher::verify_or_dummy(password, stored: Option<&str>)` equalizes login timing: for an unknown user
+(`None`) it verifies against a dummy hash built with the same parameters (computed once in `new`, kept in the
+instance, no global state) and returns `false`. A malformed `stored` still performs the dummy verification before
+returning `Err`; treat that `Err` as an internal data problem and answer the client as for a wrong password.
+Because of the dummy, `PasswordHasher::new` costs one extra Argon2 hash. `generate_numeric_code` has no modulo bias.
 
 ## Config and key sources
 
@@ -101,8 +114,8 @@ Issuer (identity-service), including one issuer per channel, JWKS, JWE, password
 ```rust
 use derust::cryptox::{
     generate_ec_p256_keypair, generate_numeric_code, Argon2Params, CodeHasher, JweOpener,
-    JweSealer, PasswordHasher, Pepper, Sealer, SigningKey, TokenIssuer, TokenIssuerSettings,
-    VerifyingKeySet,
+    JweOpenerSet, JweSealer, PasswordHasher, Pepper, Sealer, SigningKey, TokenIssuer,
+    TokenIssuerSettings, VerifyingKeySet,
 };
 use serde::Serialize;
 use std::time::Duration;
@@ -137,21 +150,38 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let (mobile, _) = issuer_for("mobile", (1_800, 90 * 86_400))?;
 
     let access_token = web.access_signer().sign("user-1", MyClaims { role: "admin".into() })?;
-    let refresh_token = mobile.refresh_signer().sign("user-1", ())?;
-    assert_ne!(access_token, refresh_token);
-    let jwks = web_keys.to_jwks(); // publish at /.well-known/jwks.json
+    let mobile_refresh = mobile.refresh_signer().sign("user-1", ())?;
+    assert_ne!(access_token, mobile_refresh);
+    let jwks = web.jwks(); // access key only; publish at /.well-known/jwks.json
     assert!(jwks["keys"][0].get("d").is_none());
+    assert_eq!(jwks, web_keys.to_jwks());
+    // A consumer (BFF) rebuilds the key set from the JWKS text (rotation without env lists).
+    let remote = VerifyingKeySet::from_jwks(&jwks.to_string())?;
+    assert_eq!(remote.len(), 1);
+
+    // The issuer validates its own tokens: derived verifiers share issuer/audience.
+    let refresh_token = web.refresh_signer().sign("user-1", ())?;
+    let verified = web.refresh_verifier().verify::<serde_json::Value>(&refresh_token)?;
+    assert_eq!(verified.subject(), "user-1");
+    assert!(web.access_verifier().verify::<serde_json::Value>(&refresh_token).is_err());
 
     // JWE: seal to the recipient's public key, only the private key opens it.
     let (jwe_private, jwe_public) = generate_ec_p256_keypair()?;
     let sealed = JweSealer::new(&jwe_public)?.seal(b"sensitive payload")?;
     assert_eq!(JweOpener::new(&jwe_private)?.open(&sealed)?, b"sensitive payload");
+    // JWE `kid` is optional; with it, the recipient can rotate its key (pick the key by `kid`).
+    let sealed_kid = JweSealer::new(&jwe_public)?.with_kid("recipient-2026")?.seal(b"rotating")?;
+    let openers = JweOpenerSet::new(vec![("recipient-2026".into(), JweOpener::new(&jwe_private)?)])?;
+    assert_eq!(openers.open(&sealed_kid)?, b"rotating");
 
     // Passwords: Argon2id (CPU-bound: use spawn_blocking in async code).
     let hasher = PasswordHasher::new(Argon2Params::default())?;
     let phc = hasher.hash("correct horse battery staple")?;
     assert!(hasher.verify("correct horse battery staple", &phc)?);
     assert!(!hasher.needs_rehash(&phc));
+    // Login: unknown user (`None`) costs the same as a wrong password and returns `false`.
+    assert!(hasher.verify_or_dummy("correct horse battery staple", Some(&phc))?);
+    assert!(!hasher.verify_or_dummy("anything", None)?);
 
     // Short codes (OTP): random digits, stored as HMAC-SHA256 with a secret pepper.
     let pepper = Pepper::from_bytes(b"0123456789abcdef0123456789abcdef".to_vec())?; // load >= 32 random bytes from a secret store

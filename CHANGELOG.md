@@ -37,9 +37,18 @@ All notable changes to `derust` are documented in this file.
   `token_type` access/refresh and mandatory `iss`/`aud` (no default TTL); compact JWE `ECDH-ES` + `A256GCM`
   (`JweSealer`, `JweOpener`, `Sealer`); Argon2id `PasswordHasher`; HMAC-SHA256 `CodeHasher` with pepper and
   `generate_numeric_code`. Unrelated to the existing `httpx::protect_endpoints_core` extractor.
+- `cryptox` rotation and login helpers: `TokenIssuer::{access_verifying_keys, access_verifier, refresh_verifier, jwks}`;
+  strict `VerifyingKeySet::from_jwks`/`from_jwks_value` and `JwtVerifierConfig::jwks` (one JWKS text from env, file or
+  Secrets Manager); `Pepper` (validated, zeroized, redacted `Debug`); `PasswordHasher::verify_or_dummy`;
+  optional `kid` in JWE (`JweSealer::with_kid`, `JweOpenerSet`).
+- Note: `PasswordHasher::new` now computes one extra Argon2 hash (the dummy used by `verify_or_dummy`).
 - `cryptox` configuration (`KeySource` from env, file or AWS Secrets Manager, `JwtVerifierConfig`,
   `TokenIssuerConfig`) and Axum integration `cryptox::http` (`AuthConfig`, `Authenticated<C>`,
   `RequireClaims<C>`; 401 with `WWW-Authenticate: Bearer`, 403, 500), available with `http_server`.
+
+### Breaking (`cryptox`, unreleased feature)
+
+- `CodeHasher::new` takes a `Pepper` (`Pepper::from_bytes`, minimum 32 bytes) instead of raw bytes.
 
 ### Breaking (`sdui_stac_1`, unreleased feature)
 

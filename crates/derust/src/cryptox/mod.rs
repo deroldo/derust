@@ -16,8 +16,8 @@
 //! ```
 //! use derust::cryptox::{
 //!     generate_ec_p256_keypair, generate_numeric_code, Argon2Params, CodeHasher, JweOpener,
-//!     JweSealer, PasswordHasher, Pepper, Sealer, SigningKey, TokenIssuer, TokenIssuerSettings,
-//!     VerifyingKeySet,
+//!     JweOpenerSet, JweSealer, PasswordHasher, Pepper, Sealer, SigningKey, TokenIssuer,
+//!     TokenIssuerSettings, VerifyingKeySet,
 //! };
 //! use serde::Serialize;
 //! use std::time::Duration;
@@ -52,21 +52,38 @@
 //!     let (mobile, _) = issuer_for("mobile", (1_800, 90 * 86_400))?;
 //!
 //!     let access_token = web.access_signer().sign("user-1", MyClaims { role: "admin".into() })?;
-//!     let refresh_token = mobile.refresh_signer().sign("user-1", ())?;
-//!     assert_ne!(access_token, refresh_token);
-//!     let jwks = web_keys.to_jwks(); // publish at /.well-known/jwks.json
+//!     let mobile_refresh = mobile.refresh_signer().sign("user-1", ())?;
+//!     assert_ne!(access_token, mobile_refresh);
+//!     let jwks = web.jwks(); // access key only; publish at /.well-known/jwks.json
 //!     assert!(jwks["keys"][0].get("d").is_none());
+//!     assert_eq!(jwks, web_keys.to_jwks());
+//!     // A consumer (BFF) rebuilds the key set from the JWKS text (rotation without env lists).
+//!     let remote = VerifyingKeySet::from_jwks(&jwks.to_string())?;
+//!     assert_eq!(remote.len(), 1);
+//!
+//!     // The issuer validates its own tokens: derived verifiers share issuer/audience.
+//!     let refresh_token = web.refresh_signer().sign("user-1", ())?;
+//!     let verified = web.refresh_verifier().verify::<serde_json::Value>(&refresh_token)?;
+//!     assert_eq!(verified.subject(), "user-1");
+//!     assert!(web.access_verifier().verify::<serde_json::Value>(&refresh_token).is_err());
 //!
 //!     // JWE: seal to the recipient's public key, only the private key opens it.
 //!     let (jwe_private, jwe_public) = generate_ec_p256_keypair()?;
 //!     let sealed = JweSealer::new(&jwe_public)?.seal(b"sensitive payload")?;
 //!     assert_eq!(JweOpener::new(&jwe_private)?.open(&sealed)?, b"sensitive payload");
+//!     // JWE `kid` is optional; with it, the recipient can rotate its key (pick the key by `kid`).
+//!     let sealed_kid = JweSealer::new(&jwe_public)?.with_kid("recipient-2026")?.seal(b"rotating")?;
+//!     let openers = JweOpenerSet::new(vec![("recipient-2026".into(), JweOpener::new(&jwe_private)?)])?;
+//!     assert_eq!(openers.open(&sealed_kid)?, b"rotating");
 //!
 //!     // Passwords: Argon2id (CPU-bound: use spawn_blocking in async code).
 //!     let hasher = PasswordHasher::new(Argon2Params::default())?;
 //!     let phc = hasher.hash("correct horse battery staple")?;
 //!     assert!(hasher.verify("correct horse battery staple", &phc)?);
 //!     assert!(!hasher.needs_rehash(&phc));
+//!     // Login: unknown user (`None`) costs the same as a wrong password and returns `false`.
+//!     assert!(hasher.verify_or_dummy("correct horse battery staple", Some(&phc))?);
+//!     assert!(!hasher.verify_or_dummy("anything", None)?);
 //!
 //!     // Short codes (OTP): random digits, stored as HMAC-SHA256 with a secret pepper.
 //!     let pepper = Pepper::from_bytes(b"0123456789abcdef0123456789abcdef".to_vec())?; // load >= 32 random bytes from a secret store
