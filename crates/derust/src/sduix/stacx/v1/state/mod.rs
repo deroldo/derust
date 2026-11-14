@@ -28,6 +28,7 @@ mod expr;
 mod ident;
 mod path;
 mod reactive;
+mod route_name;
 mod template;
 
 pub use actions::{
@@ -45,4 +46,6 @@ pub use expr::{BinOp, Expr, UnOp};
 pub use ident::Ident;
 pub use path::{PathSegment, Root, StatePath};
 pub use reactive::{IntoReactive, Plain, Reactive};
+pub(crate) use route_name::route_name_problem;
+pub use route_name::SCREEN_ROUTE_PREFIX;
 pub use template::{ItemTemplate, ItemVars, TemplateName};
