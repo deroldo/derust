@@ -579,6 +579,42 @@
       "notes": "state_reference.mdx#navigate (params, result, pop)"
     },
     {
+      "name": "action field: navigate.routeName: with request",
+      "kind": "action_field",
+      "source": "fork",
+      "json_key": "routeName",
+      "status": "supported",
+      "fixture": "actions/navigate_route_name_request",
+      "notes": "docs/actions/navigate.mdx (derust-stac commit 4cd33635): the runtime imposes no format; the model validates it: `/screens/...` relative path, may carry a query"
+    },
+    {
+      "name": "action field: navigate.routeName: with widgetJson",
+      "kind": "action_field",
+      "source": "fork",
+      "json_key": "routeName",
+      "status": "supported",
+      "fixture": "actions/navigate_route_name_widget_json",
+      "notes": "docs/actions/navigate.mdx (derust-stac commit 4cd33635): the runtime imposes no format; the model validates it: names the page route (URL on the web) of the inline screen"
+    },
+    {
+      "name": "action field: navigate.routeName: with assetPath",
+      "kind": "action_field",
+      "source": "fork",
+      "json_key": "routeName",
+      "status": "supported",
+      "fixture": "actions/navigate_route_name_asset_path",
+      "notes": "docs/actions/navigate.mdx (derust-stac commit 4cd33635): the runtime imposes no format; the model validates it: names the page route of the asset screen"
+    },
+    {
+      "name": "action field: navigate.routeName: screen or route name without a screen source",
+      "kind": "action_field",
+      "source": "fork",
+      "json_key": "routeName",
+      "status": "supported",
+      "fixture": "actions/navigate_route_name_only",
+      "notes": "docs/actions/navigate.mdx (derust-stac commit 4cd33635): the runtime imposes no format; the model validates it only as non-empty text without spaces: Stac screen name in push styles, Flutter route in the named styles"
+    },
+    {
       "name": "action field: navigate.result: value",
       "kind": "action_field",
       "source": "fork",
