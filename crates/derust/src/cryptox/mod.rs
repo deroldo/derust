@@ -21,5 +21,7 @@ mod keys;
 mod password;
 mod util;
 
+pub use code::{generate_numeric_code, CodeHasher};
 pub use error::{JweError, JwtError, KeyError, PasswordError};
 pub use keys::{generate_ec_p256_keypair, SigningKey, VerifyingKey, VerifyingKeySet};
+pub use password::{Argon2Params, PasswordHasher};
