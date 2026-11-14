@@ -16,6 +16,8 @@ pub enum KeyError {
     DuplicateKid,
     #[error("kid must not be empty")]
     EmptyKid,
+    #[error("key generation failed")]
+    GenerationFailed,
     #[error("failed to read key file")]
     Io,
     #[error("failed to load key from source")]

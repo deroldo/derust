@@ -2,6 +2,19 @@
 //! (plan B) must stay confined to this file.
 #![allow(dead_code)]
 
+/// Test helper: checks that `josekit` accepts the JWK as a public EC P-256 key.
+#[cfg(test)]
+pub(crate) fn jwk_is_valid_p256(jwk: &serde_json::Value) -> bool {
+    match josekit::jwk::Jwk::from_bytes(jwk.to_string()) {
+        Ok(parsed) => {
+            parsed.key_type() == "EC"
+                && parsed.curve() == Some("P-256")
+                && parsed.parameter("d").is_none()
+        }
+        Err(_) => false,
+    }
+}
+
 #[cfg(test)]
 mod test {
     use josekit::jwe::{JweHeader, ECDH_ES};

@@ -22,3 +22,4 @@ mod password;
 mod util;
 
 pub use error::{JweError, JwtError, KeyError, PasswordError};
+pub use keys::{generate_ec_p256_keypair, SigningKey, VerifyingKey, VerifyingKeySet};
