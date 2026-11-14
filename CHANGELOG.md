@@ -32,6 +32,15 @@ All notable changes to `derust` are documented in this file.
   (CI job `stac-compat-v1-reactive`, `continue-on-error` until the fork is pinned) and example
   `examples/sdui_reactive`.
 
+- Feature `cryptox` (module `derust::cryptox`, not in `default`, independent of `http_server`): EC P-256 keys
+  (PKCS#8/SPKI PEM) with `kid` and JWKS; ES256 JWT (`JwtSigner`, `JwtVerifier`, `TokenIssuer`) with
+  `token_type` access/refresh and mandatory `iss`/`aud` (no default TTL); compact JWE `ECDH-ES` + `A256GCM`
+  (`JweSealer`, `JweOpener`, `Sealer`); Argon2id `PasswordHasher`; HMAC-SHA256 `CodeHasher` with pepper and
+  `generate_numeric_code`. Unrelated to the existing `httpx::protect_endpoints_core` extractor.
+- `cryptox` configuration (`KeySource` from env, file or AWS Secrets Manager, `JwtVerifierConfig`,
+  `TokenIssuerConfig`) and Axum integration `cryptox::http` (`AuthConfig`, `Authenticated<C>`,
+  `RequireClaims<C>`; 401 with `WWW-Authenticate: Bearer`, 403, 500), available with `http_server`.
+
 ### Breaking (`sdui_stac_1`, unreleased feature)
 
 - Public fields of the generated structs change from `Option<T>` to `Option<Reactive<T>>`; setters take

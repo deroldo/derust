@@ -307,6 +307,7 @@ let consumer = SqsQueueConsumer::new(&queue_url, |ctx, msg, tags| async move {
 ## Features
 
 - [aws](https://github.com/deroldo/derust/tree/main/crates/derust/src/awsx)
+- [cryptox](https://github.com/deroldo/derust/tree/main/crates/derust/src/cryptox) - JWT ES256 (`kid`, access/refresh), JWE `ECDH-ES`+`A256GCM`, Argon2id, HMAC short codes, key sources and Axum `Authenticated`/`RequireClaims`. Independent of `httpx::protect_endpoints_core`; its Axum part needs `http_server`
 - database
   - [postgres](src/databasex/postgresx/README.md)
 - [env](https://github.com/deroldo/derust/tree/main/crates/derust/src/envx) (default)

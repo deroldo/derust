@@ -8,28 +8,54 @@
 //!
 //! Layer order: `.layer(auth.layer())` must come after (outside of) `route_layer`:
 //!
-//! ```no_run
+//! ```
 //! use axum::{routing::get, Router};
 //! use derust::cryptox::http::{AuthConfig, Authenticated, RequireClaims};
-//! use derust::cryptox::{generate_ec_p256_keypair, VerifyingKey, VerifyingKeySet};
-//! use serde::Deserialize;
+//! use derust::cryptox::{
+//!     generate_ec_p256_keypair, JwtSigner, JwtSignerSettings, JwtVerifier, SigningKey, TokenType,
+//!     VerifiedJwt, VerifyingKeySet,
+//! };
+//! use serde::{Deserialize, Serialize};
+//! use std::time::Duration;
 //!
-//! #[derive(Clone, Deserialize)]
-//! struct Claims { role: String }
+//! #[derive(Clone, Serialize, Deserialize)]
+//! struct Claims {
+//!     role: String,
+//! }
 //!
 //! async fn me(Authenticated(jwt): Authenticated<Claims>) -> String {
 //!     jwt.subject().to_owned()
 //! }
 //!
-//! # fn build() -> Result<Router, Box<dyn std::error::Error>> {
-//! # let (_, public_pem) = generate_ec_p256_keypair()?;
-//! let set = VerifyingKeySet::new(vec![VerifyingKey::from_pem(public_pem, "k1")?])?;
-//! let auth = AuthConfig::new(set, "https://id.example", "bff")?;
-//! let router: Router = Router::new()
-//!     .route("/me", get(me))
-//!     .route_layer(RequireClaims::<Claims>::new(|c| c.role == "admin"))
-//!     .layer(auth.layer());
-//! # Ok(router) }
+//! fn main() -> Result<(), Box<dyn std::error::Error>> {
+//!     // In the BFF the public keys come from a file / Secrets Manager (`JwtVerifierConfig`).
+//!     let (private_pem, _) = generate_ec_p256_keypair()?;
+//!     let signing = SigningKey::from_pem(private_pem, "k1")?;
+//!     let set = VerifyingKeySet::new(vec![signing.verifying_key()])?;
+//!
+//!     // Direct verification (iss and aud are mandatory):
+//!     let signer = JwtSigner::new(
+//!         signing,
+//!         TokenType::Access,
+//!         JwtSignerSettings {
+//!             issuer: "https://id.example".into(),
+//!             audience: "bff".into(),
+//!             ttl: Duration::from_secs(900),
+//!         },
+//!     )?;
+//!     let token = signer.sign("user-1", Claims { role: "admin".into() })?;
+//!     let verifier = JwtVerifier::new(set.clone(), TokenType::Access, "https://id.example", "bff")?;
+//!     let jwt: VerifiedJwt<Claims> = verifier.verify(&token)?;
+//!     assert_eq!(jwt.claims().role, "admin");
+//!
+//!     // Axum: `.layer(auth.layer())` goes after (outside of) `route_layer`.
+//!     let auth = AuthConfig::new(set, "https://id.example", "bff")?;
+//!     let _router: Router = Router::new()
+//!         .route("/me", get(me))
+//!         .route_layer(RequireClaims::<Claims>::new(|c| c.role == "admin"))
+//!         .layer(auth.layer());
+//!     Ok(())
+//! }
 //! ```
 
 use crate::commonx::{DerustError, DerustTags};
