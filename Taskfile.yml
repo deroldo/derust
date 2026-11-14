@@ -32,6 +32,9 @@ tasks:
     cmds:
       - cargo nextest run
       - cargo nextest run --package derust --features sdui_stac_1
+      - cargo nextest run --package derust --no-default-features --features cryptox
+      - cargo nextest run --package derust --features cryptox
+      - cargo nextest run --package derust --all-features
 
   test:watch:
     silent: true
@@ -48,6 +51,9 @@ tasks:
     cmds:
       - cargo fmt --all -- --check
       - cargo clippy -- -D warnings
+      - cargo clippy --all-targets --package derust --no-default-features --features cryptox -- -D warnings
+      - cargo clippy --all-targets --package derust --features cryptox -- -D warnings
+      - cargo clippy --all-targets --package derust --no-default-features --features cryptox,http_server -- -D warnings
 
   lint:fix:
     silent: true

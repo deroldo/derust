@@ -26,10 +26,22 @@ jobs:
         run: cargo clippy --all-targets --package derust --features sdui_stac_1 -- -D warnings
       - name: Types only (no default features)
         run: cargo clippy --package derust --no-default-features --features sdui_stac_1 -- -D warnings
+      - name: Clippy (cryptox only)
+        run: cargo clippy --all-targets --package derust --no-default-features --features cryptox -- -D warnings
+      - name: Clippy (cryptox)
+        run: cargo clippy --all-targets --package derust --features cryptox -- -D warnings
+      - name: Clippy (cryptox + http_server)
+        run: cargo clippy --all-targets --package derust --no-default-features --features cryptox,http_server -- -D warnings
       - name: Tests (default features)
         run: cargo nextest run
       - name: Tests (sdui_stac_1)
         run: cargo nextest run --package derust --features sdui_stac_1
+      - name: Tests (cryptox only)
+        run: cargo nextest run --package derust --no-default-features --features cryptox
+      - name: Tests (cryptox)
+        run: cargo nextest run --package derust --features cryptox
+      - name: Tests (all features)
+        run: cargo nextest run --package derust --all-features
 
   stac-compat-v1:
     # Parses every fixture of crates/derust/tests/sdui_stac_v1 with the real Stac v1.6.0.

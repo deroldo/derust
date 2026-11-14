@@ -39,6 +39,9 @@ pub use axum::http::StatusCode;
 #[cfg(feature = "sdui_stac_1")]
 pub mod sduix;
 
+#[cfg(feature = "cryptox")]
+pub mod cryptox;
+
 #[cfg(feature = "http_server")]
 pub async fn shutdown_signal() {
     let ctrl_c = async {

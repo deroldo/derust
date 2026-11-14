@@ -80,3 +80,9 @@ dotenv = { version = "0.15.0" }
 config = { version = "0.15.11" }
 openssl = { version = "0.10.73", features = ["vendored"] }
 flate2 = { version = "1.1.2" }
+
+# Crypto (cryptox)
+josekit = { version = "=0.10.3" }
+argon2 = { version = "0.5" }
+zeroize = { version = "1" }
+base64 = { version = "0.22" }
