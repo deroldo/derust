@@ -4,7 +4,7 @@
 //! `tokio::task::spawn_blocking`.
 
 use crate::cryptox::error::PasswordError;
-use crate::cryptox::util::random_bytes;
+use crate::cryptox::util::{hex_encode, random_bytes};
 use argon2::password_hash::{
     Error as PhcError, PasswordHash, PasswordHasher as _, PasswordVerifier as _, SaltString,
 };
@@ -37,6 +37,8 @@ impl Default for Argon2Params {
 pub struct PasswordHasher {
     params: Argon2Params,
     argon2: Argon2<'static>,
+    /// PHC of a throwaway random password with this hasher's parameters (for `verify_or_dummy`).
+    dummy_phc: String,
 }
 
 impl fmt::Debug for PasswordHasher {
@@ -55,10 +57,14 @@ impl PasswordHasher {
             None,
         )
         .map_err(|_| PasswordError::InvalidParams)?;
-        Ok(Self {
+        let mut hasher = Self {
             params,
             argon2: Argon2::new(Algorithm::Argon2id, Version::V0x13, built),
-        })
+            dummy_phc: String::new(),
+        };
+        let throwaway = hex_encode(&random_bytes(SALT_LEN).map_err(|_| PasswordError::HashFailed)?);
+        hasher.dummy_phc = hasher.hash(&throwaway)?;
+        Ok(hasher)
     }
 
     /// Returns a PHC string `$argon2id$v=19$m=..,t=..,p=..$salt$hash` with a fresh random salt.
@@ -84,6 +90,39 @@ impl PasswordHasher {
             Ok(()) => Ok(true),
             Err(PhcError::Password) => Ok(false),
             Err(_) => Err(PasswordError::InvalidHash),
+        }
+    }
+
+    /// Login helper that equalizes timing to avoid user enumeration: when `stored` is `None`
+    /// (unknown user) it verifies `password` against a dummy hash made with the SAME
+    /// parameters as this hasher and returns `Ok(false)`; the dummy is computed once in
+    /// [`PasswordHasher::new`] and kept in the instance (no global state).
+    ///
+    /// When `stored` is `Some`, it behaves like [`PasswordHasher::verify`]. If the stored hash
+    /// is malformed or of another algorithm the dummy verification is still performed before
+    /// returning `Err`, so the time does not distinguish it; treat that `Err` as a server-side
+    /// data problem (log it without the hash) and answer the client with the same generic
+    /// failure as `Ok(false)`.
+    ///
+    /// Note: constructing a `PasswordHasher` now costs one extra Argon2 hash. Like `verify`,
+    /// this is CPU-bound: use `spawn_blocking` in async code.
+    pub fn verify_or_dummy(
+        &self,
+        password: &str,
+        stored: Option<&str>,
+    ) -> Result<bool, PasswordError> {
+        match stored {
+            Some(phc) => {
+                let result = self.verify(password, phc);
+                if result.is_err() {
+                    let _ = self.verify(password, &self.dummy_phc);
+                }
+                result
+            }
+            None => {
+                let _ = self.verify(password, &self.dummy_phc);
+                Ok(false)
+            }
         }
     }
 
@@ -132,6 +171,57 @@ mod test {
         let phc = h.hash("correct horse").unwrap();
         assert!(h.verify("correct horse", &phc).unwrap());
         assert!(!h.verify("wrong", &phc).unwrap());
+    }
+
+    #[test]
+    fn verify_or_dummy_none_is_false() {
+        let h = hasher();
+        assert_eq!(h.verify_or_dummy("anything", None), Ok(false));
+        assert_eq!(h.verify_or_dummy("", None), Ok(false));
+    }
+
+    #[test]
+    fn verify_or_dummy_some_behaves_like_verify() {
+        let h = hasher();
+        let phc = h.hash("right").unwrap();
+        assert_eq!(h.verify_or_dummy("right", Some(&phc)), Ok(true));
+        assert_eq!(h.verify_or_dummy("wrong", Some(&phc)), Ok(false));
+        assert_eq!(
+            h.verify_or_dummy("right", Some("garbage")),
+            Err(PasswordError::InvalidHash)
+        );
+        assert_eq!(
+            h.verify_or_dummy(
+                "right",
+                Some("$argon2i$v=19$m=64,t=3,p=2$c29tZXNhbHRzb21lc2FsdA$1CPz4PuyeKkknCNTU5v52qlMt5LtwQsgM5BbeG7cH60")
+            ),
+            Err(PasswordError::UnsupportedAlgorithm)
+        );
+    }
+
+    #[test]
+    fn dummy_hash_uses_the_hasher_parameters() {
+        for params in [
+            small(),
+            Argon2Params {
+                memory_kib: 128,
+                iterations: 2,
+                parallelism: 2,
+            },
+        ] {
+            let h = PasswordHasher::new(params).unwrap();
+            assert!(!h.needs_rehash(&h.dummy_phc));
+            let parsed = PasswordHash::new(&h.dummy_phc).unwrap();
+            let p = Params::try_from(&parsed).unwrap();
+            assert_eq!(
+                (p.m_cost(), p.t_cost(), p.p_cost()),
+                (params.memory_kib, params.iterations, params.parallelism)
+            );
+            // each instance has its own random dummy; the dummy never verifies a normal password
+            assert!(!h.verify("password", &h.dummy_phc).unwrap());
+        }
+        assert_ne!(hasher().dummy_phc, hasher().dummy_phc);
+        assert!(!format!("{:?}", hasher()).contains("argon2id"));
     }
 
     #[test]
