@@ -148,6 +148,66 @@ impl JwtSigner {
     }
 }
 
+/// Settings of a [`TokenIssuer`]; no default TTLs.
+#[derive(Clone, Debug)]
+pub struct TokenIssuerSettings {
+    pub issuer: String,
+    pub audience: String,
+    pub access_ttl: Duration,
+    pub refresh_ttl: Duration,
+}
+
+/// Issues access and refresh tokens signed by two distinct key pairs.
+///
+/// Plain value: create one per channel (different issuer, audience and TTLs) and they
+/// coexist in the same process with no shared state.
+#[derive(Clone, Debug)]
+pub struct TokenIssuer {
+    access: JwtSigner,
+    refresh: JwtSigner,
+}
+
+impl TokenIssuer {
+    /// Fails with `InvalidConfig` if both keys are the same public key (compared by key,
+    /// not by `kid`) or if issuer/audience/TTLs are invalid.
+    pub fn new(
+        access: SigningKey,
+        refresh: SigningKey,
+        settings: TokenIssuerSettings,
+    ) -> Result<Self, JwtError> {
+        if access.verifying_key().same_key(&refresh.verifying_key()) {
+            return Err(JwtError::InvalidConfig);
+        }
+        let access = JwtSigner::new(
+            access,
+            TokenType::Access,
+            JwtSignerSettings {
+                issuer: settings.issuer.clone(),
+                audience: settings.audience.clone(),
+                ttl: settings.access_ttl,
+            },
+        )?;
+        let refresh = JwtSigner::new(
+            refresh,
+            TokenType::Refresh,
+            JwtSignerSettings {
+                issuer: settings.issuer,
+                audience: settings.audience,
+                ttl: settings.refresh_ttl,
+            },
+        )?;
+        Ok(Self { access, refresh })
+    }
+
+    pub fn access_signer(&self) -> JwtSigner {
+        self.access.clone()
+    }
+
+    pub fn refresh_signer(&self) -> JwtSigner {
+        self.refresh.clone()
+    }
+}
+
 /// Verifies JWTs of one [`TokenType`] against a key set, issuer and audience.
 #[derive(Clone, Debug)]
 pub struct JwtVerifier {
@@ -833,6 +893,151 @@ mod test {
             .unwrap_err();
         assert!(!format!("{err:?} {err}").contains(&tampered));
         assert!(!format!("{signer:?}").contains("PRIVATE"));
+    }
+
+    fn issuer_settings(iss: &str, aud: &str, a: u64, r: u64) -> TokenIssuerSettings {
+        TokenIssuerSettings {
+            issuer: iss.into(),
+            audience: aud.into(),
+            access_ttl: Duration::from_secs(a),
+            refresh_ttl: Duration::from_secs(r),
+        }
+    }
+
+    fn verifier_for(vk: VerifyingKey, tt: TokenType, iss: &str, aud: &str) -> JwtVerifier {
+        JwtVerifier::new(VerifyingKeySet::new(vec![vk]).unwrap(), tt, iss, aud).unwrap()
+    }
+
+    #[test]
+    fn issuer_with_distinct_pairs_issues_verifiable_tokens() {
+        let (a, avk) = keypair("a1");
+        let (r, rvk) = keypair("r1");
+        let issuer = TokenIssuer::new(a, r, issuer_settings(ISS, AUD, 900, 86_400)).unwrap();
+        let at_ = issuer.access_signer().sign_at(at(NOW), "u", ()).unwrap();
+        let rt = issuer.refresh_signer().sign_at(at(NOW), "u", ()).unwrap();
+        let va = verifier_for(avk.clone(), TokenType::Access, ISS, AUD);
+        let vr = verifier_for(rvk.clone(), TokenType::Refresh, ISS, AUD);
+        let acc: VerifiedJwt<Value> = va.verify_at(&at_, at(NOW)).unwrap();
+        let ref_: VerifiedJwt<Value> = vr.verify_at(&rt, at(NOW)).unwrap();
+        assert_eq!(
+            acc.expires_at().duration_since(acc.issued_at()).unwrap(),
+            Duration::from_secs(900)
+        );
+        assert_eq!(
+            ref_.expires_at().duration_since(ref_.issued_at()).unwrap(),
+            Duration::from_secs(86_400)
+        );
+        // cross use fails: wrong token type with a shared set, unknown kid with separate sets
+        let both = VerifyingKeySet::new(vec![avk, rvk]).unwrap();
+        let va_both = JwtVerifier::new(both.clone(), TokenType::Access, ISS, AUD).unwrap();
+        let vr_both = JwtVerifier::new(both, TokenType::Refresh, ISS, AUD).unwrap();
+        assert_eq!(
+            va_both.verify_at::<Value>(&rt, at(NOW)).unwrap_err(),
+            JwtError::WrongTokenType
+        );
+        assert_eq!(
+            vr_both.verify_at::<Value>(&at_, at(NOW)).unwrap_err(),
+            JwtError::WrongTokenType
+        );
+        assert_eq!(
+            va.verify_at::<Value>(&rt, at(NOW)).unwrap_err(),
+            JwtError::UnknownKid
+        );
+    }
+
+    #[test]
+    fn issuer_rejects_the_same_key_even_with_different_kids() {
+        let (private, _) = generate_ec_p256_keypair().unwrap();
+        let a = SigningKey::from_pem(&private, "a").unwrap();
+        let r = SigningKey::from_pem(&private, "r").unwrap();
+        assert_eq!(
+            TokenIssuer::new(a, r, issuer_settings(ISS, AUD, 60, 120)).unwrap_err(),
+            JwtError::InvalidConfig
+        );
+        let a = SigningKey::from_pem(&private, "same").unwrap();
+        let r = SigningKey::from_pem(&private, "same").unwrap();
+        assert_eq!(
+            TokenIssuer::new(a, r, issuer_settings(ISS, AUD, 60, 120)).unwrap_err(),
+            JwtError::InvalidConfig
+        );
+    }
+
+    #[test]
+    fn issuer_accepts_different_keys_with_the_same_kid() {
+        let (a, _) = keypair("same");
+        let (r, _) = keypair("same");
+        assert!(TokenIssuer::new(a, r, issuer_settings(ISS, AUD, 60, 120)).is_ok());
+    }
+
+    #[test]
+    fn issuer_validates_settings() {
+        let mk = |s: TokenIssuerSettings| {
+            let (a, _) = keypair("a");
+            let (r, _) = keypair("r");
+            TokenIssuer::new(a, r, s).unwrap_err()
+        };
+        assert_eq!(
+            mk(issuer_settings("", AUD, 60, 60)),
+            JwtError::InvalidConfig
+        );
+        assert_eq!(
+            mk(issuer_settings(ISS, "", 60, 60)),
+            JwtError::InvalidConfig
+        );
+        assert_eq!(
+            mk(issuer_settings(ISS, AUD, 0, 60)),
+            JwtError::InvalidConfig
+        );
+        assert_eq!(
+            mk(issuer_settings(ISS, AUD, 60, 0)),
+            JwtError::InvalidConfig
+        );
+    }
+
+    #[test]
+    fn two_issuers_coexist_without_shared_state() {
+        // One issuer per channel: distinct TTLs, issuer and audience, same process.
+        let (wa, wavk) = keypair("web-a");
+        let (wr, _) = keypair("web-r");
+        let (ma, mavk) = keypair("mob-a");
+        let (mr, _) = keypair("mob-r");
+        let web =
+            TokenIssuer::new(wa, wr, issuer_settings("id-web", "bff-web", 300, 3_600)).unwrap();
+        let mobile = TokenIssuer::new(
+            ma,
+            mr,
+            issuer_settings("id-mobile", "bff-mobile", 1_800, 2_592_000),
+        )
+        .unwrap();
+
+        let web_token = web.access_signer().sign_at(at(NOW), "u", ()).unwrap();
+        let mobile_token = mobile.access_signer().sign_at(at(NOW), "u", ()).unwrap();
+        let web_v = verifier_for(wavk, TokenType::Access, "id-web", "bff-web");
+        let mobile_v = verifier_for(mavk, TokenType::Access, "id-mobile", "bff-mobile");
+
+        let w: VerifiedJwt<Value> = web_v.verify_at(&web_token, at(NOW)).unwrap();
+        let m: VerifiedJwt<Value> = mobile_v.verify_at(&mobile_token, at(NOW)).unwrap();
+        assert_eq!(w.expires_at(), at(NOW + 300));
+        assert_eq!(m.expires_at(), at(NOW + 1_800));
+        assert_eq!(w.kid(), "web-a");
+        assert_eq!(m.kid(), "mob-a");
+        // each channel's token is rejected by the other channel's verifier
+        assert!(web_v.verify_at::<Value>(&mobile_token, at(NOW)).is_err());
+        assert!(mobile_v.verify_at::<Value>(&web_token, at(NOW)).is_err());
+        // signing with one does not alter the other (interleaved, repeated)
+        let again = web.access_signer().sign_at(at(NOW + 10), "u", ()).unwrap();
+        let w2: VerifiedJwt<Value> = web_v.verify_at(&again, at(NOW + 10)).unwrap();
+        assert_eq!(w2.expires_at(), at(NOW + 310));
+        let m2: VerifiedJwt<Value> = mobile_v
+            .verify_at(
+                &mobile
+                    .access_signer()
+                    .sign_at(at(NOW + 10), "u", ())
+                    .unwrap(),
+                at(NOW + 10),
+            )
+            .unwrap();
+        assert_eq!(m2.expires_at(), at(NOW + 1_810));
     }
 
     // RFC 7515 Appendix A.3 (ES256 example).

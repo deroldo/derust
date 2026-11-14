@@ -24,6 +24,9 @@ mod util;
 pub use code::{generate_numeric_code, CodeHasher};
 pub use error::{JweError, JwtError, KeyError, PasswordError};
 pub use jwe::{JweOpener, JweSealer, Sealer};
-pub use jwt::{JwtSigner, JwtSignerSettings, JwtVerifier, TokenType, VerifiedJwt};
+pub use jwt::{
+    JwtSigner, JwtSignerSettings, JwtVerifier, TokenIssuer, TokenIssuerSettings, TokenType,
+    VerifiedJwt,
+};
 pub use keys::{generate_ec_p256_keypair, SigningKey, VerifyingKey, VerifyingKeySet};
 pub use password::{Argon2Params, PasswordHasher};
