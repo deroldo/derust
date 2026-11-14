@@ -1,6 +1,4 @@
 //! EC P-256 keys in PEM (PKCS#8 private, SPKI public), key sets and JWKS.
-// `pkey` accessors are consumed by the JWS/JWE layers (later tasks).
-#![allow(dead_code)]
 
 use crate::cryptox::error::KeyError;
 use crate::cryptox::util::b64url_encode;
