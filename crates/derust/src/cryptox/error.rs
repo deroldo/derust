@@ -30,6 +30,8 @@ pub enum KeyError {
     EmptyKeySet,
     #[error("JWKS is too large")]
     JwksTooLarge,
+    #[error("pepper is too short")]
+    PepperTooShort,
 }
 
 /// Errors raised while signing or verifying JWTs.

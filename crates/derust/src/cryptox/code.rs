@@ -5,6 +5,7 @@
 //! kept outside the database makes the stored hash useless without the pepper.
 //! The online defense (attempt limits and TTL) belongs to the calling service.
 
+use crate::cryptox::error::KeyError;
 use crate::cryptox::util::{hex_decode, hex_encode};
 use openssl::hash::MessageDigest;
 use openssl::pkey::PKey;
@@ -42,13 +43,42 @@ pub(crate) fn digits_from_source(n: usize, mut next_byte: impl FnMut() -> u8) ->
     out
 }
 
-/// HMAC-SHA256 hasher for short codes. `Debug` is redacted; the pepper is zeroized on drop.
-///
-/// The pepper MUST be at least 32 random bytes and stored outside the database
+/// Minimum pepper length in bytes.
+pub const MIN_PEPPER_LEN: usize = 32;
+
+/// Secret pepper for [`CodeHasher`]: at least [`MIN_PEPPER_LEN`] (32) bytes, zeroized on drop.
+/// `Debug` is redacted. It must be random and stored outside the database
 /// (e.g. in a secrets manager).
 #[derive(Clone)]
+pub struct Pepper(Zeroizing<Vec<u8>>);
+
+impl Pepper {
+    /// Fails with `KeyError::PepperTooShort` when shorter than 32 bytes.
+    pub fn from_bytes(bytes: impl Into<Vec<u8>>) -> Result<Self, KeyError> {
+        let bytes = Zeroizing::new(bytes.into());
+        if bytes.len() < MIN_PEPPER_LEN {
+            return Err(KeyError::PepperTooShort);
+        }
+        Ok(Self(bytes))
+    }
+
+    /// Test-only: lets the RFC 4231 vectors (short keys) run against the hasher.
+    #[cfg(test)]
+    fn unchecked(bytes: Vec<u8>) -> Self {
+        Self(Zeroizing::new(bytes))
+    }
+}
+
+impl fmt::Debug for Pepper {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str("Pepper(***)")
+    }
+}
+
+/// HMAC-SHA256 hasher for short codes. `Debug` is redacted; the pepper is zeroized on drop.
+#[derive(Clone)]
 pub struct CodeHasher {
-    pepper: Zeroizing<Vec<u8>>,
+    pepper: Pepper,
 }
 
 impl fmt::Debug for CodeHasher {
@@ -58,16 +88,14 @@ impl fmt::Debug for CodeHasher {
 }
 
 impl CodeHasher {
-    /// The pepper must be >= 32 random bytes, kept outside the database.
+    /// Infallible: the pepper was validated by [`Pepper::from_bytes`].
     /// Limiting attempts and expiring codes is the caller's responsibility.
-    pub fn new(pepper: impl Into<Vec<u8>>) -> Self {
-        Self {
-            pepper: Zeroizing::new(pepper.into()),
-        }
+    pub fn new(pepper: Pepper) -> Self {
+        Self { pepper }
     }
 
     fn mac(&self, code: &str) -> Option<Vec<u8>> {
-        let key = PKey::hmac(&self.pepper).ok()?;
+        let key = PKey::hmac(&self.pepper.0).ok()?;
         let mut signer = Signer::new(MessageDigest::sha256(), &key).ok()?;
         signer.update(code.as_bytes()).ok()?;
         signer.sign_to_vec().ok()
@@ -101,20 +129,20 @@ mod test {
     use super::*;
     use crate::cryptox::util::random_bytes;
 
-    fn random_pepper() -> Vec<u8> {
-        random_bytes(32).unwrap()
+    fn random_pepper() -> Pepper {
+        Pepper::from_bytes(random_bytes(32).unwrap()).unwrap()
     }
 
     #[test]
     fn hmac_known_vectors_rfc4231() {
         // Case 1: key = 0x0b * 20, data = "Hi There"
-        let h = CodeHasher::new(vec![0x0b; 20]);
+        let h = CodeHasher::new(Pepper::unchecked(vec![0x0b; 20]));
         assert_eq!(
             h.hash("Hi There"),
             "b0344c61d8db38535ca8afceaf0bf12b881dc200c9833da726e9376c2e32cff7"
         );
         // Case 2: key = "Jefe", data = "what do ya want for nothing?"
-        let h = CodeHasher::new(b"Jefe".to_vec());
+        let h = CodeHasher::new(Pepper::unchecked(b"Jefe".to_vec()));
         assert_eq!(
             h.hash("what do ya want for nothing?"),
             "5bdcc146bf60754e6a042426089575c75a003f089d2739839dec58b964ec3843"
@@ -187,9 +215,39 @@ mod test {
     #[test]
     fn debug_does_not_leak_pepper() {
         let marker = b"PEPPER-marker-0123456789-abcdefgh".to_vec();
-        let h = CodeHasher::new(marker);
+        let pepper = Pepper::from_bytes(marker).unwrap();
+        let pepper_dbg = format!("{pepper:?}");
+        let h = CodeHasher::new(pepper);
         let dbg = format!("{h:?}");
-        assert!(!dbg.contains("PEPPER-marker"));
+        assert!(!dbg.contains("PEPPER-marker") && !pepper_dbg.contains("PEPPER-marker"));
         assert_eq!(dbg, "CodeHasher(***)");
+        assert_eq!(pepper_dbg, "Pepper(***)");
+    }
+
+    #[test]
+    fn pepper_minimum_length_is_enforced() {
+        assert_eq!(
+            Pepper::from_bytes(vec![1u8; 31]).unwrap_err(),
+            KeyError::PepperTooShort
+        );
+        assert_eq!(
+            Pepper::from_bytes(Vec::new()).unwrap_err(),
+            KeyError::PepperTooShort
+        );
+        assert!(Pepper::from_bytes(vec![1u8; 32]).is_ok());
+        assert!(Pepper::from_bytes(&b"0123456789abcdef0123456789abcdef0"[..]).is_ok());
+        let err = Pepper::from_bytes(b"SHORT-SECRET".to_vec()).unwrap_err();
+        assert!(!format!("{err} {err:?}").contains("SHORT-SECRET"));
+    }
+
+    #[test]
+    fn hash_is_unchanged_by_the_pepper_type() {
+        // HMAC-SHA256 with a 32-byte key of 0x0b (stable reference value computed by openssl).
+        let key = vec![0x0b; 32];
+        let h = CodeHasher::new(Pepper::from_bytes(key.clone()).unwrap());
+        let pkey = PKey::hmac(&key).unwrap();
+        let mut signer = Signer::new(MessageDigest::sha256(), &pkey).unwrap();
+        signer.update(b"123456").unwrap();
+        assert_eq!(h.hash("123456"), hex_encode(&signer.sign_to_vec().unwrap()));
     }
 }

@@ -19,7 +19,7 @@ when `http_server` is enabled (it is a default feature). `SecretsManagerKeySourc
 | `JwtSigner`, `JwtVerifier`, `TokenIssuer` | ES256 JWT with `kid` and `token_type` (access / refresh) |
 | `JweSealer`, `JweOpener`, `Sealer` | compact JWE, `ECDH-ES` + `A256GCM` |
 | `PasswordHasher`, `Argon2Params` | Argon2id (PHC string), `needs_rehash` |
-| `CodeHasher`, `generate_numeric_code` | short codes (OTP): HMAC-SHA256 with a secret pepper |
+| `Pepper`, `CodeHasher`, `generate_numeric_code` | short codes (OTP): HMAC-SHA256 with a secret pepper |
 | `KeySource`, `*Config`, `KeySourceResolver` | serde config; env var, file or AWS Secrets Manager |
 | `http::{AuthConfig, Authenticated, RequireClaims}` | Axum integration (`http_server`) |
 
@@ -65,7 +65,7 @@ Interoperability with Node `jose` was verified in both directions
 Passwords are low entropy and need a slow, salted hash: Argon2id (default 19 MiB, t=2, p=1, the OWASP
 minimum; `hash`/`verify` are CPU-bound, run them in `tokio::task::spawn_blocking`). Short numeric codes
 have so little entropy that no slow hash protects them offline; they are stored as
-`HMAC-SHA256(pepper, code)` where the pepper is >= 32 random bytes kept **outside the database**.
+`HMAC-SHA256(pepper, code)` where the pepper (`Pepper::from_bytes`, validated: >= 32 bytes, zeroized, redacted `Debug`) is random and kept **outside the database**.
 Attempt limiting and a TTL are the service's job. `generate_numeric_code` has no modulo bias.
 
 ## Config and key sources
@@ -101,7 +101,7 @@ Issuer (identity-service), including one issuer per channel, JWKS, JWE, password
 ```rust
 use derust::cryptox::{
     generate_ec_p256_keypair, generate_numeric_code, Argon2Params, CodeHasher, JweOpener,
-    JweSealer, PasswordHasher, Sealer, SigningKey, TokenIssuer, TokenIssuerSettings,
+    JweSealer, PasswordHasher, Pepper, Sealer, SigningKey, TokenIssuer, TokenIssuerSettings,
     VerifyingKeySet,
 };
 use serde::Serialize;
@@ -154,7 +154,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     assert!(!hasher.needs_rehash(&phc));
 
     // Short codes (OTP): random digits, stored as HMAC-SHA256 with a secret pepper.
-    let pepper = b"0123456789abcdef0123456789abcdef".to_vec(); // load >= 32 random bytes from a secret store
+    let pepper = Pepper::from_bytes(b"0123456789abcdef0123456789abcdef".to_vec())?; // load >= 32 random bytes from a secret store
     let codes = CodeHasher::new(pepper);
     let code = generate_numeric_code(6);
     let stored = codes.hash(&code);

@@ -16,7 +16,7 @@
 //! ```
 //! use derust::cryptox::{
 //!     generate_ec_p256_keypair, generate_numeric_code, Argon2Params, CodeHasher, JweOpener,
-//!     JweSealer, PasswordHasher, Sealer, SigningKey, TokenIssuer, TokenIssuerSettings,
+//!     JweSealer, PasswordHasher, Pepper, Sealer, SigningKey, TokenIssuer, TokenIssuerSettings,
 //!     VerifyingKeySet,
 //! };
 //! use serde::Serialize;
@@ -69,7 +69,7 @@
 //!     assert!(!hasher.needs_rehash(&phc));
 //!
 //!     // Short codes (OTP): random digits, stored as HMAC-SHA256 with a secret pepper.
-//!     let pepper = b"0123456789abcdef0123456789abcdef".to_vec(); // load >= 32 random bytes from a secret store
+//!     let pepper = Pepper::from_bytes(b"0123456789abcdef0123456789abcdef".to_vec())?; // load >= 32 random bytes from a secret store
 //!     let codes = CodeHasher::new(pepper);
 //!     let code = generate_numeric_code(6);
 //!     let stored = codes.hash(&code);
@@ -92,7 +92,7 @@ mod keys;
 mod password;
 mod util;
 
-pub use code::{generate_numeric_code, CodeHasher};
+pub use code::{generate_numeric_code, CodeHasher, Pepper, MIN_PEPPER_LEN};
 #[cfg(feature = "aws")]
 pub use config::SecretsManagerKeySource;
 pub use config::{
