@@ -1,0 +1,6 @@
+{
+  "actionType": "navigate",
+  "assetPath": "assets/profile.json",
+  "routeName": "/screens/a/b?x=1&y=2",
+  "navigationStyle": "pushReplacement"
+}

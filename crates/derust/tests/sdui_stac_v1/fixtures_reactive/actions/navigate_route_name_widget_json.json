@@ -1,0 +1,5 @@
+{
+  "actionType": "navigate",
+  "widgetJson": { "type": "text", "data": "hi" },
+  "routeName": "/screens/profile"
+}

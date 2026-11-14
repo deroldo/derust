@@ -19,6 +19,7 @@ mod generated_theme;
 mod generated_widgets;
 mod inventory;
 mod inventory_state;
+mod navigate_route_name;
 mod reactive_actions;
 mod reactive_ergonomics;
 mod reactive_expressions;

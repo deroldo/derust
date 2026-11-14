@@ -1,0 +1,6 @@
+{
+  "actionType": "navigate",
+  "request": { "actionType": "networkRequest", "url": "https://example.com/screens/profile", "method": "get" },
+  "routeName": "/screens/profile?choose=true",
+  "navigationStyle": "push"
+}
