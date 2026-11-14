@@ -3,6 +3,7 @@
 
 use crate::cryptox::keys::{SigningKey, VerifyingKey};
 use crate::cryptox::util::{b64url_decode, b64url_encode};
+use josekit::jwe::{JweHeader, ECDH_ES};
 use josekit::jws::{JwsSigner, JwsVerifier, ES256};
 use zeroize::Zeroizing;
 
@@ -58,6 +59,30 @@ pub(crate) fn jws_verify_es256(key: &VerifyingKey, token: &str) -> Result<Vec<u8
         .verify(signing_input.as_bytes(), &signature)
         .map_err(|_| JoseFailure)?;
     Ok(payload_bytes)
+}
+
+/// Encrypts `plaintext` as a compact JWE (`ECDH-ES` direct + `A256GCM`) to the SPKI PEM public key.
+/// A fresh ephemeral key is generated on every call by the backend.
+pub(crate) fn jwe_encrypt_ecdh_es_a256gcm(
+    public_pem: &[u8],
+    plaintext: &[u8],
+) -> Result<String, JoseFailure> {
+    let encrypter = ECDH_ES
+        .encrypter_from_pem(public_pem)
+        .map_err(|_| JoseFailure)?;
+    let mut header = JweHeader::new();
+    header.set_content_encryption("A256GCM");
+    josekit::jwe::serialize_compact(plaintext, &header, &encrypter).map_err(|_| JoseFailure)
+}
+
+/// Decrypts a compact JWE with the PKCS#8 PEM private key. Header must be validated by the caller.
+pub(crate) fn jwe_decrypt_ecdh_es(private_pem: &[u8], jwe: &str) -> Result<Vec<u8>, JoseFailure> {
+    let decrypter = ECDH_ES
+        .decrypter_from_pem(private_pem)
+        .map_err(|_| JoseFailure)?;
+    josekit::jwe::deserialize_compact(jwe, &decrypter)
+        .map(|(payload, _)| payload)
+        .map_err(|_| JoseFailure)
 }
 
 /// Test helper: checks that `josekit` accepts the JWK as a public EC P-256 key.

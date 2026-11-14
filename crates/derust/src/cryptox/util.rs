@@ -1,6 +1,4 @@
 //! Small internal helpers (hex, base64url, random bytes).
-#![allow(dead_code)]
-
 use base64::engine::general_purpose::URL_SAFE_NO_PAD;
 use base64::Engine;
 
