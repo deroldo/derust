@@ -9,7 +9,7 @@
 - `crates/derust/src/sduix/stacx/v1/state/` (escrito à mão): `Reactive<T>` (literal ou `{"$state"}`/`{"$expr"}`), `Data` (JSON livre com bindings), `Binding`, `StatePath`, `Expr`, `Actions` (uma ação ou lista, serializa objeto/array), ações de estado em `actions.rs` com a macro `action_common!` (campo `condition: Option<Reactive<bool>>`, `TYPE`, `StacNode`, `Plain`), `route_name.rs` (`route_name_problem`: com `request`/`widgetJson`/`assetPath` exige `/screens/...`, query permitida).
 - `enum Action` em `crates/derust/src/sduix/stacx/v1/actions/action.rs` é **gerado** por `tools/stac-inventory/gen_rust.py` (ações do fork listadas ~linha 116, ex.: `("CancelRequest", "cancelRequest", "crate::...::state::CancelRequest")`). Nunca editar o gerado à mão; regenerar (ver `tools/stac-inventory/README.md`, o gerador é idempotente).
 - Inventário do fork: `v1/inventory_state.json` (fonte `fork`). Testes: `crates/derust/tests/sdui_stac_v1/` (`main.rs`, `reactive_actions.rs`, `navigate_route_name.rs`, fixtures em `fixtures_reactive/{actions,bindings,envelope,expressions,lists,screens}`), harness Dart `tools/stac-compat/v1-reactive/test/compat_reactive_test.dart` (percorre todos os fixtures). Precedente de refinamento/commits: `docs/superpowers/plans/2026-11-14-navigate-route-name.md`.
-- Não existe `public_route` no derust (provavelmente é helper dos BFFs). Ver decisão D3.
+- O derust é genérico: não conhece rotas, `public_route` nem prefixo de telas. Quem usa decide as rotas (decisão do usuário, P1/P3). Hoje, porém, `state/route_name.rs` e o gerador (`NAVIGATE_CHECKS` em `gen_rust.py` ~linha 257) embutem o prefixo `/screens/` na validação de `navigate.routeName`; a D5 remove isso.
 
 ## Decisões de mecânica (o "como")
 
@@ -24,7 +24,7 @@
 
 ## Tarefas
 
-Dependências: D1, D2 e D5 em paralelo; D3 depende de D1 e D2; D4 depende de D3; D6 depende de D1 a D5.
+Dependências: D5 e D1 regeneram os mesmos arquivos gerados (`gen_rust.py`, `action.rs`, `navigate_action.rs`, `inventory_state.json`): fazer **D5 antes de D1** (ou o mesmo implementador), não em paralelo. D2 é paralela a ambas. D3 depende de D1 e D2; D4 depende de D3; D6 depende de D1 a D5.
 
 ### D1 — Action `recoveryOutcome` (simples)
 Arquivos: `crates/derust/src/sduix/stacx/v1/state/actions.rs` (+ `mod.rs`), `tools/stac-inventory/gen_rust.py` (lista do fork), `inventory_state.json`, `action.rs` (regerado).
@@ -45,17 +45,21 @@ Testes: envelope mínimo/só `screen`/só `action`/completo com `recovery`; Cont
 ### D4 — Conversão de `DerustError` (simples)
 Em `stac_error.rs`: M8. Testes: status e tags preservados, `message` copiada, `screen`/`action` opcionais aplicados.
 
-### D5 — `public_route_with_query` (simples)
-Em `state/route_name.rs` (pública). `public_route_with_query(path, &[(chave, valor)]) -> String`: percent-encoding de chave/valor (sem dependência nova), path validado pela regra existente (`/screens/...` sem esquema/host). Nome e escopo da função estão na pendência P1 (seção Reconciliação com o front). Testes: encoding de espaço, `&`, `=`, `?`, unicode; resultado passa em `route_name_problem(.., true)`; path inválido recusado.
+### D5 — Tirar o prefixo fixo `/screens/` da validação de `routeName` (simples)
+Decisão do usuário (P1/P3): o derust não tem rota fixa; o prefixo/rota é sempre de quem usa. Esta tarefa **substitui** o antigo `public_route_with_query`, que foi **eliminado**: `routeName` é só um texto, quem usa monta o path+query com a ferramenta que preferir (por exemplo a crate `url` ou `form_urlencoded`) e a rota é dele; uma primitiva própria seria o derust assumindo um papel de roteamento que não é dele, e nenhuma outra tarefa depende dela.
+Arquivos: `crates/derust/src/sduix/stacx/v1/state/route_name.rs` (remover `SCREEN_ROUTE_PREFIX` e a regra do prefixo; re-export em `state/mod.rs`), `tools/stac-inventory/gen_rust.py` (`NAVIGATE_CHECKS`, comentário e chamada), `actions/navigate_action.rs` (regerado), `inventory_state.json` (texto de `navigate.routeName`), `sduix/stacx/README.md`, `CHANGELOG.md` (a regra estrita do 0.7.0 é descrita lá; corrigir a entrada, o recurso `sdui_stac_1` ainda não foi publicado), `examples/sdui*/` se citarem a regra, planos antigos ficam como histórico.
+Regra nova, sem nenhum valor embutido: quando a ação carrega tela (`request`/`widgetJson`/`assetPath`) em push, pushReplacement, pushAndRemoveAll ou estilo ausente, o literal deve ser um caminho relativo: começar com `/` e não com `//`, sem esquema/host/`://`, sem `\`, espaço ou controle; query permitida. Demais casos: só não vazio e sem espaço/controle (como hoje). Mensagens continuam sem ecoar o valor. A decisão de que a rota **deve** ter certo prefixo é de quem usa (que pode validar no próprio código).
+Testes: atualizar `tests/sdui_stac_v1/navigate_route_name.rs` e `contract_examples_test.rs`: `/telas/x?id=1` e `/screens/x` passam (o derust não distingue); recusar `//host`, `https://..`, `a:b/c`, vazio, espaço, `\`, caminho sem `/` inicial quando a ação carrega tela; `detail_screen` e `/settings` seguem válidos nos demais casos; fixtures `navigate_route_name_*.json` podem continuar com `/screens/...` como valor de exemplo; gerador idempotente (sem diff na segunda execução); `inventory_state.rs` verde.
+Revisão: grep final por `/screens/` e `SCREEN_ROUTE_PREFIX` em código e docs vivos (`src`, `tools`, `README`, `CHANGELOG`); só podem restar como valor de exemplo em fixtures/exemplos e planos históricos.
 
-### D6 — Docs, exemplo, fixtures e harness (médio)
-README `sduix/stacx/README.md` (seção erro/recuperação; vocabulário só existe no runtime do fork `derust-stac`), CHANGELOG (Added, sob 0.7.0), matriz de compatibilidade; exemplo executável `examples/sdui_reactive` (ou novo `examples/stac_error`) com o envelope do apêndice A.2 só como exemplo de uso; fixtures `fixtures_reactive/envelope/recovery_*.json` (mínimo, só screen, só action, completo) usados tanto pelos testes Rust quanto pelo harness Dart (`flutter test` em `tools/stac-compat/v1-reactive`: se o runtime do fork ainda não tem o parser de `recoveryOutcome`, registrar como pendente, ver abaixo).
+### D6 — Docs, exemplo e fixtures (médio)
+README `sduix/stacx/README.md` (seção erro/recuperação; vocabulário só existe no runtime do fork `derust-stac`), CHANGELOG (Added, sob 0.7.0), matriz de compatibilidade; exemplo executável `examples/sdui_reactive` (ou novo `examples/stac_error`) com o envelope do apêndice A.2 só como exemplo de uso; fixtures `fixtures_reactive/error_envelope/*.json` (mínimo, só `screen`, só `action`, completo com `recovery`, ciclo 401 do A.2) comparadas com a serialização nos testes Rust. **Não há código Dart neste repositório de refinamento:** harness e testes Dart das fixtures ficam com a tarefa do front (decisão do usuário, P5). Nota no README: as fixtures do derust são a fonte de verdade da serialização do envelope (P4).
 
 ## Plano de testes e revisão (global)
 `task lint`; `task test` (default e `sdui_stac_1`); gates `--no-default-features --features sdui_stac_1` (sem `http_server`, módulo compila sem a resposta) e `--features sdui_stac_1,http_server`. Revisão por tarefa: serialização por snapshot, validações negativas, sem `unwrap`.
 
 ## Dificuldade
-D1 simples; D2 médio; D3 médio; D4 simples; D5 simples; D6 médio. Nenhuma complexa.
+D1 simples; D2 médio; D3 médio; D4 simples; D5 simples (agora: remover o prefixo `/screens/`); D6 médio. Nenhuma complexa.
 
 ## Reconciliação com o front (derust-stac, commit 44abb606)
 
@@ -69,21 +73,22 @@ Fonte: `/Users/deroldo/workspace/derust-stac-recuperacao/docs/superpowers/plans/
 | `recoveryOutcome` | `{actionType, result: success\|failure\|unavailable, condition?}`; tipo em `stac_core` (`ActionType.recoveryOutcome`); fora de uma recuperação é no-op com log | D1 idêntico (M2) | Alinhado. `actionType` no inventário do derust: `recoveryOutcome`. |
 | Status do erro | Qualquer não-2xx | Só 4xx/5xx | Derust mais restritivo de propósito. |
 | Variáveis `request`/`failure` em `recover` | Plano 4.2 do front: "variáveis somente-leitura" | Só existe `Root::Response` (válido em `onSuccess/onError/onFinally`); não há `Root::Request`/`Failure` | **Divergência**, ver P2. |
-| `routeName` | `StacRouter` reconstrói por `GET <base><backendPrefix>/screens/x?q=1`; `screensPrefix` configurável | `route_name_problem` exige `/screens/` fixo; query permitida | Ver P1/P3. |
-| Fixtures | Front: `packages/stac/test/recovery/fixtures/` (T10), "as mesmas que o derust deve produzir" | Derust: `crates/derust/tests/sdui_stac_v1/fixtures_reactive/error_envelope/` | Ver D6 e P4. |
-| Runtime parseia `recoveryOutcome`? | **Ainda não.** O front só foi refinado (T4 cria o parser, T1 o reconhecedor); nada implementado | O harness Dart do derust (`tools/stac-compat/v1-reactive/pubspec.yaml`) usa o fork por branch, sem pin | Parte Dart da D6 bloqueada até o front mesclar T1/T3/T4/T10 na ref que o harness usa. |
+| `routeName` | `StacRouter` reconstrói por `GET <base><backendPrefix><path>?<query>` com prefixos configuráveis | Sem prefixo embutido depois da D5: só regras de forma (caminho relativo) | Alinhado após a decisão P3. |
+| Fixtures | Front: `packages/stac/test/recovery/fixtures/` (T10) | Derust: `crates/derust/tests/sdui_stac_v1/fixtures_reactive/error_envelope/`, fonte de verdade da serialização (P4) | Dart fica com o front (P5). |
+| Runtime parseia `recoveryOutcome`? | **Ainda não** (front só refinado). | Sem Dart neste repositório | Sem impacto no derust: o teste Dart é da tarefa do front. |
 
 ### Ajustes feitos nas tarefas
 - **D1:** fixtures do `recoveryOutcome` dentro de callback `onSuccess`/`onError` de `networkRequest` (posição do apêndice A.2); validação tipada apenas.
 - **D2:** validação tipada apenas das ações aninhadas (M7); `Retry`/`overrides` aceitam `Data`; sem `request`/`failure` (P2).
 - **D3:** só 4xx/5xx; `screen` com validação completa, demais ações só tipada; `Cache-Control: no-store` com `recovery`.
-- **D5:** ver P1 e P3. Percent-encoding no estilo RFC 3986 (espaço vira `%20`, nunca `+`), compatível com o `Uri.parse` do Flutter.
-- **D6:** fixtures em `fixtures_reactive/error_envelope/` (não em `envelope/`, que já guarda as propriedades comuns de widget): mínimo, só `screen`, só `action`, completo com `recovery`, versão desconhecida e o ciclo 401 do apêndice A.2. Os testes Rust comparam a serialização com os arquivos. O teste Dart novo (`recovery_envelope_test.dart`, reconhecedor + modelos do front, sem alterar `compat_reactive_test.dart`) fica **pendente** até o front publicar T1/T4 na ref do harness; sem isso a D6 entrega só a parte Rust e deixa o Dart documentado. Nomes e conteúdo dos arquivos idênticos aos do front; sincronização manual (P4).
+- **D5:** o helper `public_route_with_query` foi eliminado; a tarefa agora remove o prefixo `/screens/` da validação existente (P1/P3).
+- **D6:** fixtures em `fixtures_reactive/error_envelope/` (não em `envelope/`, que já guarda propriedades comuns de widget): mínimo, só `screen`, só `action`, completo com `recovery`, versão desconhecida e o ciclo 401 do A.2. A parte Dart saiu do escopo (P5).
 - **Documentação (D6):** descrever o comportamento do runtime que afeta o autor Rust: uma só repetição; requests do `recover`, da repetição e de `onFailure`/`onUnavailable` são isentos de recuperação (G7-B); respostas de erro da própria recuperação não devem levar `recovery`; erro final = último erro observado; com `onFailure` rodando o chamador não renderiza o erro final (G6b); a `action` do envelope roda depois do `onError` (G13).
 
-### Pendências e recomendações (decisão do usuário)
-- **P1. Nome e escopo de `public_route_with_query`.** Não há `public_route` no derust, só nos BFFs. Recomendação: manter o nome e a função em `state/route_name.rs`, sem replicar o `public_route` dos BFFs.
-- **P2. `request`/`failure` em `recover`.** O plano do front os cita como variáveis somente-leitura, mas nenhuma tarefa do front as define na gramática de binding, e o derust não as tem. Recomendação: não criar `Root::Request`/`Root::Failure` agora (o exemplo A.2 só usa `response` nos callbacks); o front confirma se existirão, e então se abre uma D7 no derust.
-- **P3. Prefixo `/screens/`.** O front torna `screensPrefix` configurável; o derust fixa `/screens/` quando a ação carrega tela. Recomendação: manter fixo; revisitar só se um app usar outro prefixo.
-- **P4. Fixtures duplicadas nos dois repos.** Recomendação: o derust é a fonte de verdade da serialização; mesmo nome e conteúdo nos dois repos, com nota no README de cada um. Sem automação entre repositórios por ora.
-- **P5. Bloqueio da parte Dart da D6.** Recomendação: iniciar o derust sem esperar o front; só o teste Dart espera.
+### Decisões do usuário e pendências
+- **P1 (decidido).** O derust não conhece `public_route`/`public_route_with_query`; o helper foi eliminado (ver D5).
+- **P2 (decidido, como recomendado).** Sem `Root::Request`/`Root::Failure` por ora; o exemplo A.2 só usa `response`. Se o front confirmar que as variáveis existirão, abre-se uma D7.
+- **P3 (decidido).** Nenhuma rota/prefixo fixo no derust; a D5 remove o `/screens/` da validação existente. Consequência: muda comportamento já escrito (testes e README do `navigate.routeName` do 0.7.0, ainda não publicado).
+- **P4 (decidido, como recomendado).** Fixtures do derust são a fonte de verdade da serialização; o front mantém cópia com o mesmo nome e conteúdo.
+- **P5 (decidido).** Parte Dart da D6 sai do escopo do derust.
+- **Em aberto (menor):** a regra "caminho relativo deve começar com `/`" continua (forma de caminho, não prefixo); se o usuário preferir aceitar também caminhos sem `/` inicial, ajustar a D5.
