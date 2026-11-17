@@ -187,7 +187,7 @@ impl Validate for NavigateAction {
         self.on_result.validate_at(&path.key("onResult"), issues);
         self.on_cancel.validate_at(&path.key("onCancel"), issues);
         if let Some(Dyn::Literal(name)) = &self.route_name {
-            // strict (`/screens/...`) only when the name is the page route of a loaded screen
+            // strict (relative path) only when the name is the page route of a loaded screen
             let loads_screen =
                 self.request.is_some() || self.widget_json.is_some() || self.asset_path.is_some();
             // no navigationStyle counts as push; a bound style is only known at runtime

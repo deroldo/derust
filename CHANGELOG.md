@@ -32,7 +32,7 @@ All notable changes to `derust` are documented in this file.
   (CI job `stac-compat-v1-reactive`, `continue-on-error` until the fork is pinned) and example
   `examples/sdui_reactive`.
 - `navigate.routeName` (`derust-stac` fork, commit `4cd33635`): format validation in `Validate` for
-  literal values (`/screens/...` relative path, no spaces/control characters, query allowed, when the action
+  literal values (relative path starting with `/`, no fixed prefix, no spaces/control characters, query allowed, when the action
   loads a screen via `request`/`widgetJson`/`assetPath` in push styles; basic rules otherwise), fixtures,
   inventory items and documentation (the value is visible in the URL/history: no secrets).
 

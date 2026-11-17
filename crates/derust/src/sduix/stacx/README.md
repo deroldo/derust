@@ -125,8 +125,8 @@ expression text is written by hand.
   screen still comes from the request. Without them it is a Stac screen name (`detail_screen`) in the push
   styles or a Flutter route (`/settings`) in `pushNamed`, `pushReplacementNamed`, `pushNamedAndRemoveAll`.
   Validation (literal values only; a binding or a legacy `{{key}}` is only known at runtime):
-  when it names a loaded screen it must start with `/screens/`, be relative (no `//`, scheme, host or
-  `://`), have no spaces, control characters or `\`; a query (`/screens/profile?choose=true`) is allowed.
+  when it names a loaded screen it must be a relative path starting with `/` (no `//`, scheme, host or
+  `://`; the prefix is yours to choose), have no spaces, control characters or `\`; a query (`/profile?choose=true`) is allowed.
   Otherwise only "not empty, no spaces or control characters" applies. Messages carry the path
   (`$.routeName`) and never the value. The value shows up in the address bar and in the browser
   history: **never put secrets or tokens in it** (derust cannot check that). On the web the Flutter side

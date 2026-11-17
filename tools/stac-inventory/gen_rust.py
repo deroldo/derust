@@ -254,7 +254,7 @@ SLIDER_CHECKS = (
 
 NAVIGATE_CHECKS = (
     "        if let Some(Dyn::Literal(name)) = &self.route_name {\n"
-    "            // strict (`/screens/...`) only when the name is the page route of a loaded screen\n"
+    "            // strict (relative path) only when the name is the page route of a loaded screen\n"
     "            let loads_screen = self.request.is_some()\n"
     "                || self.widget_json.is_some()\n"
     "                || self.asset_path.is_some();\n"

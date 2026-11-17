@@ -585,7 +585,7 @@
       "json_key": "routeName",
       "status": "supported",
       "fixture": "actions/navigate_route_name_request",
-      "notes": "docs/actions/navigate.mdx (derust-stac commit 4cd33635): the runtime imposes no format; the model validates it: `/screens/...` relative path, may carry a query"
+      "notes": "docs/actions/navigate.mdx (derust-stac commit 4cd33635): the runtime imposes no format; the model validates it: relative path starting with `/` (no fixed prefix), may carry a query"
     },
     {
       "name": "action field: navigate.routeName: with widgetJson",

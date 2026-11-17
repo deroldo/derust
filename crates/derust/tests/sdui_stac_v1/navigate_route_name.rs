@@ -1,5 +1,5 @@
 //! `navigate.routeName`: serialization against `fixtures_reactive/actions/navigate_route_name_*`
-//! and the format validation (`/screens/...` when the action loads a screen, basic rules otherwise).
+//! and the format validation (relative path when the action loads a screen, basic rules otherwise).
 use super::assert_reactive_fixture;
 use derust::sduix::stacx::v1::prelude::*;
 use serde_json::json;
@@ -128,6 +128,8 @@ fn valid_screen_route_names() {
         "/screens/profile",
         "/screens/profile?choose=true",
         "/screens/a/b?x=1&y=2",
+        "/telas/x?id=1",
+        "/other/x",
     ] {
         assert!(with_request(name).validate().is_empty(), "{name}");
         assert!(NavigateAction::new()
@@ -147,8 +149,7 @@ fn valid_screen_route_names() {
 fn invalid_screen_route_names() {
     for name in [
         "screens/x",
-        "/other/x",
-        "/screens",
+        "a:b/c",
         "//evil.com/screens/x",
         "https://h/screens/x",
         "http:/screens/x",
@@ -261,7 +262,7 @@ fn bound_style_only_applies_the_basic_rules() {
 
 #[test]
 fn messages_carry_the_path_and_never_the_value() {
-    let secret = "/other/tok3n-S3CRET";
+    let secret = "other/tok3n-S3CRET";
     let issues = with_request(secret).validate();
     assert_eq!(issues.len(), 1);
     assert_eq!(issues[0].path, "$.routeName");
@@ -287,7 +288,7 @@ fn messages_carry_the_path_and_never_the_value() {
 fn path_is_nested_when_the_action_is_inside_a_widget() {
     let button = elevated_button()
         .child(Widget::from(text("Go")))
-        .on_pressed(Action::from(with_request("/other/x")));
+        .on_pressed(Action::from(with_request("other/x")));
     let issues = Widget::from(button).validate();
     assert_eq!(issues.len(), 1, "{issues:?}");
     assert!(issues[0].path.ends_with(".routeName"), "{}", issues[0].path);
@@ -296,7 +297,7 @@ fn path_is_nested_when_the_action_is_inside_a_widget() {
 #[test]
 fn coexists_with_result_and_callbacks_rules() {
     // routeName errors are reported alongside, and never replace, the existing navigate rules
-    let nav = with_request("/other/x")
+    let nav = with_request("other/x")
         .result(Data::Null)
         .on_result(Action::from(none_action()))
         .on_cancel(Action::from(none_action()));

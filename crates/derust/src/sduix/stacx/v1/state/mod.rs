@@ -47,5 +47,4 @@ pub use ident::Ident;
 pub use path::{PathSegment, Root, StatePath};
 pub use reactive::{IntoReactive, Plain, Reactive};
 pub(crate) use route_name::route_name_problem;
-pub use route_name::SCREEN_ROUTE_PREFIX;
 pub use template::{ItemTemplate, ItemVars, TemplateName};

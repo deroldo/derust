@@ -3,10 +3,7 @@
 //! The runtime does not impose a format: the value goes to `RouteSettings(name:)` and, on the web,
 //! through `Uri.parse`. When the screen comes from `request` / `widgetJson` / `assetPath` the name
 //! is the page route (the URL on the web, visible in the address bar and in the history), so the
-//! typed model requires a relative `/screens/...` path there. Messages never echo the value.
-
-/// Prefix required when `routeName` names the page route of a loaded screen.
-pub const SCREEN_ROUTE_PREFIX: &str = "/screens/";
+//! typed model requires a relative path there (starting with `/`; which prefix is up to the caller). Messages never echo the value.
 
 /// Returns why the literal `value` is not a valid `routeName`, or `None`.
 ///
@@ -38,9 +35,9 @@ pub(crate) fn route_name_problem(value: &str, names_loaded_screen: bool) -> Opti
     if value.contains("://") || before_slash.contains(':') {
         return Some("routeName must be a relative path, without scheme or host");
     }
-    if !value.starts_with(SCREEN_ROUTE_PREFIX) {
+    if !value.starts_with('/') {
         return Some(
-            "routeName must start with `/screens/` when the action loads a screen \
+            "routeName must be a relative path starting with `/` when the action loads a screen \
              (request, widgetJson or assetPath)",
         );
     }
