@@ -324,7 +324,7 @@ let consumer = SqsQueueConsumer::new(&queue_url, |ctx, msg, tags| async move {
 
 | derust | feature | Stac |
 |---|---|---|
-| `0.7.0` | `sdui_stac_1` | `1.6.0` (tag `v1.6.0`) |
+| `0.7.1` | `sdui_stac_1` | `1.6.0` (tag `v1.6.0`) |
 
 Reactive state vocabulary (`state`, `bind`, expressions, state actions, list templates): requires the
 runtime of the fork [`deroldo/derust-stac`](https://github.com/deroldo/derust-stac), branch

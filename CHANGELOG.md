@@ -2,6 +2,21 @@
 
 All notable changes to `derust` are documented in this file.
 
+## [0.7.1]
+
+### Added
+
+- `httpx::stac_error::StacErrorResponse` (needs `sdui_stac_1` + `http_server`): Stac error response
+  (4xx/5xx, `Content-Type: application/vnd.stac.error+json`, envelope `{version, code?, message?, screen?,
+  action?, recovery?}`) with a single validation in `build()`, `Cache-Control: no-store` with a recovery
+  and `from_derust_error`. Typed recovery DSL `Recovery` / `Retry` and the action `recoveryOutcome`
+  (`derust-stac` fork vocabulary). Fixtures `fixtures_reactive/{recovery,error_envelope}` (source of truth
+  of the envelope serialization) and example `examples/sdui_reactive` (`stac_error.rs`).
+
+### Changed
+
+- `navigate.routeName` validation no longer requires the fixed `/screens/` prefix: for literal values that load a screen, any relative path starting with `/` is accepted (still no `//`, scheme/host, `\`, spaces or control characters).
+
 ## [0.7.0]
 
 ### Added
@@ -32,15 +47,9 @@ All notable changes to `derust` are documented in this file.
   (CI job `stac-compat-v1-reactive`, `continue-on-error` until the fork is pinned) and example
   `examples/sdui_reactive`.
 - `navigate.routeName` (`derust-stac` fork, commit `4cd33635`): format validation in `Validate` for
-  literal values (relative path starting with `/`, no fixed prefix, no spaces/control characters, query allowed, when the action
+  literal values (`/screens/...` relative path, no spaces/control characters, query allowed, when the action
   loads a screen via `request`/`widgetJson`/`assetPath` in push styles; basic rules otherwise), fixtures,
   inventory items and documentation (the value is visible in the URL/history: no secrets).
-- `httpx::stac_error::StacErrorResponse` (needs `sdui_stac_1` + `http_server`): Stac error response
-  (4xx/5xx, `Content-Type: application/vnd.stac.error+json`, envelope `{version, code?, message?, screen?,
-  action?, recovery?}`) with a single validation in `build()`, `Cache-Control: no-store` with a recovery
-  and `from_derust_error`. Typed recovery DSL `Recovery` / `Retry` and the action `recoveryOutcome`
-  (`derust-stac` fork vocabulary). Fixtures `fixtures_reactive/{recovery,error_envelope}` (source of truth
-  of the envelope serialization) and example `examples/sdui_reactive` (`stac_error.rs`).
 
 - Feature `cryptox` (module `derust::cryptox`, not in `default`, independent of `http_server`): EC P-256 keys
   (PKCS#8/SPKI PEM) with `kid` and JWKS; ES256 JWT (`JwtSigner`, `JwtVerifier`, `TokenIssuer`) with
