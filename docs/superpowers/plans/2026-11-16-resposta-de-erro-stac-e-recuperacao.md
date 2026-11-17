@@ -32,17 +32,17 @@ Contexto: tipos `RecoveryOutcome { condition, result }`, `RecoveryResult::{Succe
 Testes: serialização com e sem `condition`, `condition` por `Expr`; o enum `Action` serializa/valida a variante; geração idempotente (rodar o gerador duas vezes sem diff); `inventory_state.json` aceito pelo teste `inventory_state.rs`. Fixture `fixtures_reactive/actions/recovery_outcome*.json`.
 Revisão: sem edição manual de arquivo gerado; `cargo nextest run --features sdui_stac_1`; clippy.
 
-### D2 — DSL `Recovery`, `Retry` (médio) [CONCLUÍDA] [CONCLUÍDA]
+### D2 — DSL `Recovery`, `Retry` (médio) [CONCLUÍDA]
 Arquivo novo `crates/derust/src/sduix/stacx/v1/state/recovery.rs` (re-export em `state/mod.rs` e `prelude`).
 `Recovery::new().key(..)|.no_coalesce().recover(impl Into<Actions>).retry(Retry).on_failure(..).on_unavailable(..).timeout_ms(n)`; `Retry::new().header(n, v).query(n, v).body(n, v).remove_header(n)` serializam `{"retry":{"overrides":{"headers","queryParameters","body"},"removeHeaders"}}` (campos vazios omitidos). Validação (`Validate`): `recover` presente e não vazio (lista vazia recusada); `key`/`timeout_ms` (M5); nome de header válido (token HTTP); bindings validados via `Data`/`Binding`; actions aninhadas validadas recursivamente. Serialização falha → erro propagado, nunca `unwrap_or_default`.
 Testes: snapshot de cada campo; casos inválidos recusados (recover vazio, key vazia, timeout 0, header com espaço); `no_coalesce` ⇒ `"key":null`; nenhum campo `url`/`method` possível (teste de compilação não necessário: ausência no JSON).
 
-### D3 — `StacErrorResponse` (médio)
+### D3 — `StacErrorResponse` (médio) [CONCLUÍDA]
 Arquivo novo `crates/derust/src/httpx/response/stac_error.rs` (`pub mod` em `response/mod.rs` sob `sdui_stac_1`; `IntoResponse` em `httpx/axum.rs`; exportar em `httpx::sdui`).
 `StacErrorResponse::new(status)` + `.code(..)`, `.message(..)`, `.screen(widget)`, `.action(action)`, `.recovery(Recovery)`, `.tags(..)`, `.with_headers(..)`; `try_new`/`build()` fazem a validação única e a serialização (M3, M7); só aceita 4xx/5xx (o runtime só reconhece resposta não-2xx e o Dio só entrega ao interceptor de erro o que não é 2xx; 1xx/2xx/3xx não carregam envelope). Implementa `HttpResponse` (M6) e `IntoResponse` com extensão de tags (igual `SduiResponse`).
 Testes: envelope mínimo/só `screen`/só `action`/completo com `recovery`; Content-Type e Cache-Control; tags no response extension; 1xx/2xx/3xx recusados; falha de validação ⇒ `DerustError` 500 sem corpo parcial; usado como `IntoResponse` num extrator real com `start_test` (teste de integração em `crates/derust/tests/`).
 
-### D4 — Conversão de `DerustError` (simples)
+### D4 — Conversão de `DerustError` (simples) [CONCLUÍDA]
 Em `stac_error.rs`: M8. Testes: status e tags preservados, `message` copiada, `screen`/`action` opcionais aplicados.
 
 ### D5 — Tirar o prefixo fixo `/screens/` da validação de `routeName` (simples) [CONCLUÍDA]

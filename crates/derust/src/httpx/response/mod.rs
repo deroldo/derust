@@ -4,6 +4,8 @@ use axum::http::StatusCode;
 pub mod json;
 #[cfg(feature = "sdui_stac_1")]
 pub mod sdui;
+#[cfg(feature = "sdui_stac_1")]
+pub mod stac_error;
 pub mod text;
 
 pub trait HttpResponse: Send + Sync {
