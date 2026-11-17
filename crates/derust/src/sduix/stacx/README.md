@@ -24,7 +24,7 @@ There is one feature per Stac **major**: `sdui_stac_1` -> `derust::sduix::stacx:
 
 | derust | feature | module | Stac (tag / commit) |
 |---|---|---|---|
-| `0.7.1` | `sdui_stac_1` | `sduix::stacx::v1` | `1.6.0` (`v1.6.0` / `b6cfe7cdb2bb4432e09d91ba23d6d72bdf721c01`) |
+| `0.7.2` | `sdui_stac_1` | `sduix::stacx::v1` | `1.6.0` (`v1.6.0` / `b6cfe7cdb2bb4432e09d91ba23d6d72bdf721c01`) |
 
 In code: `derust::sduix::stacx::versions()` (enabled majors) and
 `derust::sduix::stacx::v1::{STAC_VERSION, STAC_TAG_COMMIT}`. Deprecations and removals are announced in
@@ -37,7 +37,7 @@ that matrix is the only protection.
 
 | derust | feature | vocabulary | runtime required on the client |
 |---|---|---|---|
-| `0.7.1` | `sdui_stac_1` | reactive state (see [Reactive state](#reactive-state)) | fork [`deroldo/derust-stac`](https://github.com/deroldo/derust-stac), branch `estado_compartilhado_reativo`, **no pinned version** (contract read at commit `92457f25`) |
+| `0.7.2` | `sdui_stac_1` | reactive state (see [Reactive state](#reactive-state)) | fork [`deroldo/derust-stac`](https://github.com/deroldo/derust-stac), branch `estado_compartilhado_reativo`, **no pinned version** (contract read at commit `92457f25`) |
 
 The reactive vocabulary is **not** part of the official Stac `1.6.0`: a frontend running the official Stac
 ignores it or fails on it. The matrix and the `CHANGELOG.md` are the only protection. The reactive part

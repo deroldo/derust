@@ -2,6 +2,13 @@
 
 All notable changes to `derust` are documented in this file.
 
+## [0.7.2]
+
+### Added
+
+- `awsx::load_aws_config`: in `local`/`test` the localstack endpoint can now be overridden with the
+  `LOCALSTACK_ENDPOINT` env var (fallback `AWS_ENDPOINT_URL`); default stays `http://localhost:4566`.
+
 ## [0.7.1]
 
 ### Added
