@@ -282,6 +282,7 @@ fn action_type_names() {
         Action::from(remove_from_state_at("a", 0)),
         Action::from(toggle_item("a")),
         Action::from(cancel_request("a")),
+        Action::from(recovery_outcome(RecoveryResult::Success)),
         Action::from(none_action()),
     ]
     .iter()
@@ -299,6 +300,7 @@ fn action_type_names() {
             "removeFromState",
             "toggleItem",
             "cancelRequest",
+            "recoveryOutcome",
             "none"
         ]
     );
@@ -335,4 +337,49 @@ fn action_validation() {
             .validate()
             .is_empty()
     );
+}
+
+#[test]
+fn action_recovery_outcome_results() {
+    for (result, text) in [
+        (RecoveryResult::Success, "success"),
+        (RecoveryResult::Failure, "failure"),
+        (RecoveryResult::Unavailable, "unavailable"),
+    ] {
+        let action = Action::from(recovery_outcome(result));
+        assert_eq!(
+            serde_json::to_value(&action).unwrap(),
+            json!({"actionType": "recoveryOutcome", "result": text})
+        );
+        assert!(action.validate().is_empty());
+        assert_eq!(action.type_name(), "recoveryOutcome");
+    }
+}
+
+#[test]
+fn action_recovery_outcome_with_condition() {
+    assert_reactive_fixture!(
+        "actions/recovery_outcome_condition",
+        Action::from(
+            recovery_outcome(RecoveryResult::Failure)
+                .condition(Expr::path(StatePath::response().field("statusCode")).eq_(503))
+        )
+    );
+    assert_reactive_fixture!(
+        "actions/recovery_outcome",
+        Action::from(recovery_outcome(RecoveryResult::Success))
+    );
+}
+
+#[test]
+fn action_recovery_outcome_inside_network_request_callbacks() {
+    let request = NetworkRequest::new("https://example.com/auth/refresh")
+        .method(Method::Post)
+        .on_success(Action::from(recovery_outcome(RecoveryResult::Success)))
+        .on_error(Action::from(recovery_outcome(RecoveryResult::Failure)));
+    assert_reactive_fixture!(
+        "actions/recovery_outcome_in_request",
+        Action::from(request.clone())
+    );
+    assert!(request.validate().is_empty());
 }

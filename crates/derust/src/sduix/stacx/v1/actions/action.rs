@@ -36,6 +36,7 @@ pub enum Action {
     RemoveFromState(Box<crate::sduix::stacx::v1::state::RemoveFromState>),
     ToggleItem(Box<crate::sduix::stacx::v1::state::ToggleItem>),
     CancelRequest(Box<crate::sduix::stacx::v1::state::CancelRequest>),
+    RecoveryOutcome(Box<crate::sduix::stacx::v1::state::RecoveryOutcome>),
     NoneAction(Box<crate::sduix::stacx::v1::state::NoneAction>),
     /// Node of a custom parser registered in the Flutter app (see [`CustomAction`]).
     Custom(CustomNode),
@@ -63,6 +64,7 @@ impl Serialize for Action {
             Action::RemoveFromState(value) => value.serialize(serializer),
             Action::ToggleItem(value) => value.serialize(serializer),
             Action::CancelRequest(value) => value.serialize(serializer),
+            Action::RecoveryOutcome(value) => value.serialize(serializer),
             Action::NoneAction(value) => value.serialize(serializer),
             Action::Custom(value) => value.serialize(serializer),
         }
@@ -91,6 +93,7 @@ impl Validate for Action {
             Action::RemoveFromState(value) => value.validate_at(path, issues),
             Action::ToggleItem(value) => value.validate_at(path, issues),
             Action::CancelRequest(value) => value.validate_at(path, issues),
+            Action::RecoveryOutcome(value) => value.validate_at(path, issues),
             Action::NoneAction(value) => value.validate_at(path, issues),
             Action::Custom(value) => value.validate_at(path, issues),
         }
@@ -126,6 +129,7 @@ impl Action {
             Action::RemoveFromState(_) => "removeFromState",
             Action::ToggleItem(_) => "toggleItem",
             Action::CancelRequest(_) => "cancelRequest",
+            Action::RecoveryOutcome(_) => "recoveryOutcome",
             Action::NoneAction(_) => "none",
             Action::Custom(value) => value.type_name(),
         }
@@ -183,6 +187,12 @@ impl From<crate::sduix::stacx::v1::state::ToggleItem> for Action {
 impl From<crate::sduix::stacx::v1::state::CancelRequest> for Action {
     fn from(value: crate::sduix::stacx::v1::state::CancelRequest) -> Self {
         Action::CancelRequest(Box::new(value))
+    }
+}
+
+impl From<crate::sduix::stacx::v1::state::RecoveryOutcome> for Action {
+    fn from(value: crate::sduix::stacx::v1::state::RecoveryOutcome) -> Self {
+        Action::RecoveryOutcome(Box::new(value))
     }
 }
 

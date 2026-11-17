@@ -114,6 +114,7 @@ EXTRA_ACTIONS = [
     ("RemoveFromState", "removeFromState", "crate::sduix::stacx::v1::state::RemoveFromState"),
     ("ToggleItem", "toggleItem", "crate::sduix::stacx::v1::state::ToggleItem"),
     ("CancelRequest", "cancelRequest", "crate::sduix::stacx::v1::state::CancelRequest"),
+    ("RecoveryOutcome", "recoveryOutcome", "crate::sduix::stacx::v1::state::RecoveryOutcome"),
     ("NoneAction", "none", "crate::sduix::stacx::v1::state::NoneAction"),
     # --- end T4 ---
 ]

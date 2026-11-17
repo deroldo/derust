@@ -1,0 +1,7 @@
+{
+  "actionType": "recoveryOutcome",
+  "condition": {
+    "$expr": "response.statusCode == 503"
+  },
+  "result": "failure"
+}

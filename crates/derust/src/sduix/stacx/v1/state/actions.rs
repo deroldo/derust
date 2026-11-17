@@ -1,6 +1,6 @@
 //! Actions of the fork that read and write the reactive state (`setState`, `incrementState`,
 //! `decrementState`, `toggleState`, `resetState`, `appendState`, `removeFromState`,
-//! `toggleItem`, `cancelRequest`, `none`).
+//! `toggleItem`, `cancelRequest`, `recoveryOutcome`, `none`).
 //!
 //! Every action accepts `condition` (a `bool`, a state path or an expression). Keys accept the
 //! `global.` prefix (`"global.theme"`). Contextual rules (undeclared keys, reserved names) are
@@ -547,6 +547,65 @@ impl Validate for CancelRequest {
     }
 }
 
+/// Outcome reported by a recovery (`recoveryOutcome`).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum RecoveryResult {
+    /// The recovery worked.
+    Success,
+    /// The recovery failed.
+    Failure,
+    /// The recovery could not run (service unavailable).
+    Unavailable,
+}
+
+impl RecoveryResult {
+    /// Value serialized in `result`.
+    pub fn as_str(self) -> &'static str {
+        match self {
+            RecoveryResult::Success => "success",
+            RecoveryResult::Failure => "failure",
+            RecoveryResult::Unavailable => "unavailable",
+        }
+    }
+}
+
+/// `recoveryOutcome`: reports the result of a recovery (`success`, `failure` or `unavailable`).
+/// Meant for the `onSuccess` / `onError` callbacks of the `networkRequest` that runs the recovery;
+/// outside a recovery the runtime ignores it (no-op with a log).
+#[derive(Debug, Clone, PartialEq)]
+pub struct RecoveryOutcome {
+    /// Run the action only when this is true.
+    pub condition: Option<Reactive<bool>>,
+    /// Reported result.
+    pub result: RecoveryResult,
+}
+
+impl RecoveryOutcome {
+    /// Action reporting `result`.
+    pub fn new(result: RecoveryResult) -> Self {
+        Self {
+            condition: None,
+            result,
+        }
+    }
+}
+
+action_common!(RecoveryOutcome, "recoveryOutcome");
+
+impl Serialize for RecoveryOutcome {
+    fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        let mut map = start(serializer, Self::TYPE, &self.condition)?;
+        map.serialize_entry("result", self.result.as_str())?;
+        map.end()
+    }
+}
+
+impl Validate for RecoveryOutcome {
+    fn validate_at(&self, path: &Path<'_>, issues: &mut Vec<ValidationIssue>) {
+        self.condition.validate_at(&path.key("condition"), issues);
+    }
+}
+
 /// `none`: does nothing (e.g. an `onCancel` that ignores the cancellation).
 #[derive(Debug, Clone, PartialEq)]
 pub struct NoneAction {
@@ -632,6 +691,11 @@ pub fn toggle_item(key: impl Into<BindKey>) -> ToggleItem {
 /// Shortcut for [`CancelRequest::new`].
 pub fn cancel_request(request_key: impl Into<String>) -> CancelRequest {
     CancelRequest::new(request_key)
+}
+
+/// Shortcut for [`RecoveryOutcome::new`].
+pub fn recovery_outcome(result: RecoveryResult) -> RecoveryOutcome {
+    RecoveryOutcome::new(result)
 }
 
 /// Shortcut for [`NoneAction::new`].

@@ -372,6 +372,15 @@
       "notes": "state_reference.mdx#cancelRequest"
     },
     {
+      "name": "action: recoveryOutcome",
+      "kind": "action",
+      "source": "fork",
+      "json_key": "actionType: recoveryOutcome",
+      "status": "supported",
+      "fixture": "actions/recovery_outcome",
+      "notes": "recovery_reference.mdx (derust-stac fork): result success|failure|unavailable; no-op outside a recovery"
+    },
+    {
       "name": "action: none",
       "kind": "action",
       "source": "fork",

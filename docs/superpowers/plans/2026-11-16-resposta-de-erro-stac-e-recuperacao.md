@@ -26,7 +26,7 @@
 
 Dependências: D5 e D1 regeneram os mesmos arquivos gerados (`gen_rust.py`, `action.rs`, `navigate_action.rs`, `inventory_state.json`): fazer **D5 antes de D1** (ou o mesmo implementador), não em paralelo. D2 é paralela a ambas. D3 depende de D1 e D2; D4 depende de D3; D6 depende de D1 a D5.
 
-### D1 — Action `recoveryOutcome` (simples)
+### D1 — Action `recoveryOutcome` (simples) [CONCLUÍDA]
 Arquivos: `crates/derust/src/sduix/stacx/v1/state/actions.rs` (+ `mod.rs`), `tools/stac-inventory/gen_rust.py` (lista do fork), `inventory_state.json`, `action.rs` (regerado).
 Contexto: tipos `RecoveryOutcome { condition, result }`, `RecoveryResult::{Success, Failure, Unavailable}` (serializa minúsculo). Funções livres no estilo `cancel_request()`: `recovery_outcome(RecoveryResult)`.
 Testes: serialização com e sem `condition`, `condition` por `Expr`; o enum `Action` serializa/valida a variante; geração idempotente (rodar o gerador duas vezes sem diff); `inventory_state.json` aceito pelo teste `inventory_state.rs`. Fixture `fixtures_reactive/actions/recovery_outcome*.json`.

@@ -32,10 +32,11 @@ mod route_name;
 mod template;
 
 pub use actions::{
-    append_state, cancel_request, decrement_state, increment_state, none_action,
+    append_state, cancel_request, decrement_state, increment_state, none_action, recovery_outcome,
     remove_from_state_at, remove_from_state_value, reset_state, set_state, toggle_item,
     toggle_state, Actions, AppendState, CancelRequest, DecrementState, IncrementState, NoneAction,
-    RemoveFromState, ResetState, SetState, ToggleItem, ToggleState,
+    RecoveryOutcome, RecoveryResult, RemoveFromState, ResetState, SetState, ToggleItem,
+    ToggleState,
 };
 pub use binding::Binding;
 pub use check::{check_screen, MAX_CHECK_DEPTH};
