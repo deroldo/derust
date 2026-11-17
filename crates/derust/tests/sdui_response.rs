@@ -1,4 +1,4 @@
-#![cfg(feature = "sdui_stac_1")]
+#![cfg(all(feature = "sdui_stac_1", feature = "http_server"))]
 
 use axum::body::Body;
 use axum::http::{Request, StatusCode};

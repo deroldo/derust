@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "screen": {
+    "type": "column",
+    "children": [
+      {
+        "type": "text",
+        "data": "Not found"
+      }
+    ]
+  }
+}

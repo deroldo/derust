@@ -35,6 +35,12 @@ All notable changes to `derust` are documented in this file.
   literal values (relative path starting with `/`, no fixed prefix, no spaces/control characters, query allowed, when the action
   loads a screen via `request`/`widgetJson`/`assetPath` in push styles; basic rules otherwise), fixtures,
   inventory items and documentation (the value is visible in the URL/history: no secrets).
+- `httpx::stac_error::StacErrorResponse` (needs `sdui_stac_1` + `http_server`): Stac error response
+  (4xx/5xx, `Content-Type: application/vnd.stac.error+json`, envelope `{version, code?, message?, screen?,
+  action?, recovery?}`) with a single validation in `build()`, `Cache-Control: no-store` with a recovery
+  and `from_derust_error`. Typed recovery DSL `Recovery` / `Retry` and the action `recoveryOutcome`
+  (`derust-stac` fork vocabulary). Fixtures `fixtures_reactive/{recovery,error_envelope}` (source of truth
+  of the envelope serialization) and example `examples/sdui_reactive` (`stac_error.rs`).
 
 - Feature `cryptox` (module `derust::cryptox`, not in `default`, independent of `http_server`): EC P-256 keys
   (PKCS#8/SPKI PEM) with `kid` and JWKS; ES256 JWT (`JwtSigner`, `JwtVerifier`, `TokenIssuer`) with

@@ -343,6 +343,11 @@ void main() {
         final id = idOf(file, dir);
         if (label == 'reactive' && id.startsWith('expressions/'))
           continue; // expression_dump_test
+        // error envelope and recovery fixtures are not widgets/actions: the runtime tests
+        // for them live with the front (derust-stac), which keeps a copy of these files
+        if (label == 'reactive' &&
+            (id.startsWith('recovery/') || id.startsWith('error_envelope/')))
+          continue;
         test(id, () {
           if (allowlist.containsKey(id)) {
             markTestSkipped('allowlisted: ${allowlist[id]}');

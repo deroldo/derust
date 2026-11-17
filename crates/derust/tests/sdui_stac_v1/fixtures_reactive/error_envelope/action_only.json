@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "action": {
+    "actionType": "navigate",
+    "routeName": "/login",
+    "navigationStyle": "pushReplacement"
+  }
+}

@@ -52,7 +52,7 @@ Regra nova, sem nenhum valor embutido: quando a ação carrega tela (`request`/`
 Testes: atualizar `tests/sdui_stac_v1/navigate_route_name.rs` e `contract_examples_test.rs`: `/telas/x?id=1` e `/screens/x` passam (o derust não distingue); recusar `//host`, `https://..`, `a:b/c`, vazio, espaço, `\`, caminho sem `/` inicial quando a ação carrega tela; `detail_screen` e `/settings` seguem válidos nos demais casos; fixtures `navigate_route_name_*.json` podem continuar com `/screens/...` como valor de exemplo; gerador idempotente (sem diff na segunda execução); `inventory_state.rs` verde.
 Revisão: grep final por `/screens/` e `SCREEN_ROUTE_PREFIX` em código e docs vivos (`src`, `tools`, `README`, `CHANGELOG`); só podem restar como valor de exemplo em fixtures/exemplos e planos históricos.
 
-### D6 — Docs, exemplo e fixtures (médio)
+### D6 — Docs, exemplo e fixtures (médio) [CONCLUÍDA]
 README `sduix/stacx/README.md` (seção erro/recuperação; vocabulário só existe no runtime do fork `derust-stac`), CHANGELOG (Added, sob 0.7.0), matriz de compatibilidade; exemplo executável `examples/sdui_reactive` (ou novo `examples/stac_error`) com o envelope do apêndice A.2 só como exemplo de uso; fixtures `fixtures_reactive/error_envelope/*.json` (mínimo, só `screen`, só `action`, completo com `recovery`, ciclo 401 do A.2) comparadas com a serialização nos testes Rust. **Não há código Dart neste repositório de refinamento:** harness e testes Dart das fixtures ficam com a tarefa do front (decisão do usuário, P5). Nota no README: as fixtures do derust são a fonte de verdade da serialização do envelope (P4).
 
 ## Plano de testes e revisão (global)

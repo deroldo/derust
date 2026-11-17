@@ -1,0 +1,67 @@
+{
+  "version": 1,
+  "code": "TOKEN_EXPIRED",
+  "message": "Session expired",
+  "screen": {
+    "type": "column",
+    "children": [
+      {
+        "type": "text",
+        "data": "Signing you in again"
+      }
+    ]
+  },
+  "action": {
+    "actionType": "setState",
+    "values": {
+      "global.lastError": "session"
+    }
+  },
+  "recovery": {
+    "key": "session",
+    "recover": {
+      "actionType": "networkRequest",
+      "url": "/auth/refresh",
+      "method": "post",
+      "onSuccess": [
+        {
+          "actionType": "setState",
+          "values": {
+            "global.token": {
+              "$state": "response.body.token"
+            }
+          }
+        },
+        {
+          "actionType": "recoveryOutcome",
+          "result": "success"
+        }
+      ],
+      "onError": {
+        "actionType": "recoveryOutcome",
+        "result": "failure"
+      }
+    },
+    "retry": {
+      "overrides": {
+        "headers": {
+          "Authorization": {
+            "$expr": "'Bearer ' + global.token"
+          }
+        }
+      }
+    },
+    "onFailure": {
+      "actionType": "navigate",
+      "routeName": "/login",
+      "navigationStyle": "pushReplacement"
+    },
+    "onUnavailable": {
+      "actionType": "setState",
+      "values": {
+        "global.offline": true
+      }
+    },
+    "timeoutMs": 10000
+  }
+}

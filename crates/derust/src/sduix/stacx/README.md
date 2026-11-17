@@ -198,6 +198,57 @@ From the "v1 limitations" of the contract; derust does not work around them:
 * the contract text says `onResult` and `onCancel` are mutually exclusive; the project decided that they
   coexist (the contract needs a fix in the fork).
 
+## Error response and recovery
+
+`httpx::stac_error::StacErrorResponse` (needs `sdui_stac_1` + `http_server`) answers a 4xx/5xx with the
+Stac error envelope `{version, code?, message?, screen?, action?, recovery?}` and
+`Content-Type: application/vnd.stac.error+json` (`version` is always `1`). It is a builder finished by
+`build()`, which validates and serializes once and fails with a `DerustError` (500, no partial body)
+instead of a broken response; messages carry paths, never values. 1xx/2xx/3xx are refused.
+
+```rust,ignore
+let recovery = Recovery::new()
+    .key("session")
+    .recover(Action::from(refresh_request))          // an action or a list; must not be empty
+    .retry(Retry::new().header("Authorization", Binding::expr(bearer)))
+    .on_failure(Action::from(login))
+    .timeout_ms(10_000);                             // 1..=600000
+
+StacErrorResponse::new(StatusCode::UNAUTHORIZED)
+    .code("TOKEN_EXPIRED")
+    .recovery(recovery)
+    .build()
+```
+
+* `screen` is fully validated (it is rendered as a screen of its own); `action`, `recovery`, `recover`,
+  `onFailure` and `onUnavailable` only get the typed check, because the envelope declares no `state`.
+* `Retry` has no URL and no method: the repetition always targets the original request. Overrides
+  (`header`, `query`, `body`) accept `Data` (literal, `$state`, `$expr`); `remove_body_key` writes `null`;
+  `remove_header` drops a header. Empty fields are omitted.
+* `key` omitted: the runtime coalesces by the hash of `recover`; `no_coalesce()` serializes `"key": null`.
+* `Cache-Control: no-store` is added when there is a `recovery` (override it with `with_headers`).
+  `Content-Type` is always the envelope's.
+* `StacErrorResponse::from_derust_error(error)` keeps the status, the `error_message` (as `message`) and
+  the tags; the old body is not propagated.
+* The action `recoveryOutcome` (`recovery_outcome(RecoveryResult::Success | Failure | Unavailable)`)
+  reports the result inside the `recover` request callbacks; outside a recovery it is a no-op.
+* The derust knows nothing about tokens, refresh, `Authorization` or sessions, and has no route or
+  prefix: the handler decides that a failure is recoverable and builds the instruction.
+  There is no `request`/`failure` variable in `recover` (only `response`).
+
+Runtime behaviour that affects the author (it lives in the `derust-stac` fork):
+
+* a single repetition; the requests of `recover`, of the repetition and of `onFailure` /
+  `onUnavailable` are exempt from recovery, so an error response of the recovery itself must not carry
+  `recovery`;
+* the final error is the last one observed; while `onFailure` runs the caller does not render it;
+* the envelope `action` runs after the `onError` callback.
+
+Example: [`examples/sdui_reactive`](../../../../../examples/sdui_reactive) (`stac_error.rs`). The
+fixtures in `crates/derust/tests/sdui_stac_v1/fixtures_reactive/error_envelope` (and `recovery`) are the
+**source of truth** of the serialization; the front keeps a copy with the same names. The Dart harness of
+this repository skips them (the runtime tests belong to the front).
+
 ## Extending
 
 ### Reusable compositions

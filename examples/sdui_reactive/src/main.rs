@@ -1,4 +1,5 @@
 mod screen;
+mod stac_error;
 
 use axum::http::StatusCode;
 use axum::routing::get;
@@ -6,6 +7,7 @@ use axum::Router;
 use derust::commonx::{DerustError, DerustTags};
 use derust::envx::Environment;
 use derust::httpx::sdui::SduiResponse;
+use derust::httpx::stac_error::{StacErrorResponse, StacErrorResponseBuilder};
 use derust::httpx::{start, AppContext};
 use derust::sduix::stacx::v1::prelude::*;
 
@@ -23,7 +25,24 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .route("/screens/list", get(list))
         .route("/screens/network", get(network))
         .route("/screens/navigation", get(navigation))
-        .route("/screens/invalid", get(invalid));
+        .route("/screens/invalid", get(invalid))
+        .route(
+            "/errors/minimal",
+            get(|| error("minimal", stac_error::minimal())),
+        )
+        .route(
+            "/errors/screen",
+            get(|| error("screen", stac_error::screen_only())),
+        )
+        .route(
+            "/errors/action",
+            get(|| error("action", stac_error::action_only())),
+        )
+        .route(
+            "/errors/session",
+            get(|| error("session", stac_error::session_cycle())),
+        )
+        .route("/errors/full", get(|| error("full", stac_error::full())));
 
     start(3000, context, router, false).await
 }
@@ -51,4 +70,12 @@ async fn navigation() -> Result<SduiResponse<Widget>, DerustError> {
 /// Fails the contextual validation: `try_new` returns a `DerustError` (HTTP 500).
 async fn invalid() -> Result<SduiResponse<Widget>, DerustError> {
     ok("invalid", screen::invalid_screen())
+}
+
+/// Builds one of the error envelopes of `stac_error.rs`.
+async fn error(
+    name: &'static str,
+    builder: StacErrorResponseBuilder,
+) -> Result<StacErrorResponse, DerustError> {
+    builder.tags(DerustTags::from([("error", name)])).build()
 }

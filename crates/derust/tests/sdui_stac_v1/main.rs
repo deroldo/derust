@@ -9,6 +9,8 @@ mod check_test;
 mod contract_examples_test;
 mod core_test;
 mod custom_test;
+#[cfg(feature = "http_server")]
+mod error_envelope;
 mod example_reactive_test;
 mod example_test;
 mod expr_test;
