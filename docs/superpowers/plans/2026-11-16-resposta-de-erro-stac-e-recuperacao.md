@@ -32,7 +32,7 @@ Contexto: tipos `RecoveryOutcome { condition, result }`, `RecoveryResult::{Succe
 Testes: serialização com e sem `condition`, `condition` por `Expr`; o enum `Action` serializa/valida a variante; geração idempotente (rodar o gerador duas vezes sem diff); `inventory_state.json` aceito pelo teste `inventory_state.rs`. Fixture `fixtures_reactive/actions/recovery_outcome*.json`.
 Revisão: sem edição manual de arquivo gerado; `cargo nextest run --features sdui_stac_1`; clippy.
 
-### D2 — DSL `Recovery`, `Retry` (médio)
+### D2 — DSL `Recovery`, `Retry` (médio) [CONCLUÍDA]
 Arquivo novo `crates/derust/src/sduix/stacx/v1/state/recovery.rs` (re-export em `state/mod.rs` e `prelude`).
 `Recovery::new().key(..)|.no_coalesce().recover(impl Into<Actions>).retry(Retry).on_failure(..).on_unavailable(..).timeout_ms(n)`; `Retry::new().header(n, v).query(n, v).body(n, v).remove_header(n)` serializam `{"retry":{"overrides":{"headers","queryParameters","body"},"removeHeaders"}}` (campos vazios omitidos). Validação (`Validate`): `recover` presente e não vazio (lista vazia recusada); `key`/`timeout_ms` (M5); nome de header válido (token HTTP); bindings validados via `Data`/`Binding`; actions aninhadas validadas recursivamente. Serialização falha → erro propagado, nunca `unwrap_or_default`.
 Testes: snapshot de cada campo; casos inválidos recusados (recover vazio, key vazia, timeout 0, header com espaço); `no_coalesce` ⇒ `"key":null`; nenhum campo `url`/`method` possível (teste de compilação não necessário: ausência no JSON).

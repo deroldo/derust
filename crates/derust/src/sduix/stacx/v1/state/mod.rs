@@ -10,6 +10,7 @@
 //! * [`Reactive`] / [`IntoReactive`] — a property that is a literal or a binding;
 //! * [`Data`] — free-form JSON data with bindings;
 //! * [`SetState`], [`IncrementState`], [`ToggleItem`], ... — the state actions;
+//! * [`Recovery`], [`Retry`] — recovery instruction of the error envelope;
 //! * [`ItemTemplate`], [`ItemVars`] — list templates (`items`, `itemTemplate`, `as`, `indexAs`);
 //! * [`Envelope`], [`BindKey`], [`StateBlock`], [`GlobalStateBlock`], [`GlobalEntry`], [`OnInit`]
 //!   — properties common to every widget and the state declarations.
@@ -28,6 +29,7 @@ mod expr;
 mod ident;
 mod path;
 mod reactive;
+mod recovery;
 mod route_name;
 mod template;
 
@@ -47,5 +49,6 @@ pub use expr::{BinOp, Expr, UnOp};
 pub use ident::Ident;
 pub use path::{PathSegment, Root, StatePath};
 pub use reactive::{IntoReactive, Plain, Reactive};
+pub use recovery::{Recovery, Retry, MAX_RECOVERY_KEY_LEN, MAX_RECOVERY_TIMEOUT_MS};
 pub(crate) use route_name::route_name_problem;
 pub use template::{ItemTemplate, ItemVars, TemplateName};

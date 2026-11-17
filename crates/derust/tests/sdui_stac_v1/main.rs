@@ -26,6 +26,7 @@ mod reactive_expressions;
 mod reactive_fixtures_test;
 mod reactive_lists;
 mod reactive_network;
+mod recovery;
 
 /// Directory holding the JSON fixtures (shared with the Dart harness).
 pub const FIXTURES_DIR: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/tests/sdui_stac_v1/fixtures");

@@ -1,0 +1,50 @@
+{
+  "key": "session",
+  "recover": [
+    {
+      "actionType": "networkRequest",
+      "url": "https://example.com/auth/refresh",
+      "method": "post",
+      "onSuccess": {
+        "actionType": "recoveryOutcome",
+        "result": "success"
+      },
+      "onError": {
+        "actionType": "recoveryOutcome",
+        "result": "failure"
+      }
+    }
+  ],
+  "retry": {
+    "overrides": {
+      "headers": {
+        "Authorization": {
+          "$state": "token"
+        }
+      },
+      "queryParameters": {
+        "v": 2
+      },
+      "body": {
+        "a": "b",
+        "old": null
+      }
+    },
+    "removeHeaders": [
+      "X-Stale"
+    ]
+  },
+  "onFailure": {
+    "actionType": "setState",
+    "values": {
+      "failed": true
+    }
+  },
+  "onUnavailable": {
+    "actionType": "setState",
+    "values": {
+      "down": true
+    }
+  },
+  "timeoutMs": 5000
+}

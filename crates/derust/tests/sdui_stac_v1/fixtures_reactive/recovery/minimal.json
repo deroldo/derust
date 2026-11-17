@@ -1,0 +1,15 @@
+{
+  "recover": {
+    "actionType": "networkRequest",
+    "url": "https://example.com/auth/refresh",
+    "method": "post",
+    "onSuccess": {
+      "actionType": "recoveryOutcome",
+      "result": "success"
+    },
+    "onError": {
+      "actionType": "recoveryOutcome",
+      "result": "failure"
+    }
+  }
+}
