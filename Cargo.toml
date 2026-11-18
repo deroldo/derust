@@ -31,7 +31,7 @@ serde_json = { version = "1.0.140" }
 thiserror = { version = "2.0.12" }
 
 # Outbox
-outbox-pattern-processor = { version = "0.4.0" }
+outbox-pattern-processor = { version = "0.4.1" }
 
 # Auth / JWT
 protect-endpoints-core = { version = "0.2.0" }

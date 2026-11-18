@@ -1352,7 +1352,7 @@ checksum = "7cd812cc2bc1d69d4764bd80df88b4317eaef9e773c75226407d9bc0876b211c"
 
 [[package]]
 name = "derust"
-version = "0.7.2"
+version = "0.7.3"
 dependencies = [
  "argon2",
  "async-trait",
@@ -3121,9 +3121,9 @@ dependencies = [
 
 [[package]]
 name = "outbox-pattern-processor"
-version = "0.4.0"
+version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1b4ef61640f7e6fb173ddac25b7b02bca40c9225eb8a096dcc0a710b9522d201"
+checksum = "e16d178925cf7b3f0f4f4ef9782490554e39a17490bab3542cf724c0714d3201"
 dependencies = [
  "aws-config",
  "aws-sdk-sns",

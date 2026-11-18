@@ -1,9 +1,13 @@
+#[cfg(feature = "aws")]
+mod aws;
 mod http;
 mod runner;
 mod sns;
 mod sqs;
 mod trace;
 
+#[cfg(feature = "aws")]
+pub use aws::*;
 pub use http::*;
 pub use outbox_pattern_processor::outbox_resources::OutboxProcessorResources;
 pub use runner::*;

@@ -64,6 +64,28 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 ```
 
+### Publishing to SNS / SQS
+
+Needs the `aws` feature. A destination without a client is not skipped: every outbox row for it fails and is
+retried, so enable the ones the service uses. Build the clients from the same config derust already loads
+(`local`/`test` target localstack, elsewhere the default AWS credentials chain); no direct dependency on
+`outbox-pattern-processor` is needed.
+
+```rust
+use derust::awsx::load_aws_config;
+use derust::outboxx::{OutboxAwsClients, OutboxProcessorResources, OutboxProcessorResourcesExt};
+
+let aws_config = load_aws_config(env).await;
+let outbox_resources = OutboxProcessorResources::from_aws_config(
+    database.read_write.clone(),
+    &aws_config,
+    OutboxAwsClients::SnsAndSqs, // or Sns, Sqs, None (HTTP only)
+);
+```
+
+`OutboxSnsClient` / `OutboxSqsClient` are the processor's client types (different from `awsx::SnsClient` /
+`awsx::SqsClient`), in case you build `OutboxProcessorResources::new(...)` yourself.
+
 ```rust
 // any async function 
 

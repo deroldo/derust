@@ -2,6 +2,23 @@
 
 All notable changes to `derust` are documented in this file.
 
+## [0.7.3]
+
+### Added
+
+- `outboxx` (needs `aws`): `OutboxSnsClient` / `OutboxSqsClient` (re-exports of `outbox_pattern_processor::aws`,
+  named to not collide with `awsx::{SnsClient, SqsClient}`), `outbox_sns_client` / `outbox_sqs_client` and
+  `OutboxProcessorResourcesExt::from_aws_config(pool, &aws_config, OutboxAwsClients)`, which builds the
+  SNS/SQS clients from the config returned by `awsx::load_aws_config` (localstack in `local`/`test`, default
+  AWS credentials elsewhere). SNS and SQS are enabled independently (`OutboxAwsClients::{None, Sns, Sqs, SnsAndSqs}`).
+  Services no longer need a direct `outbox-pattern-processor` dependency. The processor's own
+  `SnsClient::new` is not used, as it reads `LOCAL_ENDPOINT`/`LOCAL_REGION` and replaces the credentials.
+
+### Changed
+
+- `outbox-pattern-processor` bumped to `0.4.1` (fixes `with_*` resetting the cleaner interval; adds
+  `SnsClient::from_sdk_config` / `SqsClient::from_sdk_config`, now used by the new outbox clients).
+
 ## [0.7.2]
 
 ### Added
