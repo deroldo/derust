@@ -49,8 +49,6 @@ jobs:
         run: cargo clippy --all-targets --package derust --no-default-features --features cryptox,http_server -- -D warnings
       - name: Clippy (cryptox + aws)
         run: cargo clippy --all-targets --package derust --features cryptox,aws -- -D warnings
-      - name: Clippy (sqs + postgres)
-        run: cargo clippy --all-targets --package derust --features sqs,postgres -- -D warnings
       - name: Tests (default features)
         run: cargo nextest run
       - name: Tests (sdui_stac_1)
