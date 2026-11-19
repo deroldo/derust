@@ -1,7 +1,7 @@
 use std::time::Duration;
 
-const DEFAULT_KEY_ATTRIBUTE: &str = "x-idempotent-key";
-const DEFAULT_COMPLETED_TTL: Duration = Duration::from_secs(7 * 24 * 60 * 60);
+pub(super) const DEFAULT_KEY_ATTRIBUTE: &str = "x-idempotent-key";
+pub(super) const DEFAULT_COMPLETED_TTL: Duration = Duration::from_secs(7 * 24 * 60 * 60);
 const DEFAULT_IN_PROGRESS_TTL: Duration = Duration::from_secs(5 * 60);
 const DEFAULT_CLEANUP_INTERVAL: Duration = Duration::from_secs(60 * 60);
 const DEFAULT_CLEANUP_BATCH_SIZE: u32 = 1000;
@@ -44,6 +44,19 @@ pub struct CleanupConfig {
     pub interval: Duration,
     /// Maximum number of records removed per store call. Default: 1000.
     pub batch_size: u32,
+}
+
+impl CleanupConfig {
+    /// Checks that the interval and the batch size are greater than zero.
+    pub(super) fn validate(&self) -> Result<(), IdempotencyConfigError> {
+        if self.interval.is_zero() {
+            return Err(IdempotencyConfigError::InvalidTtl);
+        }
+        if self.batch_size == 0 {
+            return Err(IdempotencyConfigError::InvalidBatchSize);
+        }
+        Ok(())
+    }
 }
 
 impl Default for CleanupConfig {
@@ -119,12 +132,7 @@ impl IdempotencyConfig {
             return Err(IdempotencyConfigError::EmptyKeyAttribute);
         }
         if let Some(cleanup) = &self.cleanup {
-            if cleanup.interval.is_zero() {
-                return Err(IdempotencyConfigError::InvalidTtl);
-            }
-            if cleanup.batch_size == 0 {
-                return Err(IdempotencyConfigError::InvalidBatchSize);
-            }
+            cleanup.validate()?;
         }
         Ok(())
     }

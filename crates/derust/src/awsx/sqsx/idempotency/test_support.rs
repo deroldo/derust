@@ -2,8 +2,9 @@
 //! Without the variable, [`TestTable::create`] returns `None` and tests return early.
 
 use super::PostgresIdempotencyStore;
-use sqlx::postgres::PgPoolOptions;
+use sqlx::postgres::{PgConnectOptions, PgPoolOptions};
 use sqlx::{AssertSqlSafe, Pool, Postgres};
+use std::str::FromStr;
 
 pub(crate) struct TestTable {
     pub pool: Pool<Postgres>,
@@ -21,12 +22,17 @@ impl TestTable {
                 return None;
             }
         };
+        // The unique table name doubles as application_name, so tests can tell their own
+        // connections apart in pg_stat_activity.
+        let name = format!("sqs_idem_{}", uuid::Uuid::new_v4().simple());
+        let options = PgConnectOptions::from_str(&url)
+            .expect("parse DERUST_TEST_DATABASE_URL")
+            .application_name(&name);
         let pool = PgPoolOptions::new()
             .max_connections(30)
-            .connect(&url)
+            .connect_with(options)
             .await
             .expect("connect to DERUST_TEST_DATABASE_URL");
-        let name = format!("sqs_idem_{}", uuid::Uuid::new_v4().simple());
         let sql = PostgresIdempotencyStore::migration_sql(&name).unwrap();
         // The official SQL has two statements: run them one by one.
         for statement in sql.split(';').map(str::trim).filter(|s| !s.is_empty()) {

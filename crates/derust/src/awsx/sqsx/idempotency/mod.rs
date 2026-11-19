@@ -12,7 +12,9 @@ mod store;
 #[cfg(feature = "postgres")]
 mod table;
 #[cfg(all(test, feature = "postgres"))]
-mod test_support;
+pub(crate) mod test_support;
+#[cfg(feature = "postgres")]
+mod transactional;
 
 pub use config::{CleanupConfig, IdempotencyConfig, IdempotencyConfigError};
 #[allow(unused_imports)]
@@ -21,3 +23,7 @@ pub use memory::InMemoryIdempotencyStore;
 #[cfg(feature = "postgres")]
 pub use postgres::{PostgresIdempotencyStore, DEFAULT_TABLE_NAME};
 pub use store::{Acquire, BoxFuture, IdempotencyStore, StoreError};
+#[cfg(feature = "postgres")]
+pub(crate) use transactional::{reserve, reserve_sql, Reservation, ReserveError};
+#[cfg(feature = "postgres")]
+pub use transactional::{IdempotentTx, IdempotentTxOf, PostgresIdempotencyConfig};

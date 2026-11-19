@@ -10,6 +10,9 @@ pub use idempotency::{
     InMemoryIdempotencyStore, StoreError,
 };
 #[cfg(feature = "postgres")]
-pub use idempotency::{PostgresIdempotencyStore, DEFAULT_TABLE_NAME};
+pub use idempotency::{
+    IdempotentTx, IdempotentTxOf, PostgresIdempotencyConfig, PostgresIdempotencyStore,
+    DEFAULT_TABLE_NAME,
+};
 pub use retry::RetryPolicy;
 pub use runner::run;

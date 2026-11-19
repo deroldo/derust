@@ -76,7 +76,7 @@ impl PostgresDatabase {
         context: &AppContext<S>,
         operation_name: &str,
         tags: &DerustTags,
-    ) -> Result<PostgresTransaction<S>, DerustError>
+    ) -> Result<PostgresTransaction<'static, S>, DerustError>
     where
         S: Clone,
     {
@@ -107,7 +107,7 @@ impl PostgresDatabase {
         &self,
         context: &AppContext<S>,
         tags: &DerustTags,
-    ) -> Result<PostgresTransaction, DerustError>
+    ) -> Result<PostgresTransaction<'static>, DerustError>
     where
         S: Clone,
     {

@@ -6,7 +6,11 @@ use tracing::{error, info, warn};
 use wg::WaitGroup;
 
 use super::consumer::{IdempotencyRuntime, Message, SqsQueueConsumer};
+#[cfg(feature = "postgres")]
+use super::idempotency::{reserve, Reservation, ReserveError};
 use super::idempotency::{resolve_key, Acquire, IdempotencyConfig, IdempotencyStore, KeySource};
+#[cfg(feature = "postgres")]
+use super::idempotency::{IdempotentTx, PostgresIdempotencyConfig};
 use super::retry::{to_visibility_timeout_secs, RetryPolicy};
 use super::trace::{self, TRACE_ID_ATTRIBUTE};
 use crate::awsx::{load_aws_config, sqs_client, SqsClient};
@@ -149,6 +153,55 @@ struct Delivery<'a> {
     trace_id: &'a str,
 }
 
+/// Converts a failed handler task (panic or cancellation) into a handler error.
+fn handler_join_error(join_error: tokio::task::JoinError) -> DerustError {
+    let what = if join_error.is_panic() {
+        "panicked"
+    } else {
+        "was cancelled"
+    };
+    DerustError::without_body(
+        axum::http::StatusCode::INTERNAL_SERVER_ERROR,
+        format!("SQS handler {what}"),
+        DerustTags::default(),
+    )
+}
+
+/// Resolves the idempotency key, logging the `message_id` fallback and the missing-key
+/// failure. `None` means fail closed.
+fn resolve_key_logged(
+    msg: &Message,
+    key_attribute: &str,
+    d: &Delivery<'_>,
+) -> Option<(String, &'static str, KeySource)> {
+    let Some(resolved) = resolve_key(msg, key_attribute) else {
+        error!(
+            "SQS idempotency key missing, message not processed :: queue={} :: message_id={} :: trace_id={} :: idempotency_key=none :: key_source=none :: outcome=store_error",
+            d.queue_url, d.message_id, d.trace_id
+        );
+        return None;
+    };
+    let source = key_source_str(Some(resolved.source));
+    if resolved.source == KeySource::MessageIdFallback {
+        info!(
+            "idempotency key fallback to message_id :: queue={} :: message_id={} :: trace_id={} :: idempotency_key={} :: key_source={}",
+            d.queue_url, d.message_id, d.trace_id, resolved.key, source
+        );
+    }
+    Some((resolved.key, source, resolved.source))
+}
+
+fn body_log_field<T>(context: &AppContext<T>, d: &Delivery<'_>) -> String
+where
+    T: Clone + Send + Sync + 'static,
+{
+    if context.env().is_local() || log_enabled!(Level::Debug) {
+        format!(" :: body={}", d.body)
+    } else {
+        String::new()
+    }
+}
+
 /// Runs the handler in its own task so that a panic is reported as a failure.
 async fn run_handler_guarded<T>(
     consumer: &SqsQueueConsumer<T>,
@@ -163,18 +216,7 @@ where
     let ctx = context.clone();
     match tokio::spawn(async move { handler(ctx, msg, tags).await }).await {
         Ok(result) => result,
-        Err(join_error) => {
-            let what = if join_error.is_panic() {
-                "panicked"
-            } else {
-                "was cancelled"
-            };
-            Err(DerustError::without_body(
-                axum::http::StatusCode::INTERNAL_SERVER_ERROR,
-                format!("SQS handler {what}"),
-                DerustTags::default(),
-            ))
-        }
+        Err(join_error) => Err(handler_join_error(join_error)),
     }
 }
 
@@ -202,27 +244,12 @@ async fn process_idempotent<T>(
 where
     T: Clone + Send + Sync + 'static,
 {
-    let body_field = if context.env().is_local() || log_enabled!(Level::Debug) {
-        format!(" :: body={}", d.body)
-    } else {
-        String::new()
-    };
+    let body_field = body_log_field(context, d);
 
-    let Some(resolved) = resolve_key(&msg, &config.key_attribute) else {
-        error!(
-            "SQS idempotency key missing, message not processed :: queue={} :: message_id={} :: trace_id={} :: idempotency_key=none :: key_source=none :: outcome=store_error",
-            d.queue_url, d.message_id, d.trace_id
-        );
+    let Some((key, source, _)) = resolve_key_logged(&msg, &config.key_attribute, d) else {
         return IdempotencyOutcome::StoreError;
     };
-    let key = resolved.key.as_str();
-    let source = key_source_str(Some(resolved.source));
-    if resolved.source == KeySource::MessageIdFallback {
-        info!(
-            "idempotency key fallback to message_id :: queue={} :: message_id={} :: trace_id={} :: idempotency_key={} :: key_source={}",
-            d.queue_url, d.message_id, d.trace_id, key, source
-        );
-    }
+    let key = key.as_str();
 
     match store
         .try_acquire(d.queue_url, key, config.in_progress_ttl)
@@ -296,6 +323,162 @@ where
     }
 }
 
+/// Transactional flow (M7): the key is reserved inside the handler's transaction, which the
+/// consumer commits. Every path other than the commit ends in a rollback, and the SQS calls
+/// (delete / change visibility) only happen after the transaction is closed.
+#[cfg(feature = "postgres")]
+#[allow(clippy::too_many_arguments)]
+async fn process_transactional<T>(
+    context: &AppContext<T>,
+    sqs: &SqsClient,
+    consumer: &SqsQueueConsumer<T>,
+    config: &PostgresIdempotencyConfig,
+    reserve_sql: &str,
+    msg: Message,
+    tags: DerustTags,
+    d: &Delivery<'_>,
+) -> IdempotencyOutcome
+where
+    T: Clone + Send + Sync + 'static,
+{
+    let Some(tx_handler) = consumer.tx_handler.clone() else {
+        error!(
+            "SQS transactional consumer without handler :: queue={} :: message_id={} :: trace_id={} :: outcome=store_error",
+            d.queue_url, d.message_id, d.trace_id
+        );
+        return IdempotencyOutcome::StoreError;
+    };
+    let body_field = body_log_field(context, d);
+
+    let Some((key, source, _)) = resolve_key_logged(&msg, &config.key_attribute, d) else {
+        return IdempotencyOutcome::StoreError;
+    };
+    let key = key.as_str();
+
+    #[cfg(any(feature = "statsd", feature = "prometheus"))]
+    let begun = context
+        .database()
+        .begin_transaction(context, "sqs_idempotent_consumer", &tags)
+        .await;
+    #[cfg(not(any(feature = "statsd", feature = "prometheus")))]
+    let begun = context.database().begin_transaction(context, &tags).await;
+
+    let mut tx: IdempotentTx<T> = match begun {
+        Ok(tx) => tx,
+        Err(e) => {
+            error!(
+                "SQS idempotency transaction failed to begin, message not processed :: queue={} :: message_id={} :: trace_id={} :: idempotency_key={} :: key_source={} :: outcome=store_error :: error={:?}",
+                d.queue_url, d.message_id, d.trace_id, key, source, e
+            );
+            return IdempotencyOutcome::StoreError;
+        }
+    };
+
+    let reservation = reserve(
+        &mut tx.transaction,
+        reserve_sql,
+        d.queue_url,
+        key,
+        config.completed_ttl,
+        config.lock_timeout_millis(),
+    )
+    .await;
+
+    match reservation {
+        Ok(Reservation::Fresh) => {}
+        Ok(Reservation::Duplicate) => {
+            rollback_logged::<T>(tx, d, key).await;
+            info!(
+                "SQS duplicate discarded :: queue={} :: message_id={} :: trace_id={} :: idempotency_key={} :: key_source={} :: outcome=duplicate_discarded",
+                d.queue_url, d.message_id, d.trace_id, key, source
+            );
+            delete_message_best_effort(sqs, d.queue_url, d.receipt_handle).await;
+            return IdempotencyOutcome::DuplicateDiscarded;
+        }
+        Err(ReserveError::LockNotAvailable) => {
+            rollback_logged::<T>(tx, d, key).await;
+            warn!(
+                "SQS duplicate deferred :: queue={} :: message_id={} :: trace_id={} :: idempotency_key={} :: key_source={} :: outcome=duplicate_deferred",
+                d.queue_url, d.message_id, d.trace_id, key, source
+            );
+            return IdempotencyOutcome::DuplicateDeferred;
+        }
+        Err(ReserveError::Store(e)) => {
+            rollback_logged::<T>(tx, d, key).await;
+            error!(
+                "SQS idempotency store failed, message not processed :: queue={} :: message_id={} :: trace_id={} :: idempotency_key={} :: key_source={} :: outcome=store_error :: error={}",
+                d.queue_url, d.message_id, d.trace_id, key, source, e
+            );
+            return IdempotencyOutcome::StoreError;
+        }
+    }
+
+    // The handler owns the transaction inside its own task: on `Err` or panic the transaction
+    // is dropped there (rollback) and the connection goes back to the pool.
+    let ctx = context.clone();
+    let handler_tags = tags.clone();
+    let handled = tokio::spawn(async move { tx_handler(ctx, msg, handler_tags, tx).await }).await;
+    let result = match handled {
+        Ok(result) => result,
+        Err(join_error) => Err(handler_join_error(join_error)),
+    };
+
+    match result {
+        Ok(tx) => {
+            if let Err(e) = tx.commit_transaction(&tags).await {
+                // Fail-closed: the effects and the key were not committed, so the message must
+                // be redelivered.
+                error!(
+                    "SQS idempotency commit failed, message not deleted :: queue={} :: message_id={} :: trace_id={} :: idempotency_key={} :: key_source={} :: outcome=store_error :: error={:?}",
+                    d.queue_url, d.message_id, d.trace_id, key, source, e
+                );
+                return IdempotencyOutcome::StoreError;
+            }
+            info!(
+                "SQS message consumed :: queue={} :: message_id={} :: trace_id={} :: idempotency_key={} :: key_source={} :: outcome=processed{}",
+                d.queue_url, d.message_id, d.trace_id, key, source, body_field
+            );
+            delete_message_best_effort(sqs, d.queue_url, d.receipt_handle).await;
+            IdempotencyOutcome::Processed
+        }
+        Err(err) => {
+            error!(
+                "SQS message failed :: queue={} :: message_id={} :: trace_id={} :: idempotency_key={} :: key_source={} :: outcome=handler_failed{} :: error={:?}",
+                d.queue_url, d.message_id, d.trace_id, key, source, body_field, err
+            );
+            if let Some(delay_secs) =
+                retry_delay_secs(consumer.retry_policy.as_ref(), d.receive_count)
+            {
+                apply_retry_backoff(
+                    sqs,
+                    d.queue_url,
+                    d.receipt_handle,
+                    d.message_id,
+                    d.receive_count,
+                    delay_secs,
+                    d.trace_id,
+                )
+                .await;
+            }
+            IdempotencyOutcome::HandlerFailed
+        }
+    }
+}
+
+/// Explicit rollback so the connection is clean before the pool gets it back.
+#[cfg(feature = "postgres")]
+async fn rollback_logged<T>(tx: IdempotentTx<T>, d: &Delivery<'_>, key: &str)
+where
+    T: Clone + Send + Sync + 'static,
+{
+    if let Err(e) = tx.transaction.rollback().await {
+        warn!(
+            "SQS idempotency rollback failed :: queue={} :: message_id={} :: trace_id={} :: idempotency_key={} :: error={}",
+            d.queue_url, d.message_id, d.trace_id, key, e
+        );
+    }
+}
+
 async fn process_message<T>(
     context: &AppContext<T>,
     sqs: &SqsClient,
@@ -318,7 +501,7 @@ async fn process_message<T>(
     #[cfg(any(feature = "statsd", feature = "prometheus"))]
     let stopwatch = start_stopwatch(context, "sqs_consumer_seconds", metric_tags);
 
-    if let Some(IdempotencyRuntime::NonTransactional { store, config }) = &consumer.idempotency {
+    if let Some(runtime) = &consumer.idempotency {
         let delivery = Delivery {
             queue_url: &consumer.queue_url,
             message_id: &message_id,
@@ -327,8 +510,29 @@ async fn process_message<T>(
             receive_count,
             trace_id: &trace_id,
         };
-        let outcome =
-            process_idempotent(context, sqs, consumer, store, config, msg, tags, &delivery).await;
+        let outcome = match runtime {
+            IdempotencyRuntime::NonTransactional { store, config } => {
+                process_idempotent(context, sqs, consumer, store, config, msg, tags, &delivery)
+                    .await
+            }
+            #[cfg(feature = "postgres")]
+            IdempotencyRuntime::Transactional {
+                config,
+                reserve_sql,
+            } => {
+                process_transactional(
+                    context,
+                    sqs,
+                    consumer,
+                    config,
+                    reserve_sql,
+                    msg,
+                    tags,
+                    &delivery,
+                )
+                .await
+            }
+        };
 
         #[cfg(any(feature = "statsd", feature = "prometheus"))]
         {
@@ -1012,6 +1216,470 @@ mod tests {
             let (c, _n) = counting(Q, 0);
             let bad = IdempotencyConfig::default().with_key_attribute(" ");
             assert!(c.with_idempotency(store, bad).is_err());
+        }
+    }
+
+    // Transactional mode needs a real Postgres (DERUST_TEST_DATABASE_URL; self-skipping without
+    // it) and an AppContext with a database. The context constructor changes with the features:
+    // growthbook needs a client, and statsd + prometheus together cannot both install the global
+    // metrics recorder, so those combinations are not covered. With `prometheus` the global
+    // recorder can be installed once per process: run under nextest (one process per test).
+    #[cfg(all(
+        feature = "postgres",
+        not(feature = "growthbook"),
+        not(all(feature = "statsd", feature = "prometheus"))
+    ))]
+    mod process_tx {
+        use super::*;
+        use crate::awsx::sqsx::idempotency::test_support::TestTable;
+        use crate::awsx::sqsx::PostgresIdempotencyConfig;
+        use crate::commonx::{DerustError, DerustTags};
+        use crate::databasex::PostgresDatabase;
+        use crate::envx::Environment;
+        use axum::http::StatusCode;
+        use sqlx::{AssertSqlSafe, Pool, Postgres};
+        use std::sync::atomic::{AtomicUsize, Ordering};
+
+        const Q: &str = "http://q/queue";
+
+        #[cfg(not(any(feature = "statsd", feature = "prometheus")))]
+        fn ctx_db(pool: Pool<Postgres>) -> AppContext<()> {
+            let database = PostgresDatabase {
+                read_write: pool,
+                read_only: None,
+            };
+            AppContext::new("test", Environment::Test, database, ()).unwrap()
+        }
+
+        #[cfg(feature = "statsd")]
+        fn ctx_db(pool: Pool<Postgres>) -> AppContext<()> {
+            let database = PostgresDatabase {
+                read_write: pool,
+                read_only: None,
+            };
+            let statsd = crate::metricx::StatsdConfig {
+                agent_host: "127.0.0.1".to_string(),
+                agent_port: None,
+                queue_size: None,
+                buffer_size: None,
+                default_tags: MetricTags::default(),
+                denied_metric_tags: vec![],
+                denied_metric_tags_by_regex: vec![],
+            };
+            AppContext::new("test", Environment::Test, database, statsd, ()).unwrap()
+        }
+
+        #[cfg(all(feature = "prometheus", not(feature = "statsd")))]
+        fn ctx_db(pool: Pool<Postgres>) -> AppContext<()> {
+            let database = PostgresDatabase {
+                read_write: pool,
+                read_only: None,
+            };
+            let prometheus = crate::metricx::PrometheusConfig {
+                denied_metric_tags: vec![],
+                denied_metric_tags_by_regex: vec![],
+            };
+            AppContext::new("test", Environment::Test, database, prometheus, ()).unwrap()
+        }
+
+        /// Idempotency table + an "effects" table, plus an AppContext on the same pool.
+        struct Fx {
+            t: TestTable,
+            fx: String,
+            ctx: AppContext<()>,
+        }
+
+        impl Fx {
+            async fn new() -> Option<Self> {
+                let t = TestTable::create().await?;
+                let fx = format!("{}_fx", t.name);
+                sqlx::query(AssertSqlSafe(format!(
+                    "create table {fx} (id text not null)"
+                )))
+                .execute(&t.pool)
+                .await
+                .unwrap();
+                let ctx = ctx_db(t.pool.clone());
+                Some(Self { t, fx, ctx })
+            }
+
+            fn cfg(&self) -> PostgresIdempotencyConfig {
+                PostgresIdempotencyConfig::default().with_table(self.t.name.clone())
+            }
+
+            async fn effects(&self) -> i64 {
+                sqlx::query_scalar(AssertSqlSafe(format!("select count(*) from {}", self.fx)))
+                    .fetch_one(&self.t.pool)
+                    .await
+                    .unwrap()
+            }
+
+            async fn keys(&self) -> Vec<String> {
+                sqlx::query_scalar(AssertSqlSafe(format!(
+                    "select idempotency_key from {} order by 1",
+                    self.t.name
+                )))
+                .fetch_all(&self.t.pool)
+                .await
+                .unwrap()
+            }
+
+            /// No connection may stay checked out (stuck in an open transaction).
+            async fn assert_pool_healthy(&self) {
+                let pool = &self.t.pool;
+                for _ in 0..60 {
+                    if pool.size() as usize == pool.num_idle() {
+                        break;
+                    }
+                    tokio::time::sleep(Duration::from_millis(50)).await;
+                }
+                assert_eq!(pool.size() as usize, pool.num_idle(), "connection leaked");
+                let one: i32 = sqlx::query_scalar("select 1")
+                    .fetch_one(pool)
+                    .await
+                    .unwrap();
+                assert_eq!(one, 1);
+                let open: i64 = sqlx::query_scalar(
+                    "select count(*) from pg_stat_activity \
+                     where application_name = $1 and pid <> pg_backend_pid() \
+                     and state like 'idle in transaction%'",
+                )
+                .bind(&self.t.name)
+                .fetch_one(pool)
+                .await
+                .unwrap();
+                assert_eq!(open, 0, "transaction left open");
+            }
+
+            async fn finish(self) {
+                sqlx::query(AssertSqlSafe(format!("drop table if exists {}", self.fx)))
+                    .execute(&self.t.pool)
+                    .await
+                    .unwrap();
+                self.t.drop_table().await;
+            }
+        }
+
+        #[derive(Clone, Copy)]
+        enum Plan {
+            Commit,
+            Fail,
+            Panic,
+            KillConnection,
+        }
+
+        fn boom() -> DerustError {
+            DerustError::without_body(
+                StatusCode::INTERNAL_SERVER_ERROR,
+                "boom".to_string(),
+                DerustTags::default(),
+            )
+        }
+
+        /// Handler: counts the call, sleeps, inserts one effect row through the received
+        /// transaction and then follows `plan[call_index]` (default: commit).
+        fn tx_consumer(
+            queue: &str,
+            cfg: PostgresIdempotencyConfig,
+            fx: &str,
+            plan: Vec<Plan>,
+            sleep_ms: u64,
+        ) -> (SqsQueueConsumer<()>, Arc<AtomicUsize>) {
+            let n = Arc::new(AtomicUsize::new(0));
+            let counter = n.clone();
+            let plan = Arc::new(plan);
+            let fx = fx.to_string();
+            let consumer = SqsQueueConsumer::<()>::new_transactional(
+                queue,
+                cfg,
+                move |_ctx, msg, _tags, mut tx| {
+                    let counter = counter.clone();
+                    let plan = plan.clone();
+                    let fx = fx.clone();
+                    async move {
+                        let i = counter.fetch_add(1, Ordering::SeqCst);
+                        if sleep_ms > 0 {
+                            tokio::time::sleep(Duration::from_millis(sleep_ms)).await;
+                        }
+                        sqlx::query(AssertSqlSafe(format!("insert into {fx} (id) values ($1)")))
+                            .bind(msg.message_id().unwrap_or("?").to_string())
+                            .execute(&mut *tx.transaction)
+                            .await
+                            .map_err(|_| boom())?;
+                        match plan.get(i).copied().unwrap_or(Plan::Commit) {
+                            Plan::Commit => Ok(tx),
+                            Plan::Fail => Err(boom()),
+                            Plan::Panic => panic!("boom"),
+                            Plan::KillConnection => {
+                                let _ =
+                                    sqlx::query("select pg_terminate_backend(pg_backend_pid())")
+                                        .execute(&mut *tx.transaction)
+                                        .await;
+                                Ok(tx)
+                            }
+                        }
+                    }
+                },
+            )
+            .unwrap();
+            (consumer, n)
+        }
+
+        fn tx_msg(id: &str, key: Option<&str>) -> SdkMessage {
+            let mut b = Message::builder()
+                .message_id(id)
+                .body("b")
+                .receipt_handle(format!("rh-{id}"));
+            if let Some(k) = key {
+                b = b.message_attribute("x-idempotent-key", k);
+            }
+            b.build().into_sdk()
+        }
+
+        #[tokio::test]
+        async fn new_key_success_commits_effect_and_key_then_deletes() {
+            let Some(fx) = Fx::new().await else { return };
+            let (sqs, calls) = fake_sqs(false);
+            let (c, n) = tx_consumer(Q, fx.cfg(), &fx.fx, vec![], 0);
+            process_message(&fx.ctx, &sqs, &c, tx_msg("1", Some("k"))).await;
+            assert_eq!(n.load(Ordering::SeqCst), 1);
+            assert_eq!(actions(&calls), vec!["DeleteMessage"]);
+            assert_eq!(fx.effects().await, 1);
+            assert_eq!(fx.keys().await, vec!["k"]);
+            let status: String =
+                sqlx::query_scalar(AssertSqlSafe(format!("select status from {}", fx.t.name)))
+                    .fetch_one(&fx.t.pool)
+                    .await
+                    .unwrap();
+            assert_eq!(status, "completed");
+            fx.assert_pool_healthy().await;
+            fx.finish().await;
+        }
+
+        #[tokio::test]
+        async fn handler_error_rolls_back_effect_and_key_and_retries() {
+            let Some(fx) = Fx::new().await else { return };
+            let (sqs, calls) = fake_sqs(false);
+            let (c, n) = tx_consumer(Q, fx.cfg(), &fx.fx, vec![Plan::Fail], 0);
+            let c = c.with_retry_policy(RetryPolicy::default());
+            process_message(&fx.ctx, &sqs, &c, tx_msg("1", Some("k"))).await;
+            assert_eq!(actions(&calls), vec!["ChangeMessageVisibility"]);
+            assert_eq!(fx.effects().await, 0, "effect must be rolled back");
+            assert!(fx.keys().await.is_empty(), "key must be rolled back");
+            fx.assert_pool_healthy().await;
+            // next delivery runs the handler again and commits
+            process_message(&fx.ctx, &sqs, &c, tx_msg("1", Some("k"))).await;
+            assert_eq!(n.load(Ordering::SeqCst), 2);
+            assert_eq!(
+                actions(&calls),
+                vec!["ChangeMessageVisibility", "DeleteMessage"]
+            );
+            assert_eq!(fx.effects().await, 1);
+            assert_eq!(fx.keys().await, vec!["k"]);
+            fx.finish().await;
+        }
+
+        #[tokio::test]
+        async fn handler_panic_rolls_back_and_does_not_propagate() {
+            let Some(fx) = Fx::new().await else { return };
+            let (sqs, calls) = fake_sqs(false);
+            let (c, n) = tx_consumer(Q, fx.cfg(), &fx.fx, vec![Plan::Panic], 0);
+            process_message(&fx.ctx, &sqs, &c, tx_msg("1", Some("k"))).await;
+            assert_eq!(n.load(Ordering::SeqCst), 1);
+            assert!(actions(&calls).is_empty());
+            assert_eq!(fx.effects().await, 0);
+            assert!(fx.keys().await.is_empty());
+            fx.assert_pool_healthy().await;
+            process_message(&fx.ctx, &sqs, &c, tx_msg("1", Some("k"))).await;
+            assert_eq!(n.load(Ordering::SeqCst), 2);
+            assert_eq!(actions(&calls), vec!["DeleteMessage"]);
+            fx.finish().await;
+        }
+
+        #[tokio::test]
+        async fn completed_duplicate_is_discarded_and_deleted() {
+            let Some(fx) = Fx::new().await else { return };
+            let (sqs, calls) = fake_sqs(false);
+            let (c, n) = tx_consumer(Q, fx.cfg(), &fx.fx, vec![], 0);
+            process_message(&fx.ctx, &sqs, &c, tx_msg("1", Some("k"))).await;
+            process_message(&fx.ctx, &sqs, &c, tx_msg("2", Some("k"))).await;
+            assert_eq!(n.load(Ordering::SeqCst), 1);
+            assert_eq!(actions(&calls), vec!["DeleteMessage", "DeleteMessage"]);
+            assert_eq!(fx.effects().await, 1);
+            fx.assert_pool_healthy().await;
+            fx.finish().await;
+        }
+
+        #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
+        async fn concurrent_duplicate_waits_for_lock_then_is_discarded() {
+            let Some(fx) = Fx::new().await else { return };
+            let (sqs, calls) = fake_sqs(false);
+            let (c, n) = tx_consumer(Q, fx.cfg(), &fx.fx, vec![], 300);
+            let started = std::time::Instant::now();
+            tokio::join!(
+                process_message(&fx.ctx, &sqs, &c, tx_msg("1", Some("k"))),
+                process_message(&fx.ctx, &sqs, &c, tx_msg("2", Some("k"))),
+            );
+            assert!(started.elapsed() >= Duration::from_millis(300));
+            assert_eq!(n.load(Ordering::SeqCst), 1, "handler must run once");
+            assert_eq!(actions(&calls), vec!["DeleteMessage", "DeleteMessage"]);
+            assert_eq!(fx.effects().await, 1);
+            assert_eq!(fx.keys().await, vec!["k"]);
+            fx.assert_pool_healthy().await;
+            fx.finish().await;
+        }
+
+        #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
+        async fn concurrent_duplicate_runs_after_first_rolls_back() {
+            let Some(fx) = Fx::new().await else { return };
+            let (sqs, calls) = fake_sqs(false);
+            let (c, n) = tx_consumer(Q, fx.cfg(), &fx.fx, vec![Plan::Fail], 300);
+            let c = c.with_retry_policy(RetryPolicy::default());
+            tokio::join!(
+                process_message(&fx.ctx, &sqs, &c, tx_msg("1", Some("k"))),
+                process_message(&fx.ctx, &sqs, &c, tx_msg("2", Some("k"))),
+            );
+            assert_eq!(
+                n.load(Ordering::SeqCst),
+                2,
+                "second runs after the rollback"
+            );
+            let mut got = actions(&calls);
+            got.sort();
+            assert_eq!(got, vec!["ChangeMessageVisibility", "DeleteMessage"]);
+            assert_eq!(fx.effects().await, 1);
+            assert_eq!(fx.keys().await, vec!["k"]);
+            fx.assert_pool_healthy().await;
+            fx.finish().await;
+        }
+
+        #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
+        async fn short_lock_timeout_defers_without_delete_or_backoff() {
+            let Some(fx) = Fx::new().await else { return };
+            let (sqs1, calls1) = fake_sqs(false);
+            let (sqs2, calls2) = fake_sqs(false);
+            let cfg = fx.cfg().with_lock_timeout(Duration::from_millis(200));
+            let (c, n) = tx_consumer(Q, cfg, &fx.fx, vec![], 700);
+            let c = c.with_retry_policy(RetryPolicy::default());
+            tokio::join!(
+                process_message(&fx.ctx, &sqs1, &c, tx_msg("1", Some("k"))),
+                async {
+                    tokio::time::sleep(Duration::from_millis(150)).await;
+                    process_message(&fx.ctx, &sqs2, &c, tx_msg("2", Some("k"))).await;
+                },
+            );
+            assert_eq!(n.load(Ordering::SeqCst), 1);
+            assert_eq!(actions(&calls1), vec!["DeleteMessage"]);
+            assert!(
+                actions(&calls2).is_empty(),
+                "deferred delivery: no delete, no backoff"
+            );
+            assert_eq!(fx.effects().await, 1);
+            fx.assert_pool_healthy().await;
+            fx.finish().await;
+        }
+
+        #[tokio::test]
+        async fn expired_key_is_reused() {
+            let Some(fx) = Fx::new().await else { return };
+            let (sqs, calls) = fake_sqs(false);
+            let (c, n) = tx_consumer(Q, fx.cfg(), &fx.fx, vec![], 0);
+            process_message(&fx.ctx, &sqs, &c, tx_msg("1", Some("k"))).await;
+            fx.t.expire(Q, "k").await;
+            process_message(&fx.ctx, &sqs, &c, tx_msg("2", Some("k"))).await;
+            assert_eq!(n.load(Ordering::SeqCst), 2);
+            assert_eq!(actions(&calls), vec!["DeleteMessage", "DeleteMessage"]);
+            assert_eq!(fx.effects().await, 2);
+            let live: i64 = sqlx::query_scalar(AssertSqlSafe(format!(
+                "select count(*) from {} where expires_at > now()",
+                fx.t.name
+            )))
+            .fetch_one(&fx.t.pool)
+            .await
+            .unwrap();
+            assert_eq!(live, 1);
+            fx.finish().await;
+        }
+
+        #[tokio::test]
+        async fn key_comes_from_attribute_or_falls_back_to_message_id() {
+            let Some(fx) = Fx::new().await else { return };
+            let (sqs, _calls) = fake_sqs(false);
+            let (c, n) = tx_consumer(Q, fx.cfg(), &fx.fx, vec![], 0);
+            process_message(&fx.ctx, &sqs, &c, tx_msg("m1", None)).await;
+            process_message(&fx.ctx, &sqs, &c, tx_msg("m2", Some(" "))).await;
+            process_message(&fx.ctx, &sqs, &c, tx_msg("a", Some("same"))).await;
+            process_message(&fx.ctx, &sqs, &c, tx_msg("b", Some("same"))).await;
+            assert_eq!(n.load(Ordering::SeqCst), 3);
+            assert_eq!(fx.keys().await, vec!["m1", "m2", "same"]);
+            fx.finish().await;
+        }
+
+        #[tokio::test]
+        async fn scope_is_per_queue() {
+            let Some(fx) = Fx::new().await else { return };
+            let (sqs, _calls) = fake_sqs(false);
+            let (c1, n1) = tx_consumer("http://q/one", fx.cfg(), &fx.fx, vec![], 0);
+            let (c2, n2) = tx_consumer("http://q/two", fx.cfg(), &fx.fx, vec![], 0);
+            process_message(&fx.ctx, &sqs, &c1, tx_msg("1", Some("k"))).await;
+            process_message(&fx.ctx, &sqs, &c2, tx_msg("1", Some("k"))).await;
+            assert_eq!(n1.load(Ordering::SeqCst), 1);
+            assert_eq!(n2.load(Ordering::SeqCst), 1);
+            fx.finish().await;
+        }
+
+        #[tokio::test]
+        async fn commit_failure_is_fail_closed_and_frees_the_pool() {
+            let Some(fx) = Fx::new().await else { return };
+            let (sqs, calls) = fake_sqs(false);
+            let (c, n) = tx_consumer(Q, fx.cfg(), &fx.fx, vec![Plan::KillConnection], 0);
+            let c = c.with_retry_policy(RetryPolicy::default());
+            process_message(&fx.ctx, &sqs, &c, tx_msg("1", Some("k"))).await;
+            assert_eq!(n.load(Ordering::SeqCst), 1);
+            assert!(actions(&calls).is_empty(), "no delete and no backoff");
+            assert_eq!(fx.effects().await, 0);
+            assert!(fx.keys().await.is_empty());
+            fx.assert_pool_healthy().await;
+            // redelivery processes normally
+            process_message(&fx.ctx, &sqs, &c, tx_msg("1", Some("k"))).await;
+            assert_eq!(actions(&calls), vec!["DeleteMessage"]);
+            fx.finish().await;
+        }
+
+        #[tokio::test]
+        async fn unavailable_database_is_fail_closed() {
+            let Some(fx) = Fx::new().await else { return };
+            let (sqs, calls) = fake_sqs(false);
+            let (c, n) = tx_consumer(Q, fx.cfg(), &fx.fx, vec![], 0);
+            let c = c.with_retry_policy(RetryPolicy::default());
+            // The context shares this pool: closing it makes `begin_transaction` fail.
+            fx.t.pool.close().await;
+            process_message(&fx.ctx, &sqs, &c, tx_msg("1", Some("k"))).await;
+            assert_eq!(n.load(Ordering::SeqCst), 0);
+            assert!(actions(&calls).is_empty());
+            // clean up through a fresh pool
+            let pool = sqlx::PgPool::connect(&std::env::var("DERUST_TEST_DATABASE_URL").unwrap())
+                .await
+                .unwrap();
+            for table in [&fx.fx, &fx.t.name] {
+                sqlx::query(AssertSqlSafe(format!("drop table if exists {table}")))
+                    .execute(&pool)
+                    .await
+                    .unwrap();
+            }
+        }
+
+        #[tokio::test]
+        async fn missing_table_is_a_store_error_and_frees_the_connection() {
+            let Some(fx) = Fx::new().await else { return };
+            let (sqs, calls) = fake_sqs(false);
+            let cfg = PostgresIdempotencyConfig::default().with_table("no_such_table_xyz");
+            let (c, n) = tx_consumer(Q, cfg, &fx.fx, vec![], 0);
+            process_message(&fx.ctx, &sqs, &c, tx_msg("1", Some("k"))).await;
+            assert_eq!(n.load(Ordering::SeqCst), 0);
+            assert!(actions(&calls).is_empty());
+            fx.assert_pool_healthy().await;
+            fx.finish().await;
         }
     }
 }
