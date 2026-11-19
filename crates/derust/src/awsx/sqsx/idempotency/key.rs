@@ -1,5 +1,3 @@
-#![allow(dead_code)] // consumed by the consumer engine in a later task
-
 use super::super::consumer::Message;
 
 /// Where the idempotency key came from.

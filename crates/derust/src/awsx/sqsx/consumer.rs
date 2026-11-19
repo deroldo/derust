@@ -6,6 +6,7 @@ use std::future::Future;
 use std::pin::Pin;
 use std::sync::Arc;
 
+use super::idempotency::{IdempotencyConfig, IdempotencyConfigError, IdempotencyStore};
 use super::retry::RetryPolicy;
 use crate::commonx::{DerustError, DerustTags};
 use crate::httpx::AppContext;
@@ -108,6 +109,28 @@ type HandlerFn<S> = Arc<
         + Sync,
 >;
 
+/// Idempotency mode of a consumer. Prepared for a transactional variant.
+pub(crate) enum IdempotencyRuntime {
+    NonTransactional {
+        store: Arc<dyn IdempotencyStore>,
+        config: IdempotencyConfig,
+    },
+}
+
+impl IdempotencyRuntime {
+    pub(crate) fn key_attribute(&self) -> &str {
+        match self {
+            Self::NonTransactional { config, .. } => &config.key_attribute,
+        }
+    }
+
+    fn is_transactional(&self) -> bool {
+        match self {
+            Self::NonTransactional { .. } => false,
+        }
+    }
+}
+
 pub struct SqsQueueConsumer<S>
 where
     S: Clone + Send + Sync + 'static,
@@ -115,6 +138,7 @@ where
     pub(crate) queue_url: String,
     pub(crate) handler: HandlerFn<S>,
     pub(crate) retry_policy: Option<RetryPolicy>,
+    pub(crate) idempotency: Option<IdempotencyRuntime>,
 }
 
 impl<S> SqsQueueConsumer<S>
@@ -130,7 +154,28 @@ where
             queue_url: queue_url.to_string(),
             handler: Arc::new(move |ctx, msg, tags| Box::pin(handler(ctx, msg, tags))),
             retry_policy: None,
+            idempotency: None,
         }
+    }
+
+    /// Opt-in idempotency (non-transactional, any store backend): for the same key the
+    /// handler succeeds at most once, even with duplicates or concurrent deliveries.
+    /// Fails when the config is invalid or the consumer is already transactional.
+    pub fn with_idempotency(
+        mut self,
+        store: Arc<dyn IdempotencyStore>,
+        config: IdempotencyConfig,
+    ) -> Result<Self, IdempotencyConfigError> {
+        if self
+            .idempotency
+            .as_ref()
+            .is_some_and(IdempotencyRuntime::is_transactional)
+        {
+            return Err(IdempotencyConfigError::AlreadyTransactional);
+        }
+        config.validate()?;
+        self.idempotency = Some(IdempotencyRuntime::NonTransactional { store, config });
+        Ok(self)
     }
 
     /// Opt-in: when the handler fails, the message is made visible again after an
@@ -210,6 +255,26 @@ mod tests {
     fn with_retry_policy_sets_policy() {
         let c = consumer().with_retry_policy(RetryPolicy::default());
         assert_eq!(c.retry_policy, Some(RetryPolicy::default()));
+    }
+
+    #[test]
+    fn new_has_no_idempotency() {
+        assert!(consumer().idempotency.is_none());
+    }
+
+    #[test]
+    fn with_idempotency_validates_config() {
+        use super::super::idempotency::InMemoryIdempotencyStore;
+        let store: Arc<dyn IdempotencyStore> = Arc::new(InMemoryIdempotencyStore::new());
+        let bad = IdempotencyConfig::default().with_completed_ttl(std::time::Duration::ZERO);
+        assert!(matches!(
+            consumer().with_idempotency(store.clone(), bad),
+            Err(IdempotencyConfigError::InvalidTtl)
+        ));
+        let ok = consumer()
+            .with_idempotency(store, IdempotencyConfig::default())
+            .unwrap();
+        assert!(ok.idempotency.is_some());
     }
 
     #[test]

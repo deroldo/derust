@@ -1,13 +1,16 @@
 use aws_sdk_sqs::types::{Message as SdkMessage, MessageSystemAttributeName};
+use std::sync::Arc;
 use std::time::Duration;
 use tracing::log::{log_enabled, Level};
-use tracing::{error, info};
+use tracing::{error, info, warn};
 use wg::WaitGroup;
 
-use super::consumer::{Message, SqsQueueConsumer};
+use super::consumer::{IdempotencyRuntime, Message, SqsQueueConsumer};
+use super::idempotency::{resolve_key, Acquire, IdempotencyConfig, IdempotencyStore, KeySource};
 use super::retry::{to_visibility_timeout_secs, RetryPolicy};
 use super::trace::{self, TRACE_ID_ATTRIBUTE};
 use crate::awsx::{load_aws_config, sqs_client, SqsClient};
+use crate::commonx::{DerustError, DerustTags};
 use crate::httpx::AppContext;
 use crate::shutdown_signal;
 
@@ -51,7 +54,7 @@ where
             .queue_url(&consumer.queue_url)
             .max_number_of_messages(10)
             .message_system_attribute_names(MessageSystemAttributeName::ApproximateReceiveCount)
-            .message_attribute_names(TRACE_ID_ATTRIBUTE)
+            .set_message_attribute_names(Some(message_attribute_names(&consumer)))
             .wait_time_seconds(20)
             .send();
 
@@ -77,6 +80,222 @@ where
     }
 }
 
+/// Message attributes requested from SQS. The idempotency key attribute is only requested
+/// when idempotency is configured (otherwise the request is the same as before).
+fn message_attribute_names<T>(consumer: &SqsQueueConsumer<T>) -> Vec<String>
+where
+    T: Clone + Send + Sync + 'static,
+{
+    let mut names = vec![TRACE_ID_ATTRIBUTE.to_string()];
+    if let Some(rt) = &consumer.idempotency {
+        let key_attribute = rt.key_attribute();
+        if key_attribute != TRACE_ID_ATTRIBUTE {
+            names.push(key_attribute.to_string());
+        }
+    }
+    names
+}
+
+/// Result of processing a message with idempotency enabled (M10).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum IdempotencyOutcome {
+    Processed,
+    DuplicateDiscarded,
+    DuplicateDeferred,
+    StoreError,
+    HandlerFailed,
+}
+
+impl IdempotencyOutcome {
+    #[cfg_attr(
+        not(any(feature = "statsd", feature = "prometheus", test)),
+        allow(dead_code)
+    )]
+    fn is_success(self) -> bool {
+        !matches!(self, Self::StoreError | Self::HandlerFailed)
+    }
+}
+
+/// Extra metric tags added to `sqs_consumer_seconds` only when idempotency is active.
+#[cfg_attr(
+    not(any(feature = "statsd", feature = "prometheus", test)),
+    allow(dead_code)
+)]
+fn idempotency_metric_tags(outcome: IdempotencyOutcome) -> Vec<(String, String)> {
+    let tag = |k: &str, v: &str| vec![(k.to_string(), v.to_string())];
+    match outcome {
+        IdempotencyOutcome::DuplicateDiscarded => tag("duplicate", "true"),
+        IdempotencyOutcome::DuplicateDeferred => tag("duplicate", "in_progress"),
+        IdempotencyOutcome::StoreError => tag("idempotency", "store_error"),
+        IdempotencyOutcome::Processed | IdempotencyOutcome::HandlerFailed => Vec::new(),
+    }
+}
+
+fn key_source_str(source: Option<KeySource>) -> &'static str {
+    match source {
+        Some(KeySource::Attribute) => "attribute",
+        Some(KeySource::MessageIdFallback) => "message_id_fallback",
+        None => "none",
+    }
+}
+
+/// Per-delivery data shared by the idempotent flow.
+struct Delivery<'a> {
+    queue_url: &'a str,
+    message_id: &'a str,
+    body: &'a str,
+    receipt_handle: &'a str,
+    receive_count: u32,
+    trace_id: &'a str,
+}
+
+/// Runs the handler in its own task so that a panic is reported as a failure.
+async fn run_handler_guarded<T>(
+    consumer: &SqsQueueConsumer<T>,
+    context: &AppContext<T>,
+    msg: Message,
+    tags: DerustTags,
+) -> Result<(), DerustError>
+where
+    T: Clone + Send + Sync + 'static,
+{
+    let handler = consumer.handler.clone();
+    let ctx = context.clone();
+    match tokio::spawn(async move { handler(ctx, msg, tags).await }).await {
+        Ok(result) => result,
+        Err(join_error) => {
+            let what = if join_error.is_panic() {
+                "panicked"
+            } else {
+                "was cancelled"
+            };
+            Err(DerustError::without_body(
+                axum::http::StatusCode::INTERNAL_SERVER_ERROR,
+                format!("SQS handler {what}"),
+                DerustTags::default(),
+            ))
+        }
+    }
+}
+
+async fn delete_message_best_effort(sqs: &SqsClient, queue_url: &str, receipt_handle: &str) {
+    let _ = sqs
+        .client
+        .delete_message()
+        .queue_url(queue_url)
+        .receipt_handle(receipt_handle)
+        .send()
+        .await;
+}
+
+#[allow(clippy::too_many_arguments)]
+async fn process_idempotent<T>(
+    context: &AppContext<T>,
+    sqs: &SqsClient,
+    consumer: &SqsQueueConsumer<T>,
+    store: &Arc<dyn IdempotencyStore>,
+    config: &IdempotencyConfig,
+    msg: Message,
+    tags: DerustTags,
+    d: &Delivery<'_>,
+) -> IdempotencyOutcome
+where
+    T: Clone + Send + Sync + 'static,
+{
+    let body_field = if context.env().is_local() || log_enabled!(Level::Debug) {
+        format!(" :: body={}", d.body)
+    } else {
+        String::new()
+    };
+
+    let Some(resolved) = resolve_key(&msg, &config.key_attribute) else {
+        error!(
+            "SQS idempotency key missing, message not processed :: queue={} :: message_id={} :: trace_id={} :: idempotency_key=none :: key_source=none :: outcome=store_error",
+            d.queue_url, d.message_id, d.trace_id
+        );
+        return IdempotencyOutcome::StoreError;
+    };
+    let key = resolved.key.as_str();
+    let source = key_source_str(Some(resolved.source));
+    if resolved.source == KeySource::MessageIdFallback {
+        info!(
+            "idempotency key fallback to message_id :: queue={} :: message_id={} :: trace_id={} :: idempotency_key={} :: key_source={}",
+            d.queue_url, d.message_id, d.trace_id, key, source
+        );
+    }
+
+    match store
+        .try_acquire(d.queue_url, key, config.in_progress_ttl)
+        .await
+    {
+        Err(e) => {
+            error!(
+                "SQS idempotency store failed, message not processed :: queue={} :: message_id={} :: trace_id={} :: idempotency_key={} :: key_source={} :: outcome=store_error :: error={}",
+                d.queue_url, d.message_id, d.trace_id, key, source, e
+            );
+            IdempotencyOutcome::StoreError
+        }
+        Ok(Acquire::AlreadyCompleted) => {
+            info!(
+                "SQS duplicate discarded :: queue={} :: message_id={} :: trace_id={} :: idempotency_key={} :: key_source={} :: outcome=duplicate_discarded",
+                d.queue_url, d.message_id, d.trace_id, key, source
+            );
+            delete_message_best_effort(sqs, d.queue_url, d.receipt_handle).await;
+            IdempotencyOutcome::DuplicateDiscarded
+        }
+        Ok(Acquire::InProgress) => {
+            warn!(
+                "SQS duplicate deferred :: queue={} :: message_id={} :: trace_id={} :: idempotency_key={} :: key_source={} :: outcome=duplicate_deferred",
+                d.queue_url, d.message_id, d.trace_id, key, source
+            );
+            IdempotencyOutcome::DuplicateDeferred
+        }
+        Ok(Acquire::Acquired) => match run_handler_guarded(consumer, context, msg, tags).await {
+            Ok(()) => {
+                if let Err(e) = store.complete(d.queue_url, key, config.completed_ttl).await {
+                    error!(
+                            "Failed to mark idempotency key as completed :: queue={} :: message_id={} :: trace_id={} :: idempotency_key={} :: key_source={} :: error={}",
+                            d.queue_url, d.message_id, d.trace_id, key, source, e
+                        );
+                }
+                info!(
+                        "SQS message consumed :: queue={} :: message_id={} :: trace_id={} :: idempotency_key={} :: key_source={} :: outcome=processed{}",
+                        d.queue_url, d.message_id, d.trace_id, key, source, body_field
+                    );
+                delete_message_best_effort(sqs, d.queue_url, d.receipt_handle).await;
+                IdempotencyOutcome::Processed
+            }
+            Err(err) => {
+                if let Err(e) = store.release(d.queue_url, key).await {
+                    error!(
+                            "Failed to release idempotency key :: queue={} :: message_id={} :: trace_id={} :: idempotency_key={} :: key_source={} :: error={}",
+                            d.queue_url, d.message_id, d.trace_id, key, source, e
+                        );
+                }
+                error!(
+                        "SQS message failed :: queue={} :: message_id={} :: trace_id={} :: idempotency_key={} :: key_source={} :: outcome=handler_failed{} :: error={:?}",
+                        d.queue_url, d.message_id, d.trace_id, key, source, body_field, err
+                    );
+                if let Some(delay_secs) =
+                    retry_delay_secs(consumer.retry_policy.as_ref(), d.receive_count)
+                {
+                    apply_retry_backoff(
+                        sqs,
+                        d.queue_url,
+                        d.receipt_handle,
+                        d.message_id,
+                        d.receive_count,
+                        delay_secs,
+                        d.trace_id,
+                    )
+                    .await;
+                }
+                IdempotencyOutcome::HandlerFailed
+            }
+        },
+    }
+}
+
 async fn process_message<T>(
     context: &AppContext<T>,
     sqs: &SqsClient,
@@ -98,6 +317,36 @@ async fn process_message<T>(
 
     #[cfg(any(feature = "statsd", feature = "prometheus"))]
     let stopwatch = start_stopwatch(context, "sqs_consumer_seconds", metric_tags);
+
+    if let Some(IdempotencyRuntime::NonTransactional { store, config }) = &consumer.idempotency {
+        let delivery = Delivery {
+            queue_url: &consumer.queue_url,
+            message_id: &message_id,
+            body: &body,
+            receipt_handle: &receipt_handle,
+            receive_count,
+            trace_id: &trace_id,
+        };
+        let outcome =
+            process_idempotent(context, sqs, consumer, store, config, msg, tags, &delivery).await;
+
+        #[cfg(any(feature = "statsd", feature = "prometheus"))]
+        {
+            let success = if outcome.is_success() {
+                "true"
+            } else {
+                "false"
+            };
+            let mut extra = MetricTags::default().push("success".to_string(), success.to_string());
+            for (k, v) in idempotency_metric_tags(outcome) {
+                extra = extra.push(k, v);
+            }
+            stopwatch.record(extra);
+        }
+        #[cfg(not(any(feature = "statsd", feature = "prometheus")))]
+        let _ = outcome;
+        return;
+    }
 
     let result = (consumer.handler)(context.clone(), msg, tags).await;
 
@@ -267,6 +516,47 @@ mod tests {
     }
 
     #[test]
+    fn message_attribute_names_only_adds_key_with_idempotency() {
+        use super::super::idempotency::InMemoryIdempotencyStore;
+        let plain = SqsQueueConsumer::<()>::new("q", |_c, _m, _t| async { Ok(()) });
+        assert_eq!(message_attribute_names(&plain), vec![TRACE_ID_ATTRIBUTE]);
+        let store: Arc<dyn IdempotencyStore> = Arc::new(InMemoryIdempotencyStore::new());
+        let idem = plain
+            .with_idempotency(
+                store,
+                IdempotencyConfig::default().with_key_attribute("my-key"),
+            )
+            .unwrap();
+        assert_eq!(
+            message_attribute_names(&idem),
+            vec![TRACE_ID_ATTRIBUTE.to_string(), "my-key".to_string()]
+        );
+    }
+
+    #[test]
+    fn idempotency_metric_tags_per_outcome() {
+        let t = |o| idempotency_metric_tags(o);
+        assert_eq!(
+            t(IdempotencyOutcome::DuplicateDiscarded),
+            vec![("duplicate".to_string(), "true".to_string())]
+        );
+        assert_eq!(
+            t(IdempotencyOutcome::DuplicateDeferred),
+            vec![("duplicate".to_string(), "in_progress".to_string())]
+        );
+        assert_eq!(
+            t(IdempotencyOutcome::StoreError),
+            vec![("idempotency".to_string(), "store_error".to_string())]
+        );
+        assert!(t(IdempotencyOutcome::Processed).is_empty());
+        assert!(t(IdempotencyOutcome::HandlerFailed).is_empty());
+        assert!(IdempotencyOutcome::Processed.is_success());
+        assert!(IdempotencyOutcome::DuplicateDeferred.is_success());
+        assert!(!IdempotencyOutcome::StoreError.is_success());
+        assert!(!IdempotencyOutcome::HandlerFailed.is_success());
+    }
+
+    #[test]
     fn retry_delay_secs_is_none_without_policy() {
         assert_eq!(retry_delay_secs(None, 5), None);
     }
@@ -338,7 +628,9 @@ mod tests {
             b.build().into_sdk()
         }
 
-        fn recording() -> (SqsQueueConsumer<()>, Arc<Mutex<Vec<Option<String>>>>) {
+        type SeenTraces = Arc<Mutex<Vec<Option<String>>>>;
+
+        fn recording() -> (SqsQueueConsumer<()>, SeenTraces) {
             let seen = Arc::new(Mutex::new(Vec::new()));
             let s = seen.clone();
             let consumer = SqsQueueConsumer::<()>::new("http://q/queue", move |_c, _m, t| {
@@ -480,6 +772,246 @@ mod tests {
             process_message(&ctx(), &sqs, &consumer, sdk_msg_traced("1", Some("same"))).await;
             let seen = seen.lock().unwrap();
             assert_eq!(seen[0], seen[1]);
+        }
+
+        // ---- idempotency ----
+        use crate::awsx::sqsx::{BoxFuture, InMemoryIdempotencyStore, StoreError};
+        use std::sync::atomic::{AtomicUsize, Ordering};
+        use std::time::Duration as D;
+
+        const Q: &str = "http://q/queue";
+
+        /// Store that can fail `try_acquire` and/or `complete`, delegating to memory.
+        struct FlakyStore {
+            inner: InMemoryIdempotencyStore,
+            fail_acquire: bool,
+            fail_complete: bool,
+        }
+
+        impl IdempotencyStore for FlakyStore {
+            fn try_acquire<'a>(
+                &'a self,
+                scope: &'a str,
+                key: &'a str,
+                ttl: D,
+            ) -> BoxFuture<'a, Result<Acquire, StoreError>> {
+                if self.fail_acquire {
+                    return Box::pin(async { Err(StoreError::new("down")) });
+                }
+                self.inner.try_acquire(scope, key, ttl)
+            }
+            fn complete<'a>(
+                &'a self,
+                scope: &'a str,
+                key: &'a str,
+                ttl: D,
+            ) -> BoxFuture<'a, Result<(), StoreError>> {
+                if self.fail_complete {
+                    return Box::pin(async { Err(StoreError::new("down")) });
+                }
+                self.inner.complete(scope, key, ttl)
+            }
+            fn release<'a>(
+                &'a self,
+                scope: &'a str,
+                key: &'a str,
+            ) -> BoxFuture<'a, Result<(), StoreError>> {
+                self.inner.release(scope, key)
+            }
+        }
+
+        fn counting(queue: &str, fail_first: usize) -> (SqsQueueConsumer<()>, Arc<AtomicUsize>) {
+            let n = Arc::new(AtomicUsize::new(0));
+            let c = n.clone();
+            let consumer = SqsQueueConsumer::<()>::new(queue, move |_c, _m, _t| {
+                let c = c.clone();
+                async move {
+                    if c.fetch_add(1, Ordering::SeqCst) < fail_first {
+                        Err(DerustError::without_body(
+                            StatusCode::INTERNAL_SERVER_ERROR,
+                            "boom".to_string(),
+                            DerustTags::default(),
+                        ))
+                    } else {
+                        Ok(())
+                    }
+                }
+            });
+            (consumer, n)
+        }
+
+        fn idem_msg(id: &str, key: Option<&str>) -> SdkMessage {
+            let mut b = Message::builder()
+                .message_id(id)
+                .body("b")
+                .receipt_handle(format!("rh-{id}"));
+            if let Some(k) = key {
+                b = b.message_attribute("x-idempotent-key", k);
+            }
+            b.build().into_sdk()
+        }
+
+        fn with_store(
+            consumer: SqsQueueConsumer<()>,
+            store: Arc<dyn IdempotencyStore>,
+        ) -> SqsQueueConsumer<()> {
+            consumer
+                .with_idempotency(store, IdempotencyConfig::default())
+                .unwrap()
+        }
+
+        async fn acquire(store: &InMemoryIdempotencyStore, queue: &str, key: &str) -> Acquire {
+            store
+                .try_acquire(queue, key, D::from_secs(60))
+                .await
+                .unwrap()
+        }
+
+        #[tokio::test]
+        async fn without_idempotency_nothing_new_is_called() {
+            let (sqs, calls) = fake_sqs(false);
+            let (consumer, n) = counting(Q, 0);
+            process_message(&ctx(), &sqs, &consumer, idem_msg("1", Some("k"))).await;
+            assert_eq!(n.load(Ordering::SeqCst), 1);
+            assert_eq!(actions(&calls), vec!["DeleteMessage"]);
+        }
+
+        #[tokio::test]
+        async fn new_key_success_runs_once_deletes_and_completes() {
+            let store = Arc::new(InMemoryIdempotencyStore::new());
+            let (sqs, calls) = fake_sqs(false);
+            let (c, n) = counting(Q, 0);
+            let consumer = with_store(c, store.clone());
+            process_message(&ctx(), &sqs, &consumer, idem_msg("1", Some("k"))).await;
+            assert_eq!(n.load(Ordering::SeqCst), 1);
+            assert_eq!(actions(&calls), vec!["DeleteMessage"]);
+            assert_eq!(acquire(&store, Q, "k").await, Acquire::AlreadyCompleted);
+        }
+
+        #[tokio::test]
+        async fn redelivery_after_success_is_discarded_and_deleted() {
+            let store = Arc::new(InMemoryIdempotencyStore::new());
+            let (sqs, calls) = fake_sqs(false);
+            let (c, n) = counting(Q, 0);
+            let consumer = with_store(c, store);
+            process_message(&ctx(), &sqs, &consumer, idem_msg("1", Some("k"))).await;
+            process_message(&ctx(), &sqs, &consumer, idem_msg("2", Some("k"))).await;
+            assert_eq!(n.load(Ordering::SeqCst), 1);
+            assert_eq!(actions(&calls), vec!["DeleteMessage", "DeleteMessage"]);
+        }
+
+        #[tokio::test]
+        async fn handler_error_releases_key_and_retries_with_backoff() {
+            let store = Arc::new(InMemoryIdempotencyStore::new());
+            let (sqs, calls) = fake_sqs(false);
+            let (c, n) = counting(Q, 1);
+            let consumer = with_store(c, store.clone()).with_retry_policy(RetryPolicy::default());
+            process_message(&ctx(), &sqs, &consumer, idem_msg("1", Some("k"))).await;
+            assert_eq!(actions(&calls), vec!["ChangeMessageVisibility"]);
+            process_message(&ctx(), &sqs, &consumer, idem_msg("1", Some("k"))).await;
+            assert_eq!(n.load(Ordering::SeqCst), 2);
+            assert_eq!(
+                actions(&calls),
+                vec!["ChangeMessageVisibility", "DeleteMessage"]
+            );
+            assert_eq!(acquire(&store, Q, "k").await, Acquire::AlreadyCompleted);
+        }
+
+        #[tokio::test]
+        async fn handler_panic_is_a_failure_and_releases_key() {
+            let store = Arc::new(InMemoryIdempotencyStore::new());
+            let (sqs, calls) = fake_sqs(false);
+            fn boom() -> Result<(), DerustError> {
+                panic!("boom")
+            }
+            let c = SqsQueueConsumer::<()>::new(Q, |_c, _m, _t| async { boom() });
+            let consumer = with_store(c, store.clone());
+            process_message(&ctx(), &sqs, &consumer, idem_msg("1", Some("k"))).await;
+            assert!(actions(&calls).is_empty());
+            assert_eq!(acquire(&store, Q, "k").await, Acquire::Acquired);
+        }
+
+        #[tokio::test]
+        async fn in_progress_key_skips_handler_and_makes_no_sqs_call() {
+            let store = Arc::new(InMemoryIdempotencyStore::new());
+            assert_eq!(acquire(&store, Q, "k").await, Acquire::Acquired);
+            let (sqs, calls) = fake_sqs(false);
+            let (c, n) = counting(Q, 0);
+            let consumer = with_store(c, store).with_retry_policy(RetryPolicy::default());
+            process_message(&ctx(), &sqs, &consumer, idem_msg("1", Some("k"))).await;
+            assert_eq!(n.load(Ordering::SeqCst), 0);
+            assert!(actions(&calls).is_empty());
+        }
+
+        #[tokio::test]
+        async fn store_error_is_fail_closed_without_backoff() {
+            let store = Arc::new(FlakyStore {
+                inner: InMemoryIdempotencyStore::new(),
+                fail_acquire: true,
+                fail_complete: false,
+            });
+            let (sqs, calls) = fake_sqs(false);
+            let (c, n) = counting(Q, 0);
+            let consumer = with_store(c, store).with_retry_policy(RetryPolicy::default());
+            process_message(&ctx(), &sqs, &consumer, idem_msg("1", Some("k"))).await;
+            assert_eq!(n.load(Ordering::SeqCst), 0);
+            assert!(actions(&calls).is_empty());
+        }
+
+        #[tokio::test]
+        async fn complete_failure_still_deletes_message() {
+            let store = Arc::new(FlakyStore {
+                inner: InMemoryIdempotencyStore::new(),
+                fail_acquire: false,
+                fail_complete: true,
+            });
+            let (sqs, calls) = fake_sqs(false);
+            let (c, n) = counting(Q, 0);
+            let consumer = with_store(c, store);
+            process_message(&ctx(), &sqs, &consumer, idem_msg("1", Some("k"))).await;
+            assert_eq!(n.load(Ordering::SeqCst), 1);
+            assert_eq!(actions(&calls), vec!["DeleteMessage"]);
+        }
+
+        #[tokio::test]
+        async fn key_comes_from_attribute_or_falls_back_to_message_id() {
+            let store = Arc::new(InMemoryIdempotencyStore::new());
+            let (sqs, _calls) = fake_sqs(false);
+            let (c, n) = counting(Q, 0);
+            let consumer = with_store(c, store.clone());
+            // missing and empty attribute -> message_id
+            process_message(&ctx(), &sqs, &consumer, idem_msg("m1", None)).await;
+            process_message(&ctx(), &sqs, &consumer, idem_msg("m2", Some(""))).await;
+            assert_eq!(acquire(&store, Q, "m1").await, Acquire::AlreadyCompleted);
+            assert_eq!(acquire(&store, Q, "m2").await, Acquire::AlreadyCompleted);
+            // same attribute, different message ids -> deduplicated
+            process_message(&ctx(), &sqs, &consumer, idem_msg("a", Some("same"))).await;
+            process_message(&ctx(), &sqs, &consumer, idem_msg("b", Some("same"))).await;
+            assert_eq!(n.load(Ordering::SeqCst), 3);
+            assert_eq!(acquire(&store, Q, "same").await, Acquire::AlreadyCompleted);
+            assert_eq!(acquire(&store, Q, "a").await, Acquire::Acquired);
+        }
+
+        #[tokio::test]
+        async fn scope_is_per_queue() {
+            let store = Arc::new(InMemoryIdempotencyStore::new());
+            let (sqs, _calls) = fake_sqs(false);
+            let (c1, n1) = counting("http://q/one", 0);
+            let (c2, n2) = counting("http://q/two", 0);
+            let c1 = with_store(c1, store.clone());
+            let c2 = with_store(c2, store);
+            process_message(&ctx(), &sqs, &c1, idem_msg("1", Some("k"))).await;
+            process_message(&ctx(), &sqs, &c2, idem_msg("1", Some("k"))).await;
+            assert_eq!(n1.load(Ordering::SeqCst), 1);
+            assert_eq!(n2.load(Ordering::SeqCst), 1);
+        }
+
+        #[test]
+        fn invalid_config_is_rejected() {
+            let store: Arc<dyn IdempotencyStore> = Arc::new(InMemoryIdempotencyStore::new());
+            let (c, _n) = counting(Q, 0);
+            let bad = IdempotencyConfig::default().with_key_attribute(" ");
+            assert!(c.with_idempotency(store, bad).is_err());
         }
     }
 }
