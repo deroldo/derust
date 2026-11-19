@@ -44,6 +44,7 @@ The crate is entirely feature-gated. Enabling a feature pulls in the relevant de
 | `postgres` | `databasex` | SQLx Postgres pool + transaction helpers |
 | `outbox` | `outboxx` | Outbox pattern processor (requires `postgres`) |
 | `aws` | `awsx` | SQS, SNS, Secrets Manager clients |
+| `sqs` (+ `postgres`) | `awsx::sqsx` | SQS consumer; opt-in idempotency (`with_idempotency`, in-memory store); with `postgres` also `PostgresIdempotencyStore` and `new_transactional` (tests need `DERUST_TEST_DATABASE_URL`, otherwise they skip) |
 | `env_from_secrets_manager` | `awsx` + `envx` | Load config from AWS Secrets Manager |
 | `statsd` | `metricx` | StatsD metrics with auto HTTP/DB instrumentation |
 | `prometheus` | `metricx` | Prometheus metrics with auto HTTP/DB instrumentation |

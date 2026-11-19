@@ -304,6 +304,73 @@ let consumer = SqsQueueConsumer::new(&queue_url, |ctx, msg, tags| async move {
   visibility timeout of the following ones; size the queue's visibility timeout accordingly.
 - The backoff does **not** apply to errors from `receive_message` itself.
 
+## SQS consumer idempotency
+
+Requires the `sqs` feature (the Postgres store and the transactional mode also need `postgres`).
+Opt-in: without configuration nothing changes (same calls, same `receive_message` request). With it,
+for the same key the handler has effect **at most once with success**, even with duplicates and
+concurrent consumers.
+
+```rust
+use derust::awsx::sqsx::{
+    CleanupConfig, IdempotencyConfig, IdempotentTx, PostgresIdempotencyConfig,
+    PostgresIdempotencyStore, SqsQueueConsumer,
+};
+
+// Non transactional mode (any IdempotencyStore; Postgres below, InMemoryIdempotencyStore for tests)
+let store = Arc::new(PostgresIdempotencyStore::with_default_table(&database)?);
+let simple = SqsQueueConsumer::new(queue_url, |_ctx, msg, _tags| async move { Ok(()) })
+    .with_idempotency(
+        store,
+        IdempotencyConfig::default()
+            .with_completed_ttl(Duration::from_secs(7 * 24 * 3600))
+            .with_in_progress_ttl(Duration::from_secs(300))
+            .with_cleanup(CleanupConfig::default()), // optional, off by default
+    )?;
+
+// Transactional mode (Postgres): key and the handler's effects commit atomically
+let transactional = SqsQueueConsumer::<AppState>::new_transactional(
+    payments_queue_url,
+    PostgresIdempotencyConfig::default().with_lock_timeout(Duration::from_secs(10)),
+    |_ctx, msg, _tags, mut tx: IdempotentTx<AppState>| async move {
+        // use `tx.transaction` (sqlx) for your writes; do NOT commit, return it
+        Ok(tx)
+    },
+)?;
+```
+
+- **Key**: message attribute `x-idempotent-key` (configurable). Without it (or empty), the SQS
+  `message_id` is used; that only deduplicates redeliveries of the same message, **not** a producer
+  republishing, so producers should send the attribute (the outbox already has a slot for it).
+  The scope is `(queue_url, key)`: the same key in two queues is independent.
+- **Outcomes**: processed (handler ok, key concluded, message deleted); duplicate already
+  completed (handler not run, message deleted); duplicate in progress (handler not run, message **not**
+  deleted, SQS redelivers); store failure (**fail-closed**: handler not run, message not deleted, no backoff);
+  handler failure or panic (key released, usual retry/backoff).
+- **TTLs** (defaults): `completed_ttl` 7 days, `in_progress_ttl` 5 minutes. `in_progress_ttl` must exceed the
+  handler's maximum time and be aligned with the queue's visibility timeout; `completed_ttl` must cover the
+  redelivery/republish window (SQS retains messages up to 14 days).
+- **DLQ risk (non transactional)**: a duplicate "in progress" is redelivered and counts toward `maxReceiveCount`;
+  with a long handler it may reach the DLQ. The transactional mode does not have this problem.
+- **Non transactional limitation**: the handler's effects outside the store are not atomic with the key; if
+  `complete` fails after a success the message is still deleted and the key expires by the in-progress TTL.
+- **Transactional mode**: the handler receives the transaction and returns it in `Ok`; the consumer commits
+  (key + effects in the same commit) and then deletes the message. `Err`/panic rolls everything back. A
+  concurrent duplicate waits for the row lock (database must use `READ COMMITTED`, the Postgres default); if it
+  waits longer than `lock_timeout` (default 10s, keep it below the visibility timeout) it is deferred like
+  "in progress". The transaction holds a pool connection while the handler runs: make HTTP calls **before**
+  using it. Both modes use only the `read_write` pool (a replica's lag would break deduplication).
+- **Table**: derust does not create it (same as the outbox). Apply the official SQL
+  (`PostgresIdempotencyStore::migration_sql("sqs_idempotency")`, copy in
+  `examples/sqs_idempotency/database/migrations/1_sqs_idempotency.sql`) in your migrations.
+- **Cleanup** (optional, `with_cleanup`, off by default): a background task deletes expired records in batches
+  (`FOR UPDATE SKIP LOCKED`, safe with several instances). This may overlap with TAP-31, which tracks the
+  table cleanup.
+- **Metrics**: `sqs_consumer_seconds` keeps `queue_url` and `success`; with idempotency it adds
+  `duplicate=true` (discarded), `duplicate=in_progress` (deferred) or `idempotency=store_error`.
+
+Full example: [`examples/sqs_idempotency`](https://github.com/deroldo/derust/tree/main/examples/sqs_idempotency).
+
 ## Features
 
 - [aws](https://github.com/deroldo/derust/tree/main/crates/derust/src/awsx)
@@ -324,7 +391,7 @@ let consumer = SqsQueueConsumer::new(&queue_url, |ctx, msg, tags| async move {
 
 | derust | feature | Stac |
 |---|---|---|
-| `0.7.3` | `sdui_stac_1` | `1.6.0` (tag `v1.6.0`) |
+| `0.7.4` | `sdui_stac_1` | `1.6.0` (tag `v1.6.0`) |
 
 Reactive state vocabulary (`state`, `bind`, expressions, state actions, list templates): requires the
 runtime of the fork [`deroldo/derust-stac`](https://github.com/deroldo/derust-stac), branch

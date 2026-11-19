@@ -2,6 +2,21 @@
 
 All notable changes to `derust` are documented in this file.
 
+## [0.7.4]
+
+### Added
+
+- `awsx::sqsx` (needs `sqs`): opt-in idempotency for `SqsQueueConsumer`. `with_idempotency(store, IdempotencyConfig)`
+  (any `IdempotencyStore`; `InMemoryIdempotencyStore` included), `PostgresIdempotencyStore` with the official
+  migration SQL (`migration_sql`), and `SqsQueueConsumer::new_transactional` (needs `postgres`), which commits the
+  idempotency key and the handler's effects atomically. Key from `x-idempotent-key` (fallback `message_id`),
+  scope `(queue_url, key)`, fail-closed on store errors. Optional background cleanup of expired records
+  (`with_cleanup`, off by default). Without configuration the consumer is unchanged.
+
+### Changed
+
+- `PostgresDatabase::begin_transaction` now returns `PostgresTransaction<'static, ..>` (compatible with existing callers).
+
 ## [0.7.3]
 
 ### Added
