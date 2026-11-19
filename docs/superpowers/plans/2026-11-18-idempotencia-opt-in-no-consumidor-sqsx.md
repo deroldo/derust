@@ -97,11 +97,11 @@ T1 (contrato+config+memória) ──┬─> T2 (motor não transacional, runner)
 
 **Contexto:** só tipos e lógica pura, sob `feature = "sqs"`, sem tocar no runner. Arquivos novos em `crates/derust/src/awsx/sqsx/idempotency/`: `mod.rs` (re-exports + `BoxFuture`), `store.rs` (M2), `config.rs` (M3, `IdempotencyConfigError`, `CleanupConfig`), `key.rs` (M5 `resolve_key`, `KeySource`), `memory.rs` (`InMemoryIdempotencyStore`). Registrar `mod idempotency;` em `sqsx/mod.rs` e re-exportar: `IdempotencyStore, Acquire, StoreError, IdempotencyConfig, CleanupConfig, IdempotencyConfigError, InMemoryIdempotencyStore, BoxFuture`.
 
-- [ ] Step 1: testes de `resolve_key` (atributo presente; vazio; só espaços; ausente → `message_id`; sem nenhum → `None`), de `IdempotencyConfig` (defaults 7d/5min/`x-idempotent-key`/cleanup `None`; setters; validação rejeita TTL 0, atributo vazio, `batch_size` 0).
-- [ ] Step 2: testes do `InMemoryIdempotencyStore` com relógio injetado: acquire novo → `Acquired`; segundo → `InProgress`; após `complete` → `AlreadyCompleted`; após `release` → `Acquired`; in-progress expirado → `Acquired`; concluída expirada → `Acquired`; escopos diferentes não colidem; `cleanup_expired` remove só expirados e devolve a contagem.
-- [ ] Step 3: implementar até passar. Testar `try_acquire` concorrente no store em memória (o `Mutex` deve tornar a decisão atômica: com 50 tasks, exatamente uma `Acquired`).
-- [ ] Step 4: gates: `cargo fmt --all -- --check`; `cargo clippy --all-targets --package derust --no-default-features --features sqs -- -D warnings`; `cargo nextest run --package derust --features sqs`; `cargo clippy -- -D warnings` (default continua verde).
-- [ ] Step 5: commit `feat(sqsx): idempotency store contract, config and in-memory store`.
+- [x] Step 1: testes de `resolve_key` (atributo presente; vazio; só espaços; ausente → `message_id`; sem nenhum → `None`), de `IdempotencyConfig` (defaults 7d/5min/`x-idempotent-key`/cleanup `None`; setters; validação rejeita TTL 0, atributo vazio, `batch_size` 0).
+- [x] Step 2: testes do `InMemoryIdempotencyStore` com relógio injetado: acquire novo → `Acquired`; segundo → `InProgress`; após `complete` → `AlreadyCompleted`; após `release` → `Acquired`; in-progress expirado → `Acquired`; concluída expirada → `Acquired`; escopos diferentes não colidem; `cleanup_expired` remove só expirados e devolve a contagem.
+- [x] Step 3: implementar até passar. Testar `try_acquire` concorrente no store em memória (o `Mutex` deve tornar a decisão atômica: com 50 tasks, exatamente uma `Acquired`).
+- [x] Step 4: gates: `cargo fmt --all -- --check`; `cargo clippy --all-targets --package derust --no-default-features --features sqs -- -D warnings`; `cargo nextest run --package derust --features sqs`; `cargo clippy -- -D warnings` (default continua verde).
+- [x] Step 5: commit `feat(sqsx): idempotency store contract, config and in-memory store`.
 
 **Plano de testes/revisão:** unitários puros e determinísticos (sem `sleep`). Revisão: confirmar que nada novo aparece em `Cargo.toml`; que `cargo tree -p derust --no-default-features --features sqs` não ganhou `sqlx`.
 
