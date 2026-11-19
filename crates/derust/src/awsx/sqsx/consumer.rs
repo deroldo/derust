@@ -8,7 +8,9 @@ use std::sync::Arc;
 
 #[cfg(feature = "postgres")]
 use super::idempotency::{reserve_sql, IdempotentTx, PostgresIdempotencyConfig};
-use super::idempotency::{IdempotencyConfig, IdempotencyConfigError, IdempotencyStore};
+use super::idempotency::{
+    CleanupConfig, CleanupTarget, IdempotencyConfig, IdempotencyConfigError, IdempotencyStore,
+};
 use super::retry::RetryPolicy;
 use crate::commonx::{DerustError, DerustTags};
 use crate::httpx::AppContext;
@@ -145,6 +147,24 @@ impl IdempotencyRuntime {
             Self::NonTransactional { config, .. } => &config.key_attribute,
             #[cfg(feature = "postgres")]
             Self::Transactional { config, .. } => &config.key_attribute,
+        }
+    }
+
+    /// Background cleanup settings, when enabled.
+    pub(crate) fn cleanup_config(&self) -> Option<&CleanupConfig> {
+        match self {
+            Self::NonTransactional { config, .. } => config.cleanup.as_ref(),
+            #[cfg(feature = "postgres")]
+            Self::Transactional { config, .. } => config.cleanup.as_ref(),
+        }
+    }
+
+    /// Where the records to clean up live.
+    pub(crate) fn cleanup_target(&self) -> CleanupTarget {
+        match self {
+            Self::NonTransactional { store, .. } => CleanupTarget::Store(store.clone()),
+            #[cfg(feature = "postgres")]
+            Self::Transactional { config, .. } => CleanupTarget::Table(config.table.clone()),
         }
     }
 

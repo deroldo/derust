@@ -7,6 +7,9 @@ use wg::WaitGroup;
 
 use super::consumer::{IdempotencyRuntime, Message, SqsQueueConsumer};
 #[cfg(feature = "postgres")]
+use super::idempotency::PostgresIdempotencyStore;
+use super::idempotency::{cleanup_plan, run_cleanup_loop, CleanupTarget};
+#[cfg(feature = "postgres")]
 use super::idempotency::{reserve, Reservation, ReserveError};
 use super::idempotency::{resolve_key, Acquire, IdempotencyConfig, IdempotencyStore, KeySource};
 #[cfg(feature = "postgres")]
@@ -29,6 +32,25 @@ where
     let sqs = sqs_client(&aws_config).await;
 
     let mut handles = Vec::new();
+
+    // One cleanup task per consumer with cleanup configured (none otherwise).
+    for plan in cleanup_plan(&consumers) {
+        let Some(store) = cleanup_store(&context, plan.target) else {
+            error!(
+                "Idempotency cleanup skipped for queue {}: could not build the store",
+                plan.queue_url
+            );
+            continue;
+        };
+        info!("Started idempotency cleanup for queue {}", plan.queue_url);
+        handles.push(tokio::spawn(run_cleanup_loop(
+            store,
+            plan.config,
+            plan.queue_url,
+            shutdown_signal(),
+        )));
+    }
+
     for consumer in consumers {
         info!("Started SQS consumer for queue {}", consumer.queue_url);
         let ctx = context.clone();
@@ -43,6 +65,32 @@ where
     wg.done();
 
     info!("SQS consumers stopped");
+}
+
+/// Store used by the cleanup task. Transactional consumers get a `PostgresIdempotencyStore` on
+/// the application database and the table of their config (used only for `cleanup_expired`).
+fn cleanup_store<T>(
+    context: &AppContext<T>,
+    target: CleanupTarget,
+) -> Option<Arc<dyn IdempotencyStore>>
+where
+    T: Clone + Send + Sync + 'static,
+{
+    #[cfg(not(feature = "postgres"))]
+    let _ = context;
+    match target {
+        CleanupTarget::Store(store) => Some(store),
+        #[cfg(feature = "postgres")]
+        CleanupTarget::Table(table) => {
+            match PostgresIdempotencyStore::new(context.database(), &table) {
+                Ok(store) => Some(Arc::new(store)),
+                Err(err) => {
+                    error!("Invalid idempotency table {table}: {err}");
+                    None
+                }
+            }
+        }
+    }
 }
 
 async fn poll_queue<T>(context: AppContext<T>, sqs: SqsClient, consumer: SqsQueueConsumer<T>)

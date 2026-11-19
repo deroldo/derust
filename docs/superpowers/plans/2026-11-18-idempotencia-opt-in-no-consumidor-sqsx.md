@@ -159,10 +159,10 @@ Este é o ponto de maior risco de compilação: as duas formas de `PostgresTrans
 
 **Contexto:** M9. `runner.rs::run()` e `idempotency/cleanup.rs`. A função `run_cleanup_loop(store: Arc<dyn IdempotencyStore>, cfg: CleanupConfig, queue_url: String)` é genérica sobre o contrato (serve ao store em memória e ao Postgres); o ponto de extensão para o modo transacional cria um `PostgresIdempotencyStore` a partir de `context.database()`.
 
-- [ ] Step 1: testes com `InMemoryIdempotencyStore` e `tokio::time::pause()`/`advance`: sem `with_cleanup` nenhuma task é criada (função pura `cleanup_plan(&consumers) -> Vec<...>` vazia); com cleanup roda a cada `interval`, drena em laço enquanto o lote vem cheio, continua após erro do store (store de teste que falha uma vez), para quando o sinal de parada é disparado (injetar um `Future` de shutdown em vez de chamar `shutdown_signal()` diretamente, para testar).
-- [ ] Step 2: teste com Postgres real: 2 loops concorrentes sobre a mesma tabela não geram erro e removem todas as linhas expiradas sem tocar nas válidas (SKIP LOCKED).
-- [ ] Step 3: implementar e ligar em `run()` (spawn + await no fim junto dos consumers).
-- [ ] Step 4: gates como na T4. Commit `feat(sqsx): optional background cleanup of expired idempotency records`.
+- [x] Step 1: testes com `InMemoryIdempotencyStore` e `tokio::time::pause()`/`advance`: sem `with_cleanup` nenhuma task é criada (função pura `cleanup_plan(&consumers) -> Vec<...>` vazia); com cleanup roda a cada `interval`, drena em laço enquanto o lote vem cheio, continua após erro do store (store de teste que falha uma vez), para quando o sinal de parada é disparado (injetar um `Future` de shutdown em vez de chamar `shutdown_signal()` diretamente, para testar).
+- [x] Step 2: teste com Postgres real: 2 loops concorrentes sobre a mesma tabela não geram erro e removem todas as linhas expiradas sem tocar nas válidas (SKIP LOCKED).
+- [x] Step 3: implementar e ligar em `run()` (spawn + await no fim junto dos consumers).
+- [x] Step 4: gates como na T4. Commit `feat(sqsx): optional background cleanup of expired idempotency records`.
 
 **Plano de testes/revisão:** garantir que `run()` sem cleanup não muda (mesmo número de tasks). Verificar que o `wg.done()` só ocorre depois de a task de limpeza terminar.
 

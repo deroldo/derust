@@ -3,6 +3,7 @@
 //! This module holds the store contract, the configuration, the idempotency key
 //! resolution and an in-memory store. It has no dependency on a database.
 
+mod cleanup;
 mod config;
 mod key;
 mod memory;
@@ -16,6 +17,8 @@ pub(crate) mod test_support;
 #[cfg(feature = "postgres")]
 mod transactional;
 
+#[allow(unused_imports)]
+pub(crate) use cleanup::{cleanup_plan, run_cleanup_loop, CleanupPlan, CleanupTarget};
 pub use config::{CleanupConfig, IdempotencyConfig, IdempotencyConfigError};
 #[allow(unused_imports)]
 pub(crate) use key::{resolve_key, KeySource, Resolved};
