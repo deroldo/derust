@@ -10,6 +10,21 @@ env:
 jobs:
   rust:
     runs-on: ubuntu-latest
+    env:
+      DERUST_TEST_DATABASE_URL: postgres://postgres:postgres@localhost:5432/derust_test
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: derust_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
     steps:
       - uses: actions/checkout@v4
       - name: Install toolchain (pinned by rust-toolchain)
@@ -34,6 +49,8 @@ jobs:
         run: cargo clippy --all-targets --package derust --no-default-features --features cryptox,http_server -- -D warnings
       - name: Clippy (cryptox + aws)
         run: cargo clippy --all-targets --package derust --features cryptox,aws -- -D warnings
+      - name: Clippy (sqs + postgres)
+        run: cargo clippy --all-targets --package derust --features sqs,postgres -- -D warnings
       - name: Tests (default features)
         run: cargo nextest run
       - name: Tests (sdui_stac_1)
@@ -44,6 +61,8 @@ jobs:
         run: cargo nextest run --package derust --features cryptox
       - name: Tests (cryptox + aws)
         run: cargo nextest run --package derust --features cryptox,aws
+      - name: Tests (sqs + postgres)
+        run: cargo nextest run --package derust --features sqs,postgres
       - name: Tests (all features)
         run: cargo nextest run --package derust --all-features
 

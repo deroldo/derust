@@ -9,5 +9,7 @@ pub use idempotency::{
     Acquire, BoxFuture, CleanupConfig, IdempotencyConfig, IdempotencyConfigError, IdempotencyStore,
     InMemoryIdempotencyStore, StoreError,
 };
+#[cfg(feature = "postgres")]
+pub use idempotency::{PostgresIdempotencyStore, DEFAULT_TABLE_NAME};
 pub use retry::RetryPolicy;
 pub use runner::run;

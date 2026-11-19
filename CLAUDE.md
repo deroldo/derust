@@ -24,6 +24,8 @@ cargo nextest run --test <integration_test_file>
 
 Extra gates for `cryptox`: clippy `--all-targets` and `nextest run` with `--package derust --no-default-features --features cryptox`, `--features cryptox`, `--no-default-features --features cryptox,http_server` (clippy), `--features cryptox,aws`, and `--all-features`.
 
+Postgres-backed tests (`--features sqs,postgres`, e.g. `PostgresIdempotencyStore`) read `DERUST_TEST_DATABASE_URL` (e.g. `postgres://postgres:pw@127.0.0.1:5432/derust_test`); without it they skip themselves and `task test` stays green. CI provides a `postgres:16` service. Gates for sqs idempotency: clippy `--all-targets` and `nextest run` with `--package derust --features sqs,postgres`.
+
 Rust toolchain: `1.96` (pinned via `rust-toolchain`).
 
 ## Architecture
