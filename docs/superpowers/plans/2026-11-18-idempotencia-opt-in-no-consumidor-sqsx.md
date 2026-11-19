@@ -182,12 +182,12 @@ Este é o ponto de maior risco de compilação: as duas formas de `PostgresTrans
 
 ### Task 7 — Verificação final dos gates  `[simples]`  (depende de T6)
 
-- [ ] `cargo fmt --all -- --check`
-- [ ] `cargo clippy -- -D warnings`, `cargo clippy --workspace -- -D warnings`, `cargo clippy --all-targets -- -D warnings`
-- [ ] clippy `--all-targets --package derust` com: `--no-default-features --features sqs`, `--features sqs,postgres`, `--features sqs,postgres,statsd`, `--features sqs,postgres,prometheus`, `--features cryptox,aws`, `--all-features` (todos `-D warnings`)
-- [ ] `cargo nextest run` (default), `--package derust --features sqs`, `--features sqs,postgres` (com e sem `DERUST_TEST_DATABASE_URL`), `--all-features`
-- [ ] Prova de R1/R5: `cargo tree -p derust --no-default-features --features sqs | grep -c sqlx` = 0; `git diff main -- crates/derust/Cargo.toml` só muda `version`; nenhum teste anterior foi alterado, só acrescentados.
-- [ ] Commit só se algo foi ajustado; `git push -u origin idempotencia_opt_in_no_consumidor_sqsx`.
+- [x] `cargo fmt --all -- --check`
+- [x] `cargo clippy -- -D warnings`, `cargo clippy --workspace -- -D warnings`, `cargo clippy --all-targets -- -D warnings`
+- [x] clippy `--all-targets --package derust` com: `--no-default-features --features sqs`, `--features sqs,postgres`, `--features sqs,postgres,statsd`, `--features sqs,postgres,prometheus`, `--features cryptox,aws`, `--all-features` (todos `-D warnings`)
+- [x] `cargo nextest run` (default), `--package derust --features sqs`, `--features sqs,postgres` (com e sem `DERUST_TEST_DATABASE_URL`), `--all-features`
+- [x] Prova de R1/R5: `cargo tree -p derust --no-default-features --features sqs | grep -c sqlx` = 0; `git diff main -- crates/derust/Cargo.toml` só muda `version`; nenhum teste anterior foi alterado, só acrescentados.
+- [x] Commit só se algo foi ajustado; `git push -u origin idempotencia_opt_in_no_consumidor_sqsx`.
 
 ---
 
